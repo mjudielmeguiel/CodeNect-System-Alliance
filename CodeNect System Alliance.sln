@@ -1,0 +1,46 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.14.36221.1
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "CodeNect System Alliance", "CodeNect System Alliance.vbproj", "{4B5AC141-A3B6-41B2-95DB-22DB39B0232E}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		CNSA|Any CPU = CNSA|Any CPU
+		CNSA|ARM64 = CNSA|ARM64
+		CNSA|x64 = CNSA|x64
+		Debug|Any CPU = Debug|Any CPU
+		Debug|ARM64 = Debug|ARM64
+		Debug|x64 = Debug|x64
+		Release|Any CPU = Release|Any CPU
+		Release|ARM64 = Release|ARM64
+		Release|x64 = Release|x64
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{4B5AC141-A3B6-41B2-95DB-22DB39B0232E}.CNSA|Any CPU.ActiveCfg = CNSA|Any CPU
+		{4B5AC141-A3B6-41B2-95DB-22DB39B0232E}.CNSA|Any CPU.Build.0 = CNSA|Any CPU
+		{4B5AC141-A3B6-41B2-95DB-22DB39B0232E}.CNSA|ARM64.ActiveCfg = CNSA|ARM64
+		{4B5AC141-A3B6-41B2-95DB-22DB39B0232E}.CNSA|ARM64.Build.0 = CNSA|ARM64
+		{4B5AC141-A3B6-41B2-95DB-22DB39B0232E}.CNSA|x64.ActiveCfg = CNSA|x64
+		{4B5AC141-A3B6-41B2-95DB-22DB39B0232E}.CNSA|x64.Build.0 = CNSA|x64
+		{4B5AC141-A3B6-41B2-95DB-22DB39B0232E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4B5AC141-A3B6-41B2-95DB-22DB39B0232E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4B5AC141-A3B6-41B2-95DB-22DB39B0232E}.Debug|ARM64.ActiveCfg = Debug|ARM64
+		{4B5AC141-A3B6-41B2-95DB-22DB39B0232E}.Debug|ARM64.Build.0 = Debug|ARM64
+		{4B5AC141-A3B6-41B2-95DB-22DB39B0232E}.Debug|x64.ActiveCfg = Debug|x64
+		{4B5AC141-A3B6-41B2-95DB-22DB39B0232E}.Debug|x64.Build.0 = Debug|x64
+		{4B5AC141-A3B6-41B2-95DB-22DB39B0232E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4B5AC141-A3B6-41B2-95DB-22DB39B0232E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4B5AC141-A3B6-41B2-95DB-22DB39B0232E}.Release|ARM64.ActiveCfg = Release|ARM64
+		{4B5AC141-A3B6-41B2-95DB-22DB39B0232E}.Release|ARM64.Build.0 = Release|ARM64
+		{4B5AC141-A3B6-41B2-95DB-22DB39B0232E}.Release|x64.ActiveCfg = Release|x64
+		{4B5AC141-A3B6-41B2-95DB-22DB39B0232E}.Release|x64.Build.0 = Release|x64
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {565480CE-076B-4CE8-95DF-4CBA70C25F4C}
+	EndGlobalSection
+EndGlobal
