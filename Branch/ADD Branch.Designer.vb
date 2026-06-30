@@ -42,6 +42,7 @@ Partial Class ADD_Branch
         Me.btnCancel = New System.Windows.Forms.Button()
         Me.Panel3 = New System.Windows.Forms.Panel()
         Me.ListView1 = New System.Windows.Forms.ListView()
+        Me.Button1 = New System.Windows.Forms.Button()
         Me.Panel1.SuspendLayout()
         CType(Me.picBusinessLogo, System.ComponentModel.ISupportInitialize).BeginInit()
         Me.Panel2.SuspendLayout()
@@ -52,6 +53,7 @@ Partial Class ADD_Branch
         '
         'Panel1
         '
+        Me.Panel1.Controls.Add(Me.Button1)
         Me.Panel1.Controls.Add(Me.txtAddress)
         Me.Panel1.Controls.Add(Me.picBusinessLogo)
         Me.Panel1.Controls.Add(Me.dtpTIN_Registered)
@@ -65,7 +67,7 @@ Partial Class ADD_Branch
         Me.Panel1.Dock = System.Windows.Forms.DockStyle.Top
         Me.Panel1.Location = New System.Drawing.Point(482, 54)
         Me.Panel1.Name = "Panel1"
-        Me.Panel1.Size = New System.Drawing.Size(593, 620)
+        Me.Panel1.Size = New System.Drawing.Size(593, 548)
         Me.Panel1.TabIndex = 41
         '
         'txtAddress
@@ -257,6 +259,15 @@ Partial Class ADD_Branch
         Me.ListView1.TabIndex = 1
         Me.ListView1.UseCompatibleStateImageBehavior = False
         '
+        'Button1
+        '
+        Me.Button1.Location = New System.Drawing.Point(293, 468)
+        Me.Button1.Name = "Button1"
+        Me.Button1.Size = New System.Drawing.Size(81, 51)
+        Me.Button1.TabIndex = 26
+        Me.Button1.Text = "Button1"
+        Me.Button1.UseVisualStyleBackColor = True
+        '
         'ADD_Branch
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(6.0!, 13.0!)
@@ -301,4 +312,5 @@ Partial Class ADD_Branch
     Friend WithEvents txtTIN As TextBox
     Friend WithEvents Panel3 As Panel
     Friend WithEvents ListView1 As ListView
+    Friend WithEvents Button1 As Button
 End Class
