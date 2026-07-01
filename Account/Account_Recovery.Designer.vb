@@ -1,9 +1,9 @@
-﻿<Global.Microsoft.VisualBasic.CompilerServices.DesignerGenerated()> _
+﻿<Global.Microsoft.VisualBasic.CompilerServices.DesignerGenerated()>
 Partial Class Account_Recovery
     Inherits System.Windows.Forms.Form
 
     'Form overrides dispose to clean up the component list.
-    <System.Diagnostics.DebuggerNonUserCode()> _
+    <System.Diagnostics.DebuggerNonUserCode()>
     Protected Overrides Sub Dispose(ByVal disposing As Boolean)
         Try
             If disposing AndAlso components IsNot Nothing Then
@@ -20,7 +20,7 @@ Partial Class Account_Recovery
     'NOTE: The following procedure is required by the Windows Form Designer
     'It can be modified using the Windows Form Designer.  
     'Do not modify it using the code editor.
-    <System.Diagnostics.DebuggerStepThrough()> _
+    <System.Diagnostics.DebuggerStepThrough()>
     Private Sub InitializeComponent()
         Dim RECOVERY_IDLabel As System.Windows.Forms.Label
         Dim REASONLabel As System.Windows.Forms.Label
@@ -34,15 +34,12 @@ Partial Class Account_Recovery
         Me.txtEmail = New System.Windows.Forms.TextBox()
         Me.txtNewPassword = New System.Windows.Forms.TextBox()
         Me.Panel1 = New System.Windows.Forms.Panel()
-        Me.userPic = New System.Windows.Forms.PictureBox()
         Me.Label1 = New System.Windows.Forms.Label()
         Me.adminpic = New System.Windows.Forms.PictureBox()
         Me.btnCancel = New System.Windows.Forms.Button()
         Me.btnSave = New System.Windows.Forms.Button()
-        Me.Panel2 = New System.Windows.Forms.Panel()
-        Me.Label4 = New System.Windows.Forms.Label()
+        Me.lblPasswordverification = New System.Windows.Forms.Label()
         Me.txtUsername = New System.Windows.Forms.TextBox()
-        Me.chkShowPassword = New System.Windows.Forms.CheckBox()
         Me.txtConfirmPassword = New System.Windows.Forms.TextBox()
         RECOVERY_IDLabel = New System.Windows.Forms.Label()
         REASONLabel = New System.Windows.Forms.Label()
@@ -51,15 +48,13 @@ Partial Class Account_Recovery
         Label2 = New System.Windows.Forms.Label()
         Label3 = New System.Windows.Forms.Label()
         Me.Panel1.SuspendLayout()
-        CType(Me.userPic, System.ComponentModel.ISupportInitialize).BeginInit()
         CType(Me.adminpic, System.ComponentModel.ISupportInitialize).BeginInit()
-        Me.Panel2.SuspendLayout()
         Me.SuspendLayout()
         '
         'RECOVERY_IDLabel
         '
         RECOVERY_IDLabel.AutoSize = True
-        RECOVERY_IDLabel.Location = New System.Drawing.Point(12, 20)
+        RECOVERY_IDLabel.Location = New System.Drawing.Point(12, 67)
         RECOVERY_IDLabel.Name = "RECOVERY_IDLabel"
         RECOVERY_IDLabel.Size = New System.Drawing.Size(83, 13)
         RECOVERY_IDLabel.TabIndex = 3
@@ -68,7 +63,7 @@ Partial Class Account_Recovery
         'REASONLabel
         '
         REASONLabel.AutoSize = True
-        REASONLabel.Location = New System.Drawing.Point(15, 165)
+        REASONLabel.Location = New System.Drawing.Point(9, 212)
         REASONLabel.Name = "REASONLabel"
         REASONLabel.Size = New System.Drawing.Size(55, 13)
         REASONLabel.TabIndex = 7
@@ -77,7 +72,7 @@ Partial Class Account_Recovery
         'EMAILLabel
         '
         EMAILLabel.AutoSize = True
-        EMAILLabel.Location = New System.Drawing.Point(162, 20)
+        EMAILLabel.Location = New System.Drawing.Point(162, 67)
         EMAILLabel.Name = "EMAILLabel"
         EMAILLabel.Size = New System.Drawing.Size(42, 13)
         EMAILLabel.TabIndex = 9
@@ -86,7 +81,7 @@ Partial Class Account_Recovery
         'NEW_PASSWORDLabel
         '
         NEW_PASSWORDLabel.AutoSize = True
-        NEW_PASSWORDLabel.Location = New System.Drawing.Point(12, 110)
+        NEW_PASSWORDLabel.Location = New System.Drawing.Point(12, 157)
         NEW_PASSWORDLabel.Name = "NEW_PASSWORDLabel"
         NEW_PASSWORDLabel.Size = New System.Drawing.Size(102, 13)
         NEW_PASSWORDLabel.TabIndex = 11
@@ -95,7 +90,7 @@ Partial Class Account_Recovery
         'Label2
         '
         Label2.AutoSize = True
-        Label2.Location = New System.Drawing.Point(272, 110)
+        Label2.Location = New System.Drawing.Point(272, 157)
         Label2.Name = "Label2"
         Label2.Size = New System.Drawing.Size(125, 13)
         Label2.TabIndex = 14
@@ -104,7 +99,7 @@ Partial Class Account_Recovery
         'Label3
         '
         Label3.AutoSize = True
-        Label3.Location = New System.Drawing.Point(9, 65)
+        Label3.Location = New System.Drawing.Point(9, 112)
         Label3.Name = "Label3"
         Label3.Size = New System.Drawing.Size(71, 13)
         Label3.TabIndex = 17
@@ -114,7 +109,7 @@ Partial Class Account_Recovery
         '
         Me.txtRecoveryID.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle
         Me.txtRecoveryID.Font = New System.Drawing.Font("Microsoft Sans Serif", 12.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.txtRecoveryID.Location = New System.Drawing.Point(12, 36)
+        Me.txtRecoveryID.Location = New System.Drawing.Point(12, 83)
         Me.txtRecoveryID.Name = "txtRecoveryID"
         Me.txtRecoveryID.ReadOnly = True
         Me.txtRecoveryID.Size = New System.Drawing.Size(147, 26)
@@ -124,9 +119,9 @@ Partial Class Account_Recovery
         '
         Me.txtReason.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle
         Me.txtReason.Font = New System.Drawing.Font("Microsoft Sans Serif", 12.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.txtReason.Location = New System.Drawing.Point(12, 181)
+        Me.txtReason.Location = New System.Drawing.Point(12, 228)
         Me.txtReason.Name = "txtReason"
-        Me.txtReason.Size = New System.Drawing.Size(507, 174)
+        Me.txtReason.Size = New System.Drawing.Size(507, 189)
         Me.txtReason.TabIndex = 8
         Me.txtReason.Text = ""
         '
@@ -134,16 +129,16 @@ Partial Class Account_Recovery
         '
         Me.txtEmail.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle
         Me.txtEmail.Font = New System.Drawing.Font("Microsoft Sans Serif", 12.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.txtEmail.Location = New System.Drawing.Point(165, 36)
+        Me.txtEmail.Location = New System.Drawing.Point(165, 83)
         Me.txtEmail.Name = "txtEmail"
-        Me.txtEmail.Size = New System.Drawing.Size(340, 26)
+        Me.txtEmail.Size = New System.Drawing.Size(354, 26)
         Me.txtEmail.TabIndex = 10
         '
         'txtNewPassword
         '
         Me.txtNewPassword.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle
         Me.txtNewPassword.Font = New System.Drawing.Font("Microsoft Sans Serif", 12.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.txtNewPassword.Location = New System.Drawing.Point(12, 126)
+        Me.txtNewPassword.Location = New System.Drawing.Point(12, 173)
         Me.txtNewPassword.Name = "txtNewPassword"
         Me.txtNewPassword.Size = New System.Drawing.Size(254, 26)
         Me.txtNewPassword.TabIndex = 12
@@ -152,7 +147,6 @@ Partial Class Account_Recovery
         'Panel1
         '
         Me.Panel1.BackColor = System.Drawing.Color.DarkRed
-        Me.Panel1.Controls.Add(Me.userPic)
         Me.Panel1.Controls.Add(Me.Label1)
         Me.Panel1.Controls.Add(Me.adminpic)
         Me.Panel1.Dock = System.Windows.Forms.DockStyle.Top
@@ -160,16 +154,6 @@ Partial Class Account_Recovery
         Me.Panel1.Name = "Panel1"
         Me.Panel1.Size = New System.Drawing.Size(531, 54)
         Me.Panel1.TabIndex = 13
-        '
-        'userPic
-        '
-        Me.userPic.Image = CType(resources.GetObject("userPic.Image"), System.Drawing.Image)
-        Me.userPic.Location = New System.Drawing.Point(0, 0)
-        Me.userPic.Name = "userPic"
-        Me.userPic.Size = New System.Drawing.Size(73, 54)
-        Me.userPic.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom
-        Me.userPic.TabIndex = 7
-        Me.userPic.TabStop = False
         '
         'Label1
         '
@@ -201,7 +185,7 @@ Partial Class Account_Recovery
         Me.btnCancel.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.btnCancel.ForeColor = System.Drawing.Color.Maroon
         Me.btnCancel.Image = CType(resources.GetObject("btnCancel.Image"), System.Drawing.Image)
-        Me.btnCancel.Location = New System.Drawing.Point(384, 434)
+        Me.btnCancel.Location = New System.Drawing.Point(384, 423)
         Me.btnCancel.Name = "btnCancel"
         Me.btnCancel.Size = New System.Drawing.Size(135, 37)
         Me.btnCancel.TabIndex = 220
@@ -218,7 +202,7 @@ Partial Class Account_Recovery
         Me.btnSave.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.btnSave.ForeColor = System.Drawing.SystemColors.ButtonHighlight
         Me.btnSave.Image = CType(resources.GetObject("btnSave.Image"), System.Drawing.Image)
-        Me.btnSave.Location = New System.Drawing.Point(243, 434)
+        Me.btnSave.Location = New System.Drawing.Point(243, 423)
         Me.btnSave.Name = "btnSave"
         Me.btnSave.Size = New System.Drawing.Size(135, 37)
         Me.btnSave.TabIndex = 219
@@ -227,61 +211,29 @@ Partial Class Account_Recovery
         Me.btnSave.TextImageRelation = System.Windows.Forms.TextImageRelation.ImageBeforeText
         Me.btnSave.UseVisualStyleBackColor = False
         '
-        'Panel2
+        'lblPasswordverification
         '
-        Me.Panel2.Controls.Add(Me.Label4)
-        Me.Panel2.Controls.Add(Label3)
-        Me.Panel2.Controls.Add(Me.txtUsername)
-        Me.Panel2.Controls.Add(Me.chkShowPassword)
-        Me.Panel2.Controls.Add(Label2)
-        Me.Panel2.Controls.Add(Me.txtConfirmPassword)
-        Me.Panel2.Controls.Add(RECOVERY_IDLabel)
-        Me.Panel2.Controls.Add(Me.txtRecoveryID)
-        Me.Panel2.Controls.Add(REASONLabel)
-        Me.Panel2.Controls.Add(Me.txtReason)
-        Me.Panel2.Controls.Add(EMAILLabel)
-        Me.Panel2.Controls.Add(Me.txtEmail)
-        Me.Panel2.Controls.Add(NEW_PASSWORDLabel)
-        Me.Panel2.Controls.Add(Me.txtNewPassword)
-        Me.Panel2.Dock = System.Windows.Forms.DockStyle.Top
-        Me.Panel2.Location = New System.Drawing.Point(0, 54)
-        Me.Panel2.Name = "Panel2"
-        Me.Panel2.Size = New System.Drawing.Size(531, 374)
-        Me.Panel2.TabIndex = 221
-        '
-        'Label4
-        '
-        Me.Label4.AutoSize = True
-        Me.Label4.Location = New System.Drawing.Point(480, 88)
-        Me.Label4.Name = "Label4"
-        Me.Label4.Size = New System.Drawing.Size(39, 13)
-        Me.Label4.TabIndex = 222
-        Me.Label4.Text = "Label4"
+        Me.lblPasswordverification.AutoSize = True
+        Me.lblPasswordverification.Location = New System.Drawing.Point(381, 202)
+        Me.lblPasswordverification.Name = "lblPasswordverification"
+        Me.lblPasswordverification.Size = New System.Drawing.Size(16, 13)
+        Me.lblPasswordverification.TabIndex = 19
+        Me.lblPasswordverification.Text = "---"
         '
         'txtUsername
         '
         Me.txtUsername.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle
         Me.txtUsername.Font = New System.Drawing.Font("Microsoft Sans Serif", 12.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.txtUsername.Location = New System.Drawing.Point(12, 81)
+        Me.txtUsername.Location = New System.Drawing.Point(12, 128)
         Me.txtUsername.Name = "txtUsername"
-        Me.txtUsername.Size = New System.Drawing.Size(340, 26)
+        Me.txtUsername.Size = New System.Drawing.Size(507, 26)
         Me.txtUsername.TabIndex = 18
-        '
-        'chkShowPassword
-        '
-        Me.chkShowPassword.AutoSize = True
-        Me.chkShowPassword.Location = New System.Drawing.Point(418, 158)
-        Me.chkShowPassword.Name = "chkShowPassword"
-        Me.chkShowPassword.Size = New System.Drawing.Size(101, 17)
-        Me.chkShowPassword.TabIndex = 16
-        Me.chkShowPassword.Text = "Show password"
-        Me.chkShowPassword.UseVisualStyleBackColor = True
         '
         'txtConfirmPassword
         '
         Me.txtConfirmPassword.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle
         Me.txtConfirmPassword.Font = New System.Drawing.Font("Microsoft Sans Serif", 12.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.txtConfirmPassword.Location = New System.Drawing.Point(272, 126)
+        Me.txtConfirmPassword.Location = New System.Drawing.Point(272, 173)
         Me.txtConfirmPassword.Name = "txtConfirmPassword"
         Me.txtConfirmPassword.Size = New System.Drawing.Size(247, 26)
         Me.txtConfirmPassword.TabIndex = 15
@@ -291,22 +243,33 @@ Partial Class Account_Recovery
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(6.0!, 13.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
-        Me.ClientSize = New System.Drawing.Size(531, 483)
-        Me.Controls.Add(Me.Panel2)
+        Me.ClientSize = New System.Drawing.Size(531, 472)
+        Me.Controls.Add(Me.lblPasswordverification)
+        Me.Controls.Add(Label3)
         Me.Controls.Add(Me.btnCancel)
+        Me.Controls.Add(Me.txtUsername)
         Me.Controls.Add(Me.Panel1)
         Me.Controls.Add(Me.btnSave)
-        Me.FormBorderStyle = System.Windows.Forms.FormBorderStyle.None
+        Me.Controls.Add(Label2)
+        Me.Controls.Add(Me.txtReason)
+        Me.Controls.Add(Me.txtConfirmPassword)
+        Me.Controls.Add(Me.txtNewPassword)
+        Me.Controls.Add(RECOVERY_IDLabel)
+        Me.Controls.Add(NEW_PASSWORDLabel)
+        Me.Controls.Add(Me.txtRecoveryID)
+        Me.Controls.Add(Me.txtEmail)
+        Me.Controls.Add(REASONLabel)
+        Me.Controls.Add(EMAILLabel)
+        Me.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle
+        Me.Icon = CType(resources.GetObject("$this.Icon"), System.Drawing.Icon)
         Me.Name = "Account_Recovery"
         Me.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen
         Me.Text = "Account_Recovery"
         Me.Panel1.ResumeLayout(False)
         Me.Panel1.PerformLayout()
-        CType(Me.userPic, System.ComponentModel.ISupportInitialize).EndInit()
         CType(Me.adminpic, System.ComponentModel.ISupportInitialize).EndInit()
-        Me.Panel2.ResumeLayout(False)
-        Me.Panel2.PerformLayout()
         Me.ResumeLayout(False)
+        Me.PerformLayout()
 
     End Sub
     Friend WithEvents txtRecoveryID As TextBox
@@ -314,14 +277,11 @@ Partial Class Account_Recovery
     Friend WithEvents txtEmail As TextBox
     Friend WithEvents txtNewPassword As TextBox
     Friend WithEvents Panel1 As Panel
-    Friend WithEvents userPic As PictureBox
     Friend WithEvents Label1 As Label
     Friend WithEvents adminpic As PictureBox
     Friend WithEvents btnCancel As Button
     Friend WithEvents btnSave As Button
-    Friend WithEvents Panel2 As Panel
-    Friend WithEvents chkShowPassword As CheckBox
     Friend WithEvents txtConfirmPassword As TextBox
     Friend WithEvents txtUsername As TextBox
-    Friend WithEvents Label4 As Label
+    Friend WithEvents lblPasswordverification As Label
 End Class
