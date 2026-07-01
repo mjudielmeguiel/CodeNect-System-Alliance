@@ -3,35 +3,26 @@ Imports System.IO
 
 Public Class ADD_Branch
 
-    ' --- KONEKSYON ---
-    Dim connStr As String = "Data Source=192.168.68.109\SQLEXPRESS,1433;Initial Catalog=CodeNectDB;User ID=CodeNect_Database;Password=Password1*;Connect Timeout=15"
     Dim logoImageData() As Byte = Nothing
-
-    ' --- ✅ ITATAGO NA LANG PERO KUKUNIN PA RIN SA DATABASE ---
     Private currentAccountID As String = ""
     Private currentAccountName As String = ""
 
-    ' --- GABAY SA MGA TEXTBOX ---
     ReadOnly ph_BranchID As String = "BRANCH ID"
-    ReadOnly ph_Branch As String = "PANGALAN NG BRANCH"
+    ReadOnly ph_Branch As String = "BRANCH NAME"
     ReadOnly ph_TIN As String = "TIN NUMBER"
-    ReadOnly ph_BusinessType As String = "URI NG NEGOSYO"
-    ReadOnly ph_Address As String = "BUONG TIRAHAN / ADDRESS"
+    ReadOnly ph_BusinessType As String = "BUSINESS TYPE"
+    ReadOnly ph_Address As String = "FULL ADDRESS"
     ReadOnly ph_Email As String = "EMAIL ADDRESS"
     ReadOnly ph_Contact As String = "CONTACT NUMBER"
-    ReadOnly ph_Manager As String = "PANGALAN NG MANAGER"
+    ReadOnly ph_Manager As String = "MANAGER NAME"
 
-    ' --- PAGBUKAS NG FORM ---
     Private Sub ADD_Branch_Load(sender As Object, e As EventArgs) Handles MyBase.Load
-        GetAccountDetails()      ' kukunin ang mga details ng account para magamit sa pag-save ng branch
+        GetAccountDetails()
         GenerateBranchID()
         SetPlaceholdersOnLoad()
-        SetupBusinessTypeCombo() ' ✅ Load types + check if Main Office exists
-        SetupListView()
-        LoadBranchesToList()
+        SetupBusinessTypeCombo()
     End Sub
 
-    ' Placeholders sa pag-load ng form
     Private Sub SetPlaceholdersOnLoad()
         If String.IsNullOrEmpty(txtBranchID.Text) Then
             txtBranchID.Text = ph_BranchID
@@ -61,14 +52,12 @@ Public Class ADD_Branch
             txtManager.Text = ph_Manager
             txtManager.ForeColor = Color.Gray
         End If
-
         If String.IsNullOrEmpty(cmbBusinessType.Text) Then
             cmbBusinessType.Text = ph_BusinessType
             cmbBusinessType.ForeColor = Color.Gray
         End If
     End Sub
 
-    ' Focus at Lost Focus events para sa mga TextBox (Branch, TIN, Email, Contact, Manager)
     Private Sub TextBox_GotFocus(sender As Object, e As EventArgs) Handles txtBranch.GotFocus, txtTIN.GotFocus, txtEmail.GotFocus, txtContact.GotFocus, txtManager.GotFocus
         Dim txt As TextBox = CType(sender, TextBox)
         If txt.Text = ph_Branch Or txt.Text = ph_TIN Or txt.Text = ph_Email Or txt.Text = ph_Contact Or txt.Text = ph_Manager Then
@@ -91,7 +80,6 @@ Public Class ADD_Branch
         End If
     End Sub
 
-    ' --- RICHTEXTBOX (ADDRESS) ---
     Private Sub txtAddress_GotFocus(sender As Object, e As EventArgs) Handles txtAddress.GotFocus
         If txtAddress.Text = ph_Address Then
             txtAddress.Text = ""
@@ -106,53 +94,35 @@ Public Class ADD_Branch
         End If
     End Sub
 
-    ' --- ✅ SETUP BUSINESS TYPE COMBO BOX ---
     Private Sub SetupBusinessTypeCombo()
         cmbBusinessType.Items.Clear()
         cmbBusinessType.DropDownStyle = ComboBoxStyle.DropDownList
-
-        ' Check if MAIN OFFICE already exists
         Dim mainExists As Boolean = CheckIfMainOfficeExists()
-
-        ' Add MAIN OFFICE ONLY if none exists yet
-        If Not mainExists Then
-            cmbBusinessType.Items.Add("MAIN OFFICE")
-        End If
-
-        ' Add other fixed options
-        cmbBusinessType.Items.Add("BRANCH")
-        cmbBusinessType.Items.Add("RETAIL STORE")
-        cmbBusinessType.Items.Add("WHOLESALE OUTLET")
-        cmbBusinessType.Items.Add("FOOD OUTLET")
-        cmbBusinessType.Items.Add("SERVICE CENTER")
-        cmbBusinessType.Items.Add("WAREHOUSE")
-        cmbBusinessType.Items.Add("OFFICE ONLY")
+        If Not mainExists Then cmbBusinessType.Items.Add("MAIN OFFICE")
+        cmbBusinessType.Items.AddRange({"BRANCH", "RETAIL STORE", "WHOLESALE OUTLET", "FOOD OUTLET", "SERVICE CENTER", "WAREHOUSE", "OFFICE ONLY"})
     End Sub
 
-    ' --- ✅ CHECK IF MAIN OFFICE ALREADY EXISTS ---
     Private Function CheckIfMainOfficeExists() As Boolean
         If String.IsNullOrEmpty(currentAccountID) Then Return False
-
         Try
             Using conn As New SqlConnection(connStr)
                 conn.Open()
                 Dim cmd As New SqlCommand("SELECT COUNT(*) FROM Branches WHERE ACCOUNT_ID = @AID AND BUSINESS_TYPE = 'MAIN OFFICE'", conn)
                 cmd.Parameters.AddWithValue("@AID", currentAccountID)
-                Dim count As Integer = CInt(cmd.ExecuteScalar())
-                Return count > 0
+                Return CInt(cmd.ExecuteScalar()) > 0
             End Using
         Catch
             Return False
         End Try
     End Function
 
-    ' --- COMBO BOX ---
     Private Sub cmbBusinessType_GotFocus(sender As Object, e As EventArgs) Handles cmbBusinessType.GotFocus
         If cmbBusinessType.Text = ph_BusinessType Then
             cmbBusinessType.Text = ""
             cmbBusinessType.ForeColor = Color.Black
         End If
     End Sub
+
     Private Sub cmbBusinessType_LostFocus(sender As Object, e As EventArgs) Handles cmbBusinessType.LostFocus
         If String.IsNullOrWhiteSpace(cmbBusinessType.Text) Then
             cmbBusinessType.Text = ph_BusinessType
@@ -160,49 +130,42 @@ Public Class ADD_Branch
         End If
     End Sub
 
-    ' --- ✅ KUNIN ANG ACCOUNT DETAILS (ITATAGO NA LANG SA VARIABLE) ---
     Private Sub GetAccountDetails()
         Try
             Using conn As New SqlConnection(connStr)
                 conn.Open()
                 Dim cmd As New SqlCommand("SELECT TOP 1 ACCOUNT_ID, ACCOUNT FROM adm.Account ORDER BY ID DESC", conn)
                 Dim reader As SqlDataReader = cmd.ExecuteReader()
-
                 If reader.Read() Then
-                    currentAccountID = reader("ACCOUNT_ID").ToString() 'etong part na to ay nakatago lang di ko na sinama sa form para mas malinis tignan
+                    currentAccountID = reader("ACCOUNT_ID").ToString()
                     currentAccountName = reader("ACCOUNT").ToString()
                 Else
                     currentAccountID = ""
                     currentAccountName = ""
-                    MessageBox.Show("Walang nakuhang impormasyon ng account.", "BABALA", MessageBoxButtons.OK, MessageBoxIcon.Warning)
+                    MessageBox.Show("No account information found.", "Warning", MessageBoxButtons.OK, MessageBoxIcon.Warning)
                 End If
                 reader.Close()
             End Using
         Catch ex As Exception
-            MessageBox.Show("Error sa pagkuha ng Account: " & ex.Message, "ERROR", MessageBoxButtons.OK, MessageBoxIcon.Error)
+            MessageBox.Show("Error loading account: " & ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
         End Try
     End Sub
 
-    ' --- AUTOMATIC NA BRANCH ID ---
     Private Sub GenerateBranchID()
         Dim datePart As String = DateTime.Now.ToString("yyyyMMdd")
-        Dim randomPart As New Random()
-        Dim num As Integer = randomPart.Next(1000, 9999)
-        txtBranchID.Text = $"{datePart}-{num}"
+        Dim rnd As New Random()
+        txtBranchID.Text = $"{datePart}-{rnd.Next(1000, 9999)}"
         txtBranchID.ReadOnly = True
         txtBranchID.ForeColor = Color.Black
     End Sub
 
-    ' --- BUSINESS LOGO ---
     Private Sub picBusinessLogo_DoubleClick(sender As Object, e As EventArgs) Handles picBusinessLogo.DoubleClick
-        Using openFile As New OpenFileDialog()
-            openFile.Title = "Pumili ng Business Logo"
-            openFile.Filter = "Image Files (*.jpg;*.jpeg;*.png;*.bmp)|*.jpg;*.jpeg;*.png;*.bmp"
-
-            If openFile.ShowDialog() = DialogResult.OK Then
-                picBusinessLogo.Image = Image.FromFile(openFile.FileName)
+        Using ofd As New OpenFileDialog()
+            ofd.Title = "Select Business Logo"
+            ofd.Filter = "Image Files (*.jpg;*.jpeg;*.png;*.bmp)|*.jpg;*.jpeg;*.png;*.bmp"
+            If ofd.ShowDialog() = DialogResult.OK Then
+                picBusinessLogo.Image = Image.FromFile(ofd.FileName)
                 picBusinessLogo.SizeMode = PictureBoxSizeMode.StretchImage
-
                 Using ms As New MemoryStream()
                     Dim bmp As New Bitmap(picBusinessLogo.Image)
                     bmp.Save(ms, picBusinessLogo.Image.RawFormat)
@@ -212,51 +175,7 @@ Public Class ADD_Branch
         End Using
     End Sub
 
-    ' --- AYUSIN ANG LISTVIEW ---
-    Private Sub SetupListView()
-        ListView1.View = View.Details
-        ListView1.FullRowSelect = True
-        ListView1.GridLines = True
-        ListView1.Sorting = SortOrder.Ascending
-
-        ListView1.Columns.Add("BRANCH ID", 120)
-        ListView1.Columns.Add("PANGALAN", 180)
-        ListView1.Columns.Add("URI NG NEGOSYO", 140)
-        ListView1.Columns.Add("MANAGER", 150)
-        ListView1.Columns.Add("STATUS", 80)
-    End Sub
-
-    ' --- IPAKITA ANG MGA BRANCH ---
-    Private Sub LoadBranchesToList()
-        ListView1.Items.Clear()
-        If String.IsNullOrEmpty(currentAccountID) Then Exit Sub
-
-        Try
-            Using conn As New SqlConnection(connStr)
-                conn.Open()
-                ' ✅ GUMAGAMIT PA RIN NG currentAccountID, HINDI NA GALING SA TEXTBOX
-                Dim cmd As New SqlCommand("SELECT BRANCH_ID, BRANCH, BUSINESS_TYPE, MANAGER, STATUS FROM Branches WHERE ACCOUNT_ID = @AID ORDER BY BRANCH", conn)
-                cmd.Parameters.AddWithValue("@AID", currentAccountID)
-
-                Dim reader As SqlDataReader = cmd.ExecuteReader()
-                While reader.Read()
-                    Dim item As New ListViewItem(reader("BRANCH_ID").ToString())
-                    item.SubItems.Add(reader("BRANCH").ToString())
-                    item.SubItems.Add(reader("BUSINESS_TYPE").ToString())
-                    item.SubItems.Add(reader("MANAGER").ToString())
-                    item.SubItems.Add(reader("STATUS").ToString())
-                    ListView1.Items.Add(item)
-                End While
-                reader.Close()
-            End Using
-        Catch ex As Exception
-            MessageBox.Show("Error sa pag-load ng listahan: " & ex.Message, "ERROR", MessageBoxButtons.OK, MessageBoxIcon.Error)
-        End Try
-    End Sub
-
-    ' --- ✅ SAVE BUTTON (NABAGO NA: WALANG TEXTBOX NG ACCOUNT) ---
     Private Sub btnSave_Click(sender As Object, e As EventArgs) Handles btnSave.Click
-        ' VALIDATION
         If String.IsNullOrWhiteSpace(txtBranch.Text) Or txtBranch.Text = ph_Branch Or
            String.IsNullOrWhiteSpace(txtTIN.Text) Or txtTIN.Text = ph_TIN Or
            String.IsNullOrWhiteSpace(txtAddress.Text) Or txtAddress.Text = ph_Address Or
@@ -264,61 +183,41 @@ Public Class ADD_Branch
            String.IsNullOrWhiteSpace(txtContact.Text) Or txtContact.Text = ph_Contact Or
            String.IsNullOrWhiteSpace(txtManager.Text) Or txtManager.Text = ph_Manager Or
            String.IsNullOrWhiteSpace(cmbBusinessType.Text) Or cmbBusinessType.Text = ph_BusinessType Then
-
-            MessageBox.Show("Pakiusap, punan lahat ng patlang nang tama.", "BABALA", MessageBoxButtons.OK, MessageBoxIcon.Warning)
+            MessageBox.Show("Please fill in all required fields.", "Warning", MessageBoxButtons.OK, MessageBoxIcon.Warning)
             Return
         End If
-
-        ' SIGURADUHIN MAY DATA ANG ACCOUNT
         If String.IsNullOrEmpty(currentAccountID) Or String.IsNullOrEmpty(currentAccountName) Then
-            MessageBox.Show("Hindi makuha ang impormasyon ng may-ari. Isara at buksan ulit ang form.", "ERROR", MessageBoxButtons.OK, MessageBoxIcon.Error)
+            MessageBox.Show("Account data not found. Restart the form.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
             Return
         End If
-
         Try
             Using conn As New SqlConnection(connStr)
                 conn.Open()
-                Dim cmd As New SqlCommand("INSERT INTO Branches 
-                                           (ACCOUNT_ID, ACCOUNT, BRANCH_ID, BRANCH, TIN, TIN_REGISTERED, BUSINESS_TYPE, BUSINESS_LOGO, ADDRESS, EMAIL, CONTACT, MANAGER, REGISTRATION_DATE, STATUS) 
-                                           VALUES 
-                                           (@AID, @ACC, @BID, @BRN, @TIN, @TINREG, @BT, @LOGO, @ADDR, @EML, @CONT, @MGR, @REGDATE, @STAT)", conn)
-
-                ' ✅ AUTOMATIC: GALING SA VARIABLE, HINDI NA SA TEXTBOX
+                Dim cmd As New SqlCommand("INSERT INTO Branches (ACCOUNT_ID, ACCOUNT, BRANCH_ID, BRANCH, TIN, BUSINESS_TYPE, BUSINESS_LOGO, ADDRESS, EMAIL, CONTACT, MANAGER, REGISTRATION_DATE, STATUS) VALUES (@AID, @ACC, @BID, @BRN, @TIN, @BT, @LOGO, @ADDR, @EML, @CONT, @MGR, @REGDATE, @STAT)", conn)
                 cmd.Parameters.AddWithValue("@AID", currentAccountID)
                 cmd.Parameters.AddWithValue("@ACC", currentAccountName)
-
-                ' ✅ GALING SA FORM (TULAD NG DATI)
                 cmd.Parameters.AddWithValue("@BID", txtBranchID.Text)
                 cmd.Parameters.AddWithValue("@BRN", txtBranch.Text)
                 cmd.Parameters.AddWithValue("@TIN", txtTIN.Text)
-                cmd.Parameters.AddWithValue("@TINREG", dtpTIN_Registered.Value)
                 cmd.Parameters.AddWithValue("@BT", cmbBusinessType.Text)
                 cmd.Parameters.AddWithValue("@LOGO", If(logoImageData Is Nothing, DBNull.Value, logoImageData))
                 cmd.Parameters.AddWithValue("@ADDR", txtAddress.Text)
                 cmd.Parameters.AddWithValue("@EML", txtEmail.Text)
                 cmd.Parameters.AddWithValue("@CONT", txtContact.Text)
                 cmd.Parameters.AddWithValue("@MGR", txtManager.Text)
-
-                ' ✅ AUTOMATIC NA PETSA AT STATUS
                 cmd.Parameters.AddWithValue("@REGDATE", DateTime.Now)
                 cmd.Parameters.AddWithValue("@STAT", "OFFLINE")
-
                 cmd.ExecuteNonQuery()
             End Using
-
-            MessageBox.Show("Bagong Branch matagumpay na naisave!", "TAGUMPAY", MessageBoxButtons.OK, MessageBoxIcon.Information)
-
+            MessageBox.Show("Branch saved successfully.", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information)
             GenerateBranchID()
-            SetupBusinessTypeCombo() ' ✅ Refresh combo — hides MAIN OFFICE now if saved
-            LoadBranchesToList()
+            SetupBusinessTypeCombo()
             ClearInputs()
-
         Catch ex As Exception
-            MessageBox.Show("Error sa pag-save: " & ex.Message, "ERROR", MessageBoxButtons.OK, MessageBoxIcon.Error)
+            MessageBox.Show("Error saving record: " & ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
         End Try
     End Sub
 
-    ' --- LINISIN ANG MGA INPUT ---
     Private Sub ClearInputs()
         txtBranch.Clear()
         txtTIN.Clear()
@@ -332,7 +231,6 @@ Public Class ADD_Branch
         SetPlaceholdersOnLoad()
     End Sub
 
-    ' --- CANCEL BUTTON ---
     Private Sub btnCancel_Click(sender As Object, e As EventArgs) Handles btnCancel.Click
         Me.Close()
     End Sub

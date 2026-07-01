@@ -1,22 +1,22 @@
-﻿Imports System.Data.SqlClient
+﻿Imports System.Data
+Imports System.Data.SqlClient
 Imports System.IO
+Imports System.Drawing.Imaging
 
 Public Class Product_Information
 
-    ' Nakaimbak na listahan ng lahat ng vendor
     Private _dtVendors As New DataTable
     Private _ProductID As Integer = 0
     Private _OriginalImageBytes As Byte() = Nothing
     Private ReadOnly _fileDialog As New OpenFileDialog()
 
     ' ─────────────────────────────────────────────────────────
-    ' Kapag binuksan ang form
+    ' Load data from selected grid row
     ' ─────────────────────────────────────────────────────────
     Public Sub LoadDataFromGrid(row As DataGridViewRow)
         Try
             _ProductID = CInt(row.Cells("ID").Value)
 
-            ' Ilagay ang detalye ng produkto
             txtBarcode.Text = If(row.Cells("BARCODE").Value IsNot DBNull.Value, row.Cells("BARCODE").Value.ToString(), "")
             txtSKU.Text = If(row.Cells("SKU").Value IsNot DBNull.Value, row.Cells("SKU").Value.ToString(), "")
             txtDescriptions.Text = If(row.Cells("DESCRIPTIONS").Value IsNot DBNull.Value, row.Cells("DESCRIPTIONS").Value.ToString(), "")
@@ -28,7 +28,6 @@ Public Class Product_Information
             txtAvailability.Text = If(row.Cells("AVAILABILITY").Value IsNot DBNull.Value, row.Cells("AVAILABILITY").Value.ToString(), "")
             txtTotal.Text = If(row.Cells("TOTAL").Value IsNot DBNull.Value, CDec(row.Cells("TOTAL").Value).ToString("N2"), "0.00")
 
-            ' Ipakita ang litrato
             picProduct.SizeMode = PictureBoxSizeMode.Zoom
             If row.Cells("PRODUCT_IMAGE").Value IsNot DBNull.Value Then
                 _OriginalImageBytes = DirectCast(row.Cells("PRODUCT_IMAGE").Value, Byte())
@@ -40,19 +39,17 @@ Public Class Product_Information
                 _OriginalImageBytes = Nothing
             End If
 
-            ' 🎯 I-load ang LAHAT ng vendor mula sa database
             LoadAllVendorsFromDB()
             LoadCategories()
-
-            ' Ilagay ang kasalukuyang vendor ng produkto
             SetCurrentVendor(row)
 
-        Catch
+        Catch ex As Exception
+            MessageBox.Show("Error loading product data: " & ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
         End Try
     End Sub
 
     ' ─────────────────────────────────────────────────────────
-    ' 📂 KUNIN ANG LAHAT NG VENDOR MULA SA dbo.vendor TABLE
+    ' Load vendor list from database
     ' ─────────────────────────────────────────────────────────
     Private Sub LoadAllVendorsFromDB()
         Try
@@ -61,11 +58,9 @@ Public Class Product_Information
             _dtVendors.Columns.Add("VENDOR_CODE", GetType(String))
             _dtVendors.Columns.Add("VENDOR", GetType(String))
 
-            Dim conStr As String = "Data Source=192.168.68.109\SQLEXPRESS,1433;Initial Catalog=CodeNectDB;User ID=CodeNect_Database;Password=Password1*;Connect Timeout=15"
-            ' EKSAKTO SA TABLE MO: dbo.vendor
             Dim sql As String = "SELECT VENDOR_CODE, VENDOR FROM dbo.vendor ORDER BY VENDOR"
 
-            Using con As New SqlConnection(conStr)
+            Using con As New SqlConnection(connStr)
                 Using cmd As New SqlCommand(sql, con)
                     con.Open()
                     Dim dr As SqlDataReader = cmd.ExecuteReader()
@@ -80,8 +75,6 @@ Public Class Product_Information
                 End Using
             End Using
 
-            ' ✅ ILAGAY SA DROPDOWN — PURE LIST, WALANG IBANG KASAMA
-            ' Kaliwa: Vendor Code lang
             cboVendorCode.DataSource = Nothing
             cboVendorCode.DisplayMember = "VENDOR_CODE"
             cboVendorCode.ValueMember = "VENDOR_CODE"
@@ -89,7 +82,6 @@ Public Class Product_Information
             cboVendorCode.DropDownStyle = ComboBoxStyle.DropDown
             cboVendorCode.MaxDropDownItems = 25
 
-            ' Kanan: Vendor Name lang
             cboVendor.DataSource = Nothing
             cboVendor.DisplayMember = "VENDOR"
             cboVendor.ValueMember = "VENDOR"
@@ -97,12 +89,13 @@ Public Class Product_Information
             cboVendor.DropDownStyle = ComboBoxStyle.DropDown
             cboVendor.MaxDropDownItems = 25
 
-        Catch
+        Catch ex As Exception
+            MessageBox.Show("Error loading vendors: " & ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
         End Try
     End Sub
 
     ' ─────────────────────────────────────────────────────────
-    ' Ilagay ang kasalukuyang vendor ng produkto
+    ' Set current vendor values
     ' ─────────────────────────────────────────────────────────
     Private Sub SetCurrentVendor(row As DataGridViewRow)
         Try
@@ -121,12 +114,13 @@ Public Class Product_Information
                 cboVendorCode.Text = currentCode
                 cboVendor.Text = currentName
             End If
-        Catch
+        Catch ex As Exception
+            MessageBox.Show("Error setting vendor: " & ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
         End Try
     End Sub
 
     ' ─────────────────────────────────────────────────────────
-    ' ✅ MAG-UUGNAY — Kapag pinili Code, lumabas ang Tamang Pangalan
+    ' Sync vendor code and name
     ' ─────────────────────────────────────────────────────────
     Private Sub cboVendorCode_SelectedIndexChanged(sender As Object, e As EventArgs) Handles cboVendorCode.SelectedIndexChanged
         Try
@@ -138,7 +132,6 @@ Public Class Product_Information
         End Try
     End Sub
 
-    ' ✅ Kapag pinili Pangalan, lumabas ang Tamang Code
     Private Sub cboVendor_SelectedIndexChanged(sender As Object, e As EventArgs) Handles cboVendor.SelectedIndexChanged
         Try
             If cboVendor.SelectedIndex >= 0 AndAlso _dtVendors.Rows.Count > 0 Then
@@ -150,30 +143,33 @@ Public Class Product_Information
     End Sub
 
     ' ─────────────────────────────────────────────────────────
-    ' Listahan ng Kategorya
+    ' Load categories
     ' ─────────────────────────────────────────────────────────
     Private Sub LoadCategories()
         Try
             Dim dtCat As New DataTable()
-            Dim conStr As String = "Data Source=JUDIEL\SQLEXPRESS;Initial Catalog=CodeNectDB;Integrated Security=True;Connect Timeout=10"
             Dim sql As String = "SELECT DISTINCT CATEGORY FROM inv.Inventory_Master_file WHERE CATEGORY <> '' ORDER BY CATEGORY"
-            Using con As New SqlConnection(conStr)
+
+            Using con As New SqlConnection(connStr)
                 Using cmd As New SqlCommand(sql, con)
                     Using da As New SqlDataAdapter(cmd)
                         da.Fill(dtCat)
                     End Using
                 End Using
             End Using
+
             cboCategory.DataSource = dtCat
             cboCategory.DisplayMember = "CATEGORY"
             cboCategory.ValueMember = "CATEGORY"
             cboCategory.DropDownStyle = ComboBoxStyle.DropDown
-        Catch
+
+        Catch ex As Exception
+            MessageBox.Show("Error loading categories: " & ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
         End Try
     End Sub
 
     ' ─────────────────────────────────────────────────────────
-    ' Litrato
+    ' Select new product image
     ' ─────────────────────────────────────────────────────────
     Private Sub picProduct_DoubleClick(sender As Object, e As EventArgs) Handles picProduct.DoubleClick
         _fileDialog.Filter = "Images|*.jpg;*.jpeg;*.png;*.bmp"
@@ -181,13 +177,14 @@ Public Class Product_Information
         If _fileDialog.ShowDialog() = DialogResult.OK Then
             Try
                 picProduct.Image = Image.FromFile(_fileDialog.FileName)
-            Catch
+            Catch ex As Exception
+                MessageBox.Show("Failed to load image: " & ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
             End Try
         End If
     End Sub
 
     ' ─────────────────────────────────────────────────────────
-    ' Kuwenta
+    ' Calculate total and availability status
     ' ─────────────────────────────────────────────────────────
     Private Sub ComputeTotalAndAvailability()
         Try
@@ -217,20 +214,32 @@ Public Class Product_Information
     End Sub
 
     ' ─────────────────────────────────────────────────────────
-    ' I-save / Update
+    ' Update product details
     ' ─────────────────────────────────────────────────────────
     Private Sub btnUpdate_Click(sender As Object, e As EventArgs) Handles btnUpdate.Click
         Try
-            If String.IsNullOrWhiteSpace(txtBarcode.Text) Then Return
-            If String.IsNullOrWhiteSpace(txtSKU.Text) Then Return
-            If String.IsNullOrWhiteSpace(txtPrice.Text) OrElse CDec(txtPrice.Text) <= 0 Then Return
-            If String.IsNullOrWhiteSpace(txtStockAvailable.Text) OrElse CInt(txtStockAvailable.Text) < 0 Then Return
+            If String.IsNullOrWhiteSpace(txtBarcode.Text) Then
+                MessageBox.Show("Barcode cannot be empty.", "Warning", MessageBoxButtons.OK, MessageBoxIcon.Warning)
+                Return
+            End If
+            If String.IsNullOrWhiteSpace(txtSKU.Text) Then
+                MessageBox.Show("SKU cannot be empty.", "Warning", MessageBoxButtons.OK, MessageBoxIcon.Warning)
+                Return
+            End If
+            If Not Decimal.TryParse(txtPrice.Text, Nothing) OrElse CDec(txtPrice.Text) <= 0 Then
+                MessageBox.Show("Enter a valid price greater than zero.", "Warning", MessageBoxButtons.OK, MessageBoxIcon.Warning)
+                Return
+            End If
+            If Not Integer.TryParse(txtStockAvailable.Text, Nothing) OrElse CInt(txtStockAvailable.Text) < 0 Then
+                MessageBox.Show("Enter a valid stock quantity.", "Warning", MessageBoxButtons.OK, MessageBoxIcon.Warning)
+                Return
+            End If
 
             Dim imgBytes As Byte() = Nothing
             If picProduct.Image IsNot Nothing Then
                 If Not String.IsNullOrEmpty(_fileDialog.FileName) Then
                     Using ms As New MemoryStream()
-                        picProduct.Image.Save(ms, Imaging.ImageFormat.Jpeg)
+                        picProduct.Image.Save(ms, ImageFormat.Jpeg)
                         imgBytes = ms.ToArray()
                     End Using
                 Else
@@ -252,12 +261,12 @@ Public Class Product_Information
                     SIZE = @Size,
                     PRICE = @Price,
                     AVAILABLE = @Stock,
+                    AVAILABILITY = @Avail,
+                    TOTAL = @Total,
                     PRODUCT_IMAGE = @Img
                 WHERE ID = @ID"
 
-            Dim conStr As String = "Data Source=JUDIEL\SQLEXPRESS;Initial Catalog=CodeNectDB;Integrated Security=True;Connect Timeout=10"
-
-            Using con As New SqlConnection(conStr)
+            Using con As New SqlConnection(connStr)
                 Using cmd As New SqlCommand(sql, con)
                     cmd.Parameters.Add("@ID", SqlDbType.Int).Value = _ProductID
                     cmd.Parameters.Add("@Barcode", SqlDbType.VarChar, 50).Value = txtBarcode.Text.Trim()
@@ -271,37 +280,53 @@ Public Class Product_Information
                     cmd.Parameters.Add("@Size", SqlDbType.VarChar, 50).Value = If(String.IsNullOrEmpty(txtSize.Text), DBNull.Value, txtSize.Text.Trim())
                     cmd.Parameters.Add("@Price", SqlDbType.Decimal).Value = CDec(txtPrice.Text)
                     cmd.Parameters.Add("@Stock", SqlDbType.Int).Value = CInt(txtStockAvailable.Text)
-                    cmd.Parameters.Add("@Img", SqlDbType.Image).Value = If(imgBytes IsNot Nothing, imgBytes, DBNull.Value)
+                    cmd.Parameters.Add("@Avail", SqlDbType.VarChar, 20).Value = txtAvailability.Text.Trim()
+                    cmd.Parameters.Add("@Total", SqlDbType.Decimal).Value = CDec(txtTotal.Text)
+                    cmd.Parameters.Add("@Img", SqlDbType.VarBinary).Value = If(imgBytes IsNot Nothing, imgBytes, DBNull.Value)
 
                     con.Open()
                     cmd.ExecuteNonQuery()
                 End Using
             End Using
 
+            MessageBox.Show("Product updated successfully!", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information)
             Me.Close()
 
-        Catch
+        Catch ex As Exception
+            MessageBox.Show("Update failed: " & ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
         End Try
     End Sub
 
-    ' Burahin
+    ' ─────────────────────────────────────────────────────────
+    ' Delete product
+    ' ─────────────────────────────────────────────────────────
     Private Sub btnDeleteProduct_Click(sender As Object, e As EventArgs) Handles btnDeleteProduct.Click
         Try
-            Dim conStr As String = "Data Source=JUDIEL\SQLEXPRESS;Initial Catalog=CodeNectDB;Integrated Security=True;Connect Timeout=10"
+            If MessageBox.Show("Are you sure you want to delete this product?", "Confirm Delete", MessageBoxButtons.YesNo, MessageBoxIcon.Question) <> DialogResult.Yes Then
+                Return
+            End If
+
             Dim sql As String = "DELETE FROM inv.Inventory_Master_file WHERE ID = @ID"
-            Using con As New SqlConnection(conStr)
+
+            Using con As New SqlConnection(connStr)
                 Using cmd As New SqlCommand(sql, con)
                     cmd.Parameters.Add("@ID", SqlDbType.Int).Value = _ProductID
                     con.Open()
                     cmd.ExecuteNonQuery()
                 End Using
             End Using
+
+            MessageBox.Show("Product deleted successfully!", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information)
             Me.Close()
-        Catch
+
+        Catch ex As Exception
+            MessageBox.Show("Delete failed: " & ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
         End Try
     End Sub
 
-    ' Isara
+    ' ─────────────────────────────────────────────────────────
+    ' Close form
+    ' ─────────────────────────────────────────────────────────
     Private Sub btnClose_Click(sender As Object, e As EventArgs) Handles btnClose.Click
         Me.Close()
     End Sub

@@ -5,17 +5,11 @@ Public Class Vendor_Manage
 
     Private _dtVendors As New DataTable
 
-    ' ─────────────────────────────────────────────────────────
-    ' Pagbukas ng Form
-    ' ─────────────────────────────────────────────────────────
     Private Sub Vendor_Manage_Load(sender As Object, e As EventArgs) Handles MyBase.Load
         SetupGrid()
         LoadAllVendors()
     End Sub
 
-    ' ─────────────────────────────────────────────────────────
-    ' Ayos ng Grid — EKSAKTO SA LAHAT NG KOLUM MALIBAN SA LOGO
-    ' ─────────────────────────────────────────────────────────
     Private Sub SetupGrid()
         With dgvVendors
             .AutoGenerateColumns = False
@@ -33,7 +27,6 @@ Public Class Vendor_Manage
 
         dgvVendors.Columns.Clear()
 
-        ' ✅ LAHAT NG KOLUM GAYA SA TABLE MO (WALANG LOGO)
         dgvVendors.Columns.Add(New DataGridViewTextBoxColumn With {
             .Name = "ID",
             .HeaderText = "ID",
@@ -147,42 +140,11 @@ Public Class Vendor_Manage
         })
     End Sub
 
-    ' ─────────────────────────────────────────────────────────
-    ' Koneksyon sa SQL Server
-    ' ─────────────────────────────────────────────────────────
-    Private Function GetConnection() As SqlConnection
-        Return New SqlConnection("Data Source=JUDIEL\SQLEXPRESS;Initial Catalog=CodeNectDB;Integrated Security=True;")
-    End Function
-
-    ' ─────────────────────────────────────────────────────────
-    ' Kunin ang lahat ng Vendor (WALANG LOGO)
-    ' ─────────────────────────────────────────────────────────
     Private Sub LoadAllVendors()
         Try
             _dtVendors.Clear()
-            Using con As SqlConnection = GetConnection()
-                ' ✅ Eksaktong query — Lahat ng kolum MALIBAN sa LOGO
-                Dim sql As String = "
-                    SELECT 
-                        ID,
-                        VENDOR_CODE,
-                        VENDOR,
-                        BUSINESS_TYPE,
-                        CONTACT,
-                        EMAIL,
-                        TIN,
-                        DTI_REG_NUMBER,
-                        VAT_STATUS,
-                        SALES_PERSON,
-                        MODE_OF_PAYMENT,
-                        BANK,
-                        BANK_ACCOUNT_NUMBER,
-                        PAYMENT_TERMS,
-                        DATE_REGISTERED,
-                        STATUS
-                    FROM vendor
-                    ORDER BY VENDOR ASC"
-
+            Using con As New SqlConnection(connStr)
+                Dim sql As String = "SELECT ID, VENDOR_CODE, VENDOR, BUSINESS_TYPE, CONTACT, EMAIL, TIN, DTI_REG_NUMBER, VAT_STATUS, SALES_PERSON, MODE_OF_PAYMENT, BANK, BANK_ACCOUNT_NUMBER, PAYMENT_TERMS, DATE_REGISTERED, STATUS FROM vendor ORDER BY VENDOR ASC"
                 Using cmd As New SqlCommand(sql, con)
                     Using da As New SqlDataAdapter(cmd)
                         da.Fill(_dtVendors)
@@ -191,100 +153,81 @@ Public Class Vendor_Manage
             End Using
             dgvVendors.DataSource = _dtVendors
         Catch ex As Exception
-            MessageBox.Show("Error loading vendor list: " & ex.Message, "System Message", MessageBoxButtons.OK, MessageBoxIcon.Error)
+            MessageBox.Show("Error loading vendor list: " & ex.Message)
         End Try
     End Sub
 
-    ' ─────────────────────────────────────────────────────────
-    ' Search Function
-    ' ─────────────────────────────────────────────────────────
     Private Sub txtSearch_TextChanged(sender As Object, e As EventArgs) Handles txtSearch.TextChanged
         Try
             If String.IsNullOrWhiteSpace(txtSearch.Text) Then
                 _dtVendors.DefaultView.RowFilter = ""
             Else
-                Dim hanap As String = txtSearch.Text.Replace("'", "''")
-                _dtVendors.DefaultView.RowFilter = $"
-                    VENDOR_CODE LIKE '%{hanap}%' OR 
-                    VENDOR LIKE '%{hanap}%' OR 
-                    CONTACT_NUMBER LIKE '%{hanap}%' OR
-                    TIN LIKE '%{hanap}%'"
+                Dim searchText As String = txtSearch.Text.Replace("'", "''")
+                _dtVendors.DefaultView.RowFilter = "VENDOR_CODE LIKE '%" & searchText & "%' OR VENDOR LIKE '%" & searchText & "%' OR CONTACT LIKE '%" & searchText & "%' OR TIN LIKE '%" & searchText & "%'"
             End If
         Catch
         End Try
     End Sub
 
-    ' ─────────────────────────────────────────────────────────
-    ' Button: Add
-    ' ─────────────────────────────────────────────────────────
     Private Sub btnAdd_Click(sender As Object, e As EventArgs) Handles btnAdd.Click
-        ' Dito mo ilalagay ang pagbubukas ng iyong Add Vendor form kapag meron ka na
-        MessageBox.Show("Open Add Vendor Form here", "Add Vendor", MessageBoxButtons.OK, MessageBoxIcon.Information)
+        Dim frmAdd As New ADD_Vendor()
+        frmAdd.ShowDialog()
+        LoadAllVendors()
     End Sub
 
-    ' ─────────────────────────────────────────────────────────
-    ' Button: Refresh
-    ' ─────────────────────────────────────────────────────────
     Private Sub btnRefresh_Click(sender As Object, e As EventArgs) Handles btnRefresh.Click
         txtSearch.Clear()
         LoadAllVendors()
     End Sub
 
-    ' ─────────────────────────────────────────────────────────
-    ' Button: Save to Excel
-    ' ─────────────────────────────────────────────────────────
     Private Sub btnSaveToExcel_Click(sender As Object, e As EventArgs) Handles btnSaveToExcel.Click
         If _dtVendors.Rows.Count = 0 Then
-            MessageBox.Show("No records found to save!", "Notice", MessageBoxButtons.OK, MessageBoxIcon.Exclamation)
+            MessageBox.Show("No records found to save!")
             Return
         End If
         Try
             Dim saveDialog As New SaveFileDialog With {
                 .Filter = "CSV File (*.csv)|*.csv",
                 .Title = "Save Vendor List",
-                .FileName = $"Vendor_List_{DateTime.Now:yyyyMMdd}"
+                .FileName = "Vendor_List_" & DateTime.Now.ToString("yyyyMMdd")
             }
             If saveDialog.ShowDialog() = DialogResult.OK Then
                 Using sw As New StreamWriter(saveDialog.FileName, False, System.Text.Encoding.UTF8)
-                    ' Headers
                     sw.WriteLine("Vendor Code,Vendor Name,Business Type,Contact Number,Email,TIN,DTI Reg No,VAT Status,Sales Person,Payment Mode,Bank,Account No,Payment Terms,Date Registered,Status")
-                    ' Rows
                     For Each dr As DataRow In _dtVendors.Rows
-                        sw.WriteLine(String.Join(",",
-                            """" & dr("VENDOR_CODE") & """",
-                            """" & dr("VENDOR") & """",
-                            """" & If(dr("BUSINESS_TYPE") Is DBNull.Value, "", dr("BUSINESS_TYPE")) & """",
-                            """" & If(dr("CONTACT") Is DBNull.Value, "", dr("CONTACT")) & """",
-                            """" & If(dr("EMAIL") Is DBNull.Value, "", dr("EMAIL")) & """",
-                            """" & If(dr("TIN") Is DBNull.Value, "", dr("TIN")) & """",
-                            """" & If(dr("DTI_REG_NUMBER") Is DBNull.Value, "", dr("DTI_REG_NUMBER")) & """",
-                            """" & If(dr("VAT_STATUS") Is DBNull.Value, "", dr("VAT_STATUS")) & """",
-                            """" & If(dr("SALES_PERSON") Is DBNull.Value, "", dr("SALES_PERSON")) & """",
-                            """" & If(dr("MODE_OF_PAYMENT") Is DBNull.Value, "", dr("MODE_OF_PAYMENT")) & """",
-                            """" & If(dr("BANK") Is DBNull.Value, "", dr("BANK")) & """",
-                            """" & If(dr("BANK_ACCOUNT_NUMBER") Is DBNull.Value, "", dr("BANK_ACCOUNT_NUMBER")) & """",
-                            """" & If(dr("PAYMENT_TERMS") Is DBNull.Value, "", dr("PAYMENT_TERMS")) & """",
-                            """" & CDate(dr("DATE_REGISTERED")).ToString("yyyy-MM-dd") & """",
+                        sw.WriteLine(
+                            """" & dr("VENDOR_CODE") & """," &
+                            """" & dr("VENDOR") & """," &
+                            """" & If(dr("BUSINESS_TYPE") Is DBNull.Value, "", dr("BUSINESS_TYPE")) & """," &
+                            """" & If(dr("CONTACT") Is DBNull.Value, "", dr("CONTACT")) & """," &
+                            """" & If(dr("EMAIL") Is DBNull.Value, "", dr("EMAIL")) & """," &
+                            """" & If(dr("TIN") Is DBNull.Value, "", dr("TIN")) & """," &
+                            """" & If(dr("DTI_REG_NUMBER") Is DBNull.Value, "", dr("DTI_REG_NUMBER")) & """," &
+                            """" & If(dr("VAT_STATUS") Is DBNull.Value, "", dr("VAT_STATUS")) & """," &
+                            """" & If(dr("SALES_PERSON") Is DBNull.Value, "", dr("SALES_PERSON")) & """," &
+                            """" & If(dr("MODE_OF_PAYMENT") Is DBNull.Value, "", dr("MODE_OF_PAYMENT")) & """," &
+                            """" & If(dr("BANK") Is DBNull.Value, "", dr("BANK")) & """," &
+                            """" & If(dr("BANK_ACCOUNT_NUMBER") Is DBNull.Value, "", dr("BANK_ACCOUNT_NUMBER")) & """," &
+                            """" & If(dr("PAYMENT_TERMS") Is DBNull.Value, "", dr("PAYMENT_TERMS")) & """," &
+                            """" & CDate(dr("DATE_REGISTERED")).ToString("yyyy-MM-dd") & """," &
                             """" & dr("STATUS") & """"
-                        ))
+                        )
                     Next
                 End Using
-                MessageBox.Show("Vendor list saved successfully!", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information)
+                MessageBox.Show("Vendor list saved successfully!")
             End If
         Catch ex As Exception
-            MessageBox.Show("Error saving list: " & ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
+            MessageBox.Show("Error saving list: " & ex.Message)
         End Try
     End Sub
 
-    ' --- KAPAG DINOBLE CLICK ANG LINYA SA LISTAHAN ---
     Private Sub dgvVendors_CellDoubleClick(sender As Object, e As DataGridViewCellEventArgs) Handles dgvVendors.CellDoubleClick
         If e.RowIndex >= 0 Then
-            Dim selectedVendorCode As String = dgvVendors.Rows(e.RowIndex).Cells("VENDOR_CODE").Value.ToString()
-
-            ' Buksan ang Vendor Info at ipasa ang Vendor Code
+            Dim selectedCode As String = dgvVendors.Rows(e.RowIndex).Cells("VENDOR_CODE").Value.ToString()
             Dim frmInfo As New Vendor_Info()
-            frmInfo.SelectedVendorCode = selectedVendorCode
+            frmInfo.SelectedVendorCode = selectedCode
             frmInfo.ShowDialog()
         End If
     End Sub
+
 End Class

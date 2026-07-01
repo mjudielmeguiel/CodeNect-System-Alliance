@@ -276,6 +276,7 @@
     <Compile Include="Branch\Branch_Info.vb">
       <SubType>Form</SubType>
     </Compile>
+    <Compile Include="DBConnection.vb" />
     <Compile Include="inventory\Inventory.Designer.vb">
       <DependentUpon>Inventory.vb</DependentUpon>
     </Compile>

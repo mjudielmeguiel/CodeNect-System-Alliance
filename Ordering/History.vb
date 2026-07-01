@@ -4,23 +4,17 @@ Imports Excel = Microsoft.Office.Interop.Excel
 
 Public Class History
 
-    ' ✅ CONNECTION STRING TAMA NA
-    Dim connString As String = "Data Source=192.168.68.109\SQLEXPRESS,1433;Initial Catalog=CodeNectDB;Integrated Security=True;Connect Timeout=15"
-
     Private Sub History_Load(sender As Object, e As EventArgs) Handles MyBase.Load
-
-        ' ✅ LOAD ANG TYPE NG REPORT
         cboType.Items.Clear()
         cboType.Items.Add("Stock Ordering")
         cboType.Items.Add("Stock Transfer")
         cboType.Items.Add("Return to Vendor")
         cboType.SelectedIndex = 0
 
-        ' ✅ LOAD LAHAT NG BRANCH SA COMBOBOX
         cboBranch.Items.Clear()
 
         Try
-            Using conn As New SqlConnection(connString)
+            Using conn As New SqlConnection(connStr)
                 Dim sqlBranches As String = "SELECT DISTINCT BRANCH FROM Branches WHERE BRANCH IS NOT NULL ORDER BY BRANCH"
                 Using cmd As New SqlCommand(sqlBranches, conn)
                     conn.Open()
@@ -36,26 +30,21 @@ Public Class History
             MessageBox.Show("Error loading branches: " & ex.Message)
         End Try
 
-        ' ✅ SET DEFAULT BRANCH (pwede mong palitan kung ano gusto mo maging una)
         If cboBranch.Items.Contains("more Store - Festival Mall") Then
             cboBranch.SelectedItem = "more Store - Festival Mall"
         Else
-            cboBranch.SelectedIndex = 0
+            If cboBranch.Items.Count > 0 Then cboBranch.SelectedIndex = 0
         End If
 
         LoadData()
-
     End Sub
 
     Sub LoadData()
         Try
-            Using conn As New SqlConnection(connString)
-                Dim selectedBranch As String = cboBranch.Text ' ✅ GAGAMITIN YUNG PINILI NG USER
+            Using conn As New SqlConnection(connStr)
+                Dim selectedBranch As String = cboBranch.Text
                 Dim dt As New DataTable
 
-                ' ==============================================
-                ' ✅ STOCK ORDERING - PO NUMBER
-                ' ==============================================
                 If cboType.Text = "Stock Ordering" Then
                     Dim sql As String = "SELECT 
                                             PO_NUMBER AS [PO Number],
@@ -80,9 +69,6 @@ Public Class History
                         da.Fill(dt)
                     End Using
 
-                    ' ==============================================
-                    ' ✅ STOCK TRANSFER - STR NUMBER
-                    ' ==============================================
                 ElseIf cboType.Text = "Stock Transfer" Then
                     Dim sql As String = "SELECT 
                                             STR_NUMBER AS [STR Number],
@@ -108,9 +94,6 @@ Public Class History
                         da.Fill(dt)
                     End Using
 
-                    ' ==============================================
-                    ' ✅ RETURN TO VENDOR - RTV NUMBER
-                    ' ==============================================
                 ElseIf cboType.Text = "Return to Vendor" Then
                     Dim sql As String = "SELECT 
                                             RTV_NUMBER AS [RTV Number],
@@ -141,14 +124,12 @@ Public Class History
                 End If
 
                 dgvHistory.DataSource = dt
-
             End Using
         Catch ex As Exception
             MessageBox.Show("Error: " & ex.Message)
         End Try
     End Sub
 
-    ' ✅ KAPAG NAGPALIT NG TYPE O BRANCH, REFRESH AGAD
     Private Sub cboType_SelectedIndexChanged(sender As Object, e As EventArgs) Handles cboType.SelectedIndexChanged
         LoadData()
     End Sub
@@ -160,13 +141,13 @@ Public Class History
     Private Sub btnSaveExcel_Click(sender As Object, e As EventArgs) Handles btnSaveExcel.Click
         Try
             If dgvHistory.Rows.Count = 0 Then
-                MessageBox.Show("Walang datos na ma-i-save.")
+                MessageBox.Show("No data to export.")
                 Exit Sub
             End If
 
-            Dim excelApp As New Microsoft.Office.Interop.Excel.Application()
-            Dim excelWB As Microsoft.Office.Interop.Excel.Workbook = excelApp.Workbooks.Add()
-            Dim excelWS As Microsoft.Office.Interop.Excel.Worksheet = excelWB.Worksheets(1)
+            Dim excelApp As New Excel.Application()
+            Dim excelWB As Excel.Workbook = excelApp.Workbooks.Add()
+            Dim excelWS As Excel.Worksheet = CType(excelWB.Worksheets(1), Excel.Worksheet)
 
             For col As Integer = 0 To dgvHistory.Columns.Count - 1
                 excelWS.Cells(1, col + 1) = dgvHistory.Columns(col).HeaderText

@@ -9,6 +9,7 @@ Public Class Account_Recovery
 
     ' --- PAGBUBUKAS NG FORM: GUMAGAWA AGAD NG RECOVERY ID ---
     Private Sub Account_Recovery_Load(sender As Object, e As EventArgs) Handles MyBase.Load
+
         GenerateRecoveryID() ' Gagawa agad ng ID pagbukas pa lang
         txtReason.Multiline = True
         txtReason.ScrollBars = ScrollBars.Vertical ' Para ma-scroll yung Reason

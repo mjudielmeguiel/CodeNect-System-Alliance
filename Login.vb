@@ -11,8 +11,6 @@ Public Class Login
     Dim attemptCount As Integer = 0
     Dim maxAttempts As Integer = 3
 
-    Dim connString As String = "Data Source=localhost\SQLEXPRESS;Initial Catalog=CodeNectDB;User ID=CodeNect_Database;Password=Password1*;Connect Timeout=15"
-
     Private Sub Button1_Click(sender As Object, e As EventArgs) Handles Button1.Click
 
         Dim username As String = txtUsername.Text.Trim()
@@ -28,8 +26,7 @@ Public Class Login
             Return
         End If
 
-
-        Using conn As New SqlConnection(connString)
+        Using conn As New SqlConnection(connStr)
             Try
                 conn.Open()
 
@@ -74,7 +71,6 @@ Public Class Login
 
                         Case "OFFLINE"
                             If passCheck = password Then
-                                ' ✅ UPDATE STATUS GAMIT ID
                                 Using cmdUpdate As New SqlCommand("UPDATE adm.Account SET STATUS = 'ACTIVE' WHERE ID = @id", conn)
                                     cmdUpdate.Parameters.AddWithValue("@id", adminID)
                                     cmdUpdate.ExecuteNonQuery()
@@ -89,17 +85,14 @@ Public Class Login
                                 DashBoard.ToolStripStatusLabel4.Text = "MAIN OFFICE"
                                 DashBoard.Label1.Text = "ADMIN PANEL"
                                 DashBoard.Btn_Manage.Visible = False
-                                DashBoard.Btn_Manage.Visible = False
                                 Me.Hide()
                                 DashBoard.Show()
                             Else
                                 MessageBox.Show("Username or Password does not exist", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
-                                Return
                             End If
                     End Select
                     Return
                 End If
-
 
                 ' CHECK REGULAR USER ACCOUNT (WITH ATTEMPT LOCK)
                 Dim userFound As Boolean = False
@@ -130,13 +123,10 @@ Public Class Login
                     End Using
                 End Using
 
-
                 If Not userFound Then
-                    ' USERNAME NOT EXIST
                     MessageBox.Show("Username or Password does not exist", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
                     Return
                 End If
-
 
                 Select Case userStatus.ToUpper()
                     Case "ACTIVE"
@@ -148,14 +138,12 @@ Public Class Login
                         Return
 
                     Case "OFFLINE"
-                        ' Continue
+                        ' Continue login process
                 End Select
-
 
                 If storedPassword = password Then
                     attemptCount = 0
 
-                    ' ✅ UPDATE STATUS GAMIT ID
                     Using cmdUpdate As New SqlCommand("UPDATE User_Accounts SET STATUS = 'ACTIVE' WHERE ID = @id", conn)
                         cmdUpdate.Parameters.AddWithValue("@id", userID)
                         cmdUpdate.ExecuteNonQuery()
@@ -166,97 +154,87 @@ Public Class Login
                     LoggedInUserType = userType
                     LoggedInUsername = fullName
 
-                    'POS SYSTEM
+                    ' POS System
                     If userType.Equals("CASHIER", StringComparison.OrdinalIgnoreCase) OrElse userType.Equals("POS", StringComparison.OrdinalIgnoreCase) Then
                         POS_System.tsname.Text = LoggedInUsername
                         POS_System.tsbranch.Text = branchName
                         POS_System.Show()
 
-                        ' BRANCH ADMIN DASHBOARD
-                    ElseIf userType.Equals("Branch Administrator", StringComparison.OrdinalIgnoreCase) OrElse userType.Equals("Branch Administrator", StringComparison.OrdinalIgnoreCase) Then
+                        ' Branch Administrator
+                    ElseIf userType.Equals("Branch Administrator", StringComparison.OrdinalIgnoreCase) Then
                         DashBoard.ToolStripStatusLabel1.Text = LoggedInUsername
                         DashBoard.ToolStripStatusLabel4.Text = branchName
                         DashBoard.Label1.Text = userType.ToUpper() & " DASHBOARD"
-
                         DashBoard.UserManageToolStripMenuItem.Visible = True
                         DashBoard.Btn_Manage.Visible = True
                         DashBoard.Show()
 
-                        'IT SUPPORT DASHBOARD
-                    ElseIf userType.Equals("IT Support", StringComparison.OrdinalIgnoreCase) OrElse userType.Equals("IT Support", StringComparison.OrdinalIgnoreCase) Then
+                        ' IT Support
+                    ElseIf userType.Equals("IT Support", StringComparison.OrdinalIgnoreCase) Then
                         DashBoard.ToolStripStatusLabel1.Text = LoggedInUsername
                         DashBoard.ToolStripStatusLabel4.Text = branchName
                         DashBoard.Label1.Text = userType.ToUpper() & " DASHBOARD"
-
                         DashBoard.UserManageToolStripMenuItem.Visible = True
                         DashBoard.Btn_Manage.Visible = True
                         DashBoard.Show()
 
-                        'BRANCH MANAGER DASHBOARD
-                    ElseIf userType.Equals("Branch Manager", StringComparison.OrdinalIgnoreCase) OrElse userType.Equals("Branch Manager", StringComparison.OrdinalIgnoreCase) Then
+                        ' Branch Manager
+                    ElseIf userType.Equals("Branch Manager", StringComparison.OrdinalIgnoreCase) Then
                         DashBoard.ToolStripStatusLabel1.Text = LoggedInUsername
                         DashBoard.ToolStripStatusLabel4.Text = branchName
                         DashBoard.Label1.Text = userType.ToUpper() & " DASHBOARD"
-
                         DashBoard.UserManageToolStripMenuItem.Visible = False
                         DashBoard.Btn_Manage.Visible = True
                         DashBoard.Show()
 
-                        'SUPERVISOR DASHBOARD
-                    ElseIf userType.Equals("Supervisor", StringComparison.OrdinalIgnoreCase) OrElse userType.Equals("Supervisor", StringComparison.OrdinalIgnoreCase) Then
+                        ' Supervisor
+                    ElseIf userType.Equals("Supervisor", StringComparison.OrdinalIgnoreCase) Then
                         DashBoard.ToolStripStatusLabel1.Text = LoggedInUsername
                         DashBoard.ToolStripStatusLabel4.Text = branchName
                         DashBoard.Label1.Text = userType.ToUpper() & " DASHBOARD"
-
                         DashBoard.UserManageToolStripMenuItem.Visible = False
                         DashBoard.Btn_Manage.Visible = True
                         DashBoard.Show()
 
-                        'INVENTORY CLERK DASHBOARD
-                    ElseIf userType.Equals("Inventory Clerk", StringComparison.OrdinalIgnoreCase) OrElse userType.Equals("Inventory Clerk", StringComparison.OrdinalIgnoreCase) Then
+                        ' Inventory Clerk
+                    ElseIf userType.Equals("Inventory Clerk", StringComparison.OrdinalIgnoreCase) Then
                         DashBoard.ToolStripStatusLabel1.Text = LoggedInUsername
                         DashBoard.ToolStripStatusLabel4.Text = branchName
                         DashBoard.Label1.Text = userType.ToUpper() & " DASHBOARD"
-
                         DashBoard.UserManageToolStripMenuItem.Visible = False
                         DashBoard.Btn_Manage.Visible = True
                         DashBoard.Show()
 
-                        'RECIEVING DEPARTMENT UNIT (RDU) DASHBOARD
-                    ElseIf userType.Equals("Recieving Department Unit", StringComparison.OrdinalIgnoreCase) OrElse userType.Equals("Recieving Department Unit", StringComparison.OrdinalIgnoreCase) Then
+                        ' Receiving Department Unit
+                    ElseIf userType.Equals("Recieving Department Unit", StringComparison.OrdinalIgnoreCase) Then
                         DashBoard.ToolStripStatusLabel1.Text = LoggedInUsername
                         DashBoard.ToolStripStatusLabel4.Text = branchName
                         DashBoard.Label1.Text = userType.ToUpper() & " DASHBOARD"
-
                         DashBoard.UserManageToolStripMenuItem.Visible = False
                         DashBoard.Show()
 
-                        'SALES STAFF DASHBOARD
-                    ElseIf userType.Equals("Sales Staff", StringComparison.OrdinalIgnoreCase) OrElse userType.Equals("Sales Staff", StringComparison.OrdinalIgnoreCase) Then
+                        ' Sales Staff
+                    ElseIf userType.Equals("Sales Staff", StringComparison.OrdinalIgnoreCase) Then
                         DashBoard.ToolStripStatusLabel1.Text = LoggedInUsername
                         DashBoard.ToolStripStatusLabel4.Text = branchName
                         DashBoard.Label1.Text = userType.ToUpper() & " DASHBOARD"
-
                         DashBoard.UserManageToolStripMenuItem.Visible = False
                         DashBoard.Btn_Manage.Visible = True
                         DashBoard.Show()
                     End If
-                    DashBoard.Show()
+
                     Me.Hide()
 
                 Else
                     attemptCount += 1
                     If attemptCount >= maxAttempts Then
-                        ' LOCK ACCOUNT GAMIT ID
                         Using cmdLock As New SqlCommand("UPDATE User_Accounts SET STATUS = 'LOCKED' WHERE ID = @id", conn)
                             cmdLock.Parameters.AddWithValue("@id", userID)
                             cmdLock.ExecuteNonQuery()
                         End Using
-
                         MessageBox.Show("ACCOUNT LOCKED! Contact IT to unlock.", "Locked", MessageBoxButtons.OK, MessageBoxIcon.Stop)
                         attemptCount = 0
                     Else
-                        ' WRONG PASSWORD
                         MessageBox.Show("Username or Password does not exist. Remaining attempts: " & (maxAttempts - attemptCount), "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
                     End If
                 End If
@@ -266,7 +244,6 @@ Public Class Login
             End Try
         End Using
     End Sub
-
 
     Private Sub Login_Load(sender As Object, e As EventArgs) Handles MyBase.Load
         txtUsername.Text = "Enter Username"
@@ -306,9 +283,9 @@ Public Class Login
     End Sub
 
     Private Sub btnClose_Click(sender As Object, e As EventArgs) Handles btnClose.Click
-
-        If MessageBox.Show("Are you sure you want to exit?", "Confirm Logout", MessageBoxButtons.YesNo, MessageBoxIcon.Question) = DialogResult.Yes Then
+        If MessageBox.Show("Are you sure you want to exit?", "Confirm", MessageBoxButtons.YesNo, MessageBoxIcon.Question) = DialogResult.Yes Then
             Application.Exit()
         End If
     End Sub
+
 End Class

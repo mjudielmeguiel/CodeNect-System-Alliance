@@ -353,6 +353,7 @@ Partial Class ShelfTag_Printer
         Me.Controls.Add(Me.dgvItems)
         Me.Controls.Add(Me.Panel4)
         Me.Controls.Add(Me.Panel2)
+        Me.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle
         Me.Icon = CType(resources.GetObject("$this.Icon"), System.Drawing.Icon)
         Me.Name = "ShelfTag_Printer"
         Me.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen

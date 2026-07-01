@@ -6,19 +6,11 @@ Imports System.Drawing.Imaging
 
 Public Class ADD_Description
 
-    ' Koneksyon sa Database
-    Private strConn As String = "Data Source=192.168.68.109\SQLEXPRESS,1433;Initial Catalog=CodeNectDB;User ID=CodeNect_Database;Password=Password1*;Connect Timeout=15"
-    ' Dito ilalagay ang mga numero/kodigo na kailangan
     Private Current_AccountID As String = ""
     Private Current_BranchID As String = ""
 
-    '=====================================================
-    ' PAGBUBUKAS NG FORM
-    '=====================================================
     Private Sub ADD_Description_Load(sender As Object, e As EventArgs) Handles MyBase.Load
-        ' Kukunin ang mga ID gamit ang pangalan ng branch mula sa dashboard
         GetIDsUsingBranchName()
-
         txtBarcode.Focus()
         GenerateRandom6DigitSKU()
         SetFieldsSettings()
@@ -34,9 +26,6 @@ Public Class ADD_Description
         Me.Text = $"ADD NEW PRODUCT | Account ID: {Current_AccountID} | Branch ID: {Current_BranchID}"
     End Sub
 
-    '=====================================================
-    ' ✅ TAMANG PAGKUHA NG ID — GAMIT ANG "BRANCH" LANG
-    '=====================================================
     Private Sub GetIDsUsingBranchName()
         Try
             Dim BranchNameFromDashboard As String = DashBoard.ToolStripStatusLabel4.Text.Trim()
@@ -46,7 +35,7 @@ Public Class ADD_Description
                 Return
             End If
 
-            Using conn As New SqlConnection(strConn)
+            Using conn As New SqlConnection(connStr)
                 Dim query As String = "
                     SELECT TOP 1 
                         ACCOUNT_ID, 
@@ -85,9 +74,6 @@ Public Class ADD_Description
         End Try
     End Sub
 
-    '=====================================================
-    ' DOUBLE CLICK SA LARAWAN
-    '=====================================================
     Private Sub picProduct_DoubleClick(sender As Object, e As EventArgs) Handles picProduct.DoubleClick
         Using ofd As New OpenFileDialog()
             ofd.Title = "Pumili ng Litrato ng Produkto"
@@ -103,9 +89,6 @@ Public Class ADD_Description
         End Using
     End Sub
 
-    '=====================================================
-    ' I-CONVERT ANG LARAWAN PARA SA DATABASE
-    '=====================================================
     Private Function ImageToByteArray(img As Image) As Byte()
         If img Is Nothing Then Return Nothing
         Try
@@ -120,9 +103,6 @@ Public Class ADD_Description
         End Try
     End Function
 
-    '=====================================================
-    ' GUMAWA NG BAGONG SKU
-    '=====================================================
     Private Sub GenerateRandom6DigitSKU()
         Try
             Dim newSKU As String = ""
@@ -130,7 +110,7 @@ Public Class ADD_Description
             Dim rnd As New Random()
             Do
                 newSKU = rnd.Next(100000, 999999).ToString("D6")
-                Using conn As New SqlConnection(strConn)
+                Using conn As New SqlConnection(connStr)
                     Dim cmd As New SqlCommand("SELECT COUNT(*) FROM inv.Inventory_Master_file WHERE SKU = @SKU AND ACCOUNT_ID = @AccID", conn)
                     cmd.Parameters.Add("@SKU", SqlDbType.NChar, 15).Value = newSKU
                     cmd.Parameters.Add("@AccID", SqlDbType.NVarChar, 50).Value = Current_AccountID
@@ -146,9 +126,6 @@ Public Class ADD_Description
         End Try
     End Sub
 
-    '=====================================================
-    ' KUNIN DETALYE MULA SA VENDOR
-    '=====================================================
     Private Sub txtBarcode_TextChanged(sender As Object, e As EventArgs) Handles txtBarcode.TextChanged
         If txtBarcode.Text.Trim.Length >= 5 Then
             LoadVendorDetails()
@@ -160,7 +137,7 @@ Public Class ADD_Description
 
     Private Sub LoadVendorDetails()
         Try
-            Using conn As New SqlConnection(strConn)
+            Using conn As New SqlConnection(connStr)
                 Dim query As String = "SELECT DESCRIPTIONS, BRAND, CATEGORY, VENDOR_CODE, VENDOR, UNIT, SIZE, PRICE, PRODUCT_IMAGE FROM dbo.Vendor_Products WHERE RTRIM(LTRIM(BARCODE)) = @Barcode"
                 Using cmd As New SqlCommand(query, conn)
                     cmd.Parameters.Add("@Barcode", SqlDbType.NChar, 15).Value = txtBarcode.Text.Trim()
@@ -202,9 +179,6 @@ Public Class ADD_Description
         End Try
     End Sub
 
-    '=====================================================
-    ' KUWENTAHIN ANG KABUUAN
-    '=====================================================
     Private Sub txtStockAvailable_TextChanged(sender As Object, e As EventArgs) Handles txtStockAvailable.TextChanged
         ComputeTotal()
         SetAvailabilityStatus()
@@ -245,9 +219,6 @@ Public Class ADD_Description
         End Try
     End Sub
 
-    '=====================================================
-    ' MGA SETTING NG FIELD
-    '=====================================================
     Private Sub SetFieldsSettings()
         txtSKU.ReadOnly = True
         txtDescription.ReadOnly = True
@@ -263,9 +234,6 @@ Public Class ADD_Description
         txtTotal.ReadOnly = True
     End Sub
 
-    '=====================================================
-    ' BURAHIN ANG LAHAT
-    '=====================================================
     Private Sub ClearAll()
         txtDescription.Clear()
         txtBrand.Clear()
@@ -282,23 +250,18 @@ Public Class ADD_Description
         GenerateRandom6DigitSKU()
     End Sub
 
-    '=====================================================
-    ' ✅ I-SAVE ANG PRODUKTO — MAY CHECKER NA KUNG EXISTING NA
-    '=====================================================
     Private Sub btnSaveProduct_Click(sender As Object, e As EventArgs) Handles btnSaveProduct.Click
         If String.IsNullOrEmpty(Current_AccountID) Or String.IsNullOrEmpty(Current_BranchID) Then
             MessageBox.Show("❌ Walang nakuhang Account o Branch ID. Hindi makakapag-save.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
             Return
         End If
 
-        ' MGA PAGTITIGIL SA KINAKAILANGANG IMPORMASYON
         If String.IsNullOrWhiteSpace(txtBarcode.Text) Then MessageBox.Show("Ilagay ang Barcode.", "Kailangan", MessageBoxButtons.OK, MessageBoxIcon.Warning) : txtBarcode.Focus() : Return
         If String.IsNullOrWhiteSpace(txtDescription.Text) Then MessageBox.Show("Ilagay ang Deskripsyon.", "Kailangan", MessageBoxButtons.OK, MessageBoxIcon.Warning) : Return
         If String.IsNullOrWhiteSpace(txtStockAvailable.Text) OrElse Not Integer.TryParse(txtStockAvailable.Text.Trim(), Nothing) Then MessageBox.Show("Ilagay ang dami ng Stock.", "Kailangan", MessageBoxButtons.OK, MessageBoxIcon.Warning) : txtStockAvailable.Focus() : Return
 
-        ' ✅ TINGNAN KUNG MAY EXISTING NA PRODUKTO
         Try
-            Using conn As New SqlConnection(strConn)
+            Using conn As New SqlConnection(connStr)
                 Dim checkQuery As String = "
             SELECT COUNT(*) 
             FROM inv.Inventory_Master_file 
@@ -316,13 +279,12 @@ Public Class ADD_Description
                     conn.Open()
                     Dim existingCount As Integer = CInt(cmdCheck.ExecuteScalar())
 
-                    ' ❌ ERROR MESSAGE KAPAG MAY KAPAREHO NA
                     If existingCount > 0 Then
                         MessageBox.Show("⚠️ MAYROON NANG KAPAREHONG PRODUKTO SA DATABASE!" & Environment.NewLine &
                                         "Ang Barcode o SKU na iyong inilagay ay nakarehistro na para sa Branch at Account na ito." & Environment.NewLine &
                                         "Hindi maaaring magkaroon ng dalawang magkatulad na talaan.",
                                         "Paalala: Mayroon na", MessageBoxButtons.OK, MessageBoxIcon.Warning)
-                        Return ' Ihinto ang pag-save
+                        Return
                     End If
                 End Using
             End Using
@@ -330,57 +292,49 @@ Public Class ADD_Description
             MessageBox.Show("❌ Error habang tinitingnan kung may kapareho: " & ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
             Return
         End Try
-        ' ==================================================
-        ' TAPOS NA ANG CHECKER
-        ' ==================================================
-
 
         Dim confirm = MessageBox.Show($"I-save ang produkto?{Environment.NewLine}Account ID: {Current_AccountID}{Environment.NewLine}Branch ID: {Current_BranchID}{Environment.NewLine}SKU: {txtSKU.Text}", "Kumpirmahin", MessageBoxButtons.YesNo, MessageBoxIcon.Question)
-            If confirm <> DialogResult.Yes Then Return
+        If confirm <> DialogResult.Yes Then Return
 
-            Try
-                Dim imgBytes As Byte() = ImageToByteArray(picProduct.Image)
-                Using conn As New SqlConnection(strConn)
-                    Dim query As String = "INSERT INTO inv.Inventory_Master_file (ACCOUNT_ID, BRANCH_ID, PRODUCT_IMAGE, BARCODE, SKU, BRAND, DESCRIPTIONS, CATEGORY, SIZE, PRICE, UNIT, AVAILABLE, VENDOR_CODE, VENDOR) VALUES (@ACCOUNT, @BRANCH, @PRODUCT_IMAGE, @BARCODE, @SKU, @BRAND, @DESCRIPTIONS, @CATEGORY, @SIZE, @PRICE, @UNIT, @AVAILABLE, @VENDOR_CODE, @VENDOR)"
-                    Using cmd As New SqlCommand(query, conn)
-                        cmd.Parameters.Add("@ACCOUNT", SqlDbType.NVarChar, 50).Value = Current_AccountID
-                        cmd.Parameters.Add("@BRANCH", SqlDbType.NVarChar, 50).Value = Current_BranchID
-                        cmd.Parameters.Add("@PRODUCT_IMAGE", SqlDbType.VarBinary).Value = If(imgBytes IsNot Nothing, imgBytes, DBNull.Value)
-                        cmd.Parameters.Add("@BARCODE", SqlDbType.NChar, 15).Value = txtBarcode.Text.Trim()
-                        cmd.Parameters.Add("@SKU", SqlDbType.NChar, 15).Value = txtSKU.Text.Trim()
-                        cmd.Parameters.Add("@BRAND", SqlDbType.VarChar, 255).Value = txtBrand.Text.Trim()
-                        cmd.Parameters.Add("@DESCRIPTIONS", SqlDbType.VarChar, 255).Value = txtDescription.Text.Trim()
-                        cmd.Parameters.Add("@CATEGORY", SqlDbType.VarChar, 255).Value = txtCategory.Text.Trim()
-                        cmd.Parameters.Add("@SIZE", SqlDbType.NVarChar, 20).Value = txtSize.Text.Trim()
+        Try
+            Dim imgBytes As Byte() = ImageToByteArray(picProduct.Image)
+            Using conn As New SqlConnection(connStr)
+                Dim query As String = "INSERT INTO inv.Inventory_Master_file (ACCOUNT_ID, BRANCH_ID, PRODUCT_IMAGE, BARCODE, SKU, BRAND, DESCRIPTIONS, CATEGORY, SIZE, PRICE, UNIT, AVAILABLE, VENDOR_CODE, VENDOR) VALUES (@ACCOUNT, @BRANCH, @PRODUCT_IMAGE, @BARCODE, @SKU, @BRAND, @DESCRIPTIONS, @CATEGORY, @SIZE, @PRICE, @UNIT, @AVAILABLE, @VENDOR_CODE, @VENDOR)"
+                Using cmd As New SqlCommand(query, conn)
+                    cmd.Parameters.Add("@ACCOUNT", SqlDbType.NVarChar, 50).Value = Current_AccountID
+                    cmd.Parameters.Add("@BRANCH", SqlDbType.NVarChar, 50).Value = Current_BranchID
+                    cmd.Parameters.Add("@PRODUCT_IMAGE", SqlDbType.VarBinary).Value = If(imgBytes IsNot Nothing, imgBytes, DBNull.Value)
+                    cmd.Parameters.Add("@BARCODE", SqlDbType.NChar, 15).Value = txtBarcode.Text.Trim()
+                    cmd.Parameters.Add("@SKU", SqlDbType.NChar, 15).Value = txtSKU.Text.Trim()
+                    cmd.Parameters.Add("@BRAND", SqlDbType.VarChar, 255).Value = txtBrand.Text.Trim()
+                    cmd.Parameters.Add("@DESCRIPTIONS", SqlDbType.VarChar, 255).Value = txtDescription.Text.Trim()
+                    cmd.Parameters.Add("@CATEGORY", SqlDbType.VarChar, 255).Value = txtCategory.Text.Trim()
+                    cmd.Parameters.Add("@SIZE", SqlDbType.NVarChar, 20).Value = txtSize.Text.Trim()
 
-                        ' ✅ TAMANG PARAAN NG PRESYO
-                        Dim priceParam As New SqlParameter("@PRICE", SqlDbType.Decimal)
-                        priceParam.Precision = 18
-                        priceParam.Scale = 2
-                        priceParam.Value = CDec(txtPrice.Text.Trim())
-                        cmd.Parameters.Add(priceParam)
+                    Dim priceParam As New SqlParameter("@PRICE", SqlDbType.Decimal)
+                    priceParam.Precision = 18
+                    priceParam.Scale = 2
+                    priceParam.Value = CDec(txtPrice.Text.Trim())
+                    cmd.Parameters.Add(priceParam)
 
-                        cmd.Parameters.Add("@UNIT", SqlDbType.NChar, 10).Value = txtUnit.Text.Trim()
-                        cmd.Parameters.Add("@AVAILABLE", SqlDbType.Int).Value = CInt(txtStockAvailable.Text.Trim())
-                        cmd.Parameters.Add("@VENDOR_CODE", SqlDbType.NVarChar, 10).Value = txtVendorCode.Text.Trim()
-                        cmd.Parameters.Add("@VENDOR", SqlDbType.VarChar, 100).Value = txtVendor.Text.Trim()
+                    cmd.Parameters.Add("@UNIT", SqlDbType.NChar, 10).Value = txtUnit.Text.Trim()
+                    cmd.Parameters.Add("@AVAILABLE", SqlDbType.Int).Value = CInt(txtStockAvailable.Text.Trim())
+                    cmd.Parameters.Add("@VENDOR_CODE", SqlDbType.NVarChar, 10).Value = txtVendorCode.Text.Trim()
+                    cmd.Parameters.Add("@VENDOR", SqlDbType.VarChar, 100).Value = txtVendor.Text.Trim()
 
-                        conn.Open()
-                        cmd.ExecuteNonQuery()
-                    End Using
+                    conn.Open()
+                    cmd.ExecuteNonQuery()
                 End Using
-                MessageBox.Show($"✅ Na-save nang matagumpay!{Environment.NewLine}Account ID: {Current_AccountID}{Environment.NewLine}Branch ID: {Current_BranchID}", "Tagumpay", MessageBoxButtons.OK, MessageBoxIcon.Information)
-                ClearAll()
-                txtBarcode.Clear()
-                txtBarcode.Focus()
-            Catch ex As Exception
-                MessageBox.Show("❌ Hindi na-save: " & ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
-            End Try
-End Sub
+            End Using
+            MessageBox.Show($"✅ Na-save nang matagumpay!{Environment.NewLine}Account ID: {Current_AccountID}{Environment.NewLine}Branch ID: {Current_BranchID}", "Tagumpay", MessageBoxButtons.OK, MessageBoxIcon.Information)
+            ClearAll()
+            txtBarcode.Clear()
+            txtBarcode.Focus()
+        Catch ex As Exception
+            MessageBox.Show("❌ Hindi na-save: " & ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
+        End Try
+    End Sub
 
-    '=====================================================
-    ' ISARA ANG FORM
-    '=====================================================
     Private Sub btnClose_Click(sender As Object, e As EventArgs) Handles btnClose.Click
         Me.Close()
     End Sub

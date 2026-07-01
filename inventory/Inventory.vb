@@ -2,37 +2,26 @@
 
 Public Class Inventory
 
-    ' ✅ KONEKSYON SA DATABASE
-    Private ReadOnly connectionString As String = "Data Source=192.168.68.109\SQLEXPRESS,1433;Initial Catalog=CodeNectDB;User ID=CodeNect_Database;Password=Password1*;Connect Timeout=15"
-
-    ' ✅ MGA IMPORMASYON
     Private currentAccountName As String = "JUDIEL MEGUIEL MESCALLADO"
     Private currentBranchName As String = "WALTERMART MUNTINLUPA"
     Private currentTransactionID As Integer = 0
-
-    ' ✅ ANO ANG ITUTURING NA "CRITICAL" NA BILANG
     Private Const CriticalLevel As Integer = 5
 
     Private Sub Inventory_Management_Load(sender As Object, e As EventArgs) Handles MyBase.Load
-
         WindowState = FormWindowState.Maximized
-
         GetUserDetails()
         GetNewTransactionID()
         UpdateHeaderDisplay()
         SetupGrid()
-
         txtBarcode.Clear()
         txtActualQty.Clear()
         lblGrandTotal.Text = "0.00"
         txtBarcode.Focus()
     End Sub
 
-#Region " --- PAGKUHA NG DATOS --- "
-
     Private Sub GetUserDetails()
         Try
-            Using con As New SqlConnection(connectionString)
+            Using con As New SqlConnection(connStr)
                 con.Open()
                 Dim cmd As New SqlCommand("SELECT TOP 1 ACCOUNT, BRANCH FROM User_Accounts", con)
                 Using dr As SqlDataReader = cmd.ExecuteReader()
@@ -50,7 +39,7 @@ Public Class Inventory
 
     Private Sub GetNewTransactionID()
         Try
-            Using con As New SqlConnection(connectionString)
+            Using con As New SqlConnection(connStr)
                 con.Open()
                 Dim cmd As New SqlCommand("SELECT ISNULL(MAX(TRANSACTION_ID), 0) + 1 FROM inv.Inventory", con)
                 Dim result = cmd.ExecuteScalar()
@@ -81,7 +70,6 @@ Public Class Inventory
             .SelectionMode = DataGridViewSelectionMode.FullRowSelect
             .MultiSelect = False
 
-            ' ✅ MGA KOLONA — MAAYOS AT MAIKLI
             .Columns.Add("BARCODE", "Barcode")
             .Columns.Add("SKU", "SKU")
             .Columns.Add("BRAND", "Brand")
@@ -96,7 +84,6 @@ Public Class Inventory
             .Columns.Add("TOTAL_PER_ITEM", "Item Total")
             .Columns.Add("AVAILABILITY", "Availability")
 
-            ' ✅ PAG-AYOS NG NUMERO — PLAIN LANG
             .Columns("PRICE").DefaultCellStyle.Format = "N2"
             .Columns("TOTAL_PER_ITEM").DefaultCellStyle.Format = "N2"
             .Columns("AVAILABLE").DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleRight
@@ -104,23 +91,20 @@ Public Class Inventory
             .Columns("DIFFERENCE").DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleRight
             .Columns("TOTAL_PER_ITEM").DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleRight
 
-            ' ✅ GAWIN: Kapag pinili ang row, ilalabas ang detalye sa mga kahon
             AddHandler .CellClick, AddressOf PopulateFieldsFromSelectedRow
         End With
     End Sub
 
-    ' ✅ ILALABAS ANG BARCODE AT QTY KAPAG PININDOT ANG PRODUKTO
     Private Sub PopulateFieldsFromSelectedRow(sender As Object, e As DataGridViewCellEventArgs)
         If e.RowIndex >= 0 Then
             Dim selectedRow As DataGridViewRow = dgvInventory.Rows(e.RowIndex)
             txtBarcode.Text = selectedRow.Cells("BARCODE").Value.ToString()
             txtActualQty.Text = selectedRow.Cells("ACTUAL_COUNT").Value.ToString()
             txtActualQty.Focus()
-            txtActualQty.SelectAll() ' ✅ Pwede mong palitan agad ang numero nang direkta
+            txtActualQty.SelectAll()
         End If
     End Sub
 
-    ' ✅ STATUS NG STOCK
     Private Function GetAvailabilityStatus(systemQty As Integer, actualQty As Integer) As String
         If actualQty <= 0 Then
             Return "OUT OF STOCK"
@@ -131,22 +115,16 @@ Public Class Inventory
         End If
     End Function
 
-#End Region
-
-#Region " --- PAGDAGDAG / PAG-UPDATE NG PRODUKTO --- "
-
     Private Sub AddProductToList()
         Dim enteredBarcode As String = txtBarcode.Text.Trim()
         Dim enteredQty As Integer = 0
 
-        ' ✅ SURIIN KUNG MAY LAMAN
         If String.IsNullOrWhiteSpace(enteredBarcode) Then
             MessageBox.Show("Please scan or enter a Barcode!", "Input Required", MessageBoxButtons.OK, MessageBoxIcon.Warning)
             txtBarcode.Focus()
             Return
         End If
 
-        ' ✅ SURIIN KUNG TAMANG BILANG
         If Not Integer.TryParse(txtActualQty.Text.Trim(), enteredQty) OrElse enteredQty < 0 Then
             MessageBox.Show("Please enter a valid quantity (0 or higher)!", "Invalid Input", MessageBoxButtons.OK, MessageBoxIcon.Warning)
             txtActualQty.SelectAll()
@@ -154,7 +132,6 @@ Public Class Inventory
             Return
         End If
 
-        ' ✅ HANAPIN KUNG NASA LISTAHAN NA
         Dim existingRow As DataGridViewRow = Nothing
         For Each row As DataGridViewRow In dgvInventory.Rows
             If row.Cells("BARCODE").Value.ToString().Trim().Equals(enteredBarcode, StringComparison.OrdinalIgnoreCase) Then
@@ -164,23 +141,19 @@ Public Class Inventory
         Next
 
         Try
-            Using con As New SqlConnection(connectionString)
+            Using con As New SqlConnection(connStr)
                 con.Open()
                 Dim cmd As New SqlCommand("SELECT BARCODE, SKU, BRAND, DESCRIPTIONS, CATEGORY, SIZE, PRICE, UNIT, AVAILABLE FROM inv.Inventory_Master_file WHERE BARCODE = @barcode", con)
                 cmd.Parameters.AddWithValue("@barcode", enteredBarcode)
 
                 Using dr As SqlDataReader = cmd.ExecuteReader()
                     If dr.Read() Then
-
                         Dim sysQty As Integer = Convert.ToInt32(dr("AVAILABLE"))
                         Dim price As Decimal = Convert.ToDecimal(dr("PRICE"))
-
-                        ' ✅ KUWENTAHIN ANG BAGO
                         Dim variance As Integer = enteredQty - sysQty
                         Dim newItemTotal As Decimal = enteredQty * price
                         Dim newStatus As String = GetAvailabilityStatus(sysQty, enteredQty)
 
-                        ' ✅ KUNG NASA LISTAHAN NA — IBABAGO LANG ANG BILANG
                         If existingRow IsNot Nothing Then
                             MessageBox.Show("PRODUCT UPDATED" & vbCrLf & vbCrLf &
                                             "Old Qty: " & existingRow.Cells("ACTUAL_COUNT").Value & vbCrLf &
@@ -191,9 +164,7 @@ Public Class Inventory
                             existingRow.Cells("DIFFERENCE").Value = variance
                             existingRow.Cells("TOTAL_PER_ITEM").Value = newItemTotal
                             existingRow.Cells("AVAILABILITY").Value = newStatus
-
                         Else
-                            ' ✅ KUNG WALA PA — IDADAGDAG SA LISTAHAN
                             Dim rowIndex As Integer = dgvInventory.Rows.Add()
                             Dim row As DataGridViewRow = dgvInventory.Rows(rowIndex)
 
@@ -213,21 +184,14 @@ Public Class Inventory
                         End If
 
                         UpdateGrandTotal()
-
-                        ' ✅ Iwanan o linisin? Dito, iiwan natin kung kailangan mong ulitin; kung gusto mong linisin, palitan mo ito:
-                        ' txtBarcode.Clear()
-                        ' txtActualQty.Clear()
                         txtBarcode.Focus()
-
                     Else
-                        ' ✅ WALA SA MASTER FILE
                         MessageBox.Show("THIS PRODUCT IS NOT CARRIED / DOES NOT EXIST IN INVENTORY MASTER FILE", "Product Not Found", MessageBoxButtons.OK, MessageBoxIcon.Error)
                         txtBarcode.SelectAll()
                         txtBarcode.Focus()
                     End If
                 End Using
             End Using
-
         Catch ex As Exception
             MessageBox.Show("Error checking product: " & ex.Message, "Database Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
         End Try
@@ -238,11 +202,9 @@ Public Class Inventory
     End Sub
 
     Private Sub txtBarcode_KeyDown(sender As Object, e As KeyEventArgs) Handles txtBarcode.KeyDown
-
     End Sub
 
     Private Sub txtActualQty_KeyDown(sender As Object, e As KeyEventArgs) Handles txtActualQty.KeyDown
-
     End Sub
 
     Private Sub UpdateGrandTotal()
@@ -255,20 +217,13 @@ Public Class Inventory
         lblGrandTotal.Text = total.ToString("N2")
     End Sub
 
-#End Region
-
-#Region " --- MGA BUTTONS --- "
-
     Private Sub btnSave_Click(sender As Object, e As EventArgs) Handles btnSave.Click
-
     End Sub
 
     Private Sub btnRefresh_Click(sender As Object, e As EventArgs) Handles btnRefresh.Click
-
     End Sub
 
     Private Sub btnRemove_Click(sender As Object, e As EventArgs) Handles btnRemove.Click
-
     End Sub
 
     Private Sub btnSaveToExcel_Click(sender As Object, e As EventArgs) Handles btnSaveToExcel.Click
@@ -278,7 +233,5 @@ Public Class Inventory
     Private Sub btnCancel_Click(sender As Object, e As EventArgs) Handles btnCancel.Click
         Me.Close()
     End Sub
-
-#End Region
 
 End Class

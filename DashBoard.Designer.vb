@@ -86,7 +86,6 @@ Partial Class DashBoard
         Me.ToolStripMenuItem4 = New System.Windows.Forms.ToolStripMenuItem()
         Me.ToolStripButton6 = New System.Windows.Forms.ToolStripButton()
         Me.Panel2 = New System.Windows.Forms.Panel()
-        Me.LinkLabel1 = New System.Windows.Forms.LinkLabel()
         Me.Panel1.SuspendLayout()
         CType(Me.userPic, System.ComponentModel.ISupportInitialize).BeginInit()
         CType(Me.adminpic, System.ComponentModel.ISupportInitialize).BeginInit()
@@ -325,19 +324,19 @@ Partial Class DashBoard
         'ToolStripStatusLabel1
         '
         Me.ToolStripStatusLabel1.Name = "ToolStripStatusLabel1"
-        Me.ToolStripStatusLabel1.Size = New System.Drawing.Size(440, 17)
+        Me.ToolStripStatusLabel1.Size = New System.Drawing.Size(450, 17)
         Me.ToolStripStatusLabel1.Spring = True
         '
         'ToolStripStatusLabel4
         '
         Me.ToolStripStatusLabel4.Name = "ToolStripStatusLabel4"
-        Me.ToolStripStatusLabel4.Size = New System.Drawing.Size(440, 17)
+        Me.ToolStripStatusLabel4.Size = New System.Drawing.Size(450, 17)
         Me.ToolStripStatusLabel4.Spring = True
         '
         'ToolStripStatusLabel3
         '
         Me.ToolStripStatusLabel3.Name = "ToolStripStatusLabel3"
-        Me.ToolStripStatusLabel3.Size = New System.Drawing.Size(440, 17)
+        Me.ToolStripStatusLabel3.Size = New System.Drawing.Size(450, 17)
         Me.ToolStripStatusLabel3.Spring = True
         '
         'Timer1
@@ -575,25 +574,12 @@ Partial Class DashBoard
         Me.Panel2.Size = New System.Drawing.Size(1366, 625)
         Me.Panel2.TabIndex = 16
         '
-        'LinkLabel1
-        '
-        Me.LinkLabel1.AutoSize = True
-        Me.LinkLabel1.Font = New System.Drawing.Font("Microsoft YaHei UI", 9.75!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.LinkLabel1.LinkColor = System.Drawing.Color.Red
-        Me.LinkLabel1.Location = New System.Drawing.Point(243, 59)
-        Me.LinkLabel1.Name = "LinkLabel1"
-        Me.LinkLabel1.Size = New System.Drawing.Size(260, 19)
-        Me.LinkLabel1.TabIndex = 0
-        Me.LinkLabel1.TabStop = True
-        Me.LinkLabel1.Text = "Unregistered version, please register."
-        '
         'DashBoard
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(6.0!, 13.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
         Me.BackColor = System.Drawing.SystemColors.ControlLight
         Me.ClientSize = New System.Drawing.Size(1366, 768)
-        Me.Controls.Add(Me.LinkLabel1)
         Me.Controls.Add(Me.Panel2)
         Me.Controls.Add(Me.ToolStrip2)
         Me.Controls.Add(Me.StatusStrip1)
@@ -674,7 +660,6 @@ Partial Class DashBoard
     Friend WithEvents SoonToExpireToolStripMenuItem As ToolStripMenuItem
     Friend WithEvents BadOrderToolStripMenuItem As ToolStripMenuItem
     Friend WithEvents Btn_Manage As ToolStripButton
-    Friend WithEvents LinkLabel1 As LinkLabel
     Friend WithEvents ToolStripButton13 As ToolStripDropDownButton
     Friend WithEvents TOP1000SKUToolStripMenuItem As ToolStripMenuItem
     Friend WithEvents B1T1ToolStripMenuItem As ToolStripMenuItem

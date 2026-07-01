@@ -1,19 +1,18 @@
-﻿Imports System.Data.OleDb
+﻿Imports System.Data
+Imports System.Data.SqlClient
 
 Public Class Description_Masterfile
-    Private connStr As String = "Data Source=192.168.68.109\SQLEXPRESS,1433;Initial Catalog=CodeNectDB;User ID=CodeNect_Database;Password=Password1*;Connect Timeout=15"
-
 
     Private Sub Description_Masterfile_Load(sender As Object, e As EventArgs) Handles MyBase.Load
         Try
-            Using conn As New OleDbConnection(connStr)
+            Using conn As New SqlConnection(connStr)
                 Dim dt As New DataTable()
 
                 Dim query As String = "
-            SELECT * FROM Descriptions
-            WHERE AVAILABILITY IN ('AVAILABLE', 'CRITICAL', 'OUT OF STOCK')"
+                    SELECT * FROM Descriptions
+                    WHERE AVAILABILITY IN ('AVAILABLE', 'CRITICAL', 'OUT OF STOCK')"
 
-                Using da As New OleDbDataAdapter(query, conn)
+                Using da As New SqlDataAdapter(query, conn)
                     da.Fill(dt)
                 End Using
 
@@ -23,16 +22,17 @@ Public Class Description_Masterfile
             MessageBox.Show("Failed to load data: " & ex.Message, "ERROR", MessageBoxButtons.OK, MessageBoxIcon.Error)
         End Try
     End Sub
+
     Public Sub RefreshDataGridView()
         Try
-            Using conn As New OleDbConnection(connStr)
+            Using conn As New SqlConnection(connStr)
                 Dim dt As New DataTable()
 
                 Dim query As String = "
-            SELECT * FROM Descriptions 
-            WHERE AVAILABILITY IN ('AVAILABLE', 'CRITICAL', 'OUT OF STOCK')"
+                    SELECT * FROM Descriptions 
+                    WHERE AVAILABILITY IN ('AVAILABLE', 'CRITICAL', 'OUT OF STOCK')"
 
-                Using da As New OleDbDataAdapter(query, conn)
+                Using da As New SqlDataAdapter(query, conn)
                     da.Fill(dt)
                 End Using
 
@@ -53,23 +53,20 @@ Public Class Description_Masterfile
         End If
 
         Try
-            Using conn As New OleDbConnection(connStr)
+            Using conn As New SqlConnection(connStr)
                 conn.Open()
 
                 ' 1. Check if product exists but is NOT CARRIED
                 Dim checkNotCarriedQuery As String = "
-            SELECT COUNT(*) FROM Descriptions 
-            WHERE (
-                [BARCODE(EAN/UPC)] LIKE ? OR 
-                [SKU] LIKE ? OR 
-                [DESCRIPTIONS] LIKE ?
-            ) AND AVAILABILITY = 'NOT CARRIED'"
+                    SELECT COUNT(*) FROM Descriptions 
+                    WHERE (
+                        [BARCODE(EAN/UPC)] LIKE @Search OR 
+                        [SKU] LIKE @Search OR 
+                        [DESCRIPTIONS] LIKE @Search
+                    ) AND AVAILABILITY = 'NOT CARRIED'"
 
-                Using cmd As New OleDbCommand(checkNotCarriedQuery, conn)
-                    For i As Integer = 1 To 3
-                        cmd.Parameters.AddWithValue("?", "%" & searchText & "%")
-                    Next
-
+                Using cmd As New SqlCommand(checkNotCarriedQuery, conn)
+                    cmd.Parameters.Add("@Search", SqlDbType.NVarChar).Value = "%" & searchText & "%"
                     Dim countNotCarried As Integer = Convert.ToInt32(cmd.ExecuteScalar())
 
                     If countNotCarried > 0 Then
@@ -81,18 +78,15 @@ Public Class Description_Masterfile
 
                 ' 2. Check if product exists but is OUT OF STOCK
                 Dim checkOutOfStockQuery As String = "
-            SELECT COUNT(*) FROM Descriptions 
-            WHERE (
-                [BARCODE(EAN/UPC)] LIKE ? OR 
-                [SKU] LIKE ? OR 
-                [DESCRIPTIONS] LIKE ?
-            ) AND AVAILABILITY = 'OUT OF STOCK'"
+                    SELECT COUNT(*) FROM Descriptions 
+                    WHERE (
+                        [BARCODE(EAN/UPC)] LIKE @Search OR 
+                        [SKU] LIKE @Search OR 
+                        [DESCRIPTIONS] LIKE @Search
+                    ) AND AVAILABILITY = 'OUT OF STOCK'"
 
-                Using cmd As New OleDbCommand(checkOutOfStockQuery, conn)
-                    For i As Integer = 1 To 3
-                        cmd.Parameters.AddWithValue("?", "%" & searchText & "%")
-                    Next
-
+                Using cmd As New SqlCommand(checkOutOfStockQuery, conn)
+                    cmd.Parameters.Add("@Search", SqlDbType.NVarChar).Value = "%" & searchText & "%"
                     Dim countOutOfStock As Integer = Convert.ToInt32(cmd.ExecuteScalar())
 
                     If countOutOfStock > 0 Then
@@ -103,18 +97,16 @@ Public Class Description_Masterfile
                 ' 3. Load only AVAILABLE, CRITICAL, and OUT OF STOCK into the grid
                 Dim dt As New DataTable()
                 Dim query As String = "
-            SELECT * FROM Descriptions 
-            WHERE AVAILABILITY IN ('AVAILABLE', 'CRITICAL', 'OUT OF STOCK')
-            AND (
-                [BARCODE(EAN/UPC)] LIKE ? OR 
-                [SKU] LIKE ? OR 
-                [DESCRIPTIONS] LIKE ?
-            )"
+                    SELECT * FROM Descriptions 
+                    WHERE AVAILABILITY IN ('AVAILABLE', 'CRITICAL', 'OUT OF STOCK')
+                    AND (
+                        [BARCODE(EAN/UPC)] LIKE @Search OR 
+                        [SKU] LIKE @Search OR 
+                        [DESCRIPTIONS] LIKE @Search
+                    )"
 
-                Using da As New OleDbDataAdapter(query, conn)
-                    For i As Integer = 1 To 3
-                        da.SelectCommand.Parameters.AddWithValue("?", "%" & searchText & "%")
-                    Next
+                Using da As New SqlDataAdapter(query, conn)
+                    da.SelectCommand.Parameters.Add("@Search", SqlDbType.NVarChar).Value = "%" & searchText & "%"
                     da.Fill(dt)
                 End Using
 
@@ -132,14 +124,11 @@ Public Class Description_Masterfile
         End Try
     End Sub
 
-
     Private Sub DescriptionsDataGridView_CellDoubleClick(sender As Object, e As DataGridViewCellEventArgs) Handles DescriptionsDataGridView.CellDoubleClick
-        ' Make sure user clicked a valid row
         If e.RowIndex < 0 Then Exit Sub
 
         Dim row As DataGridViewRow = DescriptionsDataGridView.Rows(e.RowIndex)
 
-        ' Extract data using column indexes (PriceBox removed)
         Dim barcode As String = row.Cells(0).Value.ToString()
         Dim sku As String = row.Cells(1).Value.ToString()
         Dim description As String = row.Cells(2).Value.ToString()
@@ -153,11 +142,12 @@ Public Class Description_Masterfile
         Dim vendorCode As String = row.Cells(10).Value.ToString()
         Dim vendor As String = row.Cells(11).Value.ToString()
 
+        ' You can add code here to open/edit details if needed
     End Sub
-
 
     Private Sub ButtonRefresh_Click(sender As Object, e As EventArgs) Handles ButtonRefresh.Click
         txtSearch.Clear()
         RefreshDataGridView()
     End Sub
+
 End Class

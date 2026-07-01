@@ -4,10 +4,7 @@ Imports System.IO
 Public Class Branch_Info
 
     Public SelectedBranchID As String
-    Private ConnString As String = "Data Source=192.168.68.109\SQLEXPRESS,1433;Initial Catalog=CodeNectDB;User ID=CodeNect_Database;Password=Password1*;Connect Timeout=15"
     Private NewImageBytes As Byte() = Nothing
-
-#Region "OFFLINE CURRENT USER ACCOUNT" 'if ever mag Crash or mag sutdown bigla, naka Automatic na syang offline
 
     Private Sub DashBoard_FormClosing(sender As Object, e As FormClosingEventArgs) Handles MyBase.FormClosing
         If Not String.IsNullOrEmpty(Login.LoggedInUserID) Then
@@ -19,16 +16,9 @@ Public Class Branch_Info
         If String.IsNullOrEmpty(Login.LoggedInUserID) Then Return
 
         Try
-            Using conn As New SqlConnection(ConnString)
+            Using conn As New SqlConnection(connStr)
                 conn.Open()
-                Dim cmdText As String = ""
-
-                If Login.LoggedInUserType.ToUpper() = "ADMIN" Then
-
-                    cmdText = "UPDATE dbo.User_Accounts SET STATUS = 'OFFLINE' WHERE ID = @UserID"
-                Else
-                    cmdText = "UPDATE dbo.User_Accounts SET STATUS = 'OFFLINE' WHERE ID = @UserID"
-                End If
+                Dim cmdText As String = "UPDATE dbo.User_Accounts SET STATUS = 'OFFLINE' WHERE ID = @UserID"
 
                 Using cmd As New SqlCommand(cmdText, conn)
                     cmd.Parameters.AddWithValue("@UserID", Login.LoggedInUserID)
@@ -38,15 +28,11 @@ Public Class Branch_Info
                         MessageBox.Show("Warning: No user record updated. Check if ID/Table is correct.", "Update Status", MessageBoxButtons.OK, MessageBoxIcon.Warning)
                     End If
                 End Using
-
             End Using
         Catch ex As Exception
             MessageBox.Show("Error updating status: " & ex.Message, "System Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
         End Try
     End Sub
-
-#End Region
-
 
     Private Sub Branch_Info_Load(sender As Object, e As EventArgs) Handles MyBase.Load
         cboBusType.DropDownStyle = ComboBoxStyle.DropDown
@@ -76,7 +62,7 @@ Public Class Branch_Info
                                 "AND STATUS = 'ACTIVE' " &
                                 "ORDER BY FULL_NAME ASC"
 
-            Using Conn As New SqlConnection(ConnString)
+            Using Conn As New SqlConnection(connStr)
                 Using Cmd As New SqlCommand(Sql, Conn)
                     Conn.Open()
                     Dim Dr As SqlDataReader = Cmd.ExecuteReader()
@@ -93,7 +79,6 @@ Public Class Branch_Info
             If cboManager.Items.Count = 0 Then
                 cboManager.Items.Add("No active Manager found")
             End If
-
         Catch ex As Exception
             MessageBox.Show("Error loading Manager list: " & ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
         End Try
@@ -105,7 +90,7 @@ Public Class Branch_Info
                                  "FROM dbo.Branches " &
                                  "WHERE BRANCH_ID = @BranchID"
 
-            Using Conn As New SqlConnection(ConnString)
+            Using Conn As New SqlConnection(connStr)
                 Using Cmd As New SqlCommand(Sql, Conn)
                     Cmd.Parameters.AddWithValue("@BranchID", SelectedBranchID)
 
@@ -155,7 +140,6 @@ Public Class Branch_Info
                     Dr.Close()
                 End Using
             End Using
-
         Catch ex As Exception
             MessageBox.Show("Error loading branch details: " & ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
         End Try
@@ -170,7 +154,7 @@ Public Class Branch_Info
                                 "WHERE BRANCH_ID = @BranchID " &
                                 "ORDER BY DESCRIPTIONS ASC"
 
-            Using Conn As New SqlConnection(ConnString)
+            Using Conn As New SqlConnection(connStr)
                 Using Cmd As New SqlCommand(Sql, Conn)
                     Cmd.Parameters.AddWithValue("@BranchID", SelectedBranchID)
 
@@ -180,7 +164,6 @@ Public Class Branch_Info
 
                     dgvProducts.DataSource = Dt
 
-                    ' Ayusin ang pangalan ng ulo ng column para mas madaling maintindihan
                     dgvProducts.Columns("BARCODE").HeaderText = "Barcode"
                     dgvProducts.Columns("SKU").HeaderText = "SKU"
                     dgvProducts.Columns("BRAND").HeaderText = "Brand"
@@ -191,10 +174,8 @@ Public Class Branch_Info
                     dgvProducts.Columns("UNIT").HeaderText = "Unit"
                     dgvProducts.Columns("AVAILABLE").HeaderText = "Stock Available"
                     dgvProducts.Columns("VENDOR_CODE").HeaderText = "Vendor Code"
-
                 End Using
             End Using
-
         Catch ex As Exception
             MessageBox.Show("Error loading products: " & ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
         End Try
@@ -241,7 +222,7 @@ Public Class Branch_Info
 
             Sql &= " WHERE BRANCH_ID = @BranchID"
 
-            Using Conn As New SqlConnection(ConnString)
+            Using Conn As New SqlConnection(connStr)
                 Using Cmd As New SqlCommand(Sql, Conn)
                     Cmd.Parameters.AddWithValue("@Account", txtAccount.Text.Trim())
                     Cmd.Parameters.AddWithValue("@Branch", txtBranch.Text.Trim())
@@ -268,7 +249,6 @@ Public Class Branch_Info
                     End If
                 End Using
             End Using
-
         Catch ex As Exception
             MessageBox.Show("Error saving data: " & ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
         End Try
