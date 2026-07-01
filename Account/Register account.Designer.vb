@@ -48,7 +48,7 @@ Partial Class Register_account
         Me.btnSave.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.btnSave.ForeColor = System.Drawing.SystemColors.ButtonHighlight
         Me.btnSave.Image = CType(resources.GetObject("btnSave.Image"), System.Drawing.Image)
-        Me.btnSave.Location = New System.Drawing.Point(185, 344)
+        Me.btnSave.Location = New System.Drawing.Point(112, 472)
         Me.btnSave.Name = "btnSave"
         Me.btnSave.Size = New System.Drawing.Size(135, 37)
         Me.btnSave.TabIndex = 216
@@ -65,7 +65,7 @@ Partial Class Register_account
         Me.btnCancel.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.btnCancel.ForeColor = System.Drawing.Color.Maroon
         Me.btnCancel.Image = CType(resources.GetObject("btnCancel.Image"), System.Drawing.Image)
-        Me.btnCancel.Location = New System.Drawing.Point(327, 344)
+        Me.btnCancel.Location = New System.Drawing.Point(254, 472)
         Me.btnCancel.Name = "btnCancel"
         Me.btnCancel.Size = New System.Drawing.Size(135, 37)
         Me.btnCancel.TabIndex = 217
@@ -80,7 +80,7 @@ Partial Class Register_account
         Me.txtAccountID.Font = New System.Drawing.Font("Microsoft YaHei UI", 12.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.txtAccountID.Location = New System.Drawing.Point(12, 60)
         Me.txtAccountID.Name = "txtAccountID"
-        Me.txtAccountID.Size = New System.Drawing.Size(137, 28)
+        Me.txtAccountID.Size = New System.Drawing.Size(377, 28)
         Me.txtAccountID.TabIndex = 1
         Me.txtAccountID.TextAlign = System.Windows.Forms.HorizontalAlignment.Center
         '
@@ -88,36 +88,36 @@ Partial Class Register_account
         '
         Me.txtAccount.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle
         Me.txtAccount.Font = New System.Drawing.Font("Microsoft YaHei UI", 12.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.txtAccount.Location = New System.Drawing.Point(155, 60)
+        Me.txtAccount.Location = New System.Drawing.Point(12, 94)
         Me.txtAccount.Name = "txtAccount"
-        Me.txtAccount.Size = New System.Drawing.Size(307, 28)
+        Me.txtAccount.Size = New System.Drawing.Size(377, 28)
         Me.txtAccount.TabIndex = 3
         '
         'txtContact
         '
         Me.txtContact.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle
         Me.txtContact.Font = New System.Drawing.Font("Microsoft YaHei UI", 12.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.txtContact.Location = New System.Drawing.Point(12, 94)
+        Me.txtContact.Location = New System.Drawing.Point(12, 128)
         Me.txtContact.Name = "txtContact"
-        Me.txtContact.Size = New System.Drawing.Size(174, 28)
+        Me.txtContact.Size = New System.Drawing.Size(377, 28)
         Me.txtContact.TabIndex = 5
         '
         'txtEmail
         '
         Me.txtEmail.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle
         Me.txtEmail.Font = New System.Drawing.Font("Microsoft YaHei UI", 12.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.txtEmail.Location = New System.Drawing.Point(192, 94)
+        Me.txtEmail.Location = New System.Drawing.Point(12, 162)
         Me.txtEmail.Name = "txtEmail"
-        Me.txtEmail.Size = New System.Drawing.Size(270, 28)
+        Me.txtEmail.Size = New System.Drawing.Size(377, 28)
         Me.txtEmail.TabIndex = 7
         '
         'txtUsername
         '
         Me.txtUsername.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle
         Me.txtUsername.Font = New System.Drawing.Font("Microsoft YaHei UI", 12.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.txtUsername.Location = New System.Drawing.Point(12, 249)
+        Me.txtUsername.Location = New System.Drawing.Point(12, 317)
         Me.txtUsername.Name = "txtUsername"
-        Me.txtUsername.Size = New System.Drawing.Size(450, 28)
+        Me.txtUsername.Size = New System.Drawing.Size(377, 28)
         Me.txtUsername.TabIndex = 11
         Me.txtUsername.TextAlign = System.Windows.Forms.HorizontalAlignment.Center
         '
@@ -125,9 +125,9 @@ Partial Class Register_account
         '
         Me.txtPassword.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle
         Me.txtPassword.Font = New System.Drawing.Font("Microsoft YaHei UI", 12.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.txtPassword.Location = New System.Drawing.Point(12, 283)
+        Me.txtPassword.Location = New System.Drawing.Point(12, 351)
         Me.txtPassword.Name = "txtPassword"
-        Me.txtPassword.Size = New System.Drawing.Size(219, 28)
+        Me.txtPassword.Size = New System.Drawing.Size(377, 28)
         Me.txtPassword.TabIndex = 13
         '
         'Panel2
@@ -138,7 +138,7 @@ Partial Class Register_account
         Me.Panel2.Dock = System.Windows.Forms.DockStyle.Top
         Me.Panel2.Location = New System.Drawing.Point(0, 0)
         Me.Panel2.Name = "Panel2"
-        Me.Panel2.Size = New System.Drawing.Size(474, 54)
+        Me.Panel2.Size = New System.Drawing.Size(403, 54)
         Me.Panel2.TabIndex = 241
         '
         'PictureBox1
@@ -167,18 +167,18 @@ Partial Class Register_account
         '
         Me.txtConfirmPassword.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle
         Me.txtConfirmPassword.Font = New System.Drawing.Font("Microsoft YaHei UI", 12.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.txtConfirmPassword.Location = New System.Drawing.Point(237, 283)
+        Me.txtConfirmPassword.Location = New System.Drawing.Point(12, 385)
         Me.txtConfirmPassword.Name = "txtConfirmPassword"
-        Me.txtConfirmPassword.Size = New System.Drawing.Size(225, 28)
+        Me.txtConfirmPassword.Size = New System.Drawing.Size(377, 28)
         Me.txtConfirmPassword.TabIndex = 242
         '
         'txtAddress
         '
         Me.txtAddress.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle
         Me.txtAddress.Font = New System.Drawing.Font("Microsoft Sans Serif", 12.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.txtAddress.Location = New System.Drawing.Point(12, 128)
+        Me.txtAddress.Location = New System.Drawing.Point(12, 196)
         Me.txtAddress.Name = "txtAddress"
-        Me.txtAddress.Size = New System.Drawing.Size(450, 115)
+        Me.txtAddress.Size = New System.Drawing.Size(377, 115)
         Me.txtAddress.TabIndex = 245
         Me.txtAddress.Text = ""
         '
@@ -186,7 +186,7 @@ Partial Class Register_account
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(6.0!, 13.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
-        Me.ClientSize = New System.Drawing.Size(474, 393)
+        Me.ClientSize = New System.Drawing.Size(403, 521)
         Me.Controls.Add(Me.txtAddress)
         Me.Controls.Add(Me.txtConfirmPassword)
         Me.Controls.Add(Me.txtAccountID)

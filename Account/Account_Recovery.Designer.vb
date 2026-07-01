@@ -40,10 +40,10 @@ Partial Class Account_Recovery
         Me.btnCancel = New System.Windows.Forms.Button()
         Me.btnSave = New System.Windows.Forms.Button()
         Me.Panel2 = New System.Windows.Forms.Panel()
+        Me.Label4 = New System.Windows.Forms.Label()
         Me.txtUsername = New System.Windows.Forms.TextBox()
         Me.chkShowPassword = New System.Windows.Forms.CheckBox()
         Me.txtConfirmPassword = New System.Windows.Forms.TextBox()
-        Me.Label4 = New System.Windows.Forms.Label()
         RECOVERY_IDLabel = New System.Windows.Forms.Label()
         REASONLabel = New System.Windows.Forms.Label()
         EMAILLabel = New System.Windows.Forms.Label()
@@ -124,9 +124,9 @@ Partial Class Account_Recovery
         '
         Me.txtReason.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle
         Me.txtReason.Font = New System.Drawing.Font("Microsoft Sans Serif", 12.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.txtReason.Location = New System.Drawing.Point(15, 181)
+        Me.txtReason.Location = New System.Drawing.Point(12, 181)
         Me.txtReason.Name = "txtReason"
-        Me.txtReason.Size = New System.Drawing.Size(504, 140)
+        Me.txtReason.Size = New System.Drawing.Size(507, 174)
         Me.txtReason.TabIndex = 8
         Me.txtReason.Text = ""
         '
@@ -201,7 +201,7 @@ Partial Class Account_Recovery
         Me.btnCancel.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.btnCancel.ForeColor = System.Drawing.Color.Maroon
         Me.btnCancel.Image = CType(resources.GetObject("btnCancel.Image"), System.Drawing.Image)
-        Me.btnCancel.Location = New System.Drawing.Point(384, 422)
+        Me.btnCancel.Location = New System.Drawing.Point(384, 434)
         Me.btnCancel.Name = "btnCancel"
         Me.btnCancel.Size = New System.Drawing.Size(135, 37)
         Me.btnCancel.TabIndex = 220
@@ -218,7 +218,7 @@ Partial Class Account_Recovery
         Me.btnSave.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.btnSave.ForeColor = System.Drawing.SystemColors.ButtonHighlight
         Me.btnSave.Image = CType(resources.GetObject("btnSave.Image"), System.Drawing.Image)
-        Me.btnSave.Location = New System.Drawing.Point(243, 422)
+        Me.btnSave.Location = New System.Drawing.Point(243, 434)
         Me.btnSave.Name = "btnSave"
         Me.btnSave.Size = New System.Drawing.Size(135, 37)
         Me.btnSave.TabIndex = 219
@@ -246,8 +246,17 @@ Partial Class Account_Recovery
         Me.Panel2.Dock = System.Windows.Forms.DockStyle.Top
         Me.Panel2.Location = New System.Drawing.Point(0, 54)
         Me.Panel2.Name = "Panel2"
-        Me.Panel2.Size = New System.Drawing.Size(531, 362)
+        Me.Panel2.Size = New System.Drawing.Size(531, 374)
         Me.Panel2.TabIndex = 221
+        '
+        'Label4
+        '
+        Me.Label4.AutoSize = True
+        Me.Label4.Location = New System.Drawing.Point(480, 88)
+        Me.Label4.Name = "Label4"
+        Me.Label4.Size = New System.Drawing.Size(39, 13)
+        Me.Label4.TabIndex = 222
+        Me.Label4.Text = "Label4"
         '
         'txtUsername
         '
@@ -278,15 +287,6 @@ Partial Class Account_Recovery
         Me.txtConfirmPassword.TabIndex = 15
         Me.txtConfirmPassword.UseSystemPasswordChar = True
         '
-        'Label4
-        '
-        Me.Label4.AutoSize = True
-        Me.Label4.Location = New System.Drawing.Point(480, 88)
-        Me.Label4.Name = "Label4"
-        Me.Label4.Size = New System.Drawing.Size(39, 13)
-        Me.Label4.TabIndex = 222
-        Me.Label4.Text = "Label4"
-        '
         'Account_Recovery
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(6.0!, 13.0!)
@@ -296,6 +296,7 @@ Partial Class Account_Recovery
         Me.Controls.Add(Me.btnCancel)
         Me.Controls.Add(Me.Panel1)
         Me.Controls.Add(Me.btnSave)
+        Me.FormBorderStyle = System.Windows.Forms.FormBorderStyle.None
         Me.Name = "Account_Recovery"
         Me.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen
         Me.Text = "Account_Recovery"
