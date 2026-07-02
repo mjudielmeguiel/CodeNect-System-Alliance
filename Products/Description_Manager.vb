@@ -146,5 +146,4 @@ Public Class Description_Manager
         frmBagongProdukto.ShowDialog()
         KuninAngLahatNgProdukto(txtSearch.Text.Trim())
     End Sub
-
 End Class

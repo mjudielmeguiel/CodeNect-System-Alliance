@@ -9,81 +9,61 @@ Public Class ADD_Description
     Private Current_AccountID As String = ""
     Private Current_BranchID As String = ""
 
+    Private Const phBarcode As String = "Enter barcode..."
+    Private Const phQty As String = "Enter quantity..."
+    Private Const phPrice As String = "Enter price..."
+
     Private Sub ADD_Description_Load(sender As Object, e As EventArgs) Handles MyBase.Load
         GetIDsUsingBranchName()
-        txtBarcode.Focus()
-        GenerateRandom6DigitSKU()
         SetFieldsSettings()
+        GenerateRandom6DigitSKU()
 
         picProduct.SizeMode = PictureBoxSizeMode.Zoom
         picProduct.BackColor = Color.White
         picProduct.Image = Nothing
         picProduct.Cursor = Cursors.Hand
 
-        txtTotal.ReadOnly = True
-        txtAvailability.ReadOnly = True
-
-        Me.Text = $"ADD NEW PRODUCT | Account ID: {Current_AccountID} | Branch ID: {Current_BranchID}"
+        Me.Text = "ADD NEW PRODUCT | Account ID: " & Current_AccountID & " | Branch ID: " & Current_BranchID
     End Sub
 
     Private Sub GetIDsUsingBranchName()
         Try
             Dim BranchNameFromDashboard As String = DashBoard.ToolStripStatusLabel4.Text.Trim()
-
             If String.IsNullOrEmpty(BranchNameFromDashboard) Then
-                MessageBox.Show("❌ Walang nakuhang pangalan ng Branch mula sa Dashboard.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
+                MessageBox.Show("Branch name not found from Dashboard.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
                 Return
             End If
 
             Using conn As New SqlConnection(connStr)
-                Dim query As String = "
-                    SELECT TOP 1 
-                        ACCOUNT_ID, 
-                        BRANCH_ID
-                    FROM dbo.User_Accounts
-                    WHERE 
-                        RTRIM(LTRIM(BRANCH)) = RTRIM(LTRIM(@BranchName))
-                        AND STATUS = 'Active'
-                    ORDER BY ID DESC
-                "
-
+                Dim query As String = "SELECT TOP 1 ACCOUNT_ID, BRANCH_ID FROM dbo.User_Accounts WHERE RTRIM(LTRIM(BRANCH)) = RTRIM(LTRIM(@BranchName)) AND STATUS = 'Active' ORDER BY ID DESC"
                 Using cmd As New SqlCommand(query, conn)
                     cmd.Parameters.Add("@BranchName", SqlDbType.NVarChar, 100).Value = BranchNameFromDashboard
                     conn.Open()
                     Dim dr As SqlDataReader = cmd.ExecuteReader()
-
                     If dr.Read() Then
                         Current_AccountID = dr("ACCOUNT_ID").ToString().Trim()
                         Current_BranchID = dr("BRANCH_ID").ToString().Trim()
-
-                        MessageBox.Show($"✅ Matagumpay na nakuha ang mga ID!{Environment.NewLine}" &
-                                        $"Pangalan ng Branch: {BranchNameFromDashboard}{Environment.NewLine}" &
-                                        $"Account ID: {Current_AccountID}{Environment.NewLine}" &
-                                        $"Branch ID: {Current_BranchID}", "Tagumpay", MessageBoxButtons.OK, MessageBoxIcon.Information)
                     Else
-                        MessageBox.Show($"⚠️ Hindi makita ang impormasyon para sa Branch: [{BranchNameFromDashboard}]{Environment.NewLine}" &
-                                        "Tingnan kung pareho ang baybay nito sa table na User_Accounts.",
-                                        "Walang Natagpuan", MessageBoxButtons.OK, MessageBoxIcon.Warning)
+                        MessageBox.Show("No record found for this branch.", "Not Found", MessageBoxButtons.OK, MessageBoxIcon.Warning)
                     End If
                     dr.Close()
                 End Using
             End Using
-
         Catch ex As Exception
-            MessageBox.Show("❌ Error habang kinukuha ang ID:" & vbCrLf & ex.Message, "Database Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
+            MessageBox.Show("Error getting IDs: " & ex.Message, "Database Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
         End Try
     End Sub
 
     Private Sub picProduct_DoubleClick(sender As Object, e As EventArgs) Handles picProduct.DoubleClick
         Using ofd As New OpenFileDialog()
-            ofd.Title = "Pumili ng Litrato ng Produkto"
-            ofd.Filter = "Mga Larawan|*.jpg;*.jpeg;*.png;*.bmp;*.gif"
+            ofd.Title = "Select Product Image"
+            ofd.Filter = "Image Files|*.jpg;*.jpeg;*.png;*.bmp;*.gif"
             ofd.RestoreDirectory = True
             If ofd.ShowDialog() = DialogResult.OK Then
                 Try
                     picProduct.Image = Image.FromFile(ofd.FileName)
                 Catch ex As Exception
-                    MessageBox.Show("Hindi mabuksan ang litrato: " & ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
+                    MessageBox.Show("Cannot open image: " & ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
                 End Try
             End If
         End Using
@@ -118,18 +98,31 @@ Public Class ADD_Description
                     exists = (CInt(cmd.ExecuteScalar()) > 0)
                 End Using
             Loop While exists
-            txtSKU.Text = newSKU
-            txtSKU.ReadOnly = True
+            lblSKU.Text = newSKU
         Catch
             Dim rndBackup As New Random(DateTime.Now.Millisecond)
-            txtSKU.Text = rndBackup.Next(100000, 999999).ToString("D6")
+            lblSKU.Text = rndBackup.Next(100000, 999999).ToString("D6")
         End Try
     End Sub
 
+    Private Sub txtBarcode_Enter(sender As Object, e As EventArgs) Handles txtBarcode.Enter
+        If txtBarcode.Text = phBarcode Then
+            txtBarcode.Text = ""
+            txtBarcode.ForeColor = Color.Black
+        End If
+    End Sub
+
+    Private Sub txtBarcode_Leave(sender As Object, e As EventArgs) Handles txtBarcode.Leave
+        If String.IsNullOrWhiteSpace(txtBarcode.Text) Then
+            txtBarcode.Text = phBarcode
+            txtBarcode.ForeColor = Color.Gray
+        End If
+    End Sub
+
     Private Sub txtBarcode_TextChanged(sender As Object, e As EventArgs) Handles txtBarcode.TextChanged
-        If txtBarcode.Text.Trim.Length >= 5 Then
+        If txtBarcode.Text <> phBarcode AndAlso txtBarcode.Text.Trim.Length >= 5 Then
             LoadVendorDetails()
-        Else
+        ElseIf txtBarcode.Text <> phBarcode Then
             ClearAll()
             GenerateRandom6DigitSKU()
         End If
@@ -144,14 +137,15 @@ Public Class ADD_Description
                     conn.Open()
                     Dim dr As SqlDataReader = cmd.ExecuteReader()
                     If dr.Read() Then
-                        txtDescription.Text = dr("DESCRIPTIONS").ToString().Trim()
-                        txtBrand.Text = dr("BRAND").ToString().Trim()
-                        txtCategory.Text = dr("CATEGORY").ToString().Trim()
-                        txtVendorCode.Text = dr("VENDOR_CODE").ToString().Trim()
-                        txtVendor.Text = dr("VENDOR").ToString().Trim()
-                        txtUnit.Text = dr("UNIT").ToString().Trim()
-                        txtSize.Text = dr("SIZE").ToString().Trim()
+                        lblDescription.Text = dr("DESCRIPTIONS").ToString().Trim()
+                        lblBrand.Text = dr("BRAND").ToString().Trim()
+                        lblCategory.Text = dr("CATEGORY").ToString().Trim()
+                        lblVendorCode.Text = dr("VENDOR_CODE").ToString().Trim()
+                        lblVendor.Text = dr("VENDOR").ToString().Trim()
+                        lblUnit.Text = dr("UNIT").ToString().Trim()
+                        lblSize.Text = dr("SIZE").ToString().Trim()
                         txtPrice.Text = CDec(dr("PRICE")).ToString("0.00")
+                        txtPrice.ForeColor = Color.Black
                         picProduct.Image = Nothing
                         If Not dr.IsDBNull(dr.GetOrdinal("PRODUCT_IMAGE")) Then
                             Try
@@ -166,8 +160,8 @@ Public Class ADD_Description
                             End Try
                         End If
                         txtStockAvailable.Clear()
-                        txtAvailability.Clear()
-                        txtTotal.Text = "0.00"
+                        lblAvailability.Text = ""
+                        lblTotal.Text = "0.00"
                     Else
                         ClearAll()
                     End If
@@ -175,125 +169,173 @@ Public Class ADD_Description
                 End Using
             End Using
         Catch ex As Exception
-            MessageBox.Show("Info mula sa vendor: " & ex.Message, "Paalala", MessageBoxButtons.OK, MessageBoxIcon.Information)
+            MessageBox.Show("Vendor info: " & ex.Message, "Notice", MessageBoxButtons.OK, MessageBoxIcon.Information)
         End Try
     End Sub
 
     Private Sub txtStockAvailable_TextChanged(sender As Object, e As EventArgs) Handles txtStockAvailable.TextChanged
+        If txtStockAvailable.Text = phQty Then Exit Sub
+        txtStockAvailable.ForeColor = Color.Black
         ComputeTotal()
         SetAvailabilityStatus()
     End Sub
 
+    Private Sub txtStockAvailable_Enter(sender As Object, e As EventArgs) Handles txtStockAvailable.Enter
+        If txtStockAvailable.Text = phQty Then
+            txtStockAvailable.Text = ""
+            txtStockAvailable.ForeColor = Color.Black
+        End If
+    End Sub
+
+    Private Sub txtStockAvailable_Leave(sender As Object, e As EventArgs) Handles txtStockAvailable.Leave
+        If String.IsNullOrWhiteSpace(txtStockAvailable.Text) Then
+            txtStockAvailable.Text = phQty
+            txtStockAvailable.ForeColor = Color.Gray
+        End If
+    End Sub
+
     Private Sub txtPrice_TextChanged(sender As Object, e As EventArgs) Handles txtPrice.TextChanged
+        If txtPrice.Text = phPrice Then Exit Sub
+        txtPrice.ForeColor = Color.Black
         ComputeTotal()
+    End Sub
+
+    Private Sub txtPrice_Enter(sender As Object, e As EventArgs) Handles txtPrice.Enter
+        If txtPrice.Text = phPrice Then
+            txtPrice.Text = ""
+            txtPrice.ForeColor = Color.Black
+        End If
+    End Sub
+
+    Private Sub txtPrice_Leave(sender As Object, e As EventArgs) Handles txtPrice.Leave
+        If String.IsNullOrWhiteSpace(txtPrice.Text) Then
+            txtPrice.Text = phPrice
+            txtPrice.ForeColor = Color.Gray
+        End If
     End Sub
 
     Private Sub ComputeTotal()
         Try
             Dim price As Decimal = 0
             Dim qty As Integer = 0
-            If Decimal.TryParse(txtPrice.Text.Trim(), price) AndAlso Integer.TryParse(txtStockAvailable.Text.Trim(), qty) Then
-                txtTotal.Text = (price * qty).ToString("0.00")
-            Else
-                txtTotal.Text = "0.00"
+            If txtPrice.Text <> phPrice AndAlso txtStockAvailable.Text <> phQty Then
+                If Decimal.TryParse(txtPrice.Text.Trim(), price) AndAlso Integer.TryParse(txtStockAvailable.Text.Trim(), qty) Then
+                    lblTotal.Text = (price * qty).ToString("0.00")
+                Else
+                    lblTotal.Text = "0.00"
+                End If
             End If
         Catch
-            txtTotal.Text = "0.00"
+            lblTotal.Text = "0.00"
         End Try
     End Sub
 
     Private Sub SetAvailabilityStatus()
         Try
             Dim stock As Integer = 0
-            If Integer.TryParse(txtStockAvailable.Text.Trim(), stock) Then
+            If txtStockAvailable.Text <> phQty AndAlso Integer.TryParse(txtStockAvailable.Text.Trim(), stock) Then
                 Select Case stock
-                    Case 0 : txtAvailability.Text = "OUT OF STOCK"
-                    Case 1 To 10 : txtAvailability.Text = "CRITICAL"
-                    Case Is > 10 : txtAvailability.Text = "AVAILABLE"
+                    Case 0
+                        lblAvailability.Text = "OUT OF STOCK"
+                        lblAvailability.ForeColor = Color.Red
+                    Case 1 To 10
+                        lblAvailability.Text = "CRITICAL"
+                        lblAvailability.ForeColor = Color.Orange
+                    Case Is > 10
+                        lblAvailability.Text = "AVAILABLE"
+                        lblAvailability.ForeColor = Color.Green
                 End Select
             Else
-                txtAvailability.Clear()
+                lblAvailability.Text = ""
             End If
         Catch
-            txtAvailability.Clear()
+            lblAvailability.Text = ""
         End Try
     End Sub
 
     Private Sub SetFieldsSettings()
-        txtSKU.ReadOnly = True
-        txtDescription.ReadOnly = True
-        txtBrand.ReadOnly = True
-        txtCategory.ReadOnly = True
-        txtVendorCode.ReadOnly = True
-        txtVendor.ReadOnly = True
-        txtUnit.ReadOnly = True
-        txtSize.ReadOnly = True
-        txtPrice.ReadOnly = False
-        txtAvailability.ReadOnly = True
-        txtStockAvailable.ReadOnly = False
-        txtTotal.ReadOnly = True
+        txtBarcode.Text = phBarcode
+        txtBarcode.ForeColor = Color.Gray
+        txtStockAvailable.Text = phQty
+        txtStockAvailable.ForeColor = Color.Gray
+        txtPrice.Text = phPrice
+        txtPrice.ForeColor = Color.Gray
+
+        txtBarcode.BackColor = Color.White
+        txtStockAvailable.BackColor = Color.White
+        txtPrice.BackColor = Color.White
     End Sub
 
     Private Sub ClearAll()
-        txtDescription.Clear()
-        txtBrand.Clear()
-        txtCategory.Clear()
-        txtVendorCode.Clear()
-        txtVendor.Clear()
-        txtUnit.Clear()
-        txtSize.Clear()
-        txtPrice.Clear()
-        txtAvailability.Clear()
-        txtStockAvailable.Clear()
-        txtTotal.Clear()
+        lblSKU.Text = ""
+        lblDescription.Text = ""
+        lblBrand.Text = ""
+        lblCategory.Text = ""
+        lblVendorCode.Text = ""
+        lblVendor.Text = ""
+        lblUnit.Text = ""
+        lblSize.Text = ""
+        lblAvailability.Text = ""
+        lblTotal.Text = "0.00"
         picProduct.Image = Nothing
         GenerateRandom6DigitSKU()
+
+        txtBarcode.Text = phBarcode
+        txtBarcode.ForeColor = Color.Gray
+        txtStockAvailable.Text = phQty
+        txtStockAvailable.ForeColor = Color.Gray
+        txtPrice.Text = phPrice
+        txtPrice.ForeColor = Color.Gray
     End Sub
 
-    Private Sub btnSaveProduct_Click(sender As Object, e As EventArgs) Handles btnSaveProduct.Click
+    Private Sub btnSaveProduct_Click(sender As Object, e As EventArgs) Handles btnSave.Click
         If String.IsNullOrEmpty(Current_AccountID) Or String.IsNullOrEmpty(Current_BranchID) Then
-            MessageBox.Show("❌ Walang nakuhang Account o Branch ID. Hindi makakapag-save.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
+            MessageBox.Show("Account or Branch ID not found. Cannot save.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
             Return
         End If
 
-        If String.IsNullOrWhiteSpace(txtBarcode.Text) Then MessageBox.Show("Ilagay ang Barcode.", "Kailangan", MessageBoxButtons.OK, MessageBoxIcon.Warning) : txtBarcode.Focus() : Return
-        If String.IsNullOrWhiteSpace(txtDescription.Text) Then MessageBox.Show("Ilagay ang Deskripsyon.", "Kailangan", MessageBoxButtons.OK, MessageBoxIcon.Warning) : Return
-        If String.IsNullOrWhiteSpace(txtStockAvailable.Text) OrElse Not Integer.TryParse(txtStockAvailable.Text.Trim(), Nothing) Then MessageBox.Show("Ilagay ang dami ng Stock.", "Kailangan", MessageBoxButtons.OK, MessageBoxIcon.Warning) : txtStockAvailable.Focus() : Return
+        If txtBarcode.Text = phBarcode OrElse String.IsNullOrWhiteSpace(txtBarcode.Text) Then
+            MessageBox.Show("Please enter Barcode.", "Required", MessageBoxButtons.OK, MessageBoxIcon.Warning)
+            txtBarcode.Focus()
+            Return
+        End If
+        If String.IsNullOrWhiteSpace(lblDescription.Text) Then
+            MessageBox.Show("Product details not found. Check Barcode.", "Required", MessageBoxButtons.OK, MessageBoxIcon.Warning)
+            Return
+        End If
+        If txtPrice.Text = phPrice OrElse Not Decimal.TryParse(txtPrice.Text.Trim(), Nothing) Then
+            MessageBox.Show("Please enter valid Price.", "Required", MessageBoxButtons.OK, MessageBoxIcon.Warning)
+            txtPrice.Focus()
+            Return
+        End If
+        If txtStockAvailable.Text = phQty OrElse Not Integer.TryParse(txtStockAvailable.Text.Trim(), Nothing) Then
+            MessageBox.Show("Please enter valid Stock Quantity.", "Required", MessageBoxButtons.OK, MessageBoxIcon.Warning)
+            txtStockAvailable.Focus()
+            Return
+        End If
 
         Try
             Using conn As New SqlConnection(connStr)
-                Dim checkQuery As String = "
-            SELECT COUNT(*) 
-            FROM inv.Inventory_Master_file 
-            WHERE 
-                ACCOUNT_ID = @AccID 
-                AND BRANCH_ID = @BrID 
-                AND (BARCODE = @Barcode OR SKU = @SKU)
-        "
+                Dim checkQuery As String = "SELECT COUNT(*) FROM inv.Inventory_Master_file WHERE ACCOUNT_ID = @AccID AND BRANCH_ID = @BrID AND (BARCODE = @Barcode OR SKU = @SKU)"
                 Using cmdCheck As New SqlCommand(checkQuery, conn)
                     cmdCheck.Parameters.Add("@AccID", SqlDbType.NVarChar, 50).Value = Current_AccountID
                     cmdCheck.Parameters.Add("@BrID", SqlDbType.NVarChar, 50).Value = Current_BranchID
                     cmdCheck.Parameters.Add("@Barcode", SqlDbType.NChar, 15).Value = txtBarcode.Text.Trim()
-                    cmdCheck.Parameters.Add("@SKU", SqlDbType.NChar, 15).Value = txtSKU.Text.Trim()
-
+                    cmdCheck.Parameters.Add("@SKU", SqlDbType.NChar, 15).Value = lblSKU.Text.Trim()
                     conn.Open()
                     Dim existingCount As Integer = CInt(cmdCheck.ExecuteScalar())
-
                     If existingCount > 0 Then
-                        MessageBox.Show("⚠️ MAYROON NANG KAPAREHONG PRODUKTO SA DATABASE!" & Environment.NewLine &
-                                        "Ang Barcode o SKU na iyong inilagay ay nakarehistro na para sa Branch at Account na ito." & Environment.NewLine &
-                                        "Hindi maaaring magkaroon ng dalawang magkatulad na talaan.",
-                                        "Paalala: Mayroon na", MessageBoxButtons.OK, MessageBoxIcon.Warning)
+                        MessageBox.Show("Product already exists with this Barcode or SKU.", "Duplicate Found", MessageBoxButtons.OK, MessageBoxIcon.Warning)
                         Return
                     End If
                 End Using
             End Using
         Catch ex As Exception
-            MessageBox.Show("❌ Error habang tinitingnan kung may kapareho: " & ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
+            MessageBox.Show("Error checking duplicate: " & ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
             Return
         End Try
 
-        Dim confirm = MessageBox.Show($"I-save ang produkto?{Environment.NewLine}Account ID: {Current_AccountID}{Environment.NewLine}Branch ID: {Current_BranchID}{Environment.NewLine}SKU: {txtSKU.Text}", "Kumpirmahin", MessageBoxButtons.YesNo, MessageBoxIcon.Question)
+        Dim confirm = MessageBox.Show("Save this product?", "Confirm Save", MessageBoxButtons.YesNo, MessageBoxIcon.Question)
         If confirm <> DialogResult.Yes Then Return
 
         Try
@@ -305,11 +347,11 @@ Public Class ADD_Description
                     cmd.Parameters.Add("@BRANCH", SqlDbType.NVarChar, 50).Value = Current_BranchID
                     cmd.Parameters.Add("@PRODUCT_IMAGE", SqlDbType.VarBinary).Value = If(imgBytes IsNot Nothing, imgBytes, DBNull.Value)
                     cmd.Parameters.Add("@BARCODE", SqlDbType.NChar, 15).Value = txtBarcode.Text.Trim()
-                    cmd.Parameters.Add("@SKU", SqlDbType.NChar, 15).Value = txtSKU.Text.Trim()
-                    cmd.Parameters.Add("@BRAND", SqlDbType.VarChar, 255).Value = txtBrand.Text.Trim()
-                    cmd.Parameters.Add("@DESCRIPTIONS", SqlDbType.VarChar, 255).Value = txtDescription.Text.Trim()
-                    cmd.Parameters.Add("@CATEGORY", SqlDbType.VarChar, 255).Value = txtCategory.Text.Trim()
-                    cmd.Parameters.Add("@SIZE", SqlDbType.NVarChar, 20).Value = txtSize.Text.Trim()
+                    cmd.Parameters.Add("@SKU", SqlDbType.NChar, 15).Value = lblSKU.Text.Trim()
+                    cmd.Parameters.Add("@BRAND", SqlDbType.VarChar, 255).Value = lblBrand.Text.Trim()
+                    cmd.Parameters.Add("@DESCRIPTIONS", SqlDbType.VarChar, 255).Value = lblDescription.Text.Trim()
+                    cmd.Parameters.Add("@CATEGORY", SqlDbType.VarChar, 255).Value = lblCategory.Text.Trim()
+                    cmd.Parameters.Add("@SIZE", SqlDbType.NVarChar, 20).Value = lblSize.Text.Trim()
 
                     Dim priceParam As New SqlParameter("@PRICE", SqlDbType.Decimal)
                     priceParam.Precision = 18
@@ -317,21 +359,19 @@ Public Class ADD_Description
                     priceParam.Value = CDec(txtPrice.Text.Trim())
                     cmd.Parameters.Add(priceParam)
 
-                    cmd.Parameters.Add("@UNIT", SqlDbType.NChar, 10).Value = txtUnit.Text.Trim()
+                    cmd.Parameters.Add("@UNIT", SqlDbType.NChar, 10).Value = lblUnit.Text.Trim()
                     cmd.Parameters.Add("@AVAILABLE", SqlDbType.Int).Value = CInt(txtStockAvailable.Text.Trim())
-                    cmd.Parameters.Add("@VENDOR_CODE", SqlDbType.NVarChar, 10).Value = txtVendorCode.Text.Trim()
-                    cmd.Parameters.Add("@VENDOR", SqlDbType.VarChar, 100).Value = txtVendor.Text.Trim()
+                    cmd.Parameters.Add("@VENDOR_CODE", SqlDbType.NVarChar, 10).Value = lblVendorCode.Text.Trim()
+                    cmd.Parameters.Add("@VENDOR", SqlDbType.VarChar, 100).Value = lblVendor.Text.Trim()
 
                     conn.Open()
                     cmd.ExecuteNonQuery()
                 End Using
             End Using
-            MessageBox.Show($"✅ Na-save nang matagumpay!{Environment.NewLine}Account ID: {Current_AccountID}{Environment.NewLine}Branch ID: {Current_BranchID}", "Tagumpay", MessageBoxButtons.OK, MessageBoxIcon.Information)
+            MessageBox.Show("Product saved successfully.", "Saved", MessageBoxButtons.OK, MessageBoxIcon.Information)
             ClearAll()
-            txtBarcode.Clear()
-            txtBarcode.Focus()
         Catch ex As Exception
-            MessageBox.Show("❌ Hindi na-save: " & ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
+            MessageBox.Show("Save failed: " & ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
         End Try
     End Sub
 

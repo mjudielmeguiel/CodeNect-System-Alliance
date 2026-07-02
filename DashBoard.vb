@@ -159,9 +159,9 @@ Public Class DashBoard
         frmBottom.Show()
     End Sub
 
-    Private Sub ToolStripMenuItem4_Click(sender As Object, e As EventArgs) Handles ToolStripMenuItem4.Click
+    Private Sub ToolStripMenuItem4_Click(sender As Object, e As EventArgs)
         Panel2.Controls.Clear()
-        Dim frmBottom As New History
+        Dim frmBottom As New Ordering_Report
         frmBottom.TopLevel = False
         frmBottom.FormBorderStyle = FormBorderStyle.None
         frmBottom.Dock = DockStyle.Fill
@@ -175,6 +175,21 @@ Public Class DashBoard
     End Sub
 
     Private Sub Panel2_Paint(sender As Object, e As PaintEventArgs) Handles Panel2.Paint
+    End Sub
+
+    Private Sub StockOrderingToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles StockOrderingToolStripMenuItem.Click
+
+        Dim Ordering As New Stock_Ordering
+
+        Ordering.lblpreparedby.Text = ToolStripStatusLabel1.Text
+        Ordering.lblbranch.Text = ToolStripStatusLabel4.Text
+        Ordering.lblstatus.Text = "PENDING"
+        Ordering.lbltransactiontype.Text = "STOCK ORDERING"
+        Ordering.Show()
+    End Sub
+
+    Private Sub InventoryManagementToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles StockINToolStripMenuItem.Click
+        Ordering_Report.Show()
     End Sub
 #End Region
 

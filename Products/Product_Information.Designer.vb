@@ -59,7 +59,7 @@ Partial Class Product_Information
         Me.btnClose.ForeColor = System.Drawing.SystemColors.ControlText
         Me.btnClose.Image = CType(resources.GetObject("btnClose.Image"), System.Drawing.Image)
         Me.btnClose.ImageAlign = System.Drawing.ContentAlignment.MiddleRight
-        Me.btnClose.Location = New System.Drawing.Point(780, 362)
+        Me.btnClose.Location = New System.Drawing.Point(794, 360)
         Me.btnClose.Name = "btnClose"
         Me.btnClose.Size = New System.Drawing.Size(98, 47)
         Me.btnClose.TabIndex = 280
@@ -76,7 +76,7 @@ Partial Class Product_Information
         Me.btnDeleteProduct.Font = New System.Drawing.Font("Microsoft YaHei UI Light", 12.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.btnDeleteProduct.ForeColor = System.Drawing.SystemColors.ControlText
         Me.btnDeleteProduct.Image = CType(resources.GetObject("btnDeleteProduct.Image"), System.Drawing.Image)
-        Me.btnDeleteProduct.Location = New System.Drawing.Point(676, 362)
+        Me.btnDeleteProduct.Location = New System.Drawing.Point(690, 360)
         Me.btnDeleteProduct.Name = "btnDeleteProduct"
         Me.btnDeleteProduct.Size = New System.Drawing.Size(98, 47)
         Me.btnDeleteProduct.TabIndex = 284
@@ -128,10 +128,10 @@ Partial Class Product_Information
         'lblDescription
         '
         Me.lblDescription.AutoSize = True
-        Me.lblDescription.Font = New System.Drawing.Font("Microsoft YaHei UI", 15.75!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.lblDescription.Font = New System.Drawing.Font("Microsoft YaHei UI", 12.0!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.lblDescription.Location = New System.Drawing.Point(277, 70)
         Me.lblDescription.Name = "lblDescription"
-        Me.lblDescription.Size = New System.Drawing.Size(21, 28)
+        Me.lblDescription.Size = New System.Drawing.Size(17, 22)
         Me.lblDescription.TabIndex = 297
         Me.lblDescription.Text = "-"
         '
@@ -140,7 +140,7 @@ Partial Class Product_Information
         Me.lblUnit.AutoSize = True
         Me.lblUnit.Font = New System.Drawing.Font("Microsoft YaHei UI", 12.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.lblUnit.ForeColor = System.Drawing.Color.DarkRed
-        Me.lblUnit.Location = New System.Drawing.Point(489, 373)
+        Me.lblUnit.Location = New System.Drawing.Point(581, 373)
         Me.lblUnit.Name = "lblUnit"
         Me.lblUnit.Size = New System.Drawing.Size(19, 21)
         Me.lblUnit.TabIndex = 302
@@ -151,7 +151,7 @@ Partial Class Product_Information
         Me.lblVendor.AutoSize = True
         Me.lblVendor.Font = New System.Drawing.Font("Microsoft YaHei UI", 12.0!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.lblVendor.ForeColor = System.Drawing.Color.DarkRed
-        Me.lblVendor.Location = New System.Drawing.Point(355, 297)
+        Me.lblVendor.Location = New System.Drawing.Point(359, 293)
         Me.lblVendor.Name = "lblVendor"
         Me.lblVendor.Size = New System.Drawing.Size(17, 22)
         Me.lblVendor.TabIndex = 301
@@ -162,7 +162,7 @@ Partial Class Product_Information
         Me.lblVendorCode.AutoSize = True
         Me.lblVendorCode.Font = New System.Drawing.Font("Microsoft YaHei UI", 12.0!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.lblVendorCode.ForeColor = System.Drawing.Color.DarkRed
-        Me.lblVendorCode.Location = New System.Drawing.Point(132, 297)
+        Me.lblVendorCode.Location = New System.Drawing.Point(136, 293)
         Me.lblVendorCode.Name = "lblVendorCode"
         Me.lblVendorCode.Size = New System.Drawing.Size(17, 22)
         Me.lblVendorCode.TabIndex = 300
@@ -171,10 +171,10 @@ Partial Class Product_Information
         'lblCategory
         '
         Me.lblCategory.AutoSize = True
-        Me.lblCategory.Font = New System.Drawing.Font("Microsoft YaHei UI", 14.25!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.lblCategory.Location = New System.Drawing.Point(617, 214)
+        Me.lblCategory.Font = New System.Drawing.Font("Microsoft YaHei UI Light", 12.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.lblCategory.Location = New System.Drawing.Point(618, 219)
         Me.lblCategory.Name = "lblCategory"
-        Me.lblCategory.Size = New System.Drawing.Size(20, 26)
+        Me.lblCategory.Size = New System.Drawing.Size(17, 21)
         Me.lblCategory.TabIndex = 299
         Me.lblCategory.Text = "-"
         '
@@ -214,7 +214,7 @@ Partial Class Product_Information
         Me.lblStockAvailable.AutoSize = True
         Me.lblStockAvailable.Font = New System.Drawing.Font("Microsoft YaHei UI", 12.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.lblStockAvailable.ForeColor = System.Drawing.Color.DarkRed
-        Me.lblStockAvailable.Location = New System.Drawing.Point(68, 375)
+        Me.lblStockAvailable.Location = New System.Drawing.Point(68, 373)
         Me.lblStockAvailable.Name = "lblStockAvailable"
         Me.lblStockAvailable.Size = New System.Drawing.Size(19, 21)
         Me.lblStockAvailable.TabIndex = 305
@@ -225,7 +225,7 @@ Partial Class Product_Information
         Me.lblTotal.AutoSize = True
         Me.lblTotal.Font = New System.Drawing.Font("Microsoft YaHei UI", 12.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.lblTotal.ForeColor = System.Drawing.Color.DarkRed
-        Me.lblTotal.Location = New System.Drawing.Point(250, 373)
+        Me.lblTotal.Location = New System.Drawing.Point(342, 373)
         Me.lblTotal.Name = "lblTotal"
         Me.lblTotal.Size = New System.Drawing.Size(19, 21)
         Me.lblTotal.TabIndex = 307
@@ -235,7 +235,7 @@ Partial Class Product_Information
         '
         Me.Label1.AutoSize = True
         Me.Label1.Font = New System.Drawing.Font("Microsoft YaHei UI Light", 12.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.Label1.Location = New System.Drawing.Point(12, 375)
+        Me.Label1.Location = New System.Drawing.Point(12, 373)
         Me.Label1.Name = "Label1"
         Me.Label1.Size = New System.Drawing.Size(50, 21)
         Me.Label1.TabIndex = 309
@@ -245,7 +245,7 @@ Partial Class Product_Information
         '
         Me.Label2.AutoSize = True
         Me.Label2.Font = New System.Drawing.Font("Microsoft YaHei UI Light", 12.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.Label2.Location = New System.Drawing.Point(184, 373)
+        Me.Label2.Location = New System.Drawing.Point(276, 373)
         Me.Label2.Name = "Label2"
         Me.Label2.Size = New System.Drawing.Size(60, 21)
         Me.Label2.TabIndex = 310
@@ -255,7 +255,7 @@ Partial Class Product_Information
         '
         Me.Label3.AutoSize = True
         Me.Label3.Font = New System.Drawing.Font("Microsoft YaHei UI Light", 12.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.Label3.Location = New System.Drawing.Point(435, 373)
+        Me.Label3.Location = New System.Drawing.Point(527, 373)
         Me.Label3.Name = "Label3"
         Me.Label3.Size = New System.Drawing.Size(48, 21)
         Me.Label3.TabIndex = 311
@@ -285,7 +285,7 @@ Partial Class Product_Information
         '
         Me.Label8.AutoSize = True
         Me.Label8.Font = New System.Drawing.Font("Microsoft YaHei UI Light", 12.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.Label8.Location = New System.Drawing.Point(8, 297)
+        Me.Label8.Location = New System.Drawing.Point(12, 293)
         Me.Label8.Name = "Label8"
         Me.Label8.Size = New System.Drawing.Size(118, 21)
         Me.Label8.TabIndex = 317
@@ -295,7 +295,7 @@ Partial Class Product_Information
         '
         Me.Label9.AutoSize = True
         Me.Label9.Font = New System.Drawing.Font("Microsoft YaHei UI Light", 12.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.Label9.Location = New System.Drawing.Point(276, 297)
+        Me.Label9.Location = New System.Drawing.Point(280, 293)
         Me.Label9.Name = "Label9"
         Me.Label9.Size = New System.Drawing.Size(73, 21)
         Me.Label9.TabIndex = 318
@@ -305,7 +305,7 @@ Partial Class Product_Information
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(6.0!, 13.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
-        Me.ClientSize = New System.Drawing.Size(890, 421)
+        Me.ClientSize = New System.Drawing.Size(904, 419)
         Me.Controls.Add(Me.Label9)
         Me.Controls.Add(Me.Label8)
         Me.Controls.Add(Me.Label7)

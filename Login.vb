@@ -292,4 +292,14 @@ Public Class Login
         Me.Hide()
         Account_Recovery.Show()
     End Sub
+
+    Private Sub btnShowPass_Click(sender As Object, e As EventArgs) Handles btnShowPass.Click
+        If txtPassword.PasswordChar = "" Then
+            txtPassword.PasswordChar = "●"c
+        Else
+            txtPassword.PasswordChar = ControlChars.NullChar
+        End If
+    End Sub
+
+
 End Class

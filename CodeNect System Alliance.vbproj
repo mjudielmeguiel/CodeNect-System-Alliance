@@ -283,16 +283,22 @@
     <Compile Include="inventory\Inventory.vb">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Ordering\History.Designer.vb">
-      <DependentUpon>History.vb</DependentUpon>
+    <Compile Include="Ordering\Ordering_Report.Designer.vb">
+      <DependentUpon>Ordering_Report.vb</DependentUpon>
     </Compile>
-    <Compile Include="Ordering\History.vb">
+    <Compile Include="Ordering\Ordering_Report.vb">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Ordering\Stock_Movements.Designer.vb">
-      <DependentUpon>Stock_Movements.vb</DependentUpon>
+    <Compile Include="Ordering\Stock_Ordering.Designer.vb">
+      <DependentUpon>Stock_Ordering.vb</DependentUpon>
     </Compile>
-    <Compile Include="Ordering\Stock_Movements.vb">
+    <Compile Include="Ordering\Stock_Ordering.vb">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Ordering\Transaction_Details.Designer.vb">
+      <DependentUpon>Transaction_Details.vb</DependentUpon>
+    </Compile>
+    <Compile Include="Ordering\Transaction_Details.vb">
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="POS\POS_System.Designer.vb">
@@ -359,12 +365,6 @@
       <DependentUpon>Description_Manager.vb</DependentUpon>
     </Compile>
     <Compile Include="Products\Description_Manager.vb">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="Products\Description_Masterfile.Designer.vb">
-      <DependentUpon>Description_Masterfile.vb</DependentUpon>
-    </Compile>
-    <Compile Include="Products\Description_Masterfile.vb">
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="Login.Designer.vb">
@@ -439,11 +439,14 @@
     <EmbeddedResource Include="inventory\Inventory.resx">
       <DependentUpon>Inventory.vb</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Ordering\History.resx">
-      <DependentUpon>History.vb</DependentUpon>
+    <EmbeddedResource Include="Ordering\Ordering_Report.resx">
+      <DependentUpon>Ordering_Report.vb</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Ordering\Stock_Movements.resx">
-      <DependentUpon>Stock_Movements.vb</DependentUpon>
+    <EmbeddedResource Include="Ordering\Stock_Ordering.resx">
+      <DependentUpon>Stock_Ordering.vb</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Ordering\Transaction_Details.resx">
+      <DependentUpon>Transaction_Details.vb</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="POS\POS_System.resx">
       <DependentUpon>POS_System.vb</DependentUpon>
@@ -477,9 +480,6 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Products\Description_Manager.resx">
       <DependentUpon>Description_Manager.vb</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Products\Description_Masterfile.resx">
-      <DependentUpon>Description_Masterfile.vb</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Login.resx">
       <DependentUpon>Login.vb</DependentUpon>

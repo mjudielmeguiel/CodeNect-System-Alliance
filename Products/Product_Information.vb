@@ -1,6 +1,7 @@
 ﻿Imports System.Data
 Imports System.Data.SqlClient
 Imports System.IO
+Imports System.Drawing
 Imports System.Drawing.Imaging
 
 Public Class Product_Information
@@ -29,6 +30,8 @@ Public Class Product_Information
 
             ' Ipakita ang litrato ng produkto
             picProduct.SizeMode = PictureBoxSizeMode.Zoom
+            picProduct.BackColor = Color.White
+
             If row.Cells("PRODUCT_IMAGE").Value IsNot DBNull.Value Then
                 _OriginalImageBytes = DirectCast(row.Cells("PRODUCT_IMAGE").Value, Byte())
                 Using ms As New MemoryStream(_OriginalImageBytes)
@@ -36,6 +39,7 @@ Public Class Product_Information
                 End Using
             Else
                 picProduct.Image = Nothing
+                _OriginalImageBytes = Nothing
             End If
 
         Catch ex As Exception
@@ -43,6 +47,69 @@ Public Class Product_Information
         End Try
     End Sub
 
+    ' --- Helper function: Convert Image to Byte Array ---
+    Private Function ImageToByteArray(img As Image) As Byte()
+        If img Is Nothing Then Return Nothing
+        Try
+            Using bmp As New Bitmap(img)
+                Using ms As New MemoryStream()
+                    bmp.Save(ms, ImageFormat.Png)
+                    Return ms.ToArray()
+                End Using
+            End Using
+        Catch
+            Return Nothing
+        End Try
+    End Function
+
+    ' --- AUTOMATIC SAVE IMAGE as soon as you select it ---
+    Private Sub picProduct_DoubleClick(sender As Object, e As EventArgs) Handles picProduct.DoubleClick
+        Using ofd As New OpenFileDialog()
+            ofd.Title = "Select Product Image"
+            ofd.Filter = "Image Files|*.jpg;*.jpeg;*.png;*.bmp;*.gif"
+            ofd.RestoreDirectory = True
+
+            If ofd.ShowDialog() = DialogResult.OK Then
+                Try
+                    ' Load the selected image
+                    picProduct.Image = Image.FromFile(ofd.FileName)
+
+                    ' AUTOMATICALLY SAVE the new image to database
+                    Dim newImageBytes As Byte() = ImageToByteArray(picProduct.Image)
+                    SaveImageToDatabase(newImageBytes)
+
+                Catch ex As Exception
+                    MessageBox.Show("Cannot open or save image: " & ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
+                End Try
+            End If
+        End Using
+    End Sub
+
+    ' --- Function to save only the image to database ---
+    Private Sub SaveImageToDatabase(imgBytes As Byte())
+        If _ProductID <= 0 Then
+            MessageBox.Show("No product selected to update.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
+            Return
+        End If
+
+        Try
+            Using con As New SqlConnection(connStr)
+                Dim query As String = "UPDATE inv.Inventory_Master_file SET PRODUCT_IMAGE = @PRODUCT_IMAGE WHERE ID = @ID"
+                Using cmd As New SqlCommand(query, con)
+                    cmd.Parameters.Add("@PRODUCT_IMAGE", SqlDbType.VarBinary).Value = If(imgBytes IsNot Nothing, imgBytes, DBNull.Value)
+                    cmd.Parameters.Add("@ID", SqlDbType.Int).Value = _ProductID
+
+                    con.Open()
+                    cmd.ExecuteNonQuery()
+                End Using
+            End Using
+
+            MessageBox.Show("New image saved successfully!", "Image Updated", MessageBoxButtons.OK, MessageBoxIcon.Information)
+
+        Catch ex As Exception
+            MessageBox.Show("Failed to save image: " & ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
+        End Try
+    End Sub
 
     Private Sub btnDeleteProduct_Click(sender As Object, e As EventArgs) Handles btnDeleteProduct.Click
         If MessageBox.Show("Are you sure you want to delete this product?", "Confirm Delete", MessageBoxButtons.YesNo, MessageBoxIcon.Question) <> DialogResult.Yes Then
@@ -69,4 +136,5 @@ Public Class Product_Information
     Private Sub btnClose_Click(sender As Object, e As EventArgs) Handles btnClose.Click
         Me.Close()
     End Sub
+
 End Class

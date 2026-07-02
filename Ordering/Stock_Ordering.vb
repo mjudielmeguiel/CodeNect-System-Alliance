@@ -1,0 +1,284 @@
+﻿Imports System.Data
+Imports System.Data.SqlClient
+
+Public Class Stock_Ordering
+
+    ' Use your existing global connection string from Module
+    Private orderList As New DataTable()
+
+    Private Sub Stock_Ordering_Load(sender As Object, e As EventArgs) Handles MyBase.Load
+        GeneratePONumber()
+        LoadVendors()          ' Load Vendors from your VENDOR table
+        SetupOrderListTable()  ' Set columns for DataGridView
+
+        lblstatus.Text = "PENDING"
+        lbltransactiontype.Text = "STOCK ORDER"
+
+        ' Display Branch name from Dashboard
+        lblbranch.Text = DashBoard.ToolStripStatusLabel4.Text.Trim()
+
+        txtBarcode.Focus()
+    End Sub
+
+    ' --- Generate unique PO Number ---
+    Private Sub GeneratePONumber()
+        Try
+            Using con As New SqlConnection(connStr)
+                Dim cmd As New SqlCommand("SELECT ISNULL(MAX(PO_NUMBER), 0) + 1 FROM STO_DATA", con)
+                con.Open()
+                Dim nextPO As Integer = CInt(cmd.ExecuteScalar())
+                lblPOnumber.Text = nextPO.ToString("D6") ' Format as 000000
+            End Using
+        Catch
+            lblPOnumber.Text = "000001"
+        End Try
+    End Sub
+
+    ' --- Load Vendors from VENDOR table into cboBranchFrom ---
+    Private Sub LoadVendors()
+        Try
+            Using con As New SqlConnection(connStr)
+                Dim query As String = "SELECT VENDOR_CODE, VENDOR FROM VENDOR WHERE STATUS = 'Active' ORDER BY VENDOR"
+                Dim cmd As New SqlCommand(query, con)
+                Dim da As New SqlDataAdapter(cmd)
+                Dim dt As New DataTable()
+                da.Fill(dt)
+
+                cboBranchFrom.DataSource = dt
+                cboBranchFrom.DisplayMember = "VENDOR"
+                cboBranchFrom.ValueMember = "VENDOR_CODE"
+                cboBranchFrom.Text = "-- Select Vendor --"
+            End Using
+        Catch ex As Exception
+            MessageBox.Show("Error loading vendors: " & ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
+        End Try
+    End Sub
+
+    ' --- Setup grid columns ---
+    Private Sub SetupOrderListTable()
+        orderList.Columns.Add("BARCODE", GetType(String))
+        orderList.Columns.Add("SKU", GetType(String))
+        orderList.Columns.Add("BRAND", GetType(String))
+        orderList.Columns.Add("DESCRIPTIONS", GetType(String))
+        orderList.Columns.Add("SIZE", GetType(String))
+        orderList.Columns.Add("PRICE", GetType(Decimal))
+        orderList.Columns.Add("ORDER_QTY", GetType(Integer))
+        orderList.Columns.Add("VENDOR_CODE", GetType(String))
+        orderList.Columns.Add("VENDOR_NAME", GetType(String))
+        orderList.Columns.Add("TOTAL", GetType(Decimal))
+
+        dgvOrderItems.DataSource = orderList
+        dgvOrderItems.Columns("PRICE").DefaultCellStyle.Format = "N2"
+        dgvOrderItems.Columns("TOTAL").DefaultCellStyle.Format = "N2"
+    End Sub
+
+    ' --- Load product when barcode is scanned ---
+    Private Sub txtBarcode_TextChanged(sender As Object, e As EventArgs) Handles txtBarcode.TextChanged
+        If txtBarcode.Text.Trim.Length >= 5 AndAlso cboBranchFrom.SelectedValue IsNot Nothing Then
+            SearchProduct(txtBarcode.Text.Trim(), cboBranchFrom.SelectedValue.ToString())
+        End If
+    End Sub
+
+    Private Sub SearchProduct(barcode As String, vendorCode As String)
+        Try
+            Using con As New SqlConnection(connStr)
+                Dim query As String = "SELECT BARCODE, SKU, BRAND, DESCRIPTIONS, SIZE, PRICE, VENDOR_CODE, VENDOR " &
+                                      "FROM inv.Inventory_Master_file " &
+                                      "WHERE BARCODE = @Barcode AND VENDOR_CODE = @VendorCode"
+
+                Using cmd As New SqlCommand(query, con)
+                    cmd.Parameters.Add("@Barcode", SqlDbType.NVarChar, 50).Value = barcode
+                    cmd.Parameters.Add("@VendorCode", SqlDbType.NVarChar, 10).Value = vendorCode
+
+                    con.Open()
+                    Dim dr As SqlDataReader = cmd.ExecuteReader()
+
+                    If dr.Read() Then
+                        txtBarcode.Tag = New With {
+                            .SKU = dr("SKU").ToString(),
+                            .Brand = dr("BRAND").ToString(),
+                            .Desc = dr("DESCRIPTIONS").ToString(),
+                            .Size = dr("SIZE").ToString(),
+                            .Price = CDec(dr("PRICE")),
+                            .VendorCode = dr("VENDOR_CODE").ToString(),
+                            .VendorName = dr("VENDOR").ToString()
+                        }
+                        txtQty.Focus()
+                    Else
+                        MessageBox.Show("Product not found for this Vendor!", "Not Found", MessageBoxButtons.OK, MessageBoxIcon.Warning)
+                        txtBarcode.Clear()
+                        txtBarcode.Focus()
+                    End If
+                    dr.Close()
+                End Using
+            End Using
+        Catch ex As Exception
+            MessageBox.Show("Error loading product: " & ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
+        End Try
+    End Sub
+
+    ' --- Add item to grid ---
+    Private Sub btnAdd_Click(sender As Object, e As EventArgs) Handles btnAdd.Click
+        If txtBarcode.Tag Is Nothing Then
+            MessageBox.Show("Scan a barcode first!", "Required", MessageBoxButtons.OK, MessageBoxIcon.Warning)
+            Return
+        End If
+
+        Dim qty As Integer
+        If Not Integer.TryParse(txtQty.Text.Trim(), qty) OrElse qty <= 0 Then
+            MessageBox.Show("Enter valid quantity!", "Invalid", MessageBoxButtons.OK, MessageBoxIcon.Warning)
+            txtQty.Clear()
+            txtQty.Focus()
+            Return
+        End If
+
+        Dim prod = CType(txtBarcode.Tag, Object)
+        Dim subtotal As Decimal = prod.Price * qty
+
+        Dim newRow As DataRow = orderList.NewRow()
+        newRow("BARCODE") = txtBarcode.Text.Trim()
+        newRow("SKU") = prod.SKU
+        newRow("BRAND") = prod.Brand
+        newRow("DESCRIPTIONS") = prod.Desc
+        newRow("SIZE") = prod.Size
+        newRow("PRICE") = prod.Price
+        newRow("ORDER_QTY") = qty
+        newRow("VENDOR_CODE") = prod.VendorCode
+        newRow("VENDOR_NAME") = prod.VendorName
+        newRow("TOTAL") = subtotal
+
+        orderList.Rows.Add(newRow)
+        ComputeGrandTotal()
+
+        txtBarcode.Clear()
+        txtQty.Clear()
+        txtBarcode.Tag = Nothing
+        txtBarcode.Focus()
+    End Sub
+
+    ' ✅ --- NEW: Remove selected item from grid ---
+    Private Sub btnRemove_Click(sender As Object, e As EventArgs) Handles btnremove.Click
+        If dgvOrderItems.SelectedRows.Count = 0 Then
+            MessageBox.Show("Please select a row to remove first!", "No Selection", MessageBoxButtons.OK, MessageBoxIcon.Warning)
+            Return
+        End If
+
+        Dim confirm As DialogResult = MessageBox.Show("Are you sure you want to remove this item?", "Confirm Remove", MessageBoxButtons.YesNo, MessageBoxIcon.Question)
+        If confirm = DialogResult.Yes Then
+            ' Remove the selected row from the DataTable
+            orderList.Rows(dgvOrderItems.SelectedRows(0).Index).Delete()
+            orderList.AcceptChanges() ' Confirm deletion
+            ComputeGrandTotal() ' Recalculate total after removal
+        End If
+    End Sub
+
+    Private Sub ComputeGrandTotal()
+        Dim total As Decimal = 0
+        If orderList.Rows.Count > 0 Then
+            total = orderList.AsEnumerable().Sum(Function(r) CDec(r("TOTAL")))
+        End If
+        lbltotal.Text = total.ToString("N2")
+    End Sub
+
+    ' --- Submit order ---
+    Private Sub btnSubmit_Click(sender As Object, e As EventArgs) Handles btnSubmit.Click
+        If orderList.Rows.Count = 0 Then
+            MessageBox.Show("No items added!", "Empty", MessageBoxButtons.OK, MessageBoxIcon.Warning)
+            Return
+        End If
+
+        If cboBranchFrom.SelectedValue Is Nothing OrElse cboBranchFrom.Text = "-- Select Vendor --" Then
+            MessageBox.Show("Select a Vendor first!", "Required", MessageBoxButtons.OK, MessageBoxIcon.Warning)
+            Return
+        End If
+
+        If MessageBox.Show("Submit this order?", "Confirm", MessageBoxButtons.YesNo, MessageBoxIcon.Question) <> DialogResult.Yes Then Return
+
+        Dim poNumber As String = lblPOnumber.Text
+        Dim vendorName As String = cboBranchFrom.Text
+        Dim preparedBy As String = lblpreparedby.Text
+        ' Get Branch from Dashboard
+        Dim branchName As String = DashBoard.ToolStripStatusLabel4.Text.Trim()
+        Dim grandTotal As Decimal = CDec(lbltotal.Text)
+
+        Try
+            Using con As New SqlConnection(connStr)
+                con.Open()
+                Dim tran As SqlTransaction = con.BeginTransaction()
+
+                Try
+                    Dim cmdHeader As New SqlCommand("INSERT INTO STO_DATA (PO_NUMBER, [FROM], [TO], REQUEST_DATE, PREPARED_BY, TRANSACTION_TYPE, TOTAL, STATUS) " &
+                                                    "VALUES (@PO, @From, @To, GETDATE(), @PreparedBy, @Type, @Total, @Status)", con, tran)
+
+                    cmdHeader.Parameters.Add("@PO", SqlDbType.NVarChar, 20).Value = poNumber
+
+                    ' Truncate values to fit column limits
+                    cmdHeader.Parameters.Add("@From", SqlDbType.NVarChar, 100).Value = If(vendorName.Length > 100, vendorName.Substring(0, 100), vendorName)
+                    cmdHeader.Parameters.Add("@To", SqlDbType.NVarChar, 100).Value = If(branchName.Length > 100, branchName.Substring(0, 100), branchName)
+                    cmdHeader.Parameters.Add("@PreparedBy", SqlDbType.NVarChar, 50).Value = If(preparedBy.Length > 50, preparedBy.Substring(0, 50), preparedBy)
+
+                    cmdHeader.Parameters.Add("@Type", SqlDbType.NVarChar, 50).Value = lbltransactiontype.Text
+                    cmdHeader.Parameters.Add("@Total", SqlDbType.Decimal).Value = grandTotal
+                    cmdHeader.Parameters.Add("@Status", SqlDbType.NVarChar, 20).Value = lblstatus.Text
+
+                    cmdHeader.ExecuteNonQuery()
+
+                    ' Insert line items
+                    For Each row As DataRow In orderList.Rows
+                        Dim cmdLine As New SqlCommand("INSERT INTO Stock_Ordering (PO_NUMBER, BARCODE, SKU, BRAND, DESCRIPTIONS, SIZE, PRICE, ORDER_QTY, VENDOR_CODE, VENDOR_NAME, TOTAL) " &
+                                                      "VALUES (@PO, @Barcode, @SKU, @Brand, @Desc, @Size, @Price, @Qty, @VendorCode, @Vendor, @Subtotal)", con, tran)
+
+                        cmdLine.Parameters.Add("@PO", SqlDbType.NVarChar, 20).Value = poNumber
+                        cmdLine.Parameters.Add("@Barcode", SqlDbType.NVarChar, 50).Value = row("BARCODE")
+                        cmdLine.Parameters.Add("@SKU", SqlDbType.NVarChar, 20).Value = row("SKU")
+                        cmdLine.Parameters.Add("@Brand", SqlDbType.NVarChar, 100).Value = row("BRAND")
+                        cmdLine.Parameters.Add("@Desc", SqlDbType.NVarChar, 255).Value = row("DESCRIPTIONS")
+                        cmdLine.Parameters.Add("@Size", SqlDbType.NVarChar, 20).Value = row("SIZE")
+                        cmdLine.Parameters.Add("@Price", SqlDbType.Decimal).Value = row("PRICE")
+                        cmdLine.Parameters.Add("@Qty", SqlDbType.Int).Value = row("ORDER_QTY")
+                        cmdLine.Parameters.Add("@VendorCode", SqlDbType.NVarChar, 10).Value = row("VENDOR_CODE")
+                        cmdLine.Parameters.Add("@Vendor", SqlDbType.NVarChar, 100).Value = row("VENDOR_NAME")
+                        cmdLine.Parameters.Add("@Subtotal", SqlDbType.Decimal).Value = row("TOTAL")
+
+                        cmdLine.ExecuteNonQuery()
+                    Next
+
+                    tran.Commit()
+                    MessageBox.Show("Order saved successfully! PO: " & poNumber, "Saved", MessageBoxButtons.OK, MessageBoxIcon.Information)
+                    ClearAll()
+
+                Catch ex As Exception
+                    tran.Rollback()
+                    MessageBox.Show("Save failed: " & ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
+                End Try
+            End Using
+        Catch ex As Exception
+            MessageBox.Show("Connection error: " & ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
+        End Try
+    End Sub
+
+    Private Sub ClearAll()
+        GeneratePONumber()
+        orderList.Clear()
+        lbltotal.Text = "0.00"
+        txtBarcode.Clear()
+        txtQty.Clear()
+        txtBarcode.Tag = Nothing
+        lblstatus.Text = "PENDING"
+        cboBranchFrom.SelectedIndex = -1
+        lblbranch.Text = DashBoard.ToolStripStatusLabel4.Text.Trim()
+        txtBarcode.Focus()
+    End Sub
+
+    Private Sub btnClose_Click(sender As Object, e As EventArgs) Handles btnClose.Click
+        If MessageBox.Show("Are you sure you want to cancel this order?", "Confirm", MessageBoxButtons.YesNo, MessageBoxIcon.Question) = DialogResult.Yes Then
+            lbltransactiontype.Text = "-"
+            lblbranch.Text = "-"
+            lblpreparedby.Text = "-"
+            lblPOnumber.Text = "-"
+            lblstatus.Text = "CANCELLED"
+            Me.Hide()
+        End If
+    End Sub
+
+End Class

@@ -4,21 +4,17 @@ Imports System.Data.SqlClient
 Public Class Branch_Performance
 
     Private Sub Branch_Performance_Load(sender As Object, e As EventArgs) Handles MyBase.Load
-        ' Set default dates: last 1 month up to today
+
         dtpStart.Value = DateTime.Now.AddMonths(-1)
         dtpEnd.Value = DateTime.Now
         LoadBranchSales()
     End Sub
 
-    ' ==============================================
-    ' LOAD BRANCH SALES BY DATE RANGE
-    ' ==============================================
     Private Sub LoadBranchSales()
         Try
             Dim startDate As String = dtpStart.Value.ToString("yyyy-MM-dd")
             Dim endDate As String = dtpEnd.Value.ToString("yyyy-MM-dd")
 
-            ' Query: Get all branches, total sales within date range, rank results
             Dim query As String = "
                 SELECT 
                     ROW_NUMBER() OVER (ORDER BY ISNULL(S.TOTAL_SALES, 0) DESC) AS [RANK],
@@ -46,13 +42,11 @@ Public Class Branch_Performance
 
                     dgvBranchList.DataSource = dt
 
-                    ' Set column headers
                     dgvBranchList.Columns("RANK").HeaderText = "Rank"
                     dgvBranchList.Columns("BRANCH_ID").HeaderText = "Branch ID"
                     dgvBranchList.Columns("BRANCH").HeaderText = "Branch Name"
                     dgvBranchList.Columns("TOTAL_SALES").HeaderText = "Total Sales"
 
-                    ' Format sales as currency
                     dgvBranchList.Columns("TOTAL_SALES").DefaultCellStyle.Format = "#,##0.00"
                     dgvBranchList.Columns("RANK").ReadOnly = True
                 End Using
@@ -63,9 +57,6 @@ Public Class Branch_Performance
         End Try
     End Sub
 
-    ' ==============================================
-    ' Refresh when date changes
-    ' ==============================================
     Private Sub dtpStart_ValueChanged(sender As Object, e As EventArgs) Handles dtpStart.ValueChanged
         LoadBranchSales()
     End Sub
@@ -74,17 +65,11 @@ Public Class Branch_Performance
         LoadBranchSales()
     End Sub
 
-    ' ==============================================
-    ' Refresh button
-    ' ==============================================
     Private Sub btnRefresh_Click(sender As Object, e As EventArgs) Handles btnRefresh.Click
         LoadBranchSales()
         MessageBox.Show("Data refreshed successfully!", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information)
     End Sub
 
-    ' ==============================================
-    ' Export to Excel
-    ' ==============================================
     Private Sub btnExport_Click(sender As Object, e As EventArgs) Handles btnExport.Click
         Try
             Dim saveDialog As New SaveFileDialog()
