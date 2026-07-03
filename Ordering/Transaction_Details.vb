@@ -5,29 +5,45 @@ Imports System.Windows.Forms
 
 Public Class Transaction_Details
 
+    Private connStr As String = DBConnection.connStr
     Private _transType As String
     Private _transNo As String
     Private _status As String
     Private _isLoading As Boolean = False
+    Private _isViewOnly As Boolean = False ' ← New variable for view-only mode
 
-    Public Sub New(transType As String, transNo As String, Optional status As String = "")
+    ' ← Updated Constructor: accepts isViewOnly parameter
+    Public Sub New(transType As String, transNo As String, Optional status As String = "", Optional isViewOnly As Boolean = False)
         InitializeComponent()
         _transType = transType
         _transNo = transNo
         _status = status
+        _isViewOnly = isViewOnly
     End Sub
 
     Private Sub Transaction_Details_Load(sender As Object, e As EventArgs) Handles MyBase.Load
-        lblTransType.Text = "" & _transType
-        lblTransNo.Text = "" & _transNo
+        lblTransType.Text = _transType
+        lblTransNo.Text = _transNo
         lblstatus.Text = _status
 
         SetStatusLabelColor()
-
+        SetFormLabels()
         LoadItems()
 
-        If _status.Equals("RECEIVED", StringComparison.OrdinalIgnoreCase) Then
+        ' Apply view-only mode if set, OR if status is already completed
+        If _isViewOnly OrElse
+           _status.Equals("RECEIVED", StringComparison.OrdinalIgnoreCase) OrElse
+           _status.Equals("TRANSFERRED", StringComparison.OrdinalIgnoreCase) Then
             SetViewOnlyMode()
+        End If
+    End Sub
+
+    Private Sub SetFormLabels()
+        If _transType.Equals("Stock Transfer", StringComparison.OrdinalIgnoreCase) Then
+            Me.Text = "STOCK TRANSFER DETAILS"
+            lblTransNo.Text = "STR-" & _transNo
+        Else
+            Me.Text = "STOCK ORDERING DETAILS"
         End If
     End Sub
 
@@ -36,7 +52,7 @@ Public Class Transaction_Details
             Case "PENDING"
                 lblstatus.BackColor = Color.Transparent
                 lblstatus.ForeColor = Color.Orange
-            Case "RECEIVED"
+            Case "RECEIVED", "TRANSFERRED"
                 lblstatus.BackColor = Color.Transparent
                 lblstatus.ForeColor = Color.Green
             Case Else
@@ -51,6 +67,8 @@ Public Class Transaction_Details
         txtStockOut.ReadOnly = True
         btnSubmit.Enabled = False
         dgvItems.ReadOnly = True
+        dgvItems.AllowUserToAddRows = False
+        dgvItems.AllowUserToDeleteRows = False
         Me.Text &= " - VIEW ONLY"
     End Sub
 
@@ -59,25 +77,45 @@ Public Class Transaction_Details
             _isLoading = True
             Using conn As New SqlConnection(connStr)
                 conn.Open()
-                Dim sql As String = "SELECT 
-                    SKU,
-                    BRAND,
-                    DESCRIPTIONS AS [Description],
-                    SIZE,
-                    PRICE,
-                    ORDER_QTY AS [Order Qty],
-                    VENDOR_CODE,
-                    VENDOR_NAME,
-                    ISNULL(STOCK_IN, 0) AS [Stock In],
-                    ISNULL(STOCK_OUT, 0) AS [Stock Out],
-                    (ISNULL(STOCK_IN, 0) - ISNULL(STOCK_OUT, 0)) AS REMARKS,
-                    (ISNULL(STOCK_IN, 0) - ISNULL(STOCK_OUT, 0)) * PRICE AS [Total To Pay]
-                FROM dbo.Stock_Ordering 
-                WHERE PO_NUMBER = @PO
-                ORDER BY SKU"
+                Dim sql As String = ""
+
+                If _transType.Equals("Stock Ordering", StringComparison.OrdinalIgnoreCase) Then
+                    sql = "SELECT 
+                        SKU,
+                        BARCODE,
+                        BRAND,
+                        DESCRIPTIONS AS [Description],
+                        SIZE,
+                        PRICE,
+                        ORDER_QTY AS [Order Qty],
+                        ISNULL(STOCK_IN, 0) AS [Stock In],
+                        ISNULL(STOCK_OUT, 0) AS [Stock Out],
+                        (ISNULL(STOCK_IN, 0) - ISNULL(STOCK_OUT, 0)) AS REMARKS,
+                        ((ISNULL(STOCK_IN, 0) - ISNULL(STOCK_OUT, 0)) * PRICE) AS [Total To Pay]
+                    FROM dbo.Stock_Ordering 
+                    WHERE PO_NUMBER = @DocNo
+                    ORDER BY SKU"
+
+                ElseIf _transType.Equals("Stock Transfer", StringComparison.OrdinalIgnoreCase) Then
+                    sql = "SELECT 
+                        SKU,
+                        BARCODE,
+                        BRAND,
+                        DESCRIPTIONS AS [Description],
+                        SIZE,
+                        PRICE,
+                        ORDER_QTY AS [Order Qty],
+                        ISNULL(STOCK_IN, 0) AS [Stock In],
+                        ISNULL(STOCK_OUT, 0) AS [Stock Out],
+                        (ISNULL(STOCK_IN, 0) - ISNULL(STOCK_OUT, 0)) AS REMARKS,
+                        ((ISNULL(STOCK_IN, 0) - ISNULL(STOCK_OUT, 0)) * PRICE) AS [Total To Pay]
+                    FROM dbo.Stock_Transfer 
+                    WHERE STR_NUMBER = @DocNo
+                    ORDER BY SKU"
+                End If
 
                 Using cmd As New SqlCommand(sql, conn)
-                    cmd.Parameters.Add("@PO", SqlDbType.NVarChar, 15).Value = _transNo
+                    cmd.Parameters.Add("@DocNo", SqlDbType.NVarChar, 15).Value = _transNo
                     Dim da As New SqlDataAdapter(cmd)
                     Dim dt As New DataTable()
                     da.Fill(dt)
@@ -98,11 +136,14 @@ Public Class Transaction_Details
         For Each col As DataGridViewColumn In dgvItems.Columns
             If col.Name = "PRICE" Or col.Name = "Total To Pay" Then
                 col.DefaultCellStyle.Format = "N2"
+                col.DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleRight
             ElseIf col.Name = "REMARKS" Or col.Name.Contains("Qty") Or col.Name.Contains("Stock") Then
                 col.DefaultCellStyle.Format = "N0"
+                col.DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleRight
             End If
         Next
         dgvItems.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.AllCells
+        dgvItems.AllowUserToAddRows = False
     End Sub
 
     Private Sub CalculateGrandTotal()
@@ -110,11 +151,13 @@ Public Class Transaction_Details
         For Each row As DataGridViewRow In dgvItems.Rows
             total += Val(row.Cells("Total To Pay").Value)
         Next
-        lblGrandTotal.Text = "" & total.ToString("N2")
+        lblGrandTotal.Text = total.ToString("N2")
     End Sub
 
     Private Sub dgvItems_CellClick(sender As Object, e As DataGridViewCellEventArgs) Handles dgvItems.CellClick
-        If e.RowIndex < 0 OrElse _status.Equals("RECEIVED", StringComparison.OrdinalIgnoreCase) Then Return
+        If e.RowIndex < 0 OrElse _isViewOnly OrElse
+           _status.Equals("RECEIVED", StringComparison.OrdinalIgnoreCase) OrElse
+           _status.Equals("TRANSFERRED", StringComparison.OrdinalIgnoreCase) Then Return
 
         _isLoading = True
         Dim row = dgvItems.Rows(e.RowIndex)
@@ -124,7 +167,9 @@ Public Class Transaction_Details
     End Sub
 
     Private Sub txtStockIn_TextChanged(sender As Object, e As EventArgs) Handles txtStockIn.TextChanged, txtStockOut.TextChanged
-        If _isLoading OrElse _status.Equals("RECEIVED", StringComparison.OrdinalIgnoreCase) Then Return
+        If _isLoading OrElse _isViewOnly OrElse
+           _status.Equals("RECEIVED", StringComparison.OrdinalIgnoreCase) OrElse
+           _status.Equals("TRANSFERRED", StringComparison.OrdinalIgnoreCase) Then Return
 
         Dim sIn = Math.Max(0, CInt(Math.Truncate(Val(txtStockIn.Text))))
         Dim sOut = Math.Max(0, CInt(Math.Truncate(Val(txtStockOut.Text))))
@@ -132,12 +177,12 @@ Public Class Transaction_Details
         Dim row = dgvItems.CurrentRow
         If row IsNot Nothing Then
             Dim price = Val(row.Cells("PRICE").Value)
-            Dim netQty = Math.Max(0, sIn - sOut)
-            Dim totalPay = netQty * price
+            Dim remarksQty = sIn - sOut
+            Dim totalPay = remarksQty * price
 
             row.Cells("Stock In").Value = sIn
             row.Cells("Stock Out").Value = sOut
-            row.Cells("REMARKS").Value = netQty
+            row.Cells("REMARKS").Value = remarksQty
             row.Cells("Total To Pay").Value = totalPay
 
             CalculateGrandTotal()
@@ -145,8 +190,14 @@ Public Class Transaction_Details
     End Sub
 
     Private Sub btnSubmit_Click(sender As Object, e As EventArgs) Handles btnSubmit.Click
-        If _status.Equals("RECEIVED", StringComparison.OrdinalIgnoreCase) Then
-            MessageBox.Show("Transaction already received — cannot edit.", "Locked", MessageBoxButtons.OK, MessageBoxIcon.Warning)
+        If _isViewOnly Then
+            MessageBox.Show("View-only mode — changes not allowed.", "Locked", MessageBoxButtons.OK, MessageBoxIcon.Information)
+            Return
+        End If
+
+        If _status.Equals("RECEIVED", StringComparison.OrdinalIgnoreCase) OrElse
+           _status.Equals("TRANSFERRED", StringComparison.OrdinalIgnoreCase) Then
+            MessageBox.Show("Transaction already completed — cannot edit.", "Locked", MessageBoxButtons.OK, MessageBoxIcon.Warning)
             Return
         End If
 
@@ -170,59 +221,113 @@ Public Class Transaction_Details
                 conn.Open()
                 Using trans = conn.BeginTransaction()
                     Try
-                        Dim cmdItem As New SqlCommand("UPDATE dbo.Stock_Ordering 
-                            SET STOCK_IN = @In, STOCK_OUT = @Out, REMARKS = @Remarks, TOTAL = @ItemTotal
-                            WHERE PO_NUMBER = @PO AND SKU = @SKU", conn, trans)
-
-                        Dim cmdUpdateInventory As New SqlCommand("UPDATE inv.Inventory_Master_file 
-                            SET AVAILABLE = AVAILABLE + @QtyReceived 
-                            WHERE SKU = @SKU", conn, trans)
-
-                        Dim cmdHeader As New SqlCommand("UPDATE dbo.STO_DATA 
-                            SET 
-                                DR = @DR,
-                                RECEIVER = @Receiver,
-                                RECEIVE_DATE = GETDATE(),
-                                STATUS = 'RECEIVED',
-                                TOTAL = @GrandTotal
-                            WHERE PO_NUMBER = @PO", conn, trans)
-
                         Dim grandTotal As Decimal = 0
                         Dim receiverName = DashBoard.ToolStripStatusLabel1.Text.Trim()
+                        If receiverName.Length > 20 Then receiverName = receiverName.Substring(0, 20)
 
-                        If receiverName.Length > 20 Then
-                            receiverName = receiverName.Substring(0, 20)
+                        If _transType.Equals("Stock Ordering", StringComparison.OrdinalIgnoreCase) Then
+                            Dim cmdItem As New SqlCommand("UPDATE dbo.Stock_Ordering 
+                                SET STOCK_IN = @In, STOCK_OUT = @Out, REMARKS = @Remarks, TOTAL = @ItemTotal
+                                WHERE PO_NUMBER = @DocNo AND SKU = @SKU", conn, trans)
+
+                            Dim cmdUpdateInventory As New SqlCommand("UPDATE inv.Inventory_Master_file 
+                                SET AVAILABLE = AVAILABLE + @QtyReceived 
+                                WHERE SKU = @SKU", conn, trans)
+
+                            Dim cmdHeader As New SqlCommand("UPDATE dbo.STO_DATA 
+                                SET 
+                                    DR = @DR,
+                                    RECEIVER = @Receiver,
+                                    RECEIVE_DATE = GETDATE(),
+                                    STATUS = 'RECEIVED',
+                                    TOTAL = @GrandTotal
+                                WHERE PO_NUMBER = @DocNo", conn, trans)
+
+                            For Each row As DataGridViewRow In dgvItems.Rows
+                                Dim remarksQty = CInt(row.Cells("REMARKS").Value)
+                                Dim itemTotal = Val(row.Cells("Total To Pay").Value)
+                                Dim itemSKU = row.Cells("SKU").Value.ToString().Trim()
+                                grandTotal += itemTotal
+
+                                cmdItem.Parameters.Clear()
+                                cmdItem.Parameters.Add("@DocNo", SqlDbType.NVarChar, 15).Value = _transNo
+                                cmdItem.Parameters.Add("@SKU", SqlDbType.NVarChar, 15).Value = itemSKU
+                                cmdItem.Parameters.Add("@In", SqlDbType.Int).Value = row.Cells("Stock In").Value
+                                cmdItem.Parameters.Add("@Out", SqlDbType.Int).Value = row.Cells("Stock Out").Value
+                                cmdItem.Parameters.Add("@Remarks", SqlDbType.Int).Value = remarksQty
+                                cmdItem.Parameters.Add("@ItemTotal", SqlDbType.Decimal, 18, 2).Value = itemTotal
+                                cmdItem.ExecuteNonQuery()
+
+                                cmdUpdateInventory.Parameters.Clear()
+                                cmdUpdateInventory.Parameters.Add("@QtyReceived", SqlDbType.Int).Value = remarksQty
+                                cmdUpdateInventory.Parameters.Add("@SKU", SqlDbType.NVarChar, 15).Value = itemSKU
+                                cmdUpdateInventory.ExecuteNonQuery()
+                            Next
+
+                            cmdHeader.Parameters.Add("@DocNo", SqlDbType.NVarChar, 15).Value = _transNo
+                            cmdHeader.Parameters.Add("@DR", SqlDbType.NVarChar, 20).Value = txtDRNumber.Text.Trim()
+                            cmdHeader.Parameters.Add("@Receiver", SqlDbType.NVarChar, 20).Value = receiverName
+                            cmdHeader.Parameters.Add("@GrandTotal", SqlDbType.Decimal, 18, 2).Value = grandTotal
+                            cmdHeader.ExecuteNonQuery()
+
+                        ElseIf _transType.Equals("Stock Transfer", StringComparison.OrdinalIgnoreCase) Then
+                            Dim cmdItem As New SqlCommand("UPDATE dbo.Stock_Transfer 
+                                SET STOCK_IN = @In, STOCK_OUT = @Out, REMARKS = @Remarks, TOTAL = @ItemTotal
+                                WHERE STR_NUMBER = @DocNo AND SKU = @SKU", conn, trans)
+
+                            Dim cmdHeader As New SqlCommand("UPDATE dbo.STR_DATA 
+                                SET 
+                                    DR = @DR,
+                                    RECEIVER = @Receiver,
+                                    RECEIVE_DATE = GETDATE(),
+                                    STATUS = 'RECEIVED',
+                                    TOTAL = @GrandTotal
+                                WHERE STR_NUMBER = @DocNo", conn, trans)
+
+                            Dim cmdUpdateStockOut As New SqlCommand("UPDATE inv.Inventory_Master_file 
+                                SET AVAILABLE = AVAILABLE - @QtyOut 
+                                WHERE SKU = @SKU", conn, trans)
+
+                            Dim cmdUpdateStockIn As New SqlCommand("UPDATE inv.Inventory_Master_file 
+                                SET AVAILABLE = AVAILABLE + @QtyIn 
+                                WHERE SKU = @SKU", conn, trans)
+
+                            For Each row As DataGridViewRow In dgvItems.Rows
+                                Dim qtyOut = CInt(row.Cells("Stock Out").Value)
+                                Dim qtyIn = CInt(row.Cells("Stock In").Value)
+                                Dim remarksQty = qtyIn - qtyOut
+                                Dim itemTotal = Val(row.Cells("Total To Pay").Value)
+                                Dim itemSKU = row.Cells("SKU").Value.ToString().Trim()
+                                grandTotal += itemTotal
+
+                                cmdItem.Parameters.Clear()
+                                cmdItem.Parameters.Add("@DocNo", SqlDbType.NVarChar, 15).Value = _transNo
+                                cmdItem.Parameters.Add("@SKU", SqlDbType.NVarChar, 15).Value = itemSKU
+                                cmdItem.Parameters.Add("@In", SqlDbType.Int).Value = qtyIn
+                                cmdItem.Parameters.Add("@Out", SqlDbType.Int).Value = qtyOut
+                                cmdItem.Parameters.Add("@Remarks", SqlDbType.Int).Value = remarksQty
+                                cmdItem.Parameters.Add("@ItemTotal", SqlDbType.Decimal, 18, 2).Value = itemTotal
+                                cmdItem.ExecuteNonQuery()
+
+                                cmdUpdateStockOut.Parameters.Clear()
+                                cmdUpdateStockOut.Parameters.Add("@QtyOut", SqlDbType.Int).Value = qtyOut
+                                cmdUpdateStockOut.Parameters.Add("@SKU", SqlDbType.NVarChar, 15).Value = itemSKU
+                                cmdUpdateStockOut.ExecuteNonQuery()
+
+                                cmdUpdateStockIn.Parameters.Clear()
+                                cmdUpdateStockIn.Parameters.Add("@QtyIn", SqlDbType.Int).Value = qtyIn
+                                cmdUpdateStockIn.Parameters.Add("@SKU", SqlDbType.NVarChar, 15).Value = itemSKU
+                                cmdUpdateStockIn.ExecuteNonQuery()
+                            Next
+
+                            cmdHeader.Parameters.Add("@DocNo", SqlDbType.NVarChar, 15).Value = _transNo
+                            cmdHeader.Parameters.Add("@DR", SqlDbType.NVarChar, 20).Value = txtDRNumber.Text.Trim()
+                            cmdHeader.Parameters.Add("@Receiver", SqlDbType.NVarChar, 20).Value = receiverName
+                            cmdHeader.Parameters.Add("@GrandTotal", SqlDbType.Decimal, 18, 2).Value = grandTotal
+                            cmdHeader.ExecuteNonQuery()
                         End If
 
-                        For Each row As DataGridViewRow In dgvItems.Rows
-                            Dim netQty = CInt(row.Cells("REMARKS").Value)
-                            Dim itemTotal = Val(row.Cells("Total To Pay").Value)
-                            Dim itemSKU = row.Cells("SKU").Value.ToString().Trim()
-                            grandTotal += itemTotal
-
-                            cmdItem.Parameters.Clear()
-                            cmdItem.Parameters.Add("@PO", SqlDbType.NVarChar, 15).Value = _transNo
-                            cmdItem.Parameters.Add("@SKU", SqlDbType.NVarChar, 15).Value = itemSKU
-                            cmdItem.Parameters.Add("@In", SqlDbType.Int).Value = row.Cells("Stock In").Value
-                            cmdItem.Parameters.Add("@Out", SqlDbType.Int).Value = row.Cells("Stock Out").Value
-                            cmdItem.Parameters.Add("@Remarks", SqlDbType.Int).Value = netQty
-                            cmdItem.Parameters.Add("@ItemTotal", SqlDbType.Decimal, 18, 2).Value = itemTotal
-                            cmdItem.ExecuteNonQuery()
-
-                            cmdUpdateInventory.Parameters.Clear()
-                            cmdUpdateInventory.Parameters.Add("@QtyReceived", SqlDbType.Int).Value = netQty
-                            cmdUpdateInventory.Parameters.Add("@SKU", SqlDbType.NVarChar, 15).Value = itemSKU
-                            cmdUpdateInventory.ExecuteNonQuery()
-                        Next
-
-                        cmdHeader.Parameters.Add("@PO", SqlDbType.NVarChar, 15).Value = _transNo
-                        cmdHeader.Parameters.Add("@DR", SqlDbType.NVarChar, 20).Value = txtDRNumber.Text.Trim()
-                        cmdHeader.Parameters.Add("@Receiver", SqlDbType.NVarChar, 20).Value = receiverName
-                        cmdHeader.Parameters.Add("@GrandTotal", SqlDbType.Decimal, 18, 2).Value = grandTotal
-
-                        cmdHeader.ExecuteNonQuery()
                         trans.Commit()
-
                         MessageBox.Show("Saved successfully!", "Done", MessageBoxButtons.OK, MessageBoxIcon.Information)
 
                         _status = "RECEIVED"
@@ -254,7 +359,7 @@ Public Class Transaction_Details
 
             Dim sfd As New SaveFileDialog()
             sfd.Filter = "Excel File (*.xlsx)|*.xlsx"
-            sfd.FileName = "PO_" & _transNo & "_" & DateTime.Now.ToString("yyyyMMdd") & ".xlsx"
+            sfd.FileName = If(_transType = "Stock Transfer", "STR_", "PO_") & _transNo & "_" & DateTime.Now.ToString("yyyyMMdd") & ".xlsx"
 
             If sfd.ShowDialog() <> DialogResult.OK Then Return
 
@@ -266,11 +371,11 @@ Public Class Transaction_Details
                 excelApp = New Microsoft.Office.Interop.Excel.Application()
                 wb = excelApp.Workbooks.Add()
                 ws = CType(wb.Sheets(1), Microsoft.Office.Interop.Excel.Worksheet)
-                ws.Name = "PO Details"
+                ws.Name = If(_transType = "Stock Transfer", "STR Details", "PO Details")
 
                 ws.Cells(1, 1) = "Transaction Type"
                 ws.Cells(1, 2) = _transType
-                ws.Cells(2, 1) = "PO Number"
+                ws.Cells(2, 1) = If(_transType = "Stock Transfer", "STR Number", "PO Number")
                 ws.Cells(2, 2) = _transNo
                 ws.Cells(3, 1) = "Status"
                 ws.Cells(3, 2) = _status
@@ -282,7 +387,7 @@ Public Class Transaction_Details
                     ws.Cells(headerRow, col + 1) = dgvItems.Columns(col).HeaderText
                     With ws.Cells(headerRow, col + 1)
                         .Font.Bold = True
-                        .Interior.Color = System.Drawing.Color.LightGray
+                        .Interior.Color = Color.LightGray
                     End With
                 Next
 
@@ -293,7 +398,6 @@ Public Class Transaction_Details
                 Next
 
                 ws.Columns.AutoFit()
-
                 wb.SaveAs(sfd.FileName)
                 MessageBox.Show("Export completed successfully!", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information)
 
@@ -313,5 +417,4 @@ Public Class Transaction_Details
             MessageBox.Show("Export Error: " & ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
         End Try
     End Sub
-
 End Class

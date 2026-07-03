@@ -188,8 +188,29 @@ Public Class DashBoard
         Ordering.Show()
     End Sub
 
-    Private Sub InventoryManagementToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles StockINToolStripMenuItem.Click
+    Private Sub StockTransferToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles StockTransferToolStripMenuItem.Click
+
+        Dim STR As New Stock_Transfer
+
+        STR.lblPreparedBy.Text = ToolStripStatusLabel1.Text
+        STR.lblFromBranch.Text = ToolStripStatusLabel4.Text
+        STR.lblstatus.Text = "PENDING"
+        STR.lbltransactiontype.Text = "STOCK TRANSFER"
+        STR.Show()
+    End Sub
+
+    Private Sub BtnTransactions_Click(sender As Object, e As EventArgs) Handles BtnTransactions.Click
         Ordering_Report.Show()
+    End Sub
+
+    Private Sub ToolStripMenuItem7_Click(sender As Object, e As EventArgs) Handles btntransferReport.Click
+        Panel2.Controls.Clear()
+        Dim Report As New Transfer_Reports
+        Report.TopLevel = False
+        Report.FormBorderStyle = FormBorderStyle.None
+        Report.Dock = DockStyle.Fill
+        Panel2.Controls.Add(Report)
+        Report.Show()
     End Sub
 #End Region
 

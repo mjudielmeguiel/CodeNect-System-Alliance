@@ -25,7 +25,7 @@ Partial Class Ordering_Report
         Dim Label4 As System.Windows.Forms.Label
         Dim Label5 As System.Windows.Forms.Label
         Dim resources As System.ComponentModel.ComponentResourceManager = New System.ComponentModel.ComponentResourceManager(GetType(Ordering_Report))
-        Dim DataGridViewCellStyle2 As System.Windows.Forms.DataGridViewCellStyle = New System.Windows.Forms.DataGridViewCellStyle()
+        Dim DataGridViewCellStyle1 As System.Windows.Forms.DataGridViewCellStyle = New System.Windows.Forms.DataGridViewCellStyle()
         Me.btnClose = New System.Windows.Forms.Button()
         Me.Panel2 = New System.Windows.Forms.Panel()
         Me.Panel1 = New System.Windows.Forms.Panel()
@@ -33,6 +33,7 @@ Partial Class Ordering_Report
         Me.adminpic = New System.Windows.Forms.PictureBox()
         Me.dgvHistory = New System.Windows.Forms.DataGridView()
         Me.Panel3 = New System.Windows.Forms.Panel()
+        Me.cboTransactionType = New System.Windows.Forms.ComboBox()
         Me.dtpTo = New System.Windows.Forms.DateTimePicker()
         Me.dtpFrom = New System.Windows.Forms.DateTimePicker()
         Label4 = New System.Windows.Forms.Label()
@@ -110,9 +111,9 @@ Partial Class Ordering_Report
         Me.Label3.ForeColor = System.Drawing.SystemColors.Control
         Me.Label3.Location = New System.Drawing.Point(79, 9)
         Me.Label3.Name = "Label3"
-        Me.Label3.Size = New System.Drawing.Size(264, 36)
+        Me.Label3.Size = New System.Drawing.Size(393, 36)
         Me.Label3.TabIndex = 0
-        Me.Label3.Text = "STOCK ORDERING"
+        Me.Label3.Text = "TRANSFER STOCKS REPORT"
         '
         'adminpic
         '
@@ -142,15 +143,16 @@ Partial Class Ordering_Report
         Me.dgvHistory.Name = "dgvHistory"
         Me.dgvHistory.ReadOnly = True
         Me.dgvHistory.RowHeadersBorderStyle = System.Windows.Forms.DataGridViewHeaderBorderStyle.None
-        DataGridViewCellStyle2.BackColor = System.Drawing.SystemColors.Control
-        DataGridViewCellStyle2.Font = New System.Drawing.Font("Microsoft YaHei UI", 12.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.dgvHistory.RowsDefaultCellStyle = DataGridViewCellStyle2
+        DataGridViewCellStyle1.BackColor = System.Drawing.SystemColors.Control
+        DataGridViewCellStyle1.Font = New System.Drawing.Font("Microsoft YaHei UI", 12.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.dgvHistory.RowsDefaultCellStyle = DataGridViewCellStyle1
         Me.dgvHistory.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect
         Me.dgvHistory.Size = New System.Drawing.Size(1342, 499)
         Me.dgvHistory.TabIndex = 300
         '
         'Panel3
         '
+        Me.Panel3.Controls.Add(Me.cboTransactionType)
         Me.Panel3.Controls.Add(Me.dtpTo)
         Me.Panel3.Controls.Add(Label5)
         Me.Panel3.Controls.Add(Label4)
@@ -160,6 +162,17 @@ Partial Class Ordering_Report
         Me.Panel3.Name = "Panel3"
         Me.Panel3.Size = New System.Drawing.Size(1366, 143)
         Me.Panel3.TabIndex = 301
+        '
+        'cboTransactionType
+        '
+        Me.cboTransactionType.BackColor = System.Drawing.SystemColors.Control
+        Me.cboTransactionType.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList
+        Me.cboTransactionType.Font = New System.Drawing.Font("Microsoft YaHei UI", 14.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.cboTransactionType.FormattingEnabled = True
+        Me.cboTransactionType.Location = New System.Drawing.Point(441, 69)
+        Me.cboTransactionType.Name = "cboTransactionType"
+        Me.cboTransactionType.Size = New System.Drawing.Size(408, 33)
+        Me.cboTransactionType.TabIndex = 307
         '
         'dtpTo
         '
@@ -211,4 +224,5 @@ Partial Class Ordering_Report
     Friend WithEvents Panel3 As Panel
     Friend WithEvents dtpFrom As DateTimePicker
     Friend WithEvents dtpTo As DateTimePicker
+    Friend WithEvents cboTransactionType As ComboBox
 End Class

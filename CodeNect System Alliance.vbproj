@@ -331,6 +331,18 @@
     <Compile Include="ShelfTag_Printer.vb">
       <SubType>Form</SubType>
     </Compile>
+    <Compile Include="STR\Stock_Transfer.Designer.vb">
+      <DependentUpon>Stock_Transfer.vb</DependentUpon>
+    </Compile>
+    <Compile Include="STR\Stock_Transfer.vb">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="STR\Transfer_Reports.Designer.vb">
+      <DependentUpon>Transfer_Reports.vb</DependentUpon>
+    </Compile>
+    <Compile Include="STR\Transfer_Reports.vb">
+      <SubType>Form</SubType>
+    </Compile>
     <Compile Include="Users\ADD User.Designer.vb">
       <DependentUpon>ADD User.vb</DependentUpon>
     </Compile>
@@ -462,6 +474,12 @@
     </EmbeddedResource>
     <EmbeddedResource Include="ShelfTag_Printer.resx">
       <DependentUpon>ShelfTag_Printer.vb</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="STR\Stock_Transfer.resx">
+      <DependentUpon>Stock_Transfer.vb</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="STR\Transfer_Reports.resx">
+      <DependentUpon>Transfer_Reports.vb</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Users\ADD User.resx">
       <DependentUpon>ADD User.vb</DependentUpon>
