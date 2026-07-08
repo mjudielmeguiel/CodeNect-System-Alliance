@@ -7,9 +7,7 @@ Public Class Ordering_Report
     Private connStr As String = DBConnection.connStr
 
     Private Sub History_Load(sender As Object, e As EventArgs) Handles MyBase.Load
-        cboTransactionType.Items.AddRange({"Stock Ordering", "Stock Transfer"})
-        cboTransactionType.SelectedIndex = 0
-
+        ' Set date range to full day by default
         dtpFrom.Value = New DateTime(DateTime.Today.Year, DateTime.Today.Month, DateTime.Today.Day, 0, 0, 0)
         dtpTo.Value = New DateTime(DateTime.Today.Year, DateTime.Today.Month, DateTime.Today.Day, 23, 59, 59)
 
@@ -19,7 +17,6 @@ Public Class Ordering_Report
     Sub LoadData()
         Try
             Dim selectedBranch As String = DashBoard.ToolStripStatusLabel4.Text.Trim()
-            Dim selectedType As String = If(cboTransactionType.SelectedItem IsNot Nothing, cboTransactionType.SelectedItem.ToString(), "")
 
             If String.IsNullOrEmpty(selectedBranch) Then
                 MessageBox.Show("Branch information not found in Dashboard.", "Warning", MessageBoxButtons.OK, MessageBoxIcon.Warning)
@@ -29,46 +26,24 @@ Public Class Ordering_Report
 
             Using conn As New SqlConnection(connStr)
                 conn.Open()
-                Dim sql As String = ""
 
-                ' --- STOCK ORDERING: Filtered by branch ---
-                If selectedType = "Stock Ordering" Then
-                    sql = "SELECT 
-                            PO_NUMBER AS [Document No],
-                            DR AS [DR Number],
-                            [FROM] AS Vendor,
-                            PREPARED_BY AS [Prepared By],
-                            REQUEST_DATE AS [Request Date],
-                            [TO] AS [To Branch],
-                            RECEIVER AS [Receive By],
-                            RECEIVE_DATE AS [Receive Date],
-                            STATUS,
-                            TOTAL AS Amount,
-                            'Stock Ordering' AS [Transaction Type]
-                         FROM dbo.STO_DATA 
-                         WHERE LTRIM(RTRIM([TO])) = LTRIM(RTRIM(@Branch))
-                           AND REQUEST_DATE BETWEEN @DateFrom AND @DateTo
-                         ORDER BY PO_NUMBER DESC"
-
-                    ' --- STOCK TRANSFER: Filter ONLY where TO_MV = your branch ---
-                ElseIf selectedType = "Stock Transfer" Then
-                    sql = "SELECT 
-                            STR_NUMBER AS [Document No],
-                            DR AS [DR Number],
-                            FROM_MV AS [From Branch],
-                            PREPARED_BY AS [Prepared By],
-                            REQUEST_DATE AS [Request Date],
-                            TO_MV AS [To Branch],
-                            RECEIVER AS [Receive By],
-                            RECEIVE_DATE AS [Receive Date],
-                            STATUS,
-                            TOTAL AS Amount,
-                            'Stock Transfer' AS [Transaction Type]
-                         FROM dbo.STR_DATA 
-                         WHERE LTRIM(RTRIM(TO_MV)) = LTRIM(RTRIM(@Branch))
-                           AND REQUEST_DATE BETWEEN @DateFrom AND @DateTo
-                         ORDER BY STR_NUMBER DESC"
-                End If
+                ' Only Stock Ordering query remains
+                Dim sql As String = "SELECT 
+                        PO_NUMBER AS [Document No],
+                        DR AS [DR Number],
+                        [FROM] AS Vendor,
+                        PREPARED_BY AS [Prepared By],
+                        REQUEST_DATE AS [Request Date],
+                        [TO] AS [To Branch],
+                        RECEIVER AS [Receive By],
+                        RECEIVE_DATE AS [Receive Date],
+                        STATUS,
+                        TOTAL AS Amount,
+                        'Stock Ordering' AS [Transaction Type]
+                     FROM dbo.STO_DATA 
+                     WHERE LTRIM(RTRIM([TO])) = LTRIM(RTRIM(@Branch))
+                       AND REQUEST_DATE BETWEEN @DateFrom AND @DateTo
+                     ORDER BY PO_NUMBER DESC"
 
                 Using cmd As New SqlCommand(sql, conn)
                     cmd.Parameters.Add("@Branch", SqlDbType.NVarChar, 100).Value = selectedBranch
@@ -103,10 +78,6 @@ Public Class Ordering_Report
         dgvHistory.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.AllCells
     End Sub
 
-    Private Sub cboTransactionType_SelectedIndexChanged(sender As Object, e As EventArgs) Handles cboTransactionType.SelectedIndexChanged
-        LoadData()
-    End Sub
-
     Private Sub dtpFrom_ValueChanged(sender As Object, e As EventArgs) Handles dtpFrom.ValueChanged
         LoadData()
     End Sub
@@ -119,10 +90,10 @@ Public Class Ordering_Report
         If e.RowIndex < 0 Then Exit Sub
         Dim row = dgvHistory.Rows(e.RowIndex)
         Dim docNo As String = row.Cells("Document No").Value.ToString().Trim()
-        Dim transType As String = row.Cells("Transaction Type").Value.ToString().Trim()
         Dim status As String = row.Cells("STATUS").Value.ToString().Trim()
 
-        Using frm As New Transaction_Details(transType, docNo, status)
+        ' Matches the simplified Transaction_Details constructor we made earlier
+        Using frm As New Transaction_Details(docNo, status)
             frm.ShowDialog()
         End Using
 
@@ -133,4 +104,7 @@ Public Class Ordering_Report
         Me.Close()
     End Sub
 
+    Private Sub Panel2_Paint(sender As Object, e As PaintEventArgs) Handles Panel2.Paint
+
+    End Sub
 End Class

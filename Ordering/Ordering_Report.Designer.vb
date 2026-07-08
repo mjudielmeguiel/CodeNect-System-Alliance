@@ -33,7 +33,6 @@ Partial Class Ordering_Report
         Me.adminpic = New System.Windows.Forms.PictureBox()
         Me.dgvHistory = New System.Windows.Forms.DataGridView()
         Me.Panel3 = New System.Windows.Forms.Panel()
-        Me.cboTransactionType = New System.Windows.Forms.ComboBox()
         Me.dtpTo = New System.Windows.Forms.DateTimePicker()
         Me.dtpFrom = New System.Windows.Forms.DateTimePicker()
         Label4 = New System.Windows.Forms.Label()
@@ -152,7 +151,6 @@ Partial Class Ordering_Report
         '
         'Panel3
         '
-        Me.Panel3.Controls.Add(Me.cboTransactionType)
         Me.Panel3.Controls.Add(Me.dtpTo)
         Me.Panel3.Controls.Add(Label5)
         Me.Panel3.Controls.Add(Label4)
@@ -162,17 +160,6 @@ Partial Class Ordering_Report
         Me.Panel3.Name = "Panel3"
         Me.Panel3.Size = New System.Drawing.Size(1366, 143)
         Me.Panel3.TabIndex = 301
-        '
-        'cboTransactionType
-        '
-        Me.cboTransactionType.BackColor = System.Drawing.SystemColors.Control
-        Me.cboTransactionType.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList
-        Me.cboTransactionType.Font = New System.Drawing.Font("Microsoft YaHei UI", 14.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.cboTransactionType.FormattingEnabled = True
-        Me.cboTransactionType.Location = New System.Drawing.Point(441, 69)
-        Me.cboTransactionType.Name = "cboTransactionType"
-        Me.cboTransactionType.Size = New System.Drawing.Size(408, 33)
-        Me.cboTransactionType.TabIndex = 307
         '
         'dtpTo
         '
@@ -224,5 +211,4 @@ Partial Class Ordering_Report
     Friend WithEvents Panel3 As Panel
     Friend WithEvents dtpFrom As DateTimePicker
     Friend WithEvents dtpTo As DateTimePicker
-    Friend WithEvents cboTransactionType As ComboBox
 End Class

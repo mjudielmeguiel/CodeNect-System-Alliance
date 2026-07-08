@@ -1,8 +1,9 @@
 ﻿Imports System.Data
 Imports System.Data.SqlClient
-Imports System.Drawing.Printing
 Imports System.Drawing
+Imports System.Drawing.Printing
 Imports System.IO
+Imports System.Security.Principal
 Imports System.Text
 
 Public Class ShelfTag_Printer
@@ -70,7 +71,7 @@ Public Class ShelfTag_Printer
         End If
     End Sub
 
-    ' ===== GRID SETUP =====
+    'GRID SETUP
     Private Sub SetupGrid()
         dgvItems.AutoGenerateColumns = False
         dgvItems.AllowUserToAddRows = False
@@ -96,7 +97,7 @@ Public Class ShelfTag_Printer
         tempPrintList.Columns.Add("PRODUCT_IMAGE", GetType(Byte()))
     End Sub
 
-    ' ===== HELPER METHODS =====
+    'HELPER METHODS
     Private Sub ClearInputFields()
         txtBarcode.Clear()
         txtQuantity.Text = "1"
@@ -110,7 +111,7 @@ Public Class ShelfTag_Printer
         currentItemIndex = 0
     End Sub
 
-    ' ===== ADD ITEM =====
+    'ADD ITEM
     Private Sub btnAdd_Click(sender As Object, e As EventArgs) Handles btnAdd.Click
         If String.IsNullOrWhiteSpace(txtBarcode.Text.Trim()) Then
             MessageBox.Show("Please enter Barcode or SKU!", "Notice", MessageBoxButtons.OK, MessageBoxIcon.Warning)
@@ -156,8 +157,9 @@ Public Class ShelfTag_Printer
         End Try
     End Sub
 
-    ' ===== REMOVE ITEM =====
-    Private Sub btnRemove_Click(sender As Object, e As EventArgs) Handles btnRemove.Click
+    'REMOVE ITEM
+
+    Private Sub btnRemove_Click_1(sender As Object, e As EventArgs) Handles btnRemove.Click
         If dgvItems.SelectedRows.Count > 0 Then
             dgvItems.Rows.RemoveAt(dgvItems.SelectedRows(0).Index)
         Else
@@ -165,19 +167,18 @@ Public Class ShelfTag_Printer
         End If
     End Sub
 
-    ' ===== CLEAR LIST =====
+    'CLEAR LIST
     Private Sub btnRefresh_Click(sender As Object, e As EventArgs) Handles btnRefresh.Click
         If MessageBox.Show("Clear the entire list?", "Confirm", MessageBoxButtons.YesNo, MessageBoxIcon.Question) = DialogResult.Yes Then
             ClearAll()
         End If
     End Sub
 
-    ' ===== CLOSE FORM =====
-    Private Sub btnClose_Click(sender As Object, e As EventArgs) Handles btnClose.Click
+    Private Sub btnClose_Click_1(sender As Object, e As EventArgs) Handles btnClose.Click
         Me.Close()
     End Sub
 
-    ' ===== PRINT START =====
+    'PRINT START
     Private Sub btnPrint_Click(sender As Object, e As EventArgs) Handles btnPrint.Click
         If dgvItems.Rows.Count = 0 Then
             MessageBox.Show("No items added!", "Notice", MessageBoxButtons.OK, MessageBoxIcon.Warning)
@@ -222,9 +223,7 @@ Public Class ShelfTag_Printer
         End Try
     End Sub
 
-    ' ==========================================================
     ' BARCODE GENERATOR
-    ' ==========================================================
     Private Function GetValidBarcodePattern(codeNum As String) As String
         Dim pureNum As String = New String(codeNum.Where(AddressOf Char.IsDigit).ToArray())
 
@@ -286,9 +285,6 @@ Public Class ShelfTag_Printer
         Return pattern.ToString()
     End Function
 
-    ' ==========================================================
-    ' PRINT PAGE DRAWING
-    ' ==========================================================
     Private Sub printDoc_PrintPage(sender As Object, e As PrintPageEventArgs) Handles printDoc.PrintPage
         Dim g As Graphics = e.Graphics
         g.PageUnit = GraphicsUnit.Millimeter
@@ -435,5 +431,4 @@ Public Class ShelfTag_Printer
 
         e.HasMorePages = (currentItemIndex < tempPrintList.Rows.Count)
     End Sub
-
 End Class

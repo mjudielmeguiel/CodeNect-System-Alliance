@@ -4,16 +4,8 @@ Imports System.IO
 Imports System.Drawing
 Imports System.Drawing.Imaging
 
-Public Class ADD_Description
-
-    Private Current_AccountID As String = ""
-    Private Current_BranchID As String = ""
-
-    Private Const phBarcode As String = "Enter barcode..."
-    Private Const phQty As String = "Enter quantity..."
-    Private Const phPrice As String = "Enter price..."
-
-    Private Sub ADD_Description_Load(sender As Object, e As EventArgs) Handles MyBase.Load
+Public Class frmADDProduct_Manual
+    Private Sub frmADDProduct_Manual_Load(sender As Object, e As EventArgs) Handles MyBase.Load
         GetIDsUsingBranchName()
         SetFieldsSettings()
         GenerateRandom6DigitSKU()
@@ -25,6 +17,13 @@ Public Class ADD_Description
 
         Me.Text = "ADD NEW PRODUCT | Account ID: " & Current_AccountID & " | Branch ID: " & Current_BranchID
     End Sub
+
+    Private Current_AccountID As String = ""
+    Private Current_BranchID As String = ""
+
+    Private Const phBarcode As String = "Enter barcode..."
+    Private Const phQty As String = "Enter quantity..."
+    Private Const phPrice As String = "Enter price..."
 
     Private Sub GetIDsUsingBranchName()
         Try
@@ -121,56 +120,10 @@ Public Class ADD_Description
 
     Private Sub txtBarcode_TextChanged(sender As Object, e As EventArgs) Handles txtBarcode.TextChanged
         If txtBarcode.Text <> phBarcode AndAlso txtBarcode.Text.Trim.Length >= 5 Then
-            LoadVendorDetails()
         ElseIf txtBarcode.Text <> phBarcode Then
             ClearAll()
             GenerateRandom6DigitSKU()
         End If
-    End Sub
-
-    Private Sub LoadVendorDetails()
-        Try
-            Using conn As New SqlConnection(connStr)
-                Dim query As String = "SELECT DESCRIPTIONS, BRAND, CATEGORY, VENDOR_CODE, VENDOR, UNIT, SIZE, PRICE, PRODUCT_IMAGE FROM dbo.Vendor_Products WHERE RTRIM(LTRIM(BARCODE)) = @Barcode"
-                Using cmd As New SqlCommand(query, conn)
-                    cmd.Parameters.Add("@Barcode", SqlDbType.NChar, 15).Value = txtBarcode.Text.Trim()
-                    conn.Open()
-                    Dim dr As SqlDataReader = cmd.ExecuteReader()
-                    If dr.Read() Then
-                        lblDescription.Text = dr("DESCRIPTIONS").ToString().Trim()
-                        lblBrand.Text = dr("BRAND").ToString().Trim()
-                        lblCategory.Text = dr("CATEGORY").ToString().Trim()
-                        lblVendorCode.Text = dr("VENDOR_CODE").ToString().Trim()
-                        lblVendor.Text = dr("VENDOR").ToString().Trim()
-                        lblUnit.Text = dr("UNIT").ToString().Trim()
-                        lblSize.Text = dr("SIZE").ToString().Trim()
-                        txtPrice.Text = CDec(dr("PRICE")).ToString("0.00")
-                        txtPrice.ForeColor = Color.Black
-                        picProduct.Image = Nothing
-                        If Not dr.IsDBNull(dr.GetOrdinal("PRODUCT_IMAGE")) Then
-                            Try
-                                Dim imgBytes As Byte() = DirectCast(dr("PRODUCT_IMAGE"), Byte())
-                                If imgBytes.Length > 0 Then
-                                    Using ms As New MemoryStream(imgBytes)
-                                        picProduct.Image = Image.FromStream(ms)
-                                    End Using
-                                End If
-                            Catch
-                                picProduct.Image = Nothing
-                            End Try
-                        End If
-                        txtStockAvailable.Clear()
-                        lblAvailability.Text = ""
-                        lblTotal.Text = "0.00"
-                    Else
-                        ClearAll()
-                    End If
-                    dr.Close()
-                End Using
-            End Using
-        Catch ex As Exception
-            MessageBox.Show("Vendor info: " & ex.Message, "Notice", MessageBoxButtons.OK, MessageBoxIcon.Information)
-        End Try
     End Sub
 
     Private Sub txtStockAvailable_TextChanged(sender As Object, e As EventArgs) Handles txtStockAvailable.TextChanged
@@ -268,13 +221,13 @@ Public Class ADD_Description
 
     Private Sub ClearAll()
         lblSKU.Text = ""
-        lblDescription.Text = ""
-        lblBrand.Text = ""
-        lblCategory.Text = ""
-        lblVendorCode.Text = ""
-        lblVendor.Text = ""
-        lblUnit.Text = ""
-        lblSize.Text = ""
+        txtDescription.Text = ""
+        txtBrand.Text = ""
+        cboCategory.selectedindex = -1
+        cboVendorCode.SelectedIndex = -1
+        cboVendor.Text = ""
+        txtUnit.Text = ""
+        txtSize.Text = ""
         lblAvailability.Text = ""
         lblTotal.Text = "0.00"
         picProduct.Image = Nothing
@@ -299,7 +252,7 @@ Public Class ADD_Description
             txtBarcode.Focus()
             Return
         End If
-        If String.IsNullOrWhiteSpace(lblDescription.Text) Then
+        If String.IsNullOrWhiteSpace(txtDescription.Text) Then
             MessageBox.Show("Product details not found. Check Barcode.", "Required", MessageBoxButtons.OK, MessageBoxIcon.Warning)
             Return
         End If
@@ -348,10 +301,10 @@ Public Class ADD_Description
                     cmd.Parameters.Add("@PRODUCT_IMAGE", SqlDbType.VarBinary).Value = If(imgBytes IsNot Nothing, imgBytes, DBNull.Value)
                     cmd.Parameters.Add("@BARCODE", SqlDbType.NChar, 15).Value = txtBarcode.Text.Trim()
                     cmd.Parameters.Add("@SKU", SqlDbType.NChar, 15).Value = lblSKU.Text.Trim()
-                    cmd.Parameters.Add("@BRAND", SqlDbType.VarChar, 255).Value = lblBrand.Text.Trim()
-                    cmd.Parameters.Add("@DESCRIPTIONS", SqlDbType.VarChar, 255).Value = lblDescription.Text.Trim()
-                    cmd.Parameters.Add("@CATEGORY", SqlDbType.VarChar, 255).Value = lblCategory.Text.Trim()
-                    cmd.Parameters.Add("@SIZE", SqlDbType.NVarChar, 20).Value = lblSize.Text.Trim()
+                    cmd.Parameters.Add("@BRAND", SqlDbType.VarChar, 255).Value = txtBrand.Text.Trim()
+                    cmd.Parameters.Add("@DESCRIPTIONS", SqlDbType.VarChar, 255).Value = txtDescription.Text.Trim()
+                    cmd.Parameters.Add("@CATEGORY", SqlDbType.VarChar, 255).Value = cboCategory.Text.Trim()
+                    cmd.Parameters.Add("@SIZE", SqlDbType.NVarChar, 20).Value = txtSize.Text.Trim()
 
                     Dim priceParam As New SqlParameter("@PRICE", SqlDbType.Decimal)
                     priceParam.Precision = 18
@@ -359,10 +312,10 @@ Public Class ADD_Description
                     priceParam.Value = CDec(txtPrice.Text.Trim())
                     cmd.Parameters.Add(priceParam)
 
-                    cmd.Parameters.Add("@UNIT", SqlDbType.NChar, 10).Value = lblUnit.Text.Trim()
+                    cmd.Parameters.Add("@UNIT", SqlDbType.NChar, 10).Value = txtUnit.Text.Trim()
                     cmd.Parameters.Add("@AVAILABLE", SqlDbType.Int).Value = CInt(txtStockAvailable.Text.Trim())
-                    cmd.Parameters.Add("@VENDOR_CODE", SqlDbType.NVarChar, 10).Value = lblVendorCode.Text.Trim()
-                    cmd.Parameters.Add("@VENDOR", SqlDbType.VarChar, 100).Value = lblVendor.Text.Trim()
+                    cmd.Parameters.Add("@VENDOR_CODE", SqlDbType.NVarChar, 10).Value = cboVendorCode.Text.Trim()
+                    cmd.Parameters.Add("@VENDOR", SqlDbType.VarChar, 100).Value = cboVendor.Text.Trim()
 
                     conn.Open()
                     cmd.ExecuteNonQuery()
@@ -378,5 +331,4 @@ Public Class ADD_Description
     Private Sub btnClose_Click(sender As Object, e As EventArgs) Handles btnClose.Click
         Me.Close()
     End Sub
-
 End Class

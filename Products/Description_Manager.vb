@@ -125,7 +125,7 @@ Public Class Description_Manager
     Private Sub dgvProducts_CellDoubleClick(sender As Object, e As DataGridViewCellEventArgs) Handles dgvProducts.CellDoubleClick
         If e.RowIndex >= 0 Then
             Dim napilingLinya As DataGridViewRow = dgvProducts.Rows(e.RowIndex)
-            Dim frmDetalye As New Product_Information()
+            Dim frmDetalye As New frmProduct_Information
             frmDetalye.LoadDataFromGrid(napilingLinya)
             frmDetalye.ShowDialog()
             KuninAngLahatNgProdukto(txtSearch.Text.Trim())
@@ -141,9 +141,7 @@ Public Class Description_Manager
         KuninAngLahatNgProdukto(txtSearch.Text.Trim())
     End Sub
 
-    Private Sub btnAdd_Click_1(sender As Object, e As EventArgs) Handles btnAdd.Click
-        Dim frmBagongProdukto As New ADD_Description()
-        frmBagongProdukto.ShowDialog()
-        KuninAngLahatNgProdukto(txtSearch.Text.Trim())
+    Private Sub btnAdd_Click(sender As Object, e As EventArgs) Handles btnAdd.Click
+
     End Sub
 End Class

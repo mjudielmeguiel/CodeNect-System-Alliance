@@ -22,9 +22,9 @@ Partial Class Transfer_Reports
     'Do not modify it using the code editor.
     <System.Diagnostics.DebuggerStepThrough()> _
     Private Sub InitializeComponent()
-        Dim DataGridViewCellStyle1 As System.Windows.Forms.DataGridViewCellStyle = New System.Windows.Forms.DataGridViewCellStyle()
         Dim Label5 As System.Windows.Forms.Label
         Dim Label4 As System.Windows.Forms.Label
+        Dim DataGridViewCellStyle1 As System.Windows.Forms.DataGridViewCellStyle = New System.Windows.Forms.DataGridViewCellStyle()
         Me.dgvHistory = New System.Windows.Forms.DataGridView()
         Me.dtpTo = New System.Windows.Forms.DateTimePicker()
         Me.dtpFrom = New System.Windows.Forms.DateTimePicker()
@@ -35,28 +35,6 @@ Partial Class Transfer_Reports
         CType(Me.dgvHistory, System.ComponentModel.ISupportInitialize).BeginInit()
         Me.Panel1.SuspendLayout()
         Me.SuspendLayout()
-        '
-        'dgvHistory
-        '
-        Me.dgvHistory.AllowUserToAddRows = False
-        Me.dgvHistory.AllowUserToDeleteRows = False
-        Me.dgvHistory.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.Fill
-        Me.dgvHistory.BackgroundColor = System.Drawing.SystemColors.Control
-        Me.dgvHistory.CellBorderStyle = System.Windows.Forms.DataGridViewCellBorderStyle.None
-        Me.dgvHistory.ColumnHeadersBorderStyle = System.Windows.Forms.DataGridViewHeaderBorderStyle.None
-        Me.dgvHistory.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize
-        Me.dgvHistory.Dock = System.Windows.Forms.DockStyle.Fill
-        Me.dgvHistory.GridColor = System.Drawing.SystemColors.Control
-        Me.dgvHistory.Location = New System.Drawing.Point(0, 0)
-        Me.dgvHistory.Name = "dgvHistory"
-        Me.dgvHistory.ReadOnly = True
-        Me.dgvHistory.RowHeadersBorderStyle = System.Windows.Forms.DataGridViewHeaderBorderStyle.None
-        DataGridViewCellStyle1.BackColor = System.Drawing.SystemColors.Control
-        DataGridViewCellStyle1.Font = New System.Drawing.Font("Microsoft YaHei UI", 12.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.dgvHistory.RowsDefaultCellStyle = DataGridViewCellStyle1
-        Me.dgvHistory.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect
-        Me.dgvHistory.Size = New System.Drawing.Size(1366, 768)
-        Me.dgvHistory.TabIndex = 301
         '
         'Label5
         '
@@ -77,6 +55,30 @@ Partial Class Transfer_Reports
         Label4.Size = New System.Drawing.Size(59, 21)
         Label4.TabIndex = 309
         Label4.Text = "From :"
+        '
+        'dgvHistory
+        '
+        Me.dgvHistory.AllowUserToAddRows = False
+        Me.dgvHistory.AllowUserToDeleteRows = False
+        Me.dgvHistory.Anchor = CType((((System.Windows.Forms.AnchorStyles.Top Or System.Windows.Forms.AnchorStyles.Bottom) _
+            Or System.Windows.Forms.AnchorStyles.Left) _
+            Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
+        Me.dgvHistory.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.Fill
+        Me.dgvHistory.BackgroundColor = System.Drawing.SystemColors.Control
+        Me.dgvHistory.CellBorderStyle = System.Windows.Forms.DataGridViewCellBorderStyle.None
+        Me.dgvHistory.ColumnHeadersBorderStyle = System.Windows.Forms.DataGridViewHeaderBorderStyle.None
+        Me.dgvHistory.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize
+        Me.dgvHistory.GridColor = System.Drawing.SystemColors.Control
+        Me.dgvHistory.Location = New System.Drawing.Point(12, 12)
+        Me.dgvHistory.Name = "dgvHistory"
+        Me.dgvHistory.ReadOnly = True
+        Me.dgvHistory.RowHeadersBorderStyle = System.Windows.Forms.DataGridViewHeaderBorderStyle.None
+        DataGridViewCellStyle1.BackColor = System.Drawing.SystemColors.Control
+        DataGridViewCellStyle1.Font = New System.Drawing.Font("Microsoft YaHei UI", 12.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.dgvHistory.RowsDefaultCellStyle = DataGridViewCellStyle1
+        Me.dgvHistory.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect
+        Me.dgvHistory.Size = New System.Drawing.Size(1342, 675)
+        Me.dgvHistory.TabIndex = 301
         '
         'dtpTo
         '

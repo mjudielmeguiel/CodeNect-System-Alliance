@@ -58,7 +58,7 @@ Public Class Branch_Manage
         If e.RowIndex >= 0 Then
             Dim SelectedBranchID As String = dgvBranches.Rows(e.RowIndex).Cells("BRANCH_ID").Value.ToString()
 
-            Dim frmInfo As New Branch_Info
+            Dim frmInfo As New frmBranch_Info
             frmInfo.SelectedBranchID = SelectedBranchID
             frmInfo.ShowDialog()
 

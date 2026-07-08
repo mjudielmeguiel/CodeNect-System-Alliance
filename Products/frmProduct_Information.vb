@@ -4,7 +4,7 @@ Imports System.IO
 Imports System.Drawing
 Imports System.Drawing.Imaging
 
-Public Class Product_Information
+Public Class frmProduct_Information
 
     Private _ProductID As Integer = 0
     Private _OriginalImageBytes As Byte() = Nothing
@@ -137,4 +137,7 @@ Public Class Product_Information
         Me.Close()
     End Sub
 
+    Private Sub Product_Information_Load(sender As Object, e As EventArgs) Handles MyBase.Load
+
+    End Sub
 End Class

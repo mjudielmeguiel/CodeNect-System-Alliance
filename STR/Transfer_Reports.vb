@@ -22,6 +22,9 @@ Public Class Transfer_Reports
         dgvHistory.AllowUserToResizeRows = False
         dgvHistory.SelectionMode = DataGridViewSelectionMode.FullRowSelect
 
+        ' Enable double-click to open details
+        AddHandler dgvHistory.CellDoubleClick, AddressOf dgvHistory_CellDoubleClick
+
         LoadData()
     End Sub
 
@@ -33,7 +36,7 @@ Public Class Transfer_Reports
                 conn.Open()
                 Dim sqlQuery As String = ""
 
-                ' --- STOCK ORDERING: Show ALL records from all branches ---
+                ' --- STOCK ORDERING ---
                 If selectedType = "Stock Ordering" Then
                     sqlQuery = "SELECT 
                                 PO_NUMBER AS [Document No],
@@ -51,7 +54,7 @@ Public Class Transfer_Reports
                              WHERE REQUEST_DATE BETWEEN @DateStart AND @DateEnd
                              ORDER BY PO_NUMBER DESC"
 
-                    ' --- STOCK TRANSFER: Show ALL records from all branches ---
+                    ' --- STOCK TRANSFER ---
                 ElseIf selectedType = "Stock Transfer" Then
                     sqlQuery = "SELECT 
                                 STR_NUMBER AS [Document No],
@@ -91,7 +94,7 @@ Public Class Transfer_Reports
 
     Private Sub FormatGrid()
         For Each col As DataGridViewColumn In dgvHistory.Columns
-            col.ReadOnly = True ' Ensure all columns are read-only
+            col.ReadOnly = True
 
             ' Format amount as currency
             If col.Name.Equals("Amount", StringComparison.OrdinalIgnoreCase) Then
@@ -109,12 +112,32 @@ Public Class Transfer_Reports
         dgvHistory.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.AllCells
     End Sub
 
-    ' Refresh when transaction type changes
+    ' --- DOUBLE CLICK TO OPEN DETAILS ---
+    Private Sub dgvHistory_CellDoubleClick(sender As Object, e As DataGridViewCellEventArgs)
+        If e.RowIndex < 0 Then Exit Sub
+
+        Dim row As DataGridViewRow = dgvHistory.Rows(e.RowIndex)
+        Dim transType As String = row.Cells("Transaction Type").Value.ToString()
+        Dim docNo As String = row.Cells("Document No").Value.ToString()
+
+        If transType = "Stock Transfer" Then
+            ' Open Stock Transfer form
+            Dim frmTransfer As New frmSTR_Information() ' <-- use your actual form name
+            frmTransfer.LoadTransferDetails(docNo)
+            frmTransfer.ShowDialog()
+
+        ElseIf transType = "Stock Ordering" Then
+            ' Open Stock Ordering form
+            Dim frmOrder As New frmSTO_Information() ' <-- use your actual form name
+            frmOrder.LoadOrderDetails(docNo)
+            frmOrder.ShowDialog()
+        End If
+    End Sub
+
     Private Sub cboTransactionType_SelectedIndexChanged(sender As Object, e As EventArgs) Handles cboTransactionType.SelectedIndexChanged
         LoadData()
     End Sub
 
-    ' Refresh when date range changes
     Private Sub dtpFrom_ValueChanged(sender As Object, e As EventArgs) Handles dtpFrom.ValueChanged
         LoadData()
     End Sub
@@ -122,24 +145,4 @@ Public Class Transfer_Reports
     Private Sub dtpTo_ValueChanged(sender As Object, e As EventArgs) Handles dtpTo.ValueChanged
         LoadData()
     End Sub
-
-    ' Open details in VIEW-ONLY mode
-    Private Sub dgvHistory_CellContentClick(sender As Object, e As DataGridViewCellEventArgs) Handles dgvHistory.CellContentClick
-        If e.RowIndex < 0 Then Exit Sub
-
-
-
-        Dim selectedRow As DataGridViewRow = dgvHistory.Rows(e.RowIndex)
-        Dim docNumber As String = selectedRow.Cells("Document No").Value.ToString().Trim()
-        Dim transType As String = selectedRow.Cells("Transaction Type").Value.ToString().Trim()
-        Dim status As String = selectedRow.Cells("STATUS").Value.ToString().Trim()
-
-        ' ✅ Fixed call: removed named parameter to avoid error
-        Using frmDetails As New Transaction_Details(transType, docNumber, status, True)
-            frmDetails.ShowDialog()
-        End Using
-
-        LoadData()
-    End Sub
-
 End Class

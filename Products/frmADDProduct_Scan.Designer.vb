@@ -1,5 +1,5 @@
 ﻿<Global.Microsoft.VisualBasic.CompilerServices.DesignerGenerated()> _
-Partial Class ADD_Description
+Partial Class frmADDProduct_Scan
     Inherits System.Windows.Forms.Form
 
     'Form overrides dispose to clean up the component list.
@@ -35,25 +35,25 @@ Partial Class ADD_Description
         Dim AVAILABILITYLabel As System.Windows.Forms.Label
         Dim VENDORLabel1 As System.Windows.Forms.Label
         Dim VENDOR_CODELabel1 As System.Windows.Forms.Label
-        Dim resources As System.ComponentModel.ComponentResourceManager = New System.ComponentModel.ComponentResourceManager(GetType(ADD_Description))
+        Dim resources As System.ComponentModel.ComponentResourceManager = New System.ComponentModel.ComponentResourceManager(GetType(frmADDProduct_Scan))
         Me.txtBarcode = New System.Windows.Forms.TextBox()
         Me.txtStockAvailable = New System.Windows.Forms.TextBox()
         Me.picProduct = New System.Windows.Forms.PictureBox()
         Me.btnClose = New System.Windows.Forms.Button()
         Me.btnSave = New System.Windows.Forms.Button()
-        Me.lblTotal = New System.Windows.Forms.Label()
-        Me.lblUnit = New System.Windows.Forms.Label()
-        Me.lblSize = New System.Windows.Forms.Label()
         Me.Label1 = New System.Windows.Forms.Label()
         Me.adminpic = New System.Windows.Forms.PictureBox()
+        Me.txtPrice = New System.Windows.Forms.TextBox()
         Me.lblSKU = New System.Windows.Forms.Label()
-        Me.lblBrand = New System.Windows.Forms.Label()
-        Me.lblDescription = New System.Windows.Forms.Label()
-        Me.lblCategory = New System.Windows.Forms.Label()
+        Me.lblSize = New System.Windows.Forms.Label()
+        Me.lblUnit = New System.Windows.Forms.Label()
+        Me.lblTotal = New System.Windows.Forms.Label()
+        Me.lblAvailability = New System.Windows.Forms.Label()
         Me.lblVendor = New System.Windows.Forms.Label()
         Me.lblVendorCode = New System.Windows.Forms.Label()
-        Me.lblAvailability = New System.Windows.Forms.Label()
-        Me.txtPrice = New System.Windows.Forms.TextBox()
+        Me.lblCategory = New System.Windows.Forms.Label()
+        Me.lblBrand = New System.Windows.Forms.Label()
+        Me.lblDescription = New System.Windows.Forms.Label()
         SKULabel = New System.Windows.Forms.Label()
         DESCRIPTIONSLabel = New System.Windows.Forms.Label()
         BARCODE_EAN_UPC_Label = New System.Windows.Forms.Label()
@@ -268,36 +268,6 @@ Partial Class ADD_Description
         Me.btnSave.TextImageRelation = System.Windows.Forms.TextImageRelation.TextBeforeImage
         Me.btnSave.UseVisualStyleBackColor = False
         '
-        'lblTotal
-        '
-        Me.lblTotal.AutoSize = True
-        Me.lblTotal.Font = New System.Drawing.Font("Microsoft YaHei UI Light", 12.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.lblTotal.Location = New System.Drawing.Point(479, 314)
-        Me.lblTotal.Name = "lblTotal"
-        Me.lblTotal.Size = New System.Drawing.Size(17, 21)
-        Me.lblTotal.TabIndex = 311
-        Me.lblTotal.Text = "-"
-        '
-        'lblUnit
-        '
-        Me.lblUnit.AutoSize = True
-        Me.lblUnit.Font = New System.Drawing.Font("Microsoft YaHei UI Light", 12.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.lblUnit.Location = New System.Drawing.Point(470, 256)
-        Me.lblUnit.Name = "lblUnit"
-        Me.lblUnit.Size = New System.Drawing.Size(17, 21)
-        Me.lblUnit.TabIndex = 309
-        Me.lblUnit.Text = "-"
-        '
-        'lblSize
-        '
-        Me.lblSize.AutoSize = True
-        Me.lblSize.Font = New System.Drawing.Font("Microsoft YaHei UI Light", 12.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.lblSize.Location = New System.Drawing.Point(468, 207)
-        Me.lblSize.Name = "lblSize"
-        Me.lblSize.Size = New System.Drawing.Size(17, 21)
-        Me.lblSize.TabIndex = 308
-        Me.lblSize.Text = "-"
-        '
         'Label1
         '
         Me.Label1.AutoSize = True
@@ -305,9 +275,9 @@ Partial Class ADD_Description
         Me.Label1.ForeColor = System.Drawing.Color.DarkRed
         Me.Label1.Location = New System.Drawing.Point(91, 21)
         Me.Label1.Name = "Label1"
-        Me.Label1.Size = New System.Drawing.Size(296, 36)
+        Me.Label1.Size = New System.Drawing.Size(381, 36)
         Me.Label1.TabIndex = 0
-        Me.Label1.Text = "ADD NEW PRODUCT"
+        Me.Label1.Text = "ADD NEW PRODUCT SCAN"
         '
         'adminpic
         '
@@ -319,6 +289,16 @@ Partial Class ADD_Description
         Me.adminpic.TabIndex = 6
         Me.adminpic.TabStop = False
         '
+        'txtPrice
+        '
+        Me.txtPrice.BackColor = System.Drawing.SystemColors.Control
+        Me.txtPrice.BorderStyle = System.Windows.Forms.BorderStyle.None
+        Me.txtPrice.Font = New System.Drawing.Font("Microsoft YaHei UI", 14.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.txtPrice.Location = New System.Drawing.Point(471, 369)
+        Me.txtPrice.Name = "txtPrice"
+        Me.txtPrice.Size = New System.Drawing.Size(148, 25)
+        Me.txtPrice.TabIndex = 312
+        '
         'lblSKU
         '
         Me.lblSKU.AutoSize = True
@@ -329,35 +309,45 @@ Partial Class ADD_Description
         Me.lblSKU.TabIndex = 302
         Me.lblSKU.Text = "-"
         '
-        'lblBrand
+        'lblSize
         '
-        Me.lblBrand.AutoSize = True
-        Me.lblBrand.Font = New System.Drawing.Font("Microsoft YaHei UI Light", 12.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.lblBrand.Location = New System.Drawing.Point(167, 198)
-        Me.lblBrand.Name = "lblBrand"
-        Me.lblBrand.Size = New System.Drawing.Size(17, 21)
-        Me.lblBrand.TabIndex = 303
-        Me.lblBrand.Text = "-"
+        Me.lblSize.AutoSize = True
+        Me.lblSize.Font = New System.Drawing.Font("Microsoft YaHei UI Light", 12.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.lblSize.Location = New System.Drawing.Point(468, 207)
+        Me.lblSize.Name = "lblSize"
+        Me.lblSize.Size = New System.Drawing.Size(17, 21)
+        Me.lblSize.TabIndex = 308
+        Me.lblSize.Text = "-"
         '
-        'lblDescription
+        'lblUnit
         '
-        Me.lblDescription.AutoSize = True
-        Me.lblDescription.Font = New System.Drawing.Font("Microsoft YaHei UI Light", 12.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.lblDescription.Location = New System.Drawing.Point(167, 148)
-        Me.lblDescription.Name = "lblDescription"
-        Me.lblDescription.Size = New System.Drawing.Size(17, 21)
-        Me.lblDescription.TabIndex = 304
-        Me.lblDescription.Text = "-"
+        Me.lblUnit.AutoSize = True
+        Me.lblUnit.Font = New System.Drawing.Font("Microsoft YaHei UI Light", 12.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.lblUnit.Location = New System.Drawing.Point(470, 256)
+        Me.lblUnit.Name = "lblUnit"
+        Me.lblUnit.Size = New System.Drawing.Size(17, 21)
+        Me.lblUnit.TabIndex = 309
+        Me.lblUnit.Text = "-"
         '
-        'lblCategory
+        'lblTotal
         '
-        Me.lblCategory.AutoSize = True
-        Me.lblCategory.Font = New System.Drawing.Font("Microsoft YaHei UI Light", 12.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.lblCategory.Location = New System.Drawing.Point(167, 256)
-        Me.lblCategory.Name = "lblCategory"
-        Me.lblCategory.Size = New System.Drawing.Size(17, 21)
-        Me.lblCategory.TabIndex = 305
-        Me.lblCategory.Text = "-"
+        Me.lblTotal.AutoSize = True
+        Me.lblTotal.Font = New System.Drawing.Font("Microsoft YaHei UI Light", 12.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.lblTotal.Location = New System.Drawing.Point(479, 314)
+        Me.lblTotal.Name = "lblTotal"
+        Me.lblTotal.Size = New System.Drawing.Size(17, 21)
+        Me.lblTotal.TabIndex = 311
+        Me.lblTotal.Text = "-"
+        '
+        'lblAvailability
+        '
+        Me.lblAvailability.AutoSize = True
+        Me.lblAvailability.Font = New System.Drawing.Font("Microsoft YaHei UI Light", 12.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.lblAvailability.Location = New System.Drawing.Point(167, 422)
+        Me.lblAvailability.Name = "lblAvailability"
+        Me.lblAvailability.Size = New System.Drawing.Size(17, 21)
+        Me.lblAvailability.TabIndex = 312
+        Me.lblAvailability.Text = "-"
         '
         'lblVendor
         '
@@ -379,27 +369,37 @@ Partial Class ADD_Description
         Me.lblVendorCode.TabIndex = 306
         Me.lblVendorCode.Text = "-"
         '
-        'lblAvailability
+        'lblCategory
         '
-        Me.lblAvailability.AutoSize = True
-        Me.lblAvailability.Font = New System.Drawing.Font("Microsoft YaHei UI Light", 12.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.lblAvailability.Location = New System.Drawing.Point(167, 422)
-        Me.lblAvailability.Name = "lblAvailability"
-        Me.lblAvailability.Size = New System.Drawing.Size(17, 21)
-        Me.lblAvailability.TabIndex = 312
-        Me.lblAvailability.Text = "-"
+        Me.lblCategory.AutoSize = True
+        Me.lblCategory.Font = New System.Drawing.Font("Microsoft YaHei UI Light", 12.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.lblCategory.Location = New System.Drawing.Point(167, 256)
+        Me.lblCategory.Name = "lblCategory"
+        Me.lblCategory.Size = New System.Drawing.Size(17, 21)
+        Me.lblCategory.TabIndex = 305
+        Me.lblCategory.Text = "-"
         '
-        'txtPrice
+        'lblBrand
         '
-        Me.txtPrice.BackColor = System.Drawing.SystemColors.Control
-        Me.txtPrice.BorderStyle = System.Windows.Forms.BorderStyle.None
-        Me.txtPrice.Font = New System.Drawing.Font("Microsoft YaHei UI", 14.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.txtPrice.Location = New System.Drawing.Point(471, 369)
-        Me.txtPrice.Name = "txtPrice"
-        Me.txtPrice.Size = New System.Drawing.Size(148, 25)
-        Me.txtPrice.TabIndex = 312
+        Me.lblBrand.AutoSize = True
+        Me.lblBrand.Font = New System.Drawing.Font("Microsoft YaHei UI Light", 12.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.lblBrand.Location = New System.Drawing.Point(167, 198)
+        Me.lblBrand.Name = "lblBrand"
+        Me.lblBrand.Size = New System.Drawing.Size(17, 21)
+        Me.lblBrand.TabIndex = 303
+        Me.lblBrand.Text = "-"
         '
-        'ADD_Description
+        'lblDescription
+        '
+        Me.lblDescription.AutoSize = True
+        Me.lblDescription.Font = New System.Drawing.Font("Microsoft YaHei UI Light", 12.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.lblDescription.Location = New System.Drawing.Point(167, 148)
+        Me.lblDescription.Name = "lblDescription"
+        Me.lblDescription.Size = New System.Drawing.Size(17, 21)
+        Me.lblDescription.TabIndex = 304
+        Me.lblDescription.Text = "-"
+        '
+        'frmADDProduct_Scan
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(6.0!, 13.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
@@ -437,7 +437,7 @@ Partial Class ADD_Description
         Me.Controls.Add(BARCODE_EAN_UPC_Label)
         Me.FormBorderStyle = System.Windows.Forms.FormBorderStyle.None
         Me.Icon = CType(resources.GetObject("$this.Icon"), System.Drawing.Icon)
-        Me.Name = "ADD_Description"
+        Me.Name = "frmADDProduct_Scan"
         Me.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen
         Me.Text = "ADD_Description"
         CType(Me.picProduct, System.ComponentModel.ISupportInitialize).EndInit()
@@ -453,15 +453,15 @@ Partial Class ADD_Description
     Friend WithEvents btnSave As Button
     Friend WithEvents Label1 As Label
     Friend WithEvents adminpic As PictureBox
+    Friend WithEvents txtPrice As TextBox
     Friend WithEvents lblSKU As Label
-    Friend WithEvents lblBrand As Label
-    Friend WithEvents lblDescription As Label
-    Friend WithEvents lblCategory As Label
+    Friend WithEvents lblSize As Label
+    Friend WithEvents lblUnit As Label
+    Friend WithEvents lblTotal As Label
+    Friend WithEvents lblAvailability As Label
     Friend WithEvents lblVendor As Label
     Friend WithEvents lblVendorCode As Label
-    Friend WithEvents lblTotal As Label
-    Friend WithEvents lblUnit As Label
-    Friend WithEvents lblSize As Label
-    Friend WithEvents lblAvailability As Label
-    Friend WithEvents txtPrice As TextBox
+    Friend WithEvents lblCategory As Label
+    Friend WithEvents lblBrand As Label
+    Friend WithEvents lblDescription As Label
 End Class

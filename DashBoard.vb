@@ -129,17 +129,7 @@ Public Class DashBoard
         frmBottom.Show()
     End Sub
 
-    Private Sub Btn_Manage_Click(sender As Object, e As EventArgs) Handles Btn_Manage.Click
-        Panel2.Controls.Clear()
-        Dim frmBottom As New Description_Manager
-        frmBottom.TopLevel = False
-        frmBottom.FormBorderStyle = FormBorderStyle.None
-        frmBottom.Dock = DockStyle.Fill
-        Panel2.Controls.Add(frmBottom)
-        frmBottom.Show()
-    End Sub
-
-    Private Sub ToolStripButton10_Click(sender As Object, e As EventArgs) Handles ToolStripButton10.Click
+    Private Sub ToolStripButton10_Click(sender As Object, e As EventArgs) Handles TsVendolist.Click
         Panel2.Controls.Clear()
         Dim frmBottom As New Vendor_Manage
         frmBottom.TopLevel = False
@@ -162,6 +152,16 @@ Public Class DashBoard
     Private Sub ToolStripMenuItem4_Click(sender As Object, e As EventArgs)
         Panel2.Controls.Clear()
         Dim frmBottom As New Ordering_Report
+        frmBottom.TopLevel = False
+        frmBottom.FormBorderStyle = FormBorderStyle.None
+        frmBottom.Dock = DockStyle.Fill
+        Panel2.Controls.Add(frmBottom)
+        frmBottom.Show()
+    End Sub
+
+    Private Sub ProductListToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles ProductListToolStripMenuItem.Click
+        Panel2.Controls.Clear()
+        Dim frmBottom As New Description_Manager
         frmBottom.TopLevel = False
         frmBottom.FormBorderStyle = FormBorderStyle.None
         frmBottom.Dock = DockStyle.Fill
@@ -211,6 +211,19 @@ Public Class DashBoard
         Report.Dock = DockStyle.Fill
         Panel2.Controls.Add(Report)
         Report.Show()
+    End Sub
+
+    Private Sub ConnectionSettingsToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles ConnectionSettingsToolStripMenuItem.Click
+        frmConnectionSettings.Show()
+    End Sub
+
+    Private Sub AddProductToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles AddProductToolStripMenuItem.Click
+        Dim scan As New frmADDProduct_Scan
+        scan.ShowDialog()
+    End Sub
+
+    Private Sub ManualToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles ManualToolStripMenuItem.Click
+        frmADDProduct_Manual.Show()
     End Sub
 #End Region
 
