@@ -1,5 +1,5 @@
 ﻿<Global.Microsoft.VisualBasic.CompilerServices.DesignerGenerated()> _
-Partial Class Transfer_Reports
+Partial Class Ordering_Reports
     Inherits System.Windows.Forms.Form
 
     'Form overrides dispose to clean up the component list.
@@ -22,28 +22,19 @@ Partial Class Transfer_Reports
     'Do not modify it using the code editor.
     <System.Diagnostics.DebuggerStepThrough()> _
     Private Sub InitializeComponent()
-        Dim Label5 As System.Windows.Forms.Label
         Dim Label4 As System.Windows.Forms.Label
+        Dim Label5 As System.Windows.Forms.Label
         Dim DataGridViewCellStyle1 As System.Windows.Forms.DataGridViewCellStyle = New System.Windows.Forms.DataGridViewCellStyle()
+        Dim resources As System.ComponentModel.ComponentResourceManager = New System.ComponentModel.ComponentResourceManager(GetType(Ordering_Reports))
         Me.dgvHistory = New System.Windows.Forms.DataGridView()
-        Me.dtpTo = New System.Windows.Forms.DateTimePicker()
         Me.dtpFrom = New System.Windows.Forms.DateTimePicker()
+        Me.dtpTo = New System.Windows.Forms.DateTimePicker()
         Me.Panel1 = New System.Windows.Forms.Panel()
-        Label5 = New System.Windows.Forms.Label()
         Label4 = New System.Windows.Forms.Label()
+        Label5 = New System.Windows.Forms.Label()
         CType(Me.dgvHistory, System.ComponentModel.ISupportInitialize).BeginInit()
         Me.Panel1.SuspendLayout()
         Me.SuspendLayout()
-        '
-        'Label5
-        '
-        Label5.AutoSize = True
-        Label5.Font = New System.Drawing.Font("Microsoft YaHei UI", 12.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Label5.Location = New System.Drawing.Point(378, 28)
-        Label5.Name = "Label5"
-        Label5.Size = New System.Drawing.Size(41, 21)
-        Label5.TabIndex = 310
-        Label5.Text = "TO :"
         '
         'Label4
         '
@@ -54,6 +45,16 @@ Partial Class Transfer_Reports
         Label4.Size = New System.Drawing.Size(59, 21)
         Label4.TabIndex = 309
         Label4.Text = "From :"
+        '
+        'Label5
+        '
+        Label5.AutoSize = True
+        Label5.Font = New System.Drawing.Font("Microsoft YaHei UI", 12.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Label5.Location = New System.Drawing.Point(378, 28)
+        Label5.Name = "Label5"
+        Label5.Size = New System.Drawing.Size(41, 21)
+        Label5.TabIndex = 310
+        Label5.Text = "TO :"
         '
         'dgvHistory
         '
@@ -68,7 +69,7 @@ Partial Class Transfer_Reports
         Me.dgvHistory.ColumnHeadersBorderStyle = System.Windows.Forms.DataGridViewHeaderBorderStyle.None
         Me.dgvHistory.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize
         Me.dgvHistory.GridColor = System.Drawing.SystemColors.Control
-        Me.dgvHistory.Location = New System.Drawing.Point(12, 12)
+        Me.dgvHistory.Location = New System.Drawing.Point(12, 6)
         Me.dgvHistory.Name = "dgvHistory"
         Me.dgvHistory.ReadOnly = True
         Me.dgvHistory.RowHeadersBorderStyle = System.Windows.Forms.DataGridViewHeaderBorderStyle.None
@@ -77,15 +78,7 @@ Partial Class Transfer_Reports
         Me.dgvHistory.RowsDefaultCellStyle = DataGridViewCellStyle1
         Me.dgvHistory.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect
         Me.dgvHistory.Size = New System.Drawing.Size(1342, 675)
-        Me.dgvHistory.TabIndex = 301
-        '
-        'dtpTo
-        '
-        Me.dtpTo.Font = New System.Drawing.Font("Microsoft YaHei UI", 11.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.dtpTo.Location = New System.Drawing.Point(443, 24)
-        Me.dtpTo.Name = "dtpTo"
-        Me.dtpTo.Size = New System.Drawing.Size(287, 27)
-        Me.dtpTo.TabIndex = 311
+        Me.dgvHistory.TabIndex = 314
         '
         'dtpFrom
         '
@@ -94,6 +87,14 @@ Partial Class Transfer_Reports
         Me.dtpFrom.Name = "dtpFrom"
         Me.dtpFrom.Size = New System.Drawing.Size(287, 27)
         Me.dtpFrom.TabIndex = 308
+        '
+        'dtpTo
+        '
+        Me.dtpTo.Font = New System.Drawing.Font("Microsoft YaHei UI", 11.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.dtpTo.Location = New System.Drawing.Point(443, 24)
+        Me.dtpTo.Name = "dtpTo"
+        Me.dtpTo.Size = New System.Drawing.Size(287, 27)
+        Me.dtpTo.TabIndex = 311
         '
         'Panel1
         '
@@ -105,19 +106,21 @@ Partial Class Transfer_Reports
         Me.Panel1.Location = New System.Drawing.Point(0, 693)
         Me.Panel1.Name = "Panel1"
         Me.Panel1.Size = New System.Drawing.Size(1366, 75)
-        Me.Panel1.TabIndex = 313
+        Me.Panel1.TabIndex = 315
         '
-        'Transfer_Reports
+        'Ordering_Reports
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(6.0!, 13.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
         Me.ClientSize = New System.Drawing.Size(1366, 768)
-        Me.Controls.Add(Me.Panel1)
         Me.Controls.Add(Me.dgvHistory)
+        Me.Controls.Add(Me.Panel1)
         Me.FormBorderStyle = System.Windows.Forms.FormBorderStyle.None
-        Me.Name = "Transfer_Reports"
+        Me.Icon = CType(resources.GetObject("$this.Icon"), System.Drawing.Icon)
+        Me.Name = "Ordering_Reports"
         Me.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen
-        Me.Text = "Transfer_Reports"
+        Me.Text = "Ordering_Reports"
+        Me.WindowState = System.Windows.Forms.FormWindowState.Maximized
         CType(Me.dgvHistory, System.ComponentModel.ISupportInitialize).EndInit()
         Me.Panel1.ResumeLayout(False)
         Me.Panel1.PerformLayout()
@@ -126,7 +129,7 @@ Partial Class Transfer_Reports
     End Sub
 
     Friend WithEvents dgvHistory As DataGridView
-    Friend WithEvents dtpTo As DateTimePicker
     Friend WithEvents dtpFrom As DateTimePicker
+    Friend WithEvents dtpTo As DateTimePicker
     Friend WithEvents Panel1 As Panel
 End Class

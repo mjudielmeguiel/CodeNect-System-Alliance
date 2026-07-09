@@ -33,7 +33,6 @@ Partial Class frmSTO_Information
         Me.lblPONumber = New System.Windows.Forms.Label()
         Me.Label6 = New System.Windows.Forms.Label()
         Me.lbltotal = New System.Windows.Forms.Label()
-        Me.btnSubmit = New System.Windows.Forms.Button()
         Me.panstoinfo = New System.Windows.Forms.Panel()
         Me.Label7 = New System.Windows.Forms.Label()
         Me.lblDR = New System.Windows.Forms.Label()
@@ -44,10 +43,9 @@ Partial Class frmSTO_Information
         Me.lblPreparedBy = New System.Windows.Forms.Label()
         Me.lblFrom = New System.Windows.Forms.Label()
         Me.lblstatus = New System.Windows.Forms.Label()
-        Me.btnremove = New System.Windows.Forms.Button()
         Me.txtBarcode = New System.Windows.Forms.TextBox()
         Me.Panel1 = New System.Windows.Forms.Panel()
-        Me.btnAdd = New System.Windows.Forms.Button()
+        Me.Label4 = New System.Windows.Forms.Label()
         Me.adminpic = New System.Windows.Forms.PictureBox()
         Me.lblSTRNumber = New System.Windows.Forms.Label()
         Me.Label1 = New System.Windows.Forms.Label()
@@ -94,12 +92,12 @@ Partial Class frmSTO_Information
         '
         Me.lbltransactiontype.AutoSize = True
         Me.lbltransactiontype.Font = New System.Drawing.Font("Microsoft YaHei UI", 20.25!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.lbltransactiontype.ForeColor = System.Drawing.SystemColors.Control
+        Me.lbltransactiontype.ForeColor = System.Drawing.Color.DarkRed
         Me.lbltransactiontype.Location = New System.Drawing.Point(79, 9)
         Me.lbltransactiontype.Name = "lbltransactiontype"
-        Me.lbltransactiontype.Size = New System.Drawing.Size(259, 36)
+        Me.lbltransactiontype.Size = New System.Drawing.Size(264, 36)
         Me.lbltransactiontype.TabIndex = 0
-        Me.lbltransactiontype.Text = "STOCK TRANSFER"
+        Me.lbltransactiontype.Text = "STOCK ORDERING"
         '
         'lblPONumber
         '
@@ -138,25 +136,6 @@ Partial Class frmSTO_Information
         Me.lbltotal.TabIndex = 304
         Me.lbltotal.Text = "-"
         Me.lbltotal.TextAlign = System.Drawing.ContentAlignment.MiddleCenter
-        '
-        'btnSubmit
-        '
-        Me.btnSubmit.Anchor = CType((System.Windows.Forms.AnchorStyles.Bottom Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
-        Me.btnSubmit.BackColor = System.Drawing.SystemColors.Control
-        Me.btnSubmit.BackgroundImageLayout = System.Windows.Forms.ImageLayout.None
-        Me.btnSubmit.FlatAppearance.BorderSize = 0
-        Me.btnSubmit.FlatStyle = System.Windows.Forms.FlatStyle.Flat
-        Me.btnSubmit.Font = New System.Drawing.Font("Microsoft YaHei UI Light", 12.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.btnSubmit.ForeColor = System.Drawing.SystemColors.ControlText
-        Me.btnSubmit.Image = CType(resources.GetObject("btnSubmit.Image"), System.Drawing.Image)
-        Me.btnSubmit.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft
-        Me.btnSubmit.Location = New System.Drawing.Point(1152, 709)
-        Me.btnSubmit.Name = "btnSubmit"
-        Me.btnSubmit.Size = New System.Drawing.Size(98, 47)
-        Me.btnSubmit.TabIndex = 329
-        Me.btnSubmit.Text = "SUBMIT"
-        Me.btnSubmit.TextImageRelation = System.Windows.Forms.TextImageRelation.TextBeforeImage
-        Me.btnSubmit.UseVisualStyleBackColor = False
         '
         'panstoinfo
         '
@@ -281,25 +260,6 @@ Partial Class frmSTO_Information
         Me.lblstatus.Text = "-"
         Me.lblstatus.TextAlign = System.Drawing.ContentAlignment.MiddleCenter
         '
-        'btnremove
-        '
-        Me.btnremove.Anchor = CType((System.Windows.Forms.AnchorStyles.Bottom Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
-        Me.btnremove.BackColor = System.Drawing.SystemColors.Control
-        Me.btnremove.BackgroundImageLayout = System.Windows.Forms.ImageLayout.None
-        Me.btnremove.FlatAppearance.BorderSize = 0
-        Me.btnremove.FlatStyle = System.Windows.Forms.FlatStyle.Flat
-        Me.btnremove.Font = New System.Drawing.Font("Microsoft YaHei UI Light", 12.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.btnremove.ForeColor = System.Drawing.SystemColors.ControlText
-        Me.btnremove.Image = CType(resources.GetObject("btnremove.Image"), System.Drawing.Image)
-        Me.btnremove.Location = New System.Drawing.Point(1048, 8)
-        Me.btnremove.Name = "btnremove"
-        Me.btnremove.Size = New System.Drawing.Size(98, 47)
-        Me.btnremove.TabIndex = 295
-        Me.btnremove.Text = "Remove"
-        Me.btnremove.TextAlign = System.Drawing.ContentAlignment.MiddleLeft
-        Me.btnremove.TextImageRelation = System.Windows.Forms.TextImageRelation.TextBeforeImage
-        Me.btnremove.UseVisualStyleBackColor = False
-        '
         'txtBarcode
         '
         Me.txtBarcode.Anchor = CType((System.Windows.Forms.AnchorStyles.Bottom Or System.Windows.Forms.AnchorStyles.Left), System.Windows.Forms.AnchorStyles)
@@ -312,32 +272,24 @@ Partial Class frmSTO_Information
         '
         'Panel1
         '
-        Me.Panel1.Controls.Add(Me.btnremove)
-        Me.Panel1.Controls.Add(Me.btnAdd)
+        Me.Panel1.Controls.Add(Me.Label4)
         Me.Panel1.Dock = System.Windows.Forms.DockStyle.Bottom
         Me.Panel1.Location = New System.Drawing.Point(0, 701)
         Me.Panel1.Name = "Panel1"
         Me.Panel1.Size = New System.Drawing.Size(1366, 67)
         Me.Panel1.TabIndex = 335
         '
-        'btnAdd
+        'Label4
         '
-        Me.btnAdd.Anchor = CType((System.Windows.Forms.AnchorStyles.Bottom Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
-        Me.btnAdd.BackColor = System.Drawing.SystemColors.Control
-        Me.btnAdd.BackgroundImageLayout = System.Windows.Forms.ImageLayout.None
-        Me.btnAdd.FlatAppearance.BorderSize = 0
-        Me.btnAdd.FlatStyle = System.Windows.Forms.FlatStyle.Flat
-        Me.btnAdd.Font = New System.Drawing.Font("Microsoft YaHei UI Light", 12.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.btnAdd.ForeColor = System.Drawing.SystemColors.ControlText
-        Me.btnAdd.Image = CType(resources.GetObject("btnAdd.Image"), System.Drawing.Image)
-        Me.btnAdd.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft
-        Me.btnAdd.Location = New System.Drawing.Point(944, 8)
-        Me.btnAdd.Name = "btnAdd"
-        Me.btnAdd.Size = New System.Drawing.Size(98, 47)
-        Me.btnAdd.TabIndex = 294
-        Me.btnAdd.Text = "ADD"
-        Me.btnAdd.TextImageRelation = System.Windows.Forms.TextImageRelation.TextBeforeImage
-        Me.btnAdd.UseVisualStyleBackColor = False
+        Me.Label4.Anchor = CType((System.Windows.Forms.AnchorStyles.Bottom Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
+        Me.Label4.AutoSize = True
+        Me.Label4.Font = New System.Drawing.Font("Microsoft YaHei UI", 12.0!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.Label4.Location = New System.Drawing.Point(950, 26)
+        Me.Label4.Name = "Label4"
+        Me.Label4.Size = New System.Drawing.Size(62, 22)
+        Me.Label4.TabIndex = 314
+        Me.Label4.Text = "Total :"
+        Me.Label4.TextAlign = System.Drawing.ContentAlignment.MiddleCenter
         '
         'adminpic
         '
@@ -379,6 +331,9 @@ Partial Class frmSTO_Information
         '
         Me.dgvItems.AllowUserToAddRows = False
         Me.dgvItems.AllowUserToDeleteRows = False
+        Me.dgvItems.Anchor = CType((((System.Windows.Forms.AnchorStyles.Top Or System.Windows.Forms.AnchorStyles.Bottom) _
+            Or System.Windows.Forms.AnchorStyles.Left) _
+            Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
         Me.dgvItems.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.Fill
         Me.dgvItems.BackgroundColor = System.Drawing.SystemColors.Control
         Me.dgvItems.CellBorderStyle = System.Windows.Forms.DataGridViewCellBorderStyle.None
@@ -400,9 +355,8 @@ Partial Class frmSTO_Information
         DataGridViewCellStyle2.SelectionForeColor = System.Drawing.SystemColors.HighlightText
         DataGridViewCellStyle2.WrapMode = System.Windows.Forms.DataGridViewTriState.[False]
         Me.dgvItems.DefaultCellStyle = DataGridViewCellStyle2
-        Me.dgvItems.Dock = System.Windows.Forms.DockStyle.Fill
         Me.dgvItems.GridColor = System.Drawing.SystemColors.Control
-        Me.dgvItems.Location = New System.Drawing.Point(0, 54)
+        Me.dgvItems.Location = New System.Drawing.Point(12, 207)
         Me.dgvItems.Name = "dgvItems"
         Me.dgvItems.ReadOnly = True
         Me.dgvItems.RowHeadersBorderStyle = System.Windows.Forms.DataGridViewHeaderBorderStyle.None
@@ -418,12 +372,12 @@ Partial Class frmSTO_Information
         DataGridViewCellStyle4.Font = New System.Drawing.Font("Microsoft YaHei UI", 12.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.dgvItems.RowsDefaultCellStyle = DataGridViewCellStyle4
         Me.dgvItems.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect
-        Me.dgvItems.Size = New System.Drawing.Size(1366, 714)
+        Me.dgvItems.Size = New System.Drawing.Size(1342, 488)
         Me.dgvItems.TabIndex = 330
         '
         'Panel2
         '
-        Me.Panel2.BackColor = System.Drawing.Color.DarkRed
+        Me.Panel2.BackColor = System.Drawing.SystemColors.Control
         Me.Panel2.Controls.Add(Me.lbltransactiontype)
         Me.Panel2.Controls.Add(Me.lblSTRNumber)
         Me.Panel2.Controls.Add(Me.lblPONumber)
@@ -440,13 +394,12 @@ Partial Class frmSTO_Information
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
         Me.ClientSize = New System.Drawing.Size(1366, 768)
         Me.Controls.Add(Me.btnClose)
-        Me.Controls.Add(Me.btnSubmit)
         Me.Controls.Add(Me.panstoinfo)
         Me.Controls.Add(Me.txtBarcode)
-        Me.Controls.Add(Me.Panel1)
         Me.Controls.Add(Me.Label1)
         Me.Controls.Add(Me.dgvItems)
         Me.Controls.Add(Me.Panel2)
+        Me.Controls.Add(Me.Panel1)
         Me.FormBorderStyle = System.Windows.Forms.FormBorderStyle.None
         Me.Name = "frmSTO_Information"
         Me.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen
@@ -455,6 +408,7 @@ Partial Class frmSTO_Information
         Me.panstoinfo.ResumeLayout(False)
         Me.panstoinfo.PerformLayout()
         Me.Panel1.ResumeLayout(False)
+        Me.Panel1.PerformLayout()
         CType(Me.adminpic, System.ComponentModel.ISupportInitialize).EndInit()
         CType(Me.dgvItems, System.ComponentModel.ISupportInitialize).EndInit()
         Me.Panel2.ResumeLayout(False)
@@ -470,7 +424,6 @@ Partial Class frmSTO_Information
     Friend WithEvents lblPONumber As Label
     Friend WithEvents Label6 As Label
     Friend WithEvents lbltotal As Label
-    Friend WithEvents btnSubmit As Button
     Friend WithEvents panstoinfo As Panel
     Friend WithEvents Label8 As Label
     Friend WithEvents Label5 As Label
@@ -479,10 +432,8 @@ Partial Class frmSTO_Information
     Friend WithEvents lblPreparedBy As Label
     Friend WithEvents lblFrom As Label
     Friend WithEvents lblstatus As Label
-    Friend WithEvents btnremove As Button
     Friend WithEvents txtBarcode As TextBox
     Friend WithEvents Panel1 As Panel
-    Friend WithEvents btnAdd As Button
     Friend WithEvents adminpic As PictureBox
     Friend WithEvents lblSTRNumber As Label
     Friend WithEvents Label1 As Label
@@ -490,4 +441,5 @@ Partial Class frmSTO_Information
     Friend WithEvents Panel2 As Panel
     Friend WithEvents Label7 As Label
     Friend WithEvents lblDR As Label
+    Friend WithEvents Label4 As Label
 End Class

@@ -291,28 +291,16 @@
     <Compile Include="inventory\Inventory.vb">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Ordering\frmSTO_Information.Designer.vb">
-      <DependentUpon>frmSTO_Information.vb</DependentUpon>
+    <Compile Include="Ordering\History.Designer.vb">
+      <DependentUpon>History.vb</DependentUpon>
     </Compile>
-    <Compile Include="Ordering\frmSTO_Information.vb">
+    <Compile Include="Ordering\History.vb">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Ordering\Ordering_Report.Designer.vb">
-      <DependentUpon>Ordering_Report.vb</DependentUpon>
+    <Compile Include="Ordering\Stock_Movements.Designer.vb">
+      <DependentUpon>Stock_Movements.vb</DependentUpon>
     </Compile>
-    <Compile Include="Ordering\Ordering_Report.vb">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="Ordering\Stock_Ordering.Designer.vb">
-      <DependentUpon>Stock_Ordering.vb</DependentUpon>
-    </Compile>
-    <Compile Include="Ordering\Stock_Ordering.vb">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="Ordering\Transaction_Details.Designer.vb">
-      <DependentUpon>Transaction_Details.vb</DependentUpon>
-    </Compile>
-    <Compile Include="Ordering\Transaction_Details.vb">
+    <Compile Include="Ordering\Stock_Movements.vb">
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="POS\POS_System.Designer.vb">
@@ -321,22 +309,22 @@
     <Compile Include="POS\POS_System.vb">
       <SubType>Form</SubType>
     </Compile>
+    <Compile Include="POS\PWDDiscount.Designer.vb">
+      <DependentUpon>PWDDiscount.vb</DependentUpon>
+    </Compile>
+    <Compile Include="POS\PWDDiscount.vb">
+      <SubType>Form</SubType>
+    </Compile>
     <Compile Include="Price\Price_Adjustment.Designer.vb">
       <DependentUpon>Price_Adjustment.vb</DependentUpon>
     </Compile>
     <Compile Include="Price\Price_Adjustment.vb">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Products\frmADDProduct_Manual.Designer.vb">
-      <DependentUpon>frmADDProduct_Manual.vb</DependentUpon>
+    <Compile Include="Products\ADD_Description.Designer.vb">
+      <DependentUpon>ADD_Description.vb</DependentUpon>
     </Compile>
-    <Compile Include="Products\frmADDProduct_Manual.vb">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="Products\frmADDProduct_Scan.Designer.vb">
-      <DependentUpon>frmADDProduct_Scan.vb</DependentUpon>
-    </Compile>
-    <Compile Include="Products\frmADDProduct_Scan.vb">
+    <Compile Include="Products\ADD_Description.vb">
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="Sales\Branch_Performance.Designer.vb">
@@ -355,18 +343,6 @@
       <DependentUpon>frmSTR_Information.vb</DependentUpon>
     </Compile>
     <Compile Include="STR\frmSTR_Information.vb">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="STR\Stock_Transfer.Designer.vb">
-      <DependentUpon>Stock_Transfer.vb</DependentUpon>
-    </Compile>
-    <Compile Include="STR\Stock_Transfer.vb">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="STR\Transfer_Reports.Designer.vb">
-      <DependentUpon>Transfer_Reports.vb</DependentUpon>
-    </Compile>
-    <Compile Include="STR\Transfer_Reports.vb">
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="Users\ADD User.Designer.vb">
@@ -471,8 +447,8 @@
     <EmbeddedResource Include="Branch\ADD Branch.resx">
       <DependentUpon>ADD Branch.vb</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Branch\frmBranch_Info.resx">
-      <DependentUpon>frmBranch_Info.vb</DependentUpon>
+    <EmbeddedResource Include="Branch\Branch_Info.resx">
+      <DependentUpon>Branch_Info.vb</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="frmConnectionSettings.resx">
       <DependentUpon>frmConnectionSettings.vb</DependentUpon>
@@ -480,29 +456,23 @@
     <EmbeddedResource Include="inventory\Inventory.resx">
       <DependentUpon>Inventory.vb</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Ordering\frmSTO_Information.resx">
-      <DependentUpon>frmSTO_Information.vb</DependentUpon>
+    <EmbeddedResource Include="Ordering\History.resx">
+      <DependentUpon>History.vb</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Ordering\Ordering_Report.resx">
-      <DependentUpon>Ordering_Report.vb</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Ordering\Stock_Ordering.resx">
-      <DependentUpon>Stock_Ordering.vb</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Ordering\Transaction_Details.resx">
-      <DependentUpon>Transaction_Details.vb</DependentUpon>
+    <EmbeddedResource Include="Ordering\Stock_Movements.resx">
+      <DependentUpon>Stock_Movements.vb</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="POS\POS_System.resx">
       <DependentUpon>POS_System.vb</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="POS\PWDDiscount.resx">
+      <DependentUpon>PWDDiscount.vb</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Price\Price_Adjustment.resx">
       <DependentUpon>Price_Adjustment.vb</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Products\frmADDProduct_Manual.resx">
-      <DependentUpon>frmADDProduct_Manual.vb</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Products\frmADDProduct_Scan.resx">
-      <DependentUpon>frmADDProduct_Scan.vb</DependentUpon>
+    <EmbeddedResource Include="Products\ADD_Description.resx">
+      <DependentUpon>ADD_Description.vb</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Sales\Branch_Performance.resx">
       <DependentUpon>Branch_Performance.vb</DependentUpon>
@@ -628,7 +598,6 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Badorder\" />
-    <Folder Include="Transfer\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.VisualBasic.targets" />
 </Project>

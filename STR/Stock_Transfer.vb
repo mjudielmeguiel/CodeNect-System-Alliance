@@ -4,7 +4,7 @@ Imports System.Data.SqlClient
 Public Class Stock_Transfer
 
     Private connStr As String = DBConnection.connStr
-    Private strNumber As String = ""
+    Private strNumber As String = "" ' Only 6 digits, no STR-
 
     Private Sub Stock_Transfer_Load(sender As Object, e As EventArgs) Handles MyBase.Load
         GenerateSTRNumber()
@@ -16,17 +16,21 @@ Public Class Stock_Transfer
         Try
             Using conn As New SqlConnection(connStr)
                 conn.Open()
-                Dim cmd As New SqlCommand("SELECT ISNULL(MAX(STR_NUMBER), 'STR-0000') FROM dbo.STR_DATA", conn)
-                Dim lastNo As String = cmd.ExecuteScalar().ToString()
-                Dim newNum As Integer = CInt(lastNo.Substring(4)) + 1
-                strNumber = "STR-" & newNum.ToString("D4")
-                ' Show only number, no "STR-"
-                lblSTRNumber.Text = newNum.ToString("D4")
+                ' Get max number, no STR-
+                Dim cmd As New SqlCommand("SELECT ISNULL(MAX(STR_NUMBER), '000000') FROM dbo.STR_DATA", conn)
+                Dim lastNo As String = cmd.ExecuteScalar().ToString().Trim()
+
+                Dim lastNum As Integer = CInt(lastNo)
+                Dim newNum As Integer = lastNum + 1
+
+                ' Store and show only 6 digits
+                strNumber = newNum.ToString("D6")
+                lblSTRNumber.Text = strNumber
             End Using
             lblstatus.Text = "PENDING"
             lbltotal.Text = "0.00"
         Catch ex As Exception
-            MessageBox.Show("Error: " & ex.Message)
+            MessageBox.Show("Error: " & ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
         End Try
     End Sub
 
@@ -58,14 +62,12 @@ Public Class Stock_Transfer
                 cboToBranch.ValueMember = "BRANCH"
             End Using
         Catch ex As Exception
-            MessageBox.Show("Error: " & ex.Message)
+            MessageBox.Show("Error: " & ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
         End Try
     End Sub
 
     Private Sub txtBarcode_KeyDown(sender As Object, e As KeyEventArgs) Handles txtBarcode.KeyDown
-        If e.KeyCode = Keys.Enter Then
-            btnAdd.PerformClick()
-        End If
+        If e.KeyCode = Keys.Enter Then btnAdd.PerformClick()
     End Sub
 
     Private Sub btnAdd_Click(sender As Object, e As EventArgs) Handles btnAdd.Click
@@ -73,13 +75,13 @@ Public Class Stock_Transfer
         Dim qtyText As String = txtQty.Text.Trim()
 
         If barcode = "" Then
-            MessageBox.Show("Enter barcode first")
+            MessageBox.Show("Enter barcode first", "Warning", MessageBoxButtons.OK, MessageBoxIcon.Warning)
             txtBarcode.Focus()
             Return
         End If
 
         If Not IsNumeric(qtyText) OrElse CInt(qtyText) <= 0 Then
-            MessageBox.Show("Enter valid quantity")
+            MessageBox.Show("Enter valid quantity", "Warning", MessageBoxButtons.OK, MessageBoxIcon.Warning)
             txtQty.Focus()
             Return
         End If
@@ -113,14 +115,14 @@ Public Class Stock_Transfer
                     txtQty.Clear()
                     txtBarcode.Focus()
                 Else
-                    MessageBox.Show("Product not found")
+                    MessageBox.Show("Product not found", "Info", MessageBoxButtons.OK, MessageBoxIcon.Information)
                     txtBarcode.SelectAll()
                     txtBarcode.Focus()
                 End If
                 dr.Close()
             End Using
         Catch ex As Exception
-            MessageBox.Show("Error: " & ex.Message)
+            MessageBox.Show("Error: " & ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
         End Try
     End Sub
 
@@ -129,7 +131,7 @@ Public Class Stock_Transfer
             dgvItems.Rows.Remove(dgvItems.SelectedRows(0))
             CalculateTotal()
         Else
-            MessageBox.Show("Select item to remove")
+            MessageBox.Show("Select an item to remove", "Info", MessageBoxButtons.OK, MessageBoxIcon.Information)
         End If
     End Sub
 
@@ -143,12 +145,12 @@ Public Class Stock_Transfer
 
     Private Sub btnSubmit_Click(sender As Object, e As EventArgs) Handles btnSubmit.Click
         If dgvItems.Rows.Count = 0 Then
-            MessageBox.Show("No items to save")
+            MessageBox.Show("No items to save", "Warning", MessageBoxButtons.OK, MessageBoxIcon.Warning)
             Return
         End If
 
         If lblFromBranch.Text.Trim() = "" OrElse cboToBranch.Text.Trim() = "" Then
-            MessageBox.Show("Fill From and To Branch")
+            MessageBox.Show("Fill From and To Branch", "Warning", MessageBoxButtons.OK, MessageBoxIcon.Warning)
             Return
         End If
 
@@ -162,13 +164,13 @@ Public Class Stock_Transfer
                 Dim trans As SqlTransaction = conn.BeginTransaction()
 
                 Try
-                    ' Added TRANSACTION_TYPE = 'STOCK TRANSFER'
+                    ' Save ONLY 6-digit number
                     Dim cmdHeader As New SqlCommand("
                         INSERT INTO dbo.STR_DATA 
                         (STR_NUMBER, FROM_MV, TO_MV, REQUEST_DATE, PREPARED_BY, TRANSACTION_TYPE, STATUS, TOTAL)
                         VALUES (@STR, @From, @To, GETDATE(), @Prepared, 'STOCK TRANSFER', 'PENDING', @Total)", conn, trans)
 
-                    cmdHeader.Parameters.Add("@STR", SqlDbType.NChar, 15).Value = strNumber
+                    cmdHeader.Parameters.Add("@STR", SqlDbType.VarChar, 6).Value = strNumber
                     cmdHeader.Parameters.Add("@From", SqlDbType.NVarChar, 255).Value = lblFromBranch.Text.Trim()
                     cmdHeader.Parameters.Add("@To", SqlDbType.NVarChar, 255).Value = cboToBranch.Text.Trim()
                     cmdHeader.Parameters.Add("@Prepared", SqlDbType.NVarChar, 100).Value = lblPreparedBy.Text.Trim()
@@ -182,7 +184,7 @@ Public Class Stock_Transfer
 
                     For Each row As DataGridViewRow In dgvItems.Rows
                         cmdDetail.Parameters.Clear()
-                        cmdDetail.Parameters.Add("@STR", SqlDbType.NChar, 15).Value = strNumber
+                        cmdDetail.Parameters.Add("@STR", SqlDbType.VarChar, 6).Value = strNumber
                         cmdDetail.Parameters.Add("@Barcode", SqlDbType.NChar, 15).Value = row.Cells("BARCODE").Value
                         cmdDetail.Parameters.Add("@SKU", SqlDbType.NChar, 20).Value = row.Cells("SKU").Value
                         cmdDetail.Parameters.Add("@Brand", SqlDbType.VarChar, 255).Value = row.Cells("BRAND").Value
@@ -195,7 +197,7 @@ Public Class Stock_Transfer
                     Next
 
                     trans.Commit()
-                    MessageBox.Show("Transfer saved successfully")
+                    MessageBox.Show("Transfer saved successfully", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information)
 
                     GenerateSTRNumber()
                     dgvItems.Rows.Clear()
@@ -206,11 +208,11 @@ Public Class Stock_Transfer
 
                 Catch ex As Exception
                     trans.Rollback()
-                    MessageBox.Show("Error: " & ex.Message)
+                    MessageBox.Show("Save Error: " & ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
                 End Try
             End Using
         Catch ex As Exception
-            MessageBox.Show("Connection Error: " & ex.Message)
+            MessageBox.Show("Connection Error: " & ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
         End Try
     End Sub
 

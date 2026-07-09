@@ -1,6 +1,7 @@
 ﻿Imports System.Data.SqlClient
 Imports System.IO
 Imports System.Xml
+Imports DocumentFormat.OpenXml.Bibliography
 
 Module DBConnection
     Private ReadOnly settingsFile As String = Path.Combine(Application.StartupPath, "ConnectionSettings.xml")
@@ -8,7 +9,7 @@ Module DBConnection
     Public ReadOnly Property connStr As String
         Get
             If Not File.Exists(settingsFile) Then
-                Return "Data Source=192.168.68.105\SQLEXPRESS,1433;Initial Catalog=CodeNectDB;User ID=CodeNect_Database;Password=Password1*;Encrypt=False;Trust Server Certificate=True"
+                Return "Data Source=192.168.68.103\SQLEXPRESS, 1433;Initial Catalog=CodeNectDB;User ID=CodeNect_Database;Password=Password1*;Encrypt=False;TrustServerCertificate=True"
             End If
 
             Try
