@@ -6,8 +6,6 @@ Imports System.Data.SqlClient
 
 Public Class DashBoard
 
-    Private connString As String = "Data Source=192.168.68.109\SQLEXPRESS;Initial Catalog=CodeNectDB;User ID=CodeNect_Database;Password=Password1*;Connect Timeout=15"
-
     Private Sub DashBoard_Load(sender As Object, e As EventArgs) Handles MyBase.Load
         Timer1.Start()
     End Sub
@@ -23,16 +21,9 @@ Public Class DashBoard
         If String.IsNullOrEmpty(Login.LoggedInUserID) Then Return
 
         Try
-            Using conn As New SqlConnection(connString)
+            Using conn As New SqlConnection(connStr)
                 conn.Open()
-                Dim cmdText As String = ""
-
-                If Login.LoggedInUserType.ToUpper() = "ADMIN" Then
-
-                    cmdText = "UPDATE dbo.User_Accounts SET STATUS = 'OFFLINE' WHERE ID = @UserID"
-                Else
-                    cmdText = "UPDATE dbo.User_Accounts SET STATUS = 'OFFLINE' WHERE ID = @UserID"
-                End If
+                Dim cmdText As String = "UPDATE dbo.User_Accounts SET STATUS = 'OFFLINE' WHERE ID = @UserID"
 
                 Using cmd As New SqlCommand(cmdText, conn)
                     cmd.Parameters.AddWithValue("@UserID", Login.LoggedInUserID)
@@ -42,50 +33,38 @@ Public Class DashBoard
                         MessageBox.Show("Warning: No user record updated. Check if ID/Table is correct.", "Update Status", MessageBoxButtons.OK, MessageBoxIcon.Warning)
                     End If
                 End Using
-
             End Using
         Catch ex As Exception
             MessageBox.Show("Error updating status: " & ex.Message, "System Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
         End Try
     End Sub
 
-    ' APPLICATION CLOSE
     Private Sub LogOutToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles LogOutToolStripMenuItem.Click
-
         If MessageBox.Show("Are you sure you want to exit?", "Confirm Logout", MessageBoxButtons.YesNo, MessageBoxIcon.Question) = DialogResult.Yes Then
-
-            SetAccountOffline() 'Automatic STATUS OFFLINE sa Database
+            SetAccountOffline()
             Login.LoggedInUserID = ""
             Login.LoggedInBranchID = ""
             Login.LoggedInUsername = ""
             Login.LoggedInUserType = ""
-
             Application.Exit()
         End If
     End Sub
 
-    'SWITCH USER ACCOUNT
     Private Sub SwitchAccountToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles SwitchAccountToolStripMenuItem.Click
-
         If MessageBox.Show("Switch account?", "Confirm", MessageBoxButtons.YesNo, MessageBoxIcon.Question) = DialogResult.Yes Then
-
-            SetAccountOffline() 'Automatic STATUS OFFLINE sa Database
+            SetAccountOffline()
             Login.LoggedInUserID = ""
             Login.LoggedInBranchID = ""
             Login.LoggedInUsername = ""
             Login.LoggedInUserType = ""
-
             Login.txtUsername.Clear()
             Login.txtPassword.Clear()
-
             Application.Restart()
         End If
     End Sub
-
 #End Region
 
 #Region "TOOLSTRIP BUTTONS"
-
     Private Sub Timer1_Tick(sender As Object, e As EventArgs) Handles Timer1.Tick
         ToolStripStatusLabel3.Text = "Date and Time : " & Now.ToString("MMMM dd, yyyy hh:mm:ss tt")
     End Sub
@@ -98,49 +77,28 @@ Public Class DashBoard
         Add_User.Show()
     End Sub
 
-    Private Sub ADDToolStripMenuItem2_Click(sender As Object, e As EventArgs)
-        ADD_Vendor.Show()
-    End Sub
+    'Private Sub ADDToolStripMenuItem2_Click(sender As Object, e As EventArgs) Handles ADDToolStripMenuItem2.Click
+    '    ADD_Vendor.Show()
+    'End Sub
 
     Private Sub ADDToolStripMenuItem1_Click(sender As Object, e As EventArgs) Handles ADDToolStripMenuItem1.Click
         ADD_Branch.Show()
     End Sub
 
-    Private Sub ADDProductVendorToolStripMenuItem_Click(sender As Object, e As EventArgs)
-        ADD_Vendor_Product.ShowDialog()
-    End Sub
+    'Private Sub ADDProductVendorToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles ADDProductVendorToolStripMenuItem.Click
+    'ADD_Vendor_Product.ShowDialog()
+    'End Sub
 
     Private Sub toolbarRoom_Click(sender As Object, e As EventArgs) Handles toolbarRoom.Click
-        ShelfTag_Printer.ShowDialog()
+        ShelfTag_Printer.Show()
     End Sub
 
     Private Sub PriceUpdateToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles PriceUpdateToolStripMenuItem.Click
         Price_Adjustment.ShowDialog()
     End Sub
-
 #End Region
 
 #Region "DATA AND INFORMATIONS"
-
-    Private Sub ToolStripMenuItem9_Click(sender As Object, e As EventArgs) Handles ToolStripMenuItem9.Click
-        Panel2.Controls.Clear()
-        Dim frmBottom As New User_Account_Manage
-        frmBottom.TopLevel = False
-        frmBottom.FormBorderStyle = FormBorderStyle.None
-        frmBottom.Dock = DockStyle.Fill
-        Panel2.Controls.Add(frmBottom)
-        frmBottom.Show()
-    End Sub
-
-    Private Sub ManageToolStripMenuItem1_Click(sender As Object, e As EventArgs)
-        Panel2.Controls.Clear()
-        Dim frmBottom As New Vendor_Manage
-        frmBottom.TopLevel = False
-        frmBottom.FormBorderStyle = FormBorderStyle.None
-        frmBottom.Dock = DockStyle.Fill
-        Panel2.Controls.Add(frmBottom)
-        frmBottom.Show()
-    End Sub
 
     Private Sub ManageToolStripMenuItem3_Click(sender As Object, e As EventArgs) Handles ManageToolStripMenuItem3.Click
         Panel2.Controls.Clear()
@@ -152,17 +110,7 @@ Public Class DashBoard
         frmBottom.Show()
     End Sub
 
-    Private Sub Btn_Manage_Click(sender As Object, e As EventArgs) Handles Btn_Manage.Click
-        Panel2.Controls.Clear()
-        Dim frmBottom As New Description_Manager
-        frmBottom.TopLevel = False
-        frmBottom.FormBorderStyle = FormBorderStyle.None
-        frmBottom.Dock = DockStyle.Fill
-        Panel2.Controls.Add(frmBottom)
-        frmBottom.Show()
-    End Sub
-
-    Private Sub ToolStripButton10_Click(sender As Object, e As EventArgs) Handles ToolStripButton10.Click
+    Private Sub ToolStripButton10_Click(sender As Object, e As EventArgs) Handles TsVendolist.Click
         Panel2.Controls.Clear()
         Dim frmBottom As New Vendor_Manage
         frmBottom.TopLevel = False
@@ -173,6 +121,7 @@ Public Class DashBoard
     End Sub
 
     Private Sub ToolStripButton1_Click(sender As Object, e As EventArgs) Handles ToolStripButton1.Click
+        Panel2.Controls.Clear()
         Dim frmBottom As New Branch_Performance
         frmBottom.TopLevel = False
         frmBottom.FormBorderStyle = FormBorderStyle.None
@@ -181,8 +130,19 @@ Public Class DashBoard
         frmBottom.Show()
     End Sub
 
-    Private Sub ToolStripMenuItem4_Click(sender As Object, e As EventArgs) Handles ToolStripMenuItem4.Click
-        Dim frmBottom As New History
+    Private Sub ToolStripMenuItem4_Click(sender As Object, e As EventArgs)
+        Panel2.Controls.Clear()
+        Dim frmBottom As New Ordering_Reports
+        frmBottom.TopLevel = False
+        frmBottom.FormBorderStyle = FormBorderStyle.None
+        frmBottom.Dock = DockStyle.Fill
+        Panel2.Controls.Add(frmBottom)
+        frmBottom.Show()
+    End Sub
+
+    Private Sub ProductListToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles ProductListToolStripMenuItem.Click
+        Panel2.Controls.Clear()
+        Dim frmBottom As New Description_Manager
         frmBottom.TopLevel = False
         frmBottom.FormBorderStyle = FormBorderStyle.None
         frmBottom.Dock = DockStyle.Fill
@@ -195,5 +155,82 @@ Public Class DashBoard
         inv.Show()
     End Sub
 
+    Private Sub Panel2_Paint(sender As Object, e As PaintEventArgs) Handles Panel2.Paint
+    End Sub
+
+    Private Sub StockOrderingToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles StockOrderingToolStripMenuItem.Click
+
+        Dim Ordering As New Stock_Ordering
+
+        Ordering.lblpreparedby.Text = ToolStripStatusLabel1.Text
+        Ordering.lblbranch.Text = ToolStripStatusLabel4.Text
+        Ordering.lblstatus.Text = "PENDING"
+        Ordering.lbltransactiontype.Text = "STOCK ORDERING"
+        Ordering.Show()
+    End Sub
+
+    Private Sub StockTransferToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles StockTransferToolStripMenuItem.Click
+
+        Dim STR As New Stock_Transfer
+
+        STR.lblPreparedBy.Text = ToolStripStatusLabel1.Text
+        STR.lblFromBranch.Text = ToolStripStatusLabel4.Text
+        STR.lblstatus.Text = "PENDING"
+        STR.lbltransactiontype.Text = "STOCK TRANSFER"
+        STR.Show()
+    End Sub
+
+    Private Sub ConnectionSettingsToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles ConnectionSettingsToolStripMenuItem.Click
+        frmConnectionSettings.Show()
+    End Sub
+
+    Private Sub AddProductToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles AddProductToolStripMenuItem.Click
+        Dim scan As New frmADDProduct_Scan
+        scan.ShowDialog()
+    End Sub
+
+    Private Sub ManualToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles ManualToolStripMenuItem.Click
+        frmADDProduct_Manual.Show()
+    End Sub
+
+    Private Sub Manage_PC_Click(sender As Object, e As EventArgs) Handles Manage_PC.Click
+        Panel2.Controls.Clear()
+        Dim frmBottom As New User_Account_Manage
+        frmBottom.TopLevel = False
+        frmBottom.FormBorderStyle = FormBorderStyle.None
+        frmBottom.Dock = DockStyle.Fill
+        Panel2.Controls.Add(frmBottom)
+        frmBottom.Show()
+    End Sub
+
+    Private Sub tsStockOrdering_Click(sender As Object, e As EventArgs) Handles tsStockOrdering.Click
+        Panel2.Controls.Clear()
+        Dim frmBottom As New Ordering_Reports
+        frmBottom.TopLevel = False
+        frmBottom.FormBorderStyle = FormBorderStyle.None
+        frmBottom.Dock = DockStyle.Fill
+        Panel2.Controls.Add(frmBottom)
+        frmBottom.Show()
+    End Sub
+
+    Private Sub tsStockTransfer_Click(sender As Object, e As EventArgs) Handles tsStockTransfer.Click
+        Panel2.Controls.Clear()
+        Dim Report As New Transfer_Reports
+        Report.TopLevel = False
+        Report.FormBorderStyle = FormBorderStyle.None
+        Report.Dock = DockStyle.Fill
+        Panel2.Controls.Add(Report)
+        Report.Show()
+    End Sub
+
+    Private Sub ReturnToVendorToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles ReturnToVendorToolStripMenuItem.Click
+        Dim RTV As New Return_To_Vendor
+        RTV.lblpreparedby.Text = ToolStripStatusLabel1.Text
+        RTV.lblbranch.Text = ToolStripStatusLabel4.Text
+        RTV.lblstatus.Text = "PENDING"
+        RTV.lbltransactiontype.Text = "RETURN TO VENDOR"
+        RTV.Show()
+    End Sub
 #End Region
+
 End Class

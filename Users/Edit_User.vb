@@ -1,24 +1,17 @@
-﻿Imports System.Data.SqlClient
+﻿Imports System.Data
+Imports System.Data.SqlClient
 Imports System.Drawing
 Imports System.IO
 
 Public Class Edit_User
 
-    Private ConnString As String = "Data Source=192.168.68.109\SQLEXPRESS;Initial Catalog=CodeNectDB;User ID=sa;Password=Password1*;Connect Timeout=15"
-
     Private currentUserID As Integer
-    Private currentBranchCode As String
-    Private currentUserType As String
     Private userImageData As Byte() = Nothing
 
     Public Sub LoadUserDetails(userInfo As Object)
         Try
             ' Load basic data
             currentUserID = CInt(userInfo.ID)
-            currentBranchCode = userInfo.BRANCH_ID?.ToString()
-            currentUserType = userInfo.USER_TYPE?.ToString()
-
-            lblAccountID.Text = userInfo.ID.ToString()
             txtBranchID.Text = userInfo.BRANCH_ID?.ToString()
             txtFullName.Text = userInfo.FULL_NAME?.ToString()
             txtEmail.Text = userInfo.EMAIL?.ToString()
@@ -26,7 +19,10 @@ Public Class Edit_User
 
             ' Fill User Type combo
             cbousertype.Items.Clear()
-            cbousertype.Items.AddRange({"Branch Administrator", "IT Support", "Branch Manager", "Supervisor", "Cashier", "Inventory Clerk", "Sales Staff", "Viewer"})
+            cbousertype.Items.AddRange({
+                "Branch Administrator", "IT Support", "Branch Manager",
+                "Supervisor", "Cashier", "Inventory Clerk", "Sales Staff", "Viewer"
+            })
             If Not String.IsNullOrWhiteSpace(userInfo.USER_TYPE?.ToString()) Then
                 cbousertype.SelectedItem = userInfo.USER_TYPE.ToString()
             Else
@@ -42,26 +38,26 @@ Public Class Edit_User
                 cboStatus.SelectedIndex = 0
             End If
 
-            ' ✅ FIX: Load branches first, then select the EXACT branch of the user
+            ' Load branches and select current user's branch
             LoadBranchCombo()
-            If Not String.IsNullOrWhiteSpace(currentBranchCode) Then
-                cboBranch.SelectedValue = currentBranchCode
+            If Not String.IsNullOrWhiteSpace(userInfo.BRANCH_ID?.ToString()) Then
+                cboBranch.SelectedValue = userInfo.BRANCH_ID.ToString()
             End If
 
-            ' Load profile picture
+            ' Load existing profile picture
             LoadImageFromDB()
 
         Catch ex As Exception
-            MessageBox.Show("Error loading data: " & ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
+            MessageBox.Show("Error loading user data: " & ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
         End Try
     End Sub
 
     Private Sub LoadImageFromDB()
         Try
-            Using conn As New SqlConnection(ConnString)
+            Using conn As New SqlConnection(connStr)
                 Dim sql As String = "SELECT PROFILE FROM User_Accounts WHERE ID = @UID"
                 Using cmd As New SqlCommand(sql, conn)
-                    cmd.Parameters.AddWithValue("@UID", currentUserID)
+                    cmd.Parameters.Add("@UID", SqlDbType.Int).Value = currentUserID
                     conn.Open()
                     Dim result = cmd.ExecuteScalar()
 
@@ -85,16 +81,16 @@ Public Class Edit_User
 
     Private Sub PictureBox1_DoubleClick(sender As Object, e As EventArgs) Handles PictureBox1.DoubleClick
         Try
-            Dim openDlg As New OpenFileDialog With {
+            Using openDlg As New OpenFileDialog With {
                 .Filter = "Image Files (*.jpg;*.jpeg;*.png;*.bmp)|*.jpg;*.jpeg;*.png;*.bmp",
                 .Title = "Select Profile Picture"
             }
-
-            If openDlg.ShowDialog() = DialogResult.OK Then
-                userImageData = File.ReadAllBytes(openDlg.FileName)
-                PictureBox1.Image = Image.FromFile(openDlg.FileName)
-                PictureBox1.SizeMode = PictureBoxSizeMode.StretchImage
-            End If
+                If openDlg.ShowDialog() = DialogResult.OK Then
+                    userImageData = File.ReadAllBytes(openDlg.FileName)
+                    PictureBox1.Image = Image.FromFile(openDlg.FileName)
+                    PictureBox1.SizeMode = PictureBoxSizeMode.StretchImage
+                End If
+            End Using
         Catch ex As Exception
             MessageBox.Show("Error selecting image: " & ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
         End Try
@@ -102,75 +98,74 @@ Public Class Edit_User
 
     Private Sub LoadBranchCombo()
         Try
-            Using conn As New SqlConnection(ConnString)
-                Dim sql As String = "SELECT BRANCH_ID, BRANCH FROM Branches ORDER BY BRANCH ASC"
+            Dim dt As New DataTable()
+            Dim sql As String = "SELECT BRANCH_ID, BRANCH FROM Branches ORDER BY BRANCH ASC"
+
+            Using conn As New SqlConnection(connStr)
                 Using cmd As New SqlCommand(sql, conn)
-                    Dim dt As New DataTable()
-                    Dim da As New SqlDataAdapter(cmd)
-                    da.Fill(dt)
-
-                    cboBranch.DataSource = Nothing
-                    cboBranch.Items.Clear()
-
-                    cboBranch.DataSource = dt
-                    cboBranch.DisplayMember = "BRANCH"   ' shows branch name
-                    cboBranch.ValueMember = "BRANCH_ID" ' holds branch ID
+                    Using da As New SqlDataAdapter(cmd)
+                        da.Fill(dt)
+                    End Using
                 End Using
             End Using
+
+            cboBranch.DataSource = Nothing
+            cboBranch.DataSource = dt
+            cboBranch.DisplayMember = "BRANCH"    ' Shows branch name
+            cboBranch.ValueMember = "BRANCH_ID"  ' Stores branch ID
+
         Catch ex As Exception
             MessageBox.Show("Error loading branches: " & ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
         End Try
     End Sub
 
     Private Sub btnUpdate_Click(sender As Object, e As EventArgs) Handles btnUpdate.Click
-        ' Basic check para sa kinakailangang impormasyon
+        ' Validation
         If String.IsNullOrWhiteSpace(txtFullName.Text) Then
             MessageBox.Show("Full Name cannot be empty!", "Warning", MessageBoxButtons.OK, MessageBoxIcon.Warning)
             txtFullName.Focus()
             Return
         End If
-
         If cboBranch.SelectedValue Is Nothing Then
             MessageBox.Show("Please select a valid branch!", "Warning", MessageBoxButtons.OK, MessageBoxIcon.Warning)
             Return
         End If
 
         Try
-            Using conn As New SqlConnection(ConnString)
-                Dim sql As String = "UPDATE User_Accounts SET " &
-                                "FULL_NAME = @FN, " &
-                                "USER_TYPE = @UT, " &
-                                "BRANCH_ID = @BID, " &
-                                "EMAIL = @EM, " &
-                                "CONTACT = @CT, " &
-                                "STATUS = @ST, " &
-                                "PROFILE = @PROFILE"
+            Dim sql As String = "
+                UPDATE User_Accounts 
+                SET 
+                    FULL_NAME = @FN,
+                    USER_TYPE = @UT,
+                    BRANCH_ID = @BID,
+                    BRANCH = @BName,
+                    EMAIL = @EM,
+                    CONTACT = @CT,
+                    STATUS = @ST,
+                    PROFILE = @PROFILE"
 
-                If Not String.IsNullOrWhiteSpace(txtNewPass.Text) Then
-                    sql &= ", PASSWORD = @PASS"
-                End If
+            ' Only update password if a new one is provided
+            If Not String.IsNullOrWhiteSpace(txtNewPass.Text) Then
+                sql &= ", PASSWORD = @PASS"
+            End If
 
-                sql &= " WHERE ID = @UID"
+            sql &= " WHERE ID = @UID"
 
+            Using conn As New SqlConnection(connStr)
                 Using cmd As New SqlCommand(sql, conn)
-                    cmd.Parameters.AddWithValue("@UID", currentUserID)
-                    cmd.Parameters.AddWithValue("@FN", txtFullName.Text.Trim())
-                    cmd.Parameters.AddWithValue("@UT", If(cbousertype.SelectedItem IsNot Nothing, cbousertype.SelectedItem.ToString(), DBNull.Value))
-                    cmd.Parameters.AddWithValue("@BID", If(cboBranch.SelectedValue IsNot Nothing, cboBranch.SelectedValue.ToString(), DBNull.Value))
-                    cmd.Parameters.AddWithValue("@EM", If(String.IsNullOrWhiteSpace(txtEmail.Text), DBNull.Value, txtEmail.Text.Trim()))
-                    cmd.Parameters.AddWithValue("@CT", If(String.IsNullOrWhiteSpace(txtContact.Text), DBNull.Value, txtContact.Text.Trim()))
-                    cmd.Parameters.AddWithValue("@ST", If(cboStatus.SelectedItem IsNot Nothing, cboStatus.SelectedItem.ToString(), DBNull.Value))
+                    cmd.Parameters.Add("@UID", SqlDbType.Int).Value = currentUserID
+                    cmd.Parameters.Add("@FN", SqlDbType.NVarChar, 150).Value = txtFullName.Text.Trim()
+                    cmd.Parameters.Add("@UT", SqlDbType.NVarChar, 50).Value = If(cbousertype.SelectedItem IsNot Nothing, cbousertype.SelectedItem.ToString().Trim(), DBNull.Value)
+                    cmd.Parameters.Add("@BID", SqlDbType.NVarChar, 20).Value = cboBranch.SelectedValue.ToString().Trim()
+                    cmd.Parameters.Add("@BName", SqlDbType.NVarChar, 100).Value = cboBranch.Text.Trim()
+                    cmd.Parameters.Add("@EM", SqlDbType.NVarChar, 100).Value = If(String.IsNullOrWhiteSpace(txtEmail.Text), DBNull.Value, txtEmail.Text.Trim())
+                    cmd.Parameters.Add("@CT", SqlDbType.NVarChar, 30).Value = If(String.IsNullOrWhiteSpace(txtContact.Text), DBNull.Value, txtContact.Text.Trim())
+                    cmd.Parameters.Add("@ST", SqlDbType.NVarChar, 20).Value = If(cboStatus.SelectedItem IsNot Nothing, cboStatus.SelectedItem.ToString().Trim(), DBNull.Value)
+                    cmd.Parameters.Add("@PROFILE", SqlDbType.VarBinary).Value = If(userImageData IsNot Nothing, userImageData, DBNull.Value)
 
-                    ' Para sa litrato
-                    If userImageData IsNot Nothing Then
-                        cmd.Parameters.Add("@PROFILE", SqlDbType.VarBinary).Value = userImageData
-                    Else
-                        cmd.Parameters.Add("@PROFILE", SqlDbType.VarBinary).Value = DBNull.Value
-                    End If
-
-                    ' Palitan lang ang password kung may inilagay
                     If Not String.IsNullOrWhiteSpace(txtNewPass.Text) Then
-                        cmd.Parameters.AddWithValue("@PASS", txtNewPass.Text.Trim())
+                        ' Note: For production, use hashing instead of plain text
+                        cmd.Parameters.Add("@PASS", SqlDbType.NVarChar, 100).Value = txtNewPass.Text.Trim()
                     End If
 
                     conn.Open()
@@ -185,34 +180,37 @@ Public Class Edit_User
                     End If
                 End Using
             End Using
+
         Catch ex As Exception
-            MessageBox.Show("❌ Error: " & ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
+            MessageBox.Show("❌ Error updating user: " & ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
         End Try
     End Sub
 
     Private Sub btnDelete_Click(sender As Object, e As EventArgs) Handles btnDelete.Click
-        Dim confirm = MessageBox.Show("Are you sure you want to delete this user? This cannot be undone.", "Confirm Delete", MessageBoxButtons.YesNo, MessageBoxIcon.Warning)
-        If confirm = DialogResult.No Then Exit Sub
+        Dim confirm = MessageBox.Show(
+            "Are you sure you want to delete this user? This action cannot be undone.",
+            "Confirm Delete", MessageBoxButtons.YesNo, MessageBoxIcon.Warning
+        )
+        If confirm = DialogResult.No Then Return
 
         Try
-            Using conn As New SqlConnection(ConnString)
+            Using conn As New SqlConnection(connStr)
                 conn.Open()
                 Using trans = conn.BeginTransaction()
                     Try
-                        ' Prevent deleting branch when deleting regular users
-                        Dim delUserSql As String = "DELETE FROM User_Accounts WHERE ID = @UID"
-                        Using cmdDelUser As New SqlCommand(delUserSql, conn, trans)
-                            cmdDelUser.Parameters.AddWithValue("@UID", currentUserID)
-                            cmdDelUser.ExecuteNonQuery()
+                        Dim delSql As String = "DELETE FROM User_Accounts WHERE ID = @UID"
+                        Using cmd As New SqlCommand(delSql, conn, trans)
+                            cmd.Parameters.Add("@UID", SqlDbType.Int).Value = currentUserID
+                            cmd.ExecuteNonQuery()
                         End Using
 
                         trans.Commit()
                         MessageBox.Show("✅ User deleted successfully!", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information)
                         Me.DialogResult = DialogResult.OK
                         Me.Close()
-                    Catch
+                    Catch exTrans As Exception
                         trans.Rollback()
-                        MessageBox.Show("❌ Failed to delete user. Please try again.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
+                        MessageBox.Show("❌ Failed to delete user: " & exTrans.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
                     End Try
                 End Using
             End Using

@@ -1,8 +1,7 @@
-﻿Imports System.Data.SqlClient
+﻿Imports System.Data
+Imports System.Data.SqlClient
 
 Public Class User_Account_Manage
-
-    Private ConnString As String = "Data Source=192.168.68.109\SQLEXPRESS;Initial Catalog=CodeNectDB;User ID=sa;Password=Password1*;Connect Timeout=15"
 
     Private Sub User_Account_Manage_Load(sender As Object, e As EventArgs) Handles MyBase.Load
         SetupColumns()
@@ -23,14 +22,10 @@ Public Class User_Account_Manage
 
     Private Sub SetupComboBox()
         cboUserType.Items.Clear()
-        cboUserType.Items.Add("ALL")
-        cboUserType.Items.Add("Administrator")
-        cboUserType.Items.Add("IT")
-        cboUserType.Items.Add("Manager")
-        cboUserType.Items.Add("Cashier")
-        cboUserType.Items.Add("Inventory Clerk")
-        cboUserType.Items.Add("Sales Staff")
-        cboUserType.Items.Add("Viewer")
+        cboUserType.Items.AddRange({
+            "ALL", "Branch Administrator", "IT Support", "Branch Manager",
+            "Supervisor", "Cashier", "Inventory Clerk", "Sales Staff", "Viewer"
+        })
         cboUserType.SelectedIndex = 0
     End Sub
 
@@ -40,92 +35,98 @@ Public Class User_Account_Manage
         dgvUsers.Rows.Clear()
 
         Try
-            Using conn As New SqlConnection(ConnString)
-                ' ✅ DINAGDAG KO ANG u.PROFILE DITO PARA SA PICTURE
-                Dim sql As String = "SELECT u.ID, u.FULL_NAME, u.USER_TYPE, u.BRANCH_ID, b.BRANCH AS BRANCH_NAME, u.EMAIL, u.CONTACT, u.STATUS, u.DATE_CREATED, u.PROFILE " &
-                                    "FROM User_Accounts u " &
-                                    "LEFT JOIN Branches b ON u.BRANCH_ID = b.BRANCH_ID " &
-                                    "WHERE 1=1 "
+            Dim sql As String = "
+                SELECT 
+                    u.ID, u.FULL_NAME, u.USER_TYPE, u.BRANCH_ID, 
+                    b.BRANCH AS BRANCH_NAME, u.EMAIL, u.CONTACT, u.STATUS, 
+                    u.DATE_CREATED, u.PROFILE
+                FROM User_Accounts u
+                LEFT JOIN Branches b ON u.BRANCH_ID = b.BRANCH_ID
+                WHERE 1=1"
 
-                If Login.LoggedInUserType = "ADMIN" Then
-                    sql &= " AND u.ACCOUNT_ID = @AccID "
-                Else
-                    sql &= " AND u.BRANCH_ID = @BranchID "
-                    sql &= " AND u.USER_TYPE <> 'ADMIN' "
-                End If
-
-                If filterType <> "ALL" Then
-                    sql &= " AND u.USER_TYPE = @Type "
-                End If
-
-                If searchText <> "" Then
-                    sql &= " AND u.FULL_NAME LIKE @Search "
-                End If
-
-                sql &= " ORDER BY u.DATE_CREATED DESC"
-
+            Using conn As New SqlConnection(connStr)
                 Using cmd As New SqlCommand(sql, conn)
-                    If Login.LoggedInUserType = "ADMIN" Then
-                        cmd.Parameters.AddWithValue("@AccID", Login.LoggedInAccountID)
+
+                    ' Filter based on logged-in user's role
+                    If Login.LoggedInUserType.Equals("ADMIN", StringComparison.OrdinalIgnoreCase) Then
+                        cmd.Parameters.Add("@AccID", SqlDbType.NVarChar, 50).Value = Login.LoggedInAccountID
+                        sql &= " AND u.ACCOUNT_ID = @AccID"
                     Else
-                        cmd.Parameters.AddWithValue("@BranchID", Login.LoggedInBranchID)
+                        cmd.Parameters.Add("@BranchID", SqlDbType.NVarChar, 20).Value = Login.LoggedInBranchID
+                        sql &= " AND u.BRANCH_ID = @BranchID AND u.USER_TYPE <> 'ADMIN'"
                     End If
 
+                    ' Filter by user type if not "ALL"
                     If filterType <> "ALL" Then
-                        cmd.Parameters.AddWithValue("@Type", filterType)
+                        cmd.Parameters.Add("@Type", SqlDbType.NVarChar, 50).Value = filterType
+                        sql &= " AND u.USER_TYPE = @Type"
                     End If
-                    If searchText <> "" Then
-                        cmd.Parameters.AddWithValue("@Search", "%" & searchText & "%")
+
+                    ' Filter by search text
+                    If Not String.IsNullOrEmpty(searchText) Then
+                        cmd.Parameters.Add("@Search", SqlDbType.NVarChar, 150).Value = "%" & searchText & "%"
+                        sql &= " AND u.FULL_NAME LIKE @Search"
                     End If
+
+                    sql &= " ORDER BY u.DATE_CREATED DESC"
+                    cmd.CommandText = sql
 
                     conn.Open()
-                    Dim dr As SqlDataReader = cmd.ExecuteReader()
+                    Using dr As SqlDataReader = cmd.ExecuteReader()
+                        While dr.Read()
+                            Dim userID As Integer = CInt(dr("ID"))
+                            Dim fullName As String = dr("FULL_NAME").ToString().Trim()
+                            Dim userType As String = If(IsDBNull(dr("USER_TYPE")), "", dr("USER_TYPE").ToString().Trim())
+                            Dim branchName As String = If(IsDBNull(dr("BRANCH_NAME")), "", dr("BRANCH_NAME").ToString().Trim())
+                            Dim branchID As String = If(IsDBNull(dr("BRANCH_ID")), "", dr("BRANCH_ID").ToString().Trim())
+                            Dim email As String = If(IsDBNull(dr("EMAIL")), "", dr("EMAIL").ToString().Trim())
+                            Dim contact As String = If(IsDBNull(dr("CONTACT")), "", dr("CONTACT").ToString().Trim())
+                            Dim status As String = If(IsDBNull(dr("STATUS")), "", dr("STATUS").ToString().Trim())
+                            Dim dateCreated As DateTime = Convert.ToDateTime(dr("DATE_CREATED"))
+                            Dim profileBytes As Byte() = If(IsDBNull(dr("PROFILE")), Nothing, CType(dr("PROFILE"), Byte()))
 
-                    While dr.Read()
-                        Dim userID As Integer = CInt(dr("ID"))
-                        Dim branchName As String = If(IsDBNull(dr("BRANCH_NAME")), "", dr("BRANCH_NAME").ToString())
-                        Dim branchCode As String = If(IsDBNull(dr("BRANCH_ID")), "", dr("BRANCH_ID").ToString())
-                        Dim userType As String = If(IsDBNull(dr("USER_TYPE")), "", dr("USER_TYPE").ToString())
-                        Dim profilePath As String = If(IsDBNull(dr("PROFILE")), "", dr("PROFILE").ToString()) ' ✅ PICTURE PATH
+                            ' Add row to grid
+                            Dim rowIndex As Integer = dgvUsers.Rows.Add(
+                                fullName,
+                                userType,
+                                branchName,
+                                email,
+                                contact,
+                                status,
+                                dateCreated.ToString("yyyy-MM-dd")
+                            )
 
-                        Dim row As String() = {
-                            dr("FULL_NAME").ToString(),
-                            userType,
-                            branchName,
-                            dr("EMAIL").ToString(),
-                            dr("CONTACT").ToString(),
-                            dr("STATUS").ToString(),
-                            Convert.ToDateTime(dr("DATE_CREATED")).ToString("yyyy-MM-dd")
-                        }
-
-                        ' ✅ TAMA NA PANGALAN NG VARIABLES, TUGMA SA EDIT_USER
-                        dgvUsers.Rows.Add(row)
-                        dgvUsers.Rows(dgvUsers.Rows.Count - 1).Cells(0).Tag = New With {
-                            .ID = userID,
-                            .FULL_NAME = dr("FULL_NAME").ToString(),   ' <-- DATI FULLNAME, NGAYON FULL_NAME
-                            .USER_TYPE = userType,                      ' <-- DATI USERTYPE, NGAYON USER_TYPE
-                            .BRANCH = branchName,                       ' <-- DATI BRANCH_NAME, NGAYON BRANCH
-                            .BRANCH_ID = branchCode,                    ' <-- DATI BRANCH_CODE, NGAYON BRANCH_ID
-                            .EMAIL = dr("EMAIL").ToString(),
-                            .CONTACT = dr("CONTACT").ToString(),
-                            .STATUS = dr("STATUS").ToString(),
-                            .PROFILE = profilePath                       ' <-- PICTURE PATH
-                        }
-                    End While
-                    dr.Close()
+                            ' Store complete user data in Tag for Edit_User
+                            dgvUsers.Rows(rowIndex).Cells(0).Tag = New With {
+                                .ID = userID,
+                                .FULL_NAME = fullName,
+                                .USER_TYPE = userType,
+                                .BRANCH = branchName,
+                                .BRANCH_ID = branchID,
+                                .EMAIL = email,
+                                .CONTACT = contact,
+                                .STATUS = status,
+                                .PROFILE = profileBytes
+                            }
+                        End While
+                    End Using
                 End Using
             End Using
+
         Catch ex As Exception
-            MessageBox.Show("Error: " & ex.Message, "System Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
+            MessageBox.Show("Error loading user data: " & ex.Message, "System Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
         End Try
     End Sub
 
     Private Sub dgvUsers_CellDoubleClick(sender As Object, e As DataGridViewCellEventArgs) Handles dgvUsers.CellDoubleClick
-        If e.RowIndex >= 0 Then
-            Dim userInfo = CType(dgvUsers.Rows(e.RowIndex).Cells(0).Tag, Object)
-            Edit_User.LoadUserDetails(userInfo)
-            Edit_User.ShowDialog()
-            LoadData()
+        If e.RowIndex < 0 Then Return
+
+        Dim selectedTag = dgvUsers.Rows(e.RowIndex).Cells(0).Tag
+        If selectedTag IsNot Nothing Then
+            Dim editForm As New Edit_User()
+            editForm.LoadUserDetails(selectedTag)
+            editForm.ShowDialog()
+            LoadData() ' Refresh list after closing edit form
         End If
     End Sub
 

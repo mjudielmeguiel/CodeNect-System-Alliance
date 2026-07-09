@@ -3,12 +3,6 @@ Imports System.Text.RegularExpressions
 
 Public Class Register_account
 
-    Private ReadOnly Property ActiveConnString() As String
-        Get
-            Return "Data Source=192.168.68.109\SQLEXPRESS,1433;Initial Catalog=CodeNectDB;User ID=CodeNect_Database;Password=Password1*;Connect Timeout=15"
-        End Get
-    End Property
-
     Private Sub Register_account_Load(sender As Object, e As EventArgs) Handles MyBase.Load
         txtAccountID.Text = GenerateRandomID()
         txtAccountID.ForeColor = Color.Black
@@ -86,7 +80,7 @@ Public Class Register_account
         End If
 
         Try
-            Using connCheck As New SqlConnection(ActiveConnString)
+            Using connCheck As New SqlConnection(connStr)
                 connCheck.Open()
 
                 Dim cmdUser As New SqlCommand("SELECT COUNT(*) FROM adm.Account WHERE USERNAME=@VAL", connCheck)
@@ -115,9 +109,9 @@ Public Class Register_account
             Dim newAccountID As String = txtAccountID.Text
 
             Dim cmdInsert As String = "INSERT INTO adm.Account (ACCOUNT_ID, ACCOUNT, ADDRESS, CONTACT, EMAIL, USERNAME, PASSWORD, STATUS, CREATE_AT) " &
-                                       "VALUES (@AID, @ACC, @ADDR, @CONT, @EMAIL, @USER, @PASS, 'ACTIVE', @CRT)"
+                                       "VALUES (@AID, @ACC, @ADDR, @CONT, @EMAIL, @USER, @PASS, 'OFFLINE', @CRT)"
 
-            Using conn As New SqlConnection(ActiveConnString)
+            Using conn As New SqlConnection(connStr)
                 Using cmd As New SqlCommand(cmdInsert, conn)
                     cmd.Parameters.AddWithValue("@AID", newAccountID)
                     cmd.Parameters.AddWithValue("@ACC", txtAccount.Text.Trim())
@@ -170,7 +164,7 @@ Public Class Register_account
     Private Sub btnCancel_Click(sender As Object, e As EventArgs) Handles btnCancel.Click
         Me.Close()
     End Sub
-
+#Region "Placeholder Text Handling"
     Private Sub txtAccount_GotFocus(sender As Object, e As EventArgs) Handles txtAccount.GotFocus
         If txtAccount.Text = "Enter Account Name" Then
             txtAccount.Text = ""
@@ -251,7 +245,6 @@ Public Class Register_account
         End If
     End Sub
 
-    ' ✅ ADDED: Confirm Password events — now hidden & works same as Password
     Private Sub txtConfirmPassword_GotFocus(sender As Object, e As EventArgs) Handles txtConfirmPassword.GotFocus
         If txtConfirmPassword.Text = "Confirm Password" Then
             txtConfirmPassword.Text = ""
@@ -266,5 +259,5 @@ Public Class Register_account
             txtConfirmPassword.PasswordChar = Nothing
         End If
     End Sub
-
+#End Region
 End Class
