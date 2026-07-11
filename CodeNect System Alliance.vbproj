@@ -315,40 +315,6 @@
     <Compile Include="Ordering\Transaction_Details.vb">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Price\pos\DBConnection.vb" />
-    <Compile Include="Price\pos\frmCash_Declaration.Designer.vb">
-      <DependentUpon>frmCash_Declaration.vb</DependentUpon>
-    </Compile>
-    <Compile Include="Price\pos\frmCash_Declaration.vb">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="Price\pos\frmOnlinePayment.Designer.vb">
-      <DependentUpon>frmOnlinePayment.vb</DependentUpon>
-    </Compile>
-    <Compile Include="Price\pos\frmOnlinePayment.vb">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="Price\pos\frmPOSLogin.Designer.vb">
-      <DependentUpon>frmPOSLogin.vb</DependentUpon>
-    </Compile>
-    <Compile Include="Price\pos\frmPOSLogin.vb">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="Price\pos\frmPOS_System.Designer.vb">
-      <DependentUpon>frmPOS_System.vb</DependentUpon>
-    </Compile>
-    <Compile Include="Price\pos\frmPOS_System.vb" />
-    <Compile Include="Price\pos\frmProductQTY.Designer.vb">
-      <DependentUpon>frmProductQTY.vb</DependentUpon>
-    </Compile>
-    <Compile Include="Price\pos\frmProductQTY.vb" />
-    <Compile Include="Price\pos\frmPWDDiscount.Designer.vb">
-      <DependentUpon>frmPWDDiscount.vb</DependentUpon>
-    </Compile>
-    <Compile Include="Price\pos\frmPWDDiscount.vb">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="Price\pos\modConnection.vb" />
     <Compile Include="Price\Price_Adjustment.Designer.vb">
       <DependentUpon>Price_Adjustment.vb</DependentUpon>
     </Compile>
@@ -531,24 +497,6 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Ordering\Transaction_Details.resx">
       <DependentUpon>Transaction_Details.vb</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Price\pos\frmCash_Declaration.resx">
-      <DependentUpon>frmCash_Declaration.vb</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Price\pos\frmOnlinePayment.resx">
-      <DependentUpon>frmOnlinePayment.vb</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Price\pos\frmPOSLogin.resx">
-      <DependentUpon>frmPOSLogin.vb</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Price\pos\frmPOS_System.resx">
-      <DependentUpon>frmPOS_System.vb</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Price\pos\frmProductQTY.resx">
-      <DependentUpon>frmProductQTY.vb</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Price\pos\frmPWDDiscount.resx">
-      <DependentUpon>frmPWDDiscount.vb</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Price\Price_Adjustment.resx">
       <DependentUpon>Price_Adjustment.vb</DependentUpon>

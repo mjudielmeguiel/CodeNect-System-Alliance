@@ -128,6 +128,13 @@ Public Class Login
                     Return
                 End If
 
+                ' ✅ BAGONG DAGDAG: HINDI PINAPAYAGAN ANG CASHIER O POS
+                If userType.Equals("CASHIER", StringComparison.OrdinalIgnoreCase) OrElse
+                   userType.Equals("POS", StringComparison.OrdinalIgnoreCase) Then
+                    MessageBox.Show("Access Denied. Cashier/POS accounts cannot log in here.", "Restricted Access", MessageBoxButtons.OK, MessageBoxIcon.Stop)
+                    Return
+                End If
+
                 Select Case userStatus.ToUpper()
                     Case "ACTIVE"
                         MessageBox.Show("This account is already logged in on another device.", "Already Logged In", MessageBoxButtons.OK, MessageBoxIcon.Exclamation)
@@ -154,75 +161,31 @@ Public Class Login
                     LoggedInUserType = userType
                     LoggedInUsername = fullName
 
-                    ' POS System
-                    If userType.Equals("CASHIER", StringComparison.OrdinalIgnoreCase) OrElse userType.Equals("POS", StringComparison.OrdinalIgnoreCase) Then
-                        POS_System.tsname.Text = LoggedInUsername
-                        POS_System.tsbranch.Text = branchName
-                        POS_System.Show()
+                    ' Lahat ng ibang user type pupunta sa Dashboard
+                    DashBoard.ToolStripStatusLabel1.Text = LoggedInUsername
+                    DashBoard.ToolStripStatusLabel4.Text = branchName
+                    DashBoard.Label1.Text = userType.ToUpper() & " DASHBOARD"
 
-                        ' Branch Administrator
-                    ElseIf userType.Equals("Branch Administrator", StringComparison.OrdinalIgnoreCase) Then
-                        DashBoard.ToolStripStatusLabel1.Text = LoggedInUsername
-                        DashBoard.ToolStripStatusLabel4.Text = branchName
-                        DashBoard.Label1.Text = userType.ToUpper() & " DASHBOARD"
-                        DashBoard.UserManageToolStripMenuItem.Visible = True
-                        DashBoard.Btn_Manage.Visible = True
-                        DashBoard.Show()
+                    ' Kontrol sa mga button/menu base sa user type
+                    Select Case userType.ToUpper()
+                        Case "BRANCH ADMINISTRATOR", "IT SUPPORT"
+                            DashBoard.UserManageToolStripMenuItem.Visible = True
+                            DashBoard.Btn_Manage.Visible = True
 
-                        ' IT Support
-                    ElseIf userType.Equals("IT Support", StringComparison.OrdinalIgnoreCase) Then
-                        DashBoard.ToolStripStatusLabel1.Text = LoggedInUsername
-                        DashBoard.ToolStripStatusLabel4.Text = branchName
-                        DashBoard.Label1.Text = userType.ToUpper() & " DASHBOARD"
-                        DashBoard.UserManageToolStripMenuItem.Visible = True
-                        DashBoard.Btn_Manage.Visible = True
-                        DashBoard.Show()
+                        Case "BRANCH MANAGER", "SUPERVISOR", "INVENTORY CLERK", "SALES STAFF"
+                            DashBoard.UserManageToolStripMenuItem.Visible = False
+                            DashBoard.Btn_Manage.Visible = True
 
-                        ' Branch Manager
-                    ElseIf userType.Equals("Branch Manager", StringComparison.OrdinalIgnoreCase) Then
-                        DashBoard.ToolStripStatusLabel1.Text = LoggedInUsername
-                        DashBoard.ToolStripStatusLabel4.Text = branchName
-                        DashBoard.Label1.Text = userType.ToUpper() & " DASHBOARD"
-                        DashBoard.UserManageToolStripMenuItem.Visible = False
-                        DashBoard.Btn_Manage.Visible = True
-                        DashBoard.Show()
+                        Case "RECIEVING DEPARTMENT UNIT"
+                            DashBoard.UserManageToolStripMenuItem.Visible = False
+                            DashBoard.Btn_Manage.Visible = False
 
-                        ' Supervisor
-                    ElseIf userType.Equals("Supervisor", StringComparison.OrdinalIgnoreCase) Then
-                        DashBoard.ToolStripStatusLabel1.Text = LoggedInUsername
-                        DashBoard.ToolStripStatusLabel4.Text = branchName
-                        DashBoard.Label1.Text = userType.ToUpper() & " DASHBOARD"
-                        DashBoard.UserManageToolStripMenuItem.Visible = False
-                        DashBoard.Btn_Manage.Visible = True
-                        DashBoard.Show()
+                        Case Else
+                            DashBoard.UserManageToolStripMenuItem.Visible = False
+                            DashBoard.Btn_Manage.Visible = False
+                    End Select
 
-                        ' Inventory Clerk
-                    ElseIf userType.Equals("Inventory Clerk", StringComparison.OrdinalIgnoreCase) Then
-                        DashBoard.ToolStripStatusLabel1.Text = LoggedInUsername
-                        DashBoard.ToolStripStatusLabel4.Text = branchName
-                        DashBoard.Label1.Text = userType.ToUpper() & " DASHBOARD"
-                        DashBoard.UserManageToolStripMenuItem.Visible = False
-                        DashBoard.Btn_Manage.Visible = True
-                        DashBoard.Show()
-
-                        ' Receiving Department Unit
-                    ElseIf userType.Equals("Recieving Department Unit", StringComparison.OrdinalIgnoreCase) Then
-                        DashBoard.ToolStripStatusLabel1.Text = LoggedInUsername
-                        DashBoard.ToolStripStatusLabel4.Text = branchName
-                        DashBoard.Label1.Text = userType.ToUpper() & " DASHBOARD"
-                        DashBoard.UserManageToolStripMenuItem.Visible = False
-                        DashBoard.Show()
-
-                        ' Sales Staff
-                    ElseIf userType.Equals("Sales Staff", StringComparison.OrdinalIgnoreCase) Then
-                        DashBoard.ToolStripStatusLabel1.Text = LoggedInUsername
-                        DashBoard.ToolStripStatusLabel4.Text = branchName
-                        DashBoard.Label1.Text = userType.ToUpper() & " DASHBOARD"
-                        DashBoard.UserManageToolStripMenuItem.Visible = False
-                        DashBoard.Btn_Manage.Visible = True
-                        DashBoard.Show()
-                    End If
-
+                    DashBoard.Show()
                     Me.Hide()
 
                 Else
@@ -300,6 +263,5 @@ Public Class Login
             txtPassword.PasswordChar = ControlChars.NullChar
         End If
     End Sub
-
 
 End Class
