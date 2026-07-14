@@ -128,13 +128,6 @@ Public Class Login
                     Return
                 End If
 
-                ' ✅ BAGONG DAGDAG: HINDI PINAPAYAGAN ANG CASHIER O POS
-                If userType.Equals("CASHIER", StringComparison.OrdinalIgnoreCase) OrElse
-                   userType.Equals("POS", StringComparison.OrdinalIgnoreCase) Then
-                    MessageBox.Show("Access Denied. Cashier/POS accounts cannot log in here.", "Restricted Access", MessageBoxButtons.OK, MessageBoxIcon.Stop)
-                    Return
-                End If
-
                 Select Case userStatus.ToUpper()
                     Case "ACTIVE"
                         MessageBox.Show("This account is already logged in on another device.", "Already Logged In", MessageBoxButtons.OK, MessageBoxIcon.Exclamation)
@@ -161,12 +154,24 @@ Public Class Login
                     LoggedInUserType = userType
                     LoggedInUsername = fullName
 
-                    ' Lahat ng ibang user type pupunta sa Dashboard
+                    ' ✅ CASHIER/POS USERS - DIREKTANG PAPUNTA SA POS SYSTEM
+                    If userType.Equals("CASHIER", StringComparison.OrdinalIgnoreCase) OrElse
+                       userType.Equals("POS", StringComparison.OrdinalIgnoreCase) Then
+
+                        frmPOS_System.tsname.Text = LoggedInUsername
+                        frmPOS_System.tsbranch.Text = branchName
+                        frmPOS_System.ToolStripStatusLabel3.Text = userType.ToUpper()
+                        frmPOS_System.Show()
+                        Me.Hide()
+                        Return
+                    End If
+
+                    ' LAHAT NG IBANG USER TYPE PUPUNTA SA DASHBOARD
                     DashBoard.ToolStripStatusLabel1.Text = LoggedInUsername
                     DashBoard.ToolStripStatusLabel4.Text = branchName
                     DashBoard.Label1.Text = userType.ToUpper() & " DASHBOARD"
 
-                    ' Kontrol sa mga button/menu base sa user type
+                    ' KONTROL SA MGA BUTTON/MENU BASE SA USER TYPE
                     Select Case userType.ToUpper()
                         Case "BRANCH ADMINISTRATOR", "IT SUPPORT"
                             DashBoard.UserManageToolStripMenuItem.Visible = True
