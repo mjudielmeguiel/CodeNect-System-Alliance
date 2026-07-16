@@ -55,6 +55,7 @@ Partial Class frmPOS_System
         Me.Button1 = New System.Windows.Forms.Button()
         Me.Button2 = New System.Windows.Forms.Button()
         Me.btnCheckOut = New System.Windows.Forms.Button()
+        Me.Button3 = New System.Windows.Forms.Button()
         Me.Panel2.SuspendLayout()
         CType(Me.adminpic, System.ComponentModel.ISupportInitialize).BeginInit()
         CType(Me.dgvCart, System.ComponentModel.ISupportInitialize).BeginInit()
@@ -452,11 +453,31 @@ Partial Class frmPOS_System
         Me.btnCheckOut.TextImageRelation = System.Windows.Forms.TextImageRelation.TextBeforeImage
         Me.btnCheckOut.UseVisualStyleBackColor = False
         '
+        'Button3
+        '
+        Me.Button3.Anchor = CType((System.Windows.Forms.AnchorStyles.Bottom Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
+        Me.Button3.BackColor = System.Drawing.SystemColors.Control
+        Me.Button3.BackgroundImageLayout = System.Windows.Forms.ImageLayout.None
+        Me.Button3.FlatAppearance.BorderSize = 0
+        Me.Button3.FlatStyle = System.Windows.Forms.FlatStyle.Flat
+        Me.Button3.Font = New System.Drawing.Font("Microsoft YaHei UI Light", 12.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.Button3.ForeColor = System.Drawing.SystemColors.ControlText
+        Me.Button3.Image = CType(resources.GetObject("Button3.Image"), System.Drawing.Image)
+        Me.Button3.ImageAlign = System.Drawing.ContentAlignment.MiddleRight
+        Me.Button3.Location = New System.Drawing.Point(374, 298)
+        Me.Button3.Name = "Button3"
+        Me.Button3.Size = New System.Drawing.Size(169, 47)
+        Me.Button3.TabIndex = 386
+        Me.Button3.Text = "Cash Declaration"
+        Me.Button3.TextImageRelation = System.Windows.Forms.TextImageRelation.TextBeforeImage
+        Me.Button3.UseVisualStyleBackColor = False
+        '
         'frmPOS_System
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(6.0!, 13.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
         Me.ClientSize = New System.Drawing.Size(1366, 768)
+        Me.Controls.Add(Me.Button3)
         Me.Controls.Add(Me.btnCheckOut)
         Me.Controls.Add(Me.Button2)
         Me.Controls.Add(Me.Button1)
@@ -523,4 +544,5 @@ Partial Class frmPOS_System
     Friend WithEvents btnCheckOut As Button
     Friend WithEvents Label1 As Label
     Friend WithEvents lblRemainingBalance As Label
+    Friend WithEvents Button3 As Button
 End Class
