@@ -34,8 +34,8 @@ Partial Class frmSTO_Information
         Me.Label6 = New System.Windows.Forms.Label()
         Me.lbltotal = New System.Windows.Forms.Label()
         Me.panstoinfo = New System.Windows.Forms.Panel()
+        Me.txtDR = New System.Windows.Forms.TextBox()
         Me.Label7 = New System.Windows.Forms.Label()
-        Me.lblDR = New System.Windows.Forms.Label()
         Me.Label8 = New System.Windows.Forms.Label()
         Me.Label5 = New System.Windows.Forms.Label()
         Me.lblTo = New System.Windows.Forms.Label()
@@ -45,6 +45,7 @@ Partial Class frmSTO_Information
         Me.lblstatus = New System.Windows.Forms.Label()
         Me.txtBarcode = New System.Windows.Forms.TextBox()
         Me.Panel1 = New System.Windows.Forms.Panel()
+        Me.btnSubmit = New System.Windows.Forms.Button()
         Me.Label4 = New System.Windows.Forms.Label()
         Me.adminpic = New System.Windows.Forms.PictureBox()
         Me.lblSTRNumber = New System.Windows.Forms.Label()
@@ -139,8 +140,8 @@ Partial Class frmSTO_Information
         '
         'panstoinfo
         '
+        Me.panstoinfo.Controls.Add(Me.txtDR)
         Me.panstoinfo.Controls.Add(Me.Label7)
-        Me.panstoinfo.Controls.Add(Me.lblDR)
         Me.panstoinfo.Controls.Add(Me.Label2)
         Me.panstoinfo.Controls.Add(Me.Label6)
         Me.panstoinfo.Controls.Add(Me.Label8)
@@ -157,6 +158,16 @@ Partial Class frmSTO_Information
         Me.panstoinfo.Size = New System.Drawing.Size(1366, 147)
         Me.panstoinfo.TabIndex = 333
         '
+        'txtDR
+        '
+        Me.txtDR.Anchor = CType((System.Windows.Forms.AnchorStyles.Bottom Or System.Windows.Forms.AnchorStyles.Left), System.Windows.Forms.AnchorStyles)
+        Me.txtDR.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle
+        Me.txtDR.Font = New System.Drawing.Font("Microsoft YaHei UI", 14.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.txtDR.Location = New System.Drawing.Point(1199, 16)
+        Me.txtDR.Name = "txtDR"
+        Me.txtDR.Size = New System.Drawing.Size(82, 32)
+        Me.txtDR.TabIndex = 336
+        '
         'Label7
         '
         Me.Label7.Anchor = CType((System.Windows.Forms.AnchorStyles.Bottom Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
@@ -168,18 +179,6 @@ Partial Class frmSTO_Information
         Me.Label7.TabIndex = 313
         Me.Label7.Text = "DR # :"
         Me.Label7.TextAlign = System.Drawing.ContentAlignment.MiddleCenter
-        '
-        'lblDR
-        '
-        Me.lblDR.Anchor = CType((System.Windows.Forms.AnchorStyles.Bottom Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
-        Me.lblDR.AutoSize = True
-        Me.lblDR.Font = New System.Drawing.Font("Microsoft YaHei UI", 12.0!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.lblDR.Location = New System.Drawing.Point(1195, 21)
-        Me.lblDR.Name = "lblDR"
-        Me.lblDR.Size = New System.Drawing.Size(17, 22)
-        Me.lblDR.TabIndex = 312
-        Me.lblDR.Text = "-"
-        Me.lblDR.TextAlign = System.Drawing.ContentAlignment.MiddleCenter
         '
         'Label8
         '
@@ -272,12 +271,32 @@ Partial Class frmSTO_Information
         '
         'Panel1
         '
+        Me.Panel1.Controls.Add(Me.btnSubmit)
         Me.Panel1.Controls.Add(Me.Label4)
         Me.Panel1.Dock = System.Windows.Forms.DockStyle.Bottom
         Me.Panel1.Location = New System.Drawing.Point(0, 701)
         Me.Panel1.Name = "Panel1"
         Me.Panel1.Size = New System.Drawing.Size(1366, 67)
         Me.Panel1.TabIndex = 335
+        '
+        'btnSubmit
+        '
+        Me.btnSubmit.Anchor = CType((System.Windows.Forms.AnchorStyles.Bottom Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
+        Me.btnSubmit.BackColor = System.Drawing.SystemColors.Control
+        Me.btnSubmit.BackgroundImageLayout = System.Windows.Forms.ImageLayout.None
+        Me.btnSubmit.FlatAppearance.BorderSize = 0
+        Me.btnSubmit.FlatStyle = System.Windows.Forms.FlatStyle.Flat
+        Me.btnSubmit.Font = New System.Drawing.Font("Microsoft YaHei UI Light", 12.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.btnSubmit.ForeColor = System.Drawing.SystemColors.ControlText
+        Me.btnSubmit.Image = CType(resources.GetObject("btnSubmit.Image"), System.Drawing.Image)
+        Me.btnSubmit.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft
+        Me.btnSubmit.Location = New System.Drawing.Point(1152, 8)
+        Me.btnSubmit.Name = "btnSubmit"
+        Me.btnSubmit.Size = New System.Drawing.Size(98, 47)
+        Me.btnSubmit.TabIndex = 329
+        Me.btnSubmit.Text = "SUBMIT"
+        Me.btnSubmit.TextImageRelation = System.Windows.Forms.TextImageRelation.TextBeforeImage
+        Me.btnSubmit.UseVisualStyleBackColor = False
         '
         'Label4
         '
@@ -440,6 +459,7 @@ Partial Class frmSTO_Information
     Friend WithEvents dgvItems As DataGridView
     Friend WithEvents Panel2 As Panel
     Friend WithEvents Label7 As Label
-    Friend WithEvents lblDR As Label
     Friend WithEvents Label4 As Label
+    Friend WithEvents btnSubmit As Button
+    Friend WithEvents txtDR As TextBox
 End Class

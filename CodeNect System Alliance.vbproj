@@ -291,6 +291,12 @@
     <Compile Include="inventory\Inventory.vb">
       <SubType>Form</SubType>
     </Compile>
+    <Compile Include="Ordering\frmADDStock_QTY.Designer.vb">
+      <DependentUpon>frmADDStock_QTY.vb</DependentUpon>
+    </Compile>
+    <Compile Include="Ordering\frmADDStock_QTY.vb">
+      <SubType>Form</SubType>
+    </Compile>
     <Compile Include="Ordering\Ordering_Reports.Designer.vb">
       <DependentUpon>Ordering_Reports.vb</DependentUpon>
     </Compile>
@@ -533,6 +539,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="inventory\Inventory.resx">
       <DependentUpon>Inventory.vb</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Ordering\frmADDStock_QTY.resx">
+      <DependentUpon>frmADDStock_QTY.vb</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Ordering\frmSTO_Information.resx">
       <DependentUpon>frmSTO_Information.vb</DependentUpon>

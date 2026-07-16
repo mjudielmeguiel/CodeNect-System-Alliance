@@ -556,7 +556,7 @@ Partial Class DashBoard
         'TopBranchToolStripMenuItem
         '
         Me.TopBranchToolStripMenuItem.Name = "TopBranchToolStripMenuItem"
-        Me.TopBranchToolStripMenuItem.Size = New System.Drawing.Size(180, 22)
+        Me.TopBranchToolStripMenuItem.Size = New System.Drawing.Size(186, 22)
         Me.TopBranchToolStripMenuItem.Text = "Top Branch"
         '
         'SalesTransactionsToolStripMenuItem

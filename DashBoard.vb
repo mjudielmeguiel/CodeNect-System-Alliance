@@ -242,6 +242,10 @@ Public Class DashBoard
         Sales.Show()
     End Sub
 
+    Private Sub BtnTransactions_Click(sender As Object, e As EventArgs) Handles BtnTransactions.Click
+
+    End Sub
+
 #End Region
 
 End Class
