@@ -66,7 +66,7 @@ Partial Class frmPOS_System
         '
         'Panel2
         '
-        Me.Panel2.BackColor = System.Drawing.SystemColors.Control
+        Me.Panel2.BackColor = System.Drawing.Color.DarkRed
         Me.Panel2.Controls.Add(Me.lbldiscount)
         Me.Panel2.Controls.Add(Me.adminpic)
         Me.Panel2.Dock = System.Windows.Forms.DockStyle.Top
@@ -79,7 +79,7 @@ Partial Class frmPOS_System
         '
         Me.lbldiscount.AutoSize = True
         Me.lbldiscount.Font = New System.Drawing.Font("Microsoft YaHei UI", 20.25!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.lbldiscount.ForeColor = System.Drawing.Color.DarkRed
+        Me.lbldiscount.ForeColor = System.Drawing.Color.White
         Me.lbldiscount.Location = New System.Drawing.Point(79, 9)
         Me.lbldiscount.Name = "lbldiscount"
         Me.lbldiscount.Size = New System.Drawing.Size(223, 36)
@@ -88,6 +88,7 @@ Partial Class frmPOS_System
         '
         'adminpic
         '
+        Me.adminpic.BackColor = System.Drawing.Color.Transparent
         Me.adminpic.Dock = System.Windows.Forms.DockStyle.Left
         Me.adminpic.Image = CType(resources.GetObject("adminpic.Image"), System.Drawing.Image)
         Me.adminpic.Location = New System.Drawing.Point(0, 0)

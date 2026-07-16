@@ -1,11 +1,9 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 18
-VisualStudioVersion = 18.7.11911.148 stable
+VisualStudioVersion = 18.7.11911.148
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "CodeNect System Alliance", "CodeNect System Alliance.vbproj", "{4B5AC141-A3B6-41B2-95DB-22DB39B0232E}"
-EndProject
-Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "CodeNect POS System", "..\CodeNect POS System\CodeNect POS System.vbproj", "{B110E28E-3596-48F2-B891-67F8D72BEAF9}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -38,24 +36,6 @@ Global
 		{4B5AC141-A3B6-41B2-95DB-22DB39B0232E}.Release|ARM64.Build.0 = Release|ARM64
 		{4B5AC141-A3B6-41B2-95DB-22DB39B0232E}.Release|x64.ActiveCfg = Release|x64
 		{4B5AC141-A3B6-41B2-95DB-22DB39B0232E}.Release|x64.Build.0 = Release|x64
-		{B110E28E-3596-48F2-B891-67F8D72BEAF9}.CNSA|Any CPU.ActiveCfg = Debug|Any CPU
-		{B110E28E-3596-48F2-B891-67F8D72BEAF9}.CNSA|Any CPU.Build.0 = Debug|Any CPU
-		{B110E28E-3596-48F2-B891-67F8D72BEAF9}.CNSA|ARM64.ActiveCfg = Debug|Any CPU
-		{B110E28E-3596-48F2-B891-67F8D72BEAF9}.CNSA|ARM64.Build.0 = Debug|Any CPU
-		{B110E28E-3596-48F2-B891-67F8D72BEAF9}.CNSA|x64.ActiveCfg = Debug|Any CPU
-		{B110E28E-3596-48F2-B891-67F8D72BEAF9}.CNSA|x64.Build.0 = Debug|Any CPU
-		{B110E28E-3596-48F2-B891-67F8D72BEAF9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{B110E28E-3596-48F2-B891-67F8D72BEAF9}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{B110E28E-3596-48F2-B891-67F8D72BEAF9}.Debug|ARM64.ActiveCfg = Debug|Any CPU
-		{B110E28E-3596-48F2-B891-67F8D72BEAF9}.Debug|ARM64.Build.0 = Debug|Any CPU
-		{B110E28E-3596-48F2-B891-67F8D72BEAF9}.Debug|x64.ActiveCfg = Debug|Any CPU
-		{B110E28E-3596-48F2-B891-67F8D72BEAF9}.Debug|x64.Build.0 = Debug|Any CPU
-		{B110E28E-3596-48F2-B891-67F8D72BEAF9}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{B110E28E-3596-48F2-B891-67F8D72BEAF9}.Release|Any CPU.Build.0 = Release|Any CPU
-		{B110E28E-3596-48F2-B891-67F8D72BEAF9}.Release|ARM64.ActiveCfg = Release|Any CPU
-		{B110E28E-3596-48F2-B891-67F8D72BEAF9}.Release|ARM64.Build.0 = Release|Any CPU
-		{B110E28E-3596-48F2-B891-67F8D72BEAF9}.Release|x64.ActiveCfg = Release|Any CPU
-		{B110E28E-3596-48F2-B891-67F8D72BEAF9}.Release|x64.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

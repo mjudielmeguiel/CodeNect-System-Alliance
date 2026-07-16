@@ -4,37 +4,32 @@ Imports System.Data.SqlClient
 Public Class Branch_Performance
 
     Private Sub Branch_Performance_Load(sender As Object, e As EventArgs) Handles MyBase.Load
-
-        dtpStart.Value = DateTime.Now.AddMonths(-1)
-        dtpEnd.Value = DateTime.Now
-        LoadBranchSales()
+        LoadBranchesOnly()
     End Sub
 
-    Private Sub LoadBranchSales()
+    Private Sub LoadBranchesOnly()
         Try
-            Dim startDate As String = dtpStart.Value.ToString("yyyy-MM-dd")
-            Dim endDate As String = dtpEnd.Value.ToString("yyyy-MM-dd")
-
+            ' Simpleng listahan ng lahat ng branches
             Dim query As String = "
                 SELECT 
-                    ROW_NUMBER() OVER (ORDER BY ISNULL(S.TOTAL_SALES, 0) DESC) AS [RANK],
-                    B.BRANCH_ID,
-                    B.BRANCH,
-                    ISNULL(S.TOTAL_SALES, 0) AS TOTAL_SALES
-                FROM dbo.Branches B
-                LEFT JOIN (
-                    SELECT BRANCH_ID, SUM(AMOUNT) AS TOTAL_SALES
-                    FROM dbo.Sales
-                    WHERE TRANS_DATE BETWEEN @StartDate AND DATEADD(DAY, 1, @EndDate)
-                    GROUP BY BRANCH_ID
-                ) S ON B.BRANCH_ID = S.BRANCH_ID
-                ORDER BY TOTAL_SALES DESC
+                    ACCOUNT_ID,
+                    ACCOUNT,
+                    BRANCH_ID,
+                    BRANCH,
+                    TIN,
+                    BUSINESS_TYPE,
+                    ADDRESS,
+                    EMAIL,
+                    CONTACT,
+                    MANAGER,
+                    SALES,
+                    STATUS
+                FROM dbo.Branches
+                ORDER BY BRANCH_ID
             "
 
-            Using conn As New SqlConnection(connStr)
+            Using conn As New SqlConnection(DBConnection.connStr)
                 Using cmd As New SqlCommand(query, conn)
-                    cmd.Parameters.Add("@StartDate", SqlDbType.Date).Value = dtpStart.Value
-                    cmd.Parameters.Add("@EndDate", SqlDbType.Date).Value = dtpEnd.Value
 
                     Dim dt As New DataTable()
                     Dim da As New SqlDataAdapter(cmd)
@@ -42,76 +37,71 @@ Public Class Branch_Performance
 
                     dgvBranchList.DataSource = dt
 
-                    dgvBranchList.Columns("RANK").HeaderText = "Rank"
-                    dgvBranchList.Columns("BRANCH_ID").HeaderText = "Branch ID"
-                    dgvBranchList.Columns("BRANCH").HeaderText = "Branch Name"
-                    dgvBranchList.Columns("TOTAL_SALES").HeaderText = "Total Sales"
+                    With dgvBranchList
+                        .Columns("ACCOUNT_ID").HeaderText = "Account ID"
+                        .Columns("ACCOUNT").HeaderText = "Account Name"
+                        .Columns("BRANCH_ID").HeaderText = "Branch ID"
+                        .Columns("BRANCH").HeaderText = "Branch Name"
+                        .Columns("TIN").HeaderText = "TIN"
+                        .Columns("BUSINESS_TYPE").HeaderText = "Business Type"
+                        .Columns("ADDRESS").HeaderText = "Address"
+                        .Columns("EMAIL").HeaderText = "Email"
+                        .Columns("CONTACT").HeaderText = "Contact Number"
+                        .Columns("MANAGER").HeaderText = "Branch Manager"
+                        .Columns("SALES").HeaderText = "Total Sales"
+                        .Columns("STATUS").HeaderText = "Status"
 
-                    dgvBranchList.Columns("TOTAL_SALES").DefaultCellStyle.Format = "#,##0.00"
-                    dgvBranchList.Columns("RANK").ReadOnly = True
+                        .Columns("SALES").DefaultCellStyle.Format = "#,##0.00"
+                    End With
+
                 End Using
             End Using
 
         Catch ex As Exception
-            MessageBox.Show("Error loading data: " & ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
+            MessageBox.Show("Error: " & ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
         End Try
     End Sub
 
-    Private Sub dtpStart_ValueChanged(sender As Object, e As EventArgs) Handles dtpStart.ValueChanged
-        LoadBranchSales()
-    End Sub
-
-    Private Sub dtpEnd_ValueChanged(sender As Object, e As EventArgs) Handles dtpEnd.ValueChanged
-        LoadBranchSales()
-    End Sub
-
     Private Sub btnRefresh_Click(sender As Object, e As EventArgs) Handles btnRefresh.Click
-        LoadBranchSales()
-        MessageBox.Show("Data refreshed successfully!", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information)
+        LoadBranchesOnly()
     End Sub
 
     Private Sub btnExport_Click(sender As Object, e As EventArgs) Handles btnExport.Click
         Try
             Dim saveDialog As New SaveFileDialog()
-            saveDialog.Filter = "Excel Workbook (*.xlsx)|*.xlsx"
-            saveDialog.Title = "Export Branch Performance Report"
+            saveDialog.Filter = "Excel Files|*.xlsx"
+            saveDialog.Title = "Export Branches"
 
             If saveDialog.ShowDialog() = DialogResult.OK Then
                 Dim excelApp As New Microsoft.Office.Interop.Excel.Application()
                 Dim workbook As Microsoft.Office.Interop.Excel.Workbook = excelApp.Workbooks.Add()
                 Dim worksheet As Microsoft.Office.Interop.Excel.Worksheet = CType(workbook.Sheets(1), Microsoft.Office.Interop.Excel.Worksheet)
 
-                ' Header row
-                worksheet.Cells(1, 1) = "Rank"
-                worksheet.Cells(1, 2) = "Branch ID"
-                worksheet.Cells(1, 3) = "Branch Name"
-                worksheet.Cells(1, 4) = "Total Sales"
-                worksheet.Range("A1:D1").Font.Bold = True
-                worksheet.Range("A1:D1").Interior.Color = System.Drawing.Color.LightGray
+                Dim headers() As String = {"Account ID", "Account Name", "Branch ID", "Branch Name", "TIN", "Business Type", "Address", "Email", "Contact Number", "Branch Manager", "Total Sales", "Status"}
 
-                ' Data rows
-                For rowIndex As Integer = 0 To dgvBranchList.Rows.Count - 1
-                    With dgvBranchList.Rows(rowIndex)
-                        worksheet.Cells(rowIndex + 2, 1) = .Cells("RANK").Value.ToString()
-                        worksheet.Cells(rowIndex + 2, 2) = .Cells("BRANCH_ID").Value.ToString()
-                        worksheet.Cells(rowIndex + 2, 3) = .Cells("BRANCH").Value.ToString()
-                        worksheet.Cells(rowIndex + 2, 4) = CDec(.Cells("TOTAL_SALES").Value)
-                    End With
+                For c As Integer = 0 To headers.Length - 1
+                    worksheet.Cells(1, c + 1) = headers(c)
                 Next
 
-                ' Auto-fit columns
-                worksheet.Columns.AutoFit()
+                worksheet.Rows(1).Font.Bold = True
+                worksheet.Rows(1).Interior.Color = Drawing.Color.LightGray
 
-                ' Save and close
+                For r As Integer = 0 To dgvBranchList.Rows.Count - 1
+                    For c As Integer = 0 To headers.Length - 1
+                        worksheet.Cells(r + 2, c + 1) = dgvBranchList.Rows(r).Cells(c).Value.ToString()
+                    Next
+                Next
+
+                worksheet.Columns.AutoFit()
                 workbook.SaveAs(saveDialog.FileName)
                 workbook.Close()
                 excelApp.Quit()
+                System.Runtime.InteropServices.Marshal.ReleaseComObject(excelApp)
 
-                MessageBox.Show("Report exported successfully!", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information)
+                MessageBox.Show("Export complete", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information)
             End If
-
         Catch ex As Exception
-            MessageBox.Show("Error exporting report: " & ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
+            MessageBox.Show("Export Error: " & ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
         End Try
     End Sub
 

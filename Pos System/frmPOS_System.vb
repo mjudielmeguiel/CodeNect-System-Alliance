@@ -455,17 +455,17 @@ Public Class frmPOS_System
                 Dim sql As String = "
                 INSERT INTO dbo.Sales_Transactions (
                     Transaction_ID, Branch_Code, Cashier_ID, Cashier_Name,
-                    Transaction_Date, Item_Count, Subtotal_Amount, VATable_Amount,
+                    Transaction_Date, Transaction_Time, Item_Count, Subtotal_Amount, VATable_Amount,
                     VAT_Amount, Discount_Type, Discount_Percent, Discount_Amount,
                     Amount_Due, Amount_Paid, Cash_Amount, Online_Amount,
-                    Change_Amount, Payment_Method
+                    Change_Amount, Payment_Method, Status
                 )
                 VALUES (
                     @TransID, @BranchCode, @CashierID, @CashierName,
-                    CAST(GETDATE() AS DATE), @ItemCount, @Subtotal, @VATable,
+                    CAST(GETDATE() AS DATE), CAST(GETDATE() AS TIME), @ItemCount, @Subtotal, @VATable,
                     @VAT, @DiscType, @DiscPercent, @DiscAmount,
                     @AmountDue, @AmountPaid, @CashAmt, @OnlineAmt,
-                    @Change, @PaymentMethod
+                    @Change, @PaymentMethod, 'Completed'
                 )"
 
                 Using cmd As New SqlCommand(sql, conn)
@@ -493,6 +493,59 @@ Public Class frmPOS_System
             End Using
         Catch ex As Exception
             MessageBox.Show("Failed to save sales record: " & ex.Message, "Database Error", MessageBoxButtons.OK, MessageBoxIcon.Warning)
+        End Try
+    End Sub
+
+    ' ✅ NEW: Save to Daily Sales Summary
+    Private Sub SaveToDailySalesSummary()
+        Try
+            Using conn As New SqlConnection(DBConnection.connStr)
+                Dim sql As String = "
+                IF EXISTS (SELECT 1 FROM dbo.Daily_Sales_Summary 
+                           WHERE Transaction_Date = CAST(GETDATE() AS DATE) 
+                           AND Branch_Code = @BranchCode 
+                           AND Cashier_ID = @CashierID)
+                BEGIN
+                    UPDATE dbo.Daily_Sales_Summary
+                    SET 
+                        Total_Transactions = Total_Transactions + 1,
+                        Total_Sales_Amount = Total_Sales_Amount + @SalesAmt,
+                        Total_Cash = Total_Cash + @CashAmt,
+                        Total_Online = Total_Online + @OnlineAmt,
+                        Date_Added = GETDATE()
+                    WHERE 
+                        Transaction_Date = CAST(GETDATE() AS DATE) 
+                        AND Branch_Code = @BranchCode 
+                        AND Cashier_ID = @CashierID
+                END
+                ELSE
+                BEGIN
+                    INSERT INTO dbo.Daily_Sales_Summary (
+                        Branch_Code, Cashier_ID, Cashier_Name,
+                        Transaction_Date, Total_Transactions, Total_Sales_Amount,
+                        Total_Cash, Total_Online, Date_Added
+                    )
+                    VALUES (
+                        @BranchCode, @CashierID, @CashierName,
+                        CAST(GETDATE() AS DATE), 1, @SalesAmt,
+                        @CashAmt, @OnlineAmt, GETDATE()
+                    )
+                END"
+
+                Using cmd As New SqlCommand(sql, conn)
+                    cmd.Parameters.AddWithValue("@BranchCode", UserBranchCode)
+                    cmd.Parameters.AddWithValue("@CashierID", Login.txtUsername.Text.Trim())
+                    cmd.Parameters.AddWithValue("@CashierName", LoggedInUser)
+                    cmd.Parameters.AddWithValue("@SalesAmt", finalTotal)
+                    cmd.Parameters.AddWithValue("@CashAmt", cashAmount)
+                    cmd.Parameters.AddWithValue("@OnlineAmt", onlineAmount)
+
+                    conn.Open()
+                    cmd.ExecuteNonQuery()
+                End Using
+            End Using
+        Catch ex As Exception
+            MessageBox.Show("Error updating daily sales summary: " & ex.Message, "Database Error", MessageBoxButtons.OK, MessageBoxIcon.Warning)
         End Try
     End Sub
 
@@ -525,10 +578,11 @@ Public Class frmPOS_System
         End If
 
         DeductStockFromInventory()
-
         DeterminePaymentMethod()
 
+        ' Save all records
         SaveSalesTransaction()
+        SaveToDailySalesSummary() ' ✅ Save summary
         MessageBox.Show(rtbReceipt.Text, "Official Receipt", MessageBoxButtons.OK, MessageBoxIcon.Information)
 
         ResetAll()
@@ -599,20 +653,22 @@ Public Class frmPOS_System
             MessageBox.Show("Please select an item to remove.", "No Item Selected", MessageBoxButtons.OK, MessageBoxIcon.Warning)
             Return
         End If
-        If MessageBox.Show("Remove selected item from cart?", "Confirm Action", MessageBoxButtons.YesNo, MessageBoxIcon.Question) = DialogResult.Yes Then
+        If MessageBox.Show("Remove selected item from cart?", "CodeNect System Alliance", MessageBoxButtons.YesNo, MessageBoxIcon.Question) = DialogResult.Yes Then
             dgvCart.Rows.Remove(dgvCart.SelectedRows(0))
             ComputeTotal()
         End If
     End Sub
 
     Private Sub btnCancelTransaction_Click(sender As Object, e As EventArgs) Handles btnCancelTransaction.Click
-        If MessageBox.Show("Cancel the entire transaction?", "Confirm Action", MessageBoxButtons.YesNo, MessageBoxIcon.Question) = DialogResult.Yes Then
+        If MessageBox.Show("Cancel the entire transaction?", "CodeNect System Alliance", MessageBoxButtons.YesNo, MessageBoxIcon.Question) = DialogResult.Yes Then
             ResetAll()
         End If
     End Sub
 
     Private Sub btnExit_Click(sender As Object, e As EventArgs) Handles btnExit.Click
-        Me.Close()
+        If MessageBox.Show("Are you sure you want to exit the application?", "CodeNect System Alliance", MessageBoxButtons.YesNo, MessageBoxIcon.Question) = DialogResult.Yes Then
+            Application.Restart()
+        End If
     End Sub
 
     Private Sub ResetAll()

@@ -120,16 +120,6 @@ Public Class DashBoard
         frmBottom.Show()
     End Sub
 
-    Private Sub ToolStripButton1_Click(sender As Object, e As EventArgs) Handles ToolStripButton1.Click
-        Panel2.Controls.Clear()
-        Dim frmBottom As New Branch_Performance
-        frmBottom.TopLevel = False
-        frmBottom.FormBorderStyle = FormBorderStyle.None
-        frmBottom.Dock = DockStyle.Fill
-        Panel2.Controls.Add(frmBottom)
-        frmBottom.Show()
-    End Sub
-
     Private Sub ToolStripMenuItem4_Click(sender As Object, e As EventArgs)
         Panel2.Controls.Clear()
         Dim frmBottom As New Ordering_Reports
@@ -231,6 +221,27 @@ Public Class DashBoard
         RTV.lbltransactiontype.Text = "RETURN TO VENDOR"
         RTV.Show()
     End Sub
+
+    Private Sub TopBranchToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles TopBranchToolStripMenuItem.Click
+        Panel2.Controls.Clear()
+        Dim frmBottom As New Branch_Performance
+        frmBottom.TopLevel = False
+        frmBottom.FormBorderStyle = FormBorderStyle.None
+        frmBottom.Dock = DockStyle.Fill
+        Panel2.Controls.Add(frmBottom)
+        frmBottom.Show()
+    End Sub
+
+    Private Sub SalesTransactionsToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles SalesTransactionsToolStripMenuItem.Click
+        Panel2.Controls.Clear()
+        Dim Sales As New frmDailySalesSummary
+        Sales.TopLevel = False
+        Sales.FormBorderStyle = FormBorderStyle.None
+        Sales.Dock = DockStyle.Fill
+        Panel2.Controls.Add(Sales)
+        Sales.Show()
+    End Sub
+
 #End Region
 
 End Class

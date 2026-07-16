@@ -387,6 +387,18 @@
     <Compile Include="Sales\Branch_Performance.vb">
       <SubType>Form</SubType>
     </Compile>
+    <Compile Include="Sales\frmDailySalesSummary.Designer.vb">
+      <DependentUpon>frmDailySalesSummary.vb</DependentUpon>
+    </Compile>
+    <Compile Include="Sales\frmDailySalesSummary.vb">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Sales\frmSalesTransactions.Designer.vb">
+      <DependentUpon>frmSalesTransactions.vb</DependentUpon>
+    </Compile>
+    <Compile Include="Sales\frmSalesTransactions.vb">
+      <SubType>Form</SubType>
+    </Compile>
     <Compile Include="ShelfTag_Printer.Designer.vb">
       <DependentUpon>ShelfTag_Printer.vb</DependentUpon>
     </Compile>
@@ -569,6 +581,12 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Sales\Branch_Performance.resx">
       <DependentUpon>Branch_Performance.vb</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Sales\frmDailySalesSummary.resx">
+      <DependentUpon>frmDailySalesSummary.vb</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Sales\frmSalesTransactions.resx">
+      <DependentUpon>frmSalesTransactions.vb</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="ShelfTag_Printer.resx">
       <DependentUpon>ShelfTag_Printer.vb</DependentUpon>
