@@ -327,6 +327,12 @@
     <Compile Include="Pos System\frmCash_Declaration.vb">
       <SubType>Form</SubType>
     </Compile>
+    <Compile Include="Pos System\frmHold_Transaction.Designer.vb">
+      <DependentUpon>frmHold_Transaction.vb</DependentUpon>
+    </Compile>
+    <Compile Include="Pos System\frmHold_Transaction.vb">
+      <SubType>Form</SubType>
+    </Compile>
     <Compile Include="Pos System\frmOnlinePayment.Designer.vb">
       <DependentUpon>frmOnlinePayment.vb</DependentUpon>
     </Compile>
@@ -557,6 +563,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Pos System\frmCash_Declaration.resx">
       <DependentUpon>frmCash_Declaration.vb</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Pos System\frmHold_Transaction.resx">
+      <DependentUpon>frmHold_Transaction.vb</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Pos System\frmOnlinePayment.resx">
       <DependentUpon>frmOnlinePayment.vb</DependentUpon>

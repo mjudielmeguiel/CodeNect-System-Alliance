@@ -20,21 +20,18 @@ Public Class frmPOS_System
     Private totalPaid As Decimal = 0
     Private paymentDetails As New List(Of String)()
 
-    Private paymentMethod As String = "Cash" ' Default
+    ' ✅ Malinaw na pagtukoy ng paraan ng pagbabayad
+    Private paymentMethod As String = "Cash"
     Private cashAmount As Decimal = 0
     Private onlineAmount As Decimal = 0
 
     Private Sub frmPOS_System_FormClosing(sender As Object, e As FormClosingEventArgs) Handles MyBase.FormClosing
-        ' ✅ Siguradong magiging OFFLINE bago tuluyang magsara
         SetUserStatus("OFFLINE")
     End Sub
 
-    ' ✅ I-update ang status ng user sa database
-    ' ✅ Function para palitan ang status ng user
     Private Sub SetUserStatus(status As String)
         Try
             Using conn As New SqlConnection(DBConnection.connStr)
-                ' Eksaktong pangalan ng column base sa table mo: STATUS, LAST_LOGIN_DATETIME, USERNAME
                 Dim sql As String = "
                 UPDATE dbo.User_Accounts 
                 SET STATUS = @NewStatus, 
@@ -43,7 +40,7 @@ Public Class frmPOS_System
 
                 Using cmd As New SqlCommand(sql, conn)
                     cmd.Parameters.AddWithValue("@NewStatus", status)
-                    cmd.Parameters.AddWithValue("@User", Login.txtUsername.Text.Trim()) ' Siguradong tama ang username
+                    cmd.Parameters.AddWithValue("@User", Login.txtUsername.Text.Trim())
                     conn.Open()
                     cmd.ExecuteNonQuery()
                 End Using
@@ -54,7 +51,7 @@ Public Class frmPOS_System
     End Sub
 
     Private Sub DeterminePaymentMethod()
-        ' Reset values first
+        ' I-reset muna ang mga halaga
         paymentMethod = "Cash"
         cashAmount = 0
         onlineAmount = 0
@@ -69,13 +66,13 @@ Public Class frmPOS_System
             End If
         Next
 
-        ' Decide final payment type
+        ' ✅ Tukuyin kung anong klase ng pagbabayad
         If cashAmount > 0 AndAlso onlineAmount > 0 Then
-            paymentMethod = "Split (Cash + Online)"
+            paymentMethod = "Split Payment (Cash + Online)"
         ElseIf onlineAmount > 0 Then
-            paymentMethod = "Online"
+            paymentMethod = "Online Payment"
         Else
-            paymentMethod = "Cash"
+            paymentMethod = "Cash Payment"
         End If
     End Sub
 
@@ -269,14 +266,12 @@ Public Class frmPOS_System
     End Function
 
     Private Sub dgvCart_KeyDown(sender As Object, e As KeyEventArgs) Handles dgvCart.KeyDown
-        ' When Enter is pressed and a row is selected
         If e.KeyCode = Keys.Enter AndAlso dgvCart.SelectedRows.Count > 0 Then
-            e.SuppressKeyPress = True ' Prevent default beep/action
+            e.SuppressKeyPress = True
 
             Dim row As DataGridViewRow = dgvCart.SelectedRows(0)
 
             Using frmQty As New frmProductQTY()
-                ' Pass the required data
                 frmQty.Barcode = row.Cells("Barcode").Value.ToString().Trim()
                 frmQty.CurrentQty = CInt(row.Cells("Qty").Value)
 
@@ -284,11 +279,9 @@ Public Class frmPOS_System
                     Dim newQuantity As Integer = frmQty.CurrentQty
                     Dim price As Decimal = CDec(row.Cells("Price").Value)
 
-                    ' Update the row
                     row.Cells("Qty").Value = newQuantity
                     row.Cells("SubTotal").Value = Math.Round(price * newQuantity, 2)
 
-                    ' Recalculate total
                     ComputeTotal()
                 End If
             End Using
@@ -387,6 +380,13 @@ Public Class frmPOS_System
         sb.AppendLine("----------------------------------------")
 
         sb.AppendLine($"TOTAL : {totalAmount,20:N2}")
+
+        ' ✅ Ipakita ang paraan ng pagbabayad sa resibo
+        DeterminePaymentMethod()
+        sb.AppendLine($"PAYMENT METHOD: {paymentMethod}")
+        If cashAmount > 0 Then sb.AppendLine($"Cash Paid: {cashAmount,18:N2}")
+        If onlineAmount > 0 Then sb.AppendLine($"Online Paid: {onlineAmount,16:N2}")
+
         sb.AppendLine($"Amount Paid : {amountPaid,12:N2}")
         sb.AppendLine($"Remaining Balance : {remainingBalance,6:N2}")
         sb.AppendLine($"Change : {changeAmount,20:N2}")
@@ -446,7 +446,6 @@ Public Class frmPOS_System
         totalPaid = Math.Round(totalPaid + applyAmt, 2)
         paymentDetails.Add($"Cash: ₱{applyAmt:N2}")
 
-        ' ✅ SAVE CASH PAYMENT TO DATABASE
         SaveCashPaymentToDB(applyAmt)
 
         txtAmountInput.Clear()
@@ -477,6 +476,9 @@ Public Class frmPOS_System
 
     Private Sub SaveSalesTransaction()
         Try
+            ' ✅ Siguraduhin na tama ang pagtukoy ng paraan ng pagbabayad bago i-save
+            DeterminePaymentMethod()
+
             Using conn As New SqlConnection(DBConnection.connStr)
                 Dim vatable = Math.Round(totalAmount / 1.12D, 2)
                 Dim vatAmt = Math.Round(totalAmount - vatable, 2)
@@ -484,20 +486,20 @@ Public Class frmPOS_System
                 Dim discountType = If(discountPercent > 0, "PWD / Senior", "None")
 
                 Dim sql As String = "
-                INSERT INTO dbo.Sales_Transactions (
-                    Transaction_ID, Branch_Code, Cashier_ID, Cashier_Name,
-                    Transaction_Date, Transaction_Time, Item_Count, Subtotal_Amount, VATable_Amount,
-                    VAT_Amount, Discount_Type, Discount_Percent, Discount_Amount,
-                    Amount_Due, Amount_Paid, Cash_Amount, Online_Amount,
-                    Change_Amount, Payment_Method, Status
-                )
-                VALUES (
-                    @TransID, @BranchCode, @CashierID, @CashierName,
-                    CAST(GETDATE() AS DATE), CAST(GETDATE() AS TIME), @ItemCount, @Subtotal, @VATable,
-                    @VAT, @DiscType, @DiscPercent, @DiscAmount,
-                    @AmountDue, @AmountPaid, @CashAmt, @OnlineAmt,
-                    @Change, @PaymentMethod, 'Completed'
-                )"
+             INSERT INTO dbo.Sales_Transactions (
+                 Transaction_ID, Branch_Code, Cashier_ID, Cashier_Name,
+                 Transaction_Date, Transaction_Time, Item_Count, Subtotal_Amount, VATable_Amount,
+                 VAT_Amount, Discount_Type, Discount_Percent, Discount_Amount,
+                 Amount_Due, Amount_Paid, Cash_Amount, Online_Amount,
+                 Change_Amount, Payment_Method, Status
+             )
+             VALUES (
+                 @TransID, @BranchCode, @CashierID, @CashierName,
+                 CAST(GETDATE() AS DATE), CAST(GETDATE() AS TIME), @ItemCount, @Subtotal, @VATable,
+                 @VAT, @DiscType, @DiscPercent, @DiscAmount,
+                 @AmountDue, @AmountPaid, @CashAmt, @OnlineAmt,
+                 @Change, @PaymentMethod, 'Completed'
+             )"
 
                 Using cmd As New SqlCommand(sql, conn)
                     cmd.Parameters.AddWithValue("@TransID", currentOrderID)
@@ -520,6 +522,19 @@ Public Class frmPOS_System
 
                     conn.Open()
                     cmd.ExecuteNonQuery()
+
+                    ' ✅ AUTOMATICALLY UPDATE BRANCH TOTAL SALES
+                    Dim updateSalesSql As String = "
+                     UPDATE dbo.Branches
+                     SET SALES = ISNULL(SALES, 0) + @AddAmount
+                     WHERE RTRIM(LTRIM(UPPER(BRANCH_ID))) = RTRIM(LTRIM(UPPER(@BranchCode)))
+                 "
+                    Using cmdUpdate As New SqlCommand(updateSalesSql, conn)
+                        cmdUpdate.Parameters.AddWithValue("@AddAmount", finalTotal)
+                        cmdUpdate.Parameters.AddWithValue("@BranchCode", UserBranchCode)
+                        cmdUpdate.ExecuteNonQuery()
+                    End Using
+
                 End Using
             End Using
         Catch ex As Exception
@@ -527,7 +542,6 @@ Public Class frmPOS_System
         End Try
     End Sub
 
-    ' ✅ NEW: Save to Daily Sales Summary
     Private Sub SaveToDailySalesSummary()
         Try
             Using conn As New SqlConnection(DBConnection.connStr)
@@ -598,7 +612,6 @@ Public Class frmPOS_System
 
         Dim changeAmount As Decimal = Math.Max(0, Math.Round(totalNowPaid - finalTotal, 2))
 
-        ' Finalize payment
         If currentInput > 0 Then
             Dim applyAmt As Decimal = Math.Min(currentInput, finalTotal - totalPaid)
             If applyAmt > 0 Then
@@ -611,9 +624,8 @@ Public Class frmPOS_System
         DeductStockFromInventory()
         DeterminePaymentMethod()
 
-        ' Save all records
         SaveSalesTransaction()
-        SaveToDailySalesSummary() ' ✅ Save summary
+        SaveToDailySalesSummary()
         MessageBox.Show(rtbReceipt.Text, "Official Receipt", MessageBoxButtons.OK, MessageBoxIcon.Information)
 
         ResetAll()
@@ -665,17 +677,14 @@ Public Class frmPOS_System
     End Sub
 
     Private Sub btnDiscount_Click(sender As Object, e As EventArgs) Handles btnDiscount.Click
-        ' Check if there are items in the cart first
         If dgvCart.Rows.Count = 0 Then
             MessageBox.Show("No items in the cart to apply discount.", "Empty Transaction", MessageBoxButtons.OK, MessageBoxIcon.Warning)
             Return
         End If
 
         Dim frmDisc As New frmPWDDiscount()
-
         frmDisc.TransactionTotal = totalAmount
         frmDisc.ORNumber = currentOrderID
-
         frmDisc.ShowDialog()
     End Sub
 
@@ -698,9 +707,9 @@ Public Class frmPOS_System
 
     Private Sub btnExit_Click(sender As Object, e As EventArgs) Handles btnExit.Click
         If MessageBox.Show("Are you sure you want to exit/logout?", "Confirm", MessageBoxButtons.YesNo, MessageBoxIcon.Question) = DialogResult.Yes Then
-            SetUserStatus("OFFLINE") ' ✅ I-set muna bago umalis
+            SetUserStatus("OFFLINE")
             Me.Hide()
-            Login.Show() ' o Application.Exit() kung gusto mong isara buong sistema
+            Login.Show()
         End If
     End Sub
 
@@ -724,10 +733,20 @@ Public Class frmPOS_System
         finalTotal = 0
         totalPaid = 0
         paymentDetails.Clear()
+        cashAmount = 0
+        onlineAmount = 0
+        paymentMethod = "Cash"
         currentOrderID = ""
     End Sub
 
     Private Sub Button1_Click(sender As Object, e As EventArgs) Handles Button1.Click
         frmCash_Declaration.Show()
     End Sub
+
+    Private Sub Button2_Click(sender As Object, e As EventArgs) Handles Button2.Click
+        frmHold_Transaction.Show()
+        Me.Enabled = False
+        frmHold_Transaction.TopMost = True
+    End Sub
+
 End Class
