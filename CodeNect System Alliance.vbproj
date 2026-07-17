@@ -279,6 +279,12 @@
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="DBConnection.vb" />
+    <Compile Include="Discounts\frmDiscountRecords.Designer.vb">
+      <DependentUpon>frmDiscountRecords.vb</DependentUpon>
+    </Compile>
+    <Compile Include="Discounts\frmDiscountRecords.vb">
+      <SubType>Form</SubType>
+    </Compile>
     <Compile Include="frmConnectionSettings.Designer.vb">
       <DependentUpon>frmConnectionSettings.vb</DependentUpon>
     </Compile>
@@ -313,12 +319,6 @@
       <DependentUpon>Stock_Ordering.vb</DependentUpon>
     </Compile>
     <Compile Include="Ordering\Stock_Ordering.vb">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="Ordering\Transaction_Details.Designer.vb">
-      <DependentUpon>Transaction_Details.vb</DependentUpon>
-    </Compile>
-    <Compile Include="Ordering\Transaction_Details.vb">
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="Pos System\frmCash_Declaration.Designer.vb">
@@ -534,6 +534,9 @@
     <EmbeddedResource Include="Branch\frmBranch_Info.resx">
       <DependentUpon>frmBranch_Info.vb</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="Discounts\frmDiscountRecords.resx">
+      <DependentUpon>frmDiscountRecords.vb</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="frmConnectionSettings.resx">
       <DependentUpon>frmConnectionSettings.vb</DependentUpon>
     </EmbeddedResource>
@@ -551,9 +554,6 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Ordering\Stock_Ordering.resx">
       <DependentUpon>Stock_Ordering.vb</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Ordering\Transaction_Details.resx">
-      <DependentUpon>Transaction_Details.vb</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Pos System\frmCash_Declaration.resx">
       <DependentUpon>frmCash_Declaration.vb</DependentUpon>

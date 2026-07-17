@@ -24,22 +24,22 @@ Partial Class frmDailySalesSummary
     Private Sub InitializeComponent()
         Dim Label2 As System.Windows.Forms.Label
         Dim Label1 As System.Windows.Forms.Label
-        Dim STOCK_AVAILABLELabel As System.Windows.Forms.Label
-        Dim DataGridViewCellStyle1 As System.Windows.Forms.DataGridViewCellStyle = New System.Windows.Forms.DataGridViewCellStyle()
-        Dim DataGridViewCellStyle2 As System.Windows.Forms.DataGridViewCellStyle = New System.Windows.Forms.DataGridViewCellStyle()
-        Dim DataGridViewCellStyle3 As System.Windows.Forms.DataGridViewCellStyle = New System.Windows.Forms.DataGridViewCellStyle()
+        Dim DataGridViewCellStyle4 As System.Windows.Forms.DataGridViewCellStyle = New System.Windows.Forms.DataGridViewCellStyle()
+        Dim DataGridViewCellStyle5 As System.Windows.Forms.DataGridViewCellStyle = New System.Windows.Forms.DataGridViewCellStyle()
+        Dim DataGridViewCellStyle6 As System.Windows.Forms.DataGridViewCellStyle = New System.Windows.Forms.DataGridViewCellStyle()
         Dim resources As System.ComponentModel.ComponentResourceManager = New System.ComponentModel.ComponentResourceManager(GetType(frmDailySalesSummary))
+        Dim STOCK_AVAILABLELabel As System.Windows.Forms.Label
         Me.dgvSummary = New System.Windows.Forms.DataGridView()
         Me.btnExport = New System.Windows.Forms.Button()
-        Me.txtSearch = New System.Windows.Forms.TextBox()
         Me.btnLoad = New System.Windows.Forms.Button()
         Me.Panel1 = New System.Windows.Forms.Panel()
-        Me.lblGrandTotal = New System.Windows.Forms.Label()
+        Me.cboBranch = New System.Windows.Forms.ComboBox()
         Me.btnReset = New System.Windows.Forms.Button()
         Me.dtpTo = New System.Windows.Forms.DateTimePicker()
         Me.dtpFrom = New System.Windows.Forms.DateTimePicker()
+        Me.txtSearch = New System.Windows.Forms.TextBox()
+        Me.lblGrandTotal = New System.Windows.Forms.Label()
         Me.cboCashier = New System.Windows.Forms.ComboBox()
-        Me.cboBranch = New System.Windows.Forms.ComboBox()
         Label2 = New System.Windows.Forms.Label()
         Label1 = New System.Windows.Forms.Label()
         STOCK_AVAILABLELabel = New System.Windows.Forms.Label()
@@ -67,15 +67,6 @@ Partial Class frmDailySalesSummary
         Label1.TabIndex = 272
         Label1.Text = "Start:"
         '
-        'STOCK_AVAILABLELabel
-        '
-        STOCK_AVAILABLELabel.AutoSize = True
-        STOCK_AVAILABLELabel.Location = New System.Drawing.Point(16, 23)
-        STOCK_AVAILABLELabel.Name = "STOCK_AVAILABLELabel"
-        STOCK_AVAILABLELabel.Size = New System.Drawing.Size(44, 13)
-        STOCK_AVAILABLELabel.TabIndex = 271
-        STOCK_AVAILABLELabel.Text = "Search:"
-        '
         'dgvSummary
         '
         Me.dgvSummary.AllowUserToAddRows = False
@@ -85,34 +76,34 @@ Partial Class frmDailySalesSummary
             Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
         Me.dgvSummary.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.Fill
         Me.dgvSummary.AutoSizeRowsMode = System.Windows.Forms.DataGridViewAutoSizeRowsMode.AllCells
-        DataGridViewCellStyle1.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft
-        DataGridViewCellStyle1.BackColor = System.Drawing.SystemColors.Control
-        DataGridViewCellStyle1.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        DataGridViewCellStyle1.ForeColor = System.Drawing.SystemColors.WindowText
-        DataGridViewCellStyle1.SelectionBackColor = System.Drawing.SystemColors.Highlight
-        DataGridViewCellStyle1.SelectionForeColor = System.Drawing.SystemColors.HighlightText
-        DataGridViewCellStyle1.WrapMode = System.Windows.Forms.DataGridViewTriState.[True]
-        Me.dgvSummary.ColumnHeadersDefaultCellStyle = DataGridViewCellStyle1
+        DataGridViewCellStyle4.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft
+        DataGridViewCellStyle4.BackColor = System.Drawing.SystemColors.Control
+        DataGridViewCellStyle4.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        DataGridViewCellStyle4.ForeColor = System.Drawing.SystemColors.WindowText
+        DataGridViewCellStyle4.SelectionBackColor = System.Drawing.SystemColors.Highlight
+        DataGridViewCellStyle4.SelectionForeColor = System.Drawing.SystemColors.HighlightText
+        DataGridViewCellStyle4.WrapMode = System.Windows.Forms.DataGridViewTriState.[True]
+        Me.dgvSummary.ColumnHeadersDefaultCellStyle = DataGridViewCellStyle4
         Me.dgvSummary.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize
-        DataGridViewCellStyle2.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft
-        DataGridViewCellStyle2.BackColor = System.Drawing.SystemColors.Window
-        DataGridViewCellStyle2.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        DataGridViewCellStyle2.ForeColor = System.Drawing.SystemColors.ControlText
-        DataGridViewCellStyle2.SelectionBackColor = System.Drawing.SystemColors.Highlight
-        DataGridViewCellStyle2.SelectionForeColor = System.Drawing.SystemColors.HighlightText
-        DataGridViewCellStyle2.WrapMode = System.Windows.Forms.DataGridViewTriState.[False]
-        Me.dgvSummary.DefaultCellStyle = DataGridViewCellStyle2
+        DataGridViewCellStyle5.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft
+        DataGridViewCellStyle5.BackColor = System.Drawing.SystemColors.Window
+        DataGridViewCellStyle5.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        DataGridViewCellStyle5.ForeColor = System.Drawing.SystemColors.ControlText
+        DataGridViewCellStyle5.SelectionBackColor = System.Drawing.SystemColors.Highlight
+        DataGridViewCellStyle5.SelectionForeColor = System.Drawing.SystemColors.HighlightText
+        DataGridViewCellStyle5.WrapMode = System.Windows.Forms.DataGridViewTriState.[False]
+        Me.dgvSummary.DefaultCellStyle = DataGridViewCellStyle5
         Me.dgvSummary.Location = New System.Drawing.Point(12, 12)
         Me.dgvSummary.Name = "dgvSummary"
         Me.dgvSummary.ReadOnly = True
-        DataGridViewCellStyle3.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft
-        DataGridViewCellStyle3.BackColor = System.Drawing.SystemColors.Control
-        DataGridViewCellStyle3.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        DataGridViewCellStyle3.ForeColor = System.Drawing.SystemColors.WindowText
-        DataGridViewCellStyle3.SelectionBackColor = System.Drawing.SystemColors.Highlight
-        DataGridViewCellStyle3.SelectionForeColor = System.Drawing.SystemColors.HighlightText
-        DataGridViewCellStyle3.WrapMode = System.Windows.Forms.DataGridViewTriState.[True]
-        Me.dgvSummary.RowHeadersDefaultCellStyle = DataGridViewCellStyle3
+        DataGridViewCellStyle6.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft
+        DataGridViewCellStyle6.BackColor = System.Drawing.SystemColors.Control
+        DataGridViewCellStyle6.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        DataGridViewCellStyle6.ForeColor = System.Drawing.SystemColors.WindowText
+        DataGridViewCellStyle6.SelectionBackColor = System.Drawing.SystemColors.Highlight
+        DataGridViewCellStyle6.SelectionForeColor = System.Drawing.SystemColors.HighlightText
+        DataGridViewCellStyle6.WrapMode = System.Windows.Forms.DataGridViewTriState.[True]
+        Me.dgvSummary.RowHeadersDefaultCellStyle = DataGridViewCellStyle6
         Me.dgvSummary.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect
         Me.dgvSummary.Size = New System.Drawing.Size(1342, 666)
         Me.dgvSummary.TabIndex = 228
@@ -134,17 +125,6 @@ Partial Class frmDailySalesSummary
         Me.btnExport.TextAlign = System.Drawing.ContentAlignment.MiddleRight
         Me.btnExport.TextImageRelation = System.Windows.Forms.TextImageRelation.ImageBeforeText
         Me.btnExport.UseVisualStyleBackColor = False
-        '
-        'txtSearch
-        '
-        Me.txtSearch.Anchor = CType((System.Windows.Forms.AnchorStyles.Left Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
-        Me.txtSearch.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle
-        Me.txtSearch.Font = New System.Drawing.Font("Microsoft Sans Serif", 12.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.txtSearch.Location = New System.Drawing.Point(65, 28)
-        Me.txtSearch.Margin = New System.Windows.Forms.Padding(2)
-        Me.txtSearch.Name = "txtSearch"
-        Me.txtSearch.Size = New System.Drawing.Size(146, 26)
-        Me.txtSearch.TabIndex = 212
         '
         'btnLoad
         '
@@ -186,14 +166,15 @@ Partial Class frmDailySalesSummary
         Me.Panel1.Size = New System.Drawing.Size(1342, 72)
         Me.Panel1.TabIndex = 227
         '
-        'lblGrandTotal
+        'cboBranch
         '
-        Me.lblGrandTotal.AutoSize = True
-        Me.lblGrandTotal.Location = New System.Drawing.Point(216, 23)
-        Me.lblGrandTotal.Name = "lblGrandTotal"
-        Me.lblGrandTotal.Size = New System.Drawing.Size(39, 13)
-        Me.lblGrandTotal.TabIndex = 278
-        Me.lblGrandTotal.Text = "Label3"
+        Me.cboBranch.Font = New System.Drawing.Font("Microsoft Sans Serif", 12.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.cboBranch.FormattingEnabled = True
+        Me.cboBranch.Items.AddRange(New Object() {"Retail Grocery Store", "Supermarket (Retail Trade)", "Food and Grocery Retail Business", "Convenience Store / Mini-Mart"})
+        Me.cboBranch.Location = New System.Drawing.Point(602, 4)
+        Me.cboBranch.Name = "cboBranch"
+        Me.cboBranch.Size = New System.Drawing.Size(302, 28)
+        Me.cboBranch.TabIndex = 229
         '
         'btnReset
         '
@@ -229,6 +210,35 @@ Partial Class frmDailySalesSummary
         Me.dtpFrom.Size = New System.Drawing.Size(226, 20)
         Me.dtpFrom.TabIndex = 274
         '
+        'txtSearch
+        '
+        Me.txtSearch.Anchor = CType((System.Windows.Forms.AnchorStyles.Left Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
+        Me.txtSearch.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle
+        Me.txtSearch.Font = New System.Drawing.Font("Microsoft Sans Serif", 12.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.txtSearch.Location = New System.Drawing.Point(65, 28)
+        Me.txtSearch.Margin = New System.Windows.Forms.Padding(2)
+        Me.txtSearch.Name = "txtSearch"
+        Me.txtSearch.Size = New System.Drawing.Size(146, 26)
+        Me.txtSearch.TabIndex = 212
+        '
+        'STOCK_AVAILABLELabel
+        '
+        STOCK_AVAILABLELabel.AutoSize = True
+        STOCK_AVAILABLELabel.Location = New System.Drawing.Point(16, 23)
+        STOCK_AVAILABLELabel.Name = "STOCK_AVAILABLELabel"
+        STOCK_AVAILABLELabel.Size = New System.Drawing.Size(44, 13)
+        STOCK_AVAILABLELabel.TabIndex = 271
+        STOCK_AVAILABLELabel.Text = "Search:"
+        '
+        'lblGrandTotal
+        '
+        Me.lblGrandTotal.AutoSize = True
+        Me.lblGrandTotal.Location = New System.Drawing.Point(216, 23)
+        Me.lblGrandTotal.Name = "lblGrandTotal"
+        Me.lblGrandTotal.Size = New System.Drawing.Size(39, 13)
+        Me.lblGrandTotal.TabIndex = 278
+        Me.lblGrandTotal.Text = "Label3"
+        '
         'cboCashier
         '
         Me.cboCashier.Font = New System.Drawing.Font("Microsoft Sans Serif", 12.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
@@ -238,16 +248,6 @@ Partial Class frmDailySalesSummary
         Me.cboCashier.Name = "cboCashier"
         Me.cboCashier.Size = New System.Drawing.Size(302, 28)
         Me.cboCashier.TabIndex = 230
-        '
-        'cboBranch
-        '
-        Me.cboBranch.Font = New System.Drawing.Font("Microsoft Sans Serif", 12.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.cboBranch.FormattingEnabled = True
-        Me.cboBranch.Items.AddRange(New Object() {"Retail Grocery Store", "Supermarket (Retail Trade)", "Food and Grocery Retail Business", "Convenience Store / Mini-Mart"})
-        Me.cboBranch.Location = New System.Drawing.Point(602, 4)
-        Me.cboBranch.Name = "cboBranch"
-        Me.cboBranch.Size = New System.Drawing.Size(302, 28)
-        Me.cboBranch.TabIndex = 229
         '
         'frmDailySalesSummary
         '
@@ -269,13 +269,13 @@ Partial Class frmDailySalesSummary
 
     Friend WithEvents dgvSummary As DataGridView
     Friend WithEvents btnExport As Button
-    Friend WithEvents txtSearch As TextBox
     Friend WithEvents btnLoad As Button
     Friend WithEvents Panel1 As Panel
-    Friend WithEvents lblGrandTotal As Label
     Friend WithEvents btnReset As Button
     Friend WithEvents dtpTo As DateTimePicker
     Friend WithEvents dtpFrom As DateTimePicker
-    Friend WithEvents cboCashier As ComboBox
     Friend WithEvents cboBranch As ComboBox
+    Friend WithEvents lblGrandTotal As Label
+    Friend WithEvents cboCashier As ComboBox
+    Friend WithEvents txtSearch As TextBox
 End Class

@@ -242,8 +242,18 @@ Public Class DashBoard
         Sales.Show()
     End Sub
 
-    Private Sub BtnTransactions_Click(sender As Object, e As EventArgs) Handles BtnTransactions.Click
+    Private Sub tsDiscounts_Click(sender As Object, e As EventArgs) Handles tsDiscounts.Click
+        Panel2.Controls.Clear()
+        Dim Discount As New frmDiscountRecords
 
+        ' Send values from your Login module
+        Discount.SetUser(Login.LoggedInUserID, Login.LoggedInBranchID)
+
+        Discount.TopLevel = False
+        Discount.FormBorderStyle = FormBorderStyle.None
+        Discount.Dock = DockStyle.Fill
+        Panel2.Controls.Add(Discount)
+        Discount.Show()
     End Sub
 
 #End Region

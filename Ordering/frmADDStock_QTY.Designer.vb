@@ -44,7 +44,7 @@ Partial Class frmADDStock_QTY
         Me.txtReceivedQty.Anchor = CType((System.Windows.Forms.AnchorStyles.Bottom Or System.Windows.Forms.AnchorStyles.Left), System.Windows.Forms.AnchorStyles)
         Me.txtReceivedQty.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle
         Me.txtReceivedQty.Font = New System.Drawing.Font("Microsoft YaHei UI", 14.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.txtReceivedQty.Location = New System.Drawing.Point(426, 329)
+        Me.txtReceivedQty.Location = New System.Drawing.Point(121, 355)
         Me.txtReceivedQty.Name = "txtReceivedQty"
         Me.txtReceivedQty.Size = New System.Drawing.Size(82, 32)
         Me.txtReceivedQty.TabIndex = 316
@@ -54,7 +54,7 @@ Partial Class frmADDStock_QTY
         Me.Label3.Anchor = CType((System.Windows.Forms.AnchorStyles.Bottom Or System.Windows.Forms.AnchorStyles.Left), System.Windows.Forms.AnchorStyles)
         Me.Label3.AutoSize = True
         Me.Label3.Font = New System.Drawing.Font("Microsoft YaHei UI", 12.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.Label3.Location = New System.Drawing.Point(514, 334)
+        Me.Label3.Location = New System.Drawing.Point(209, 360)
         Me.Label3.Name = "Label3"
         Me.Label3.Size = New System.Drawing.Size(53, 21)
         Me.Label3.TabIndex = 319
@@ -66,7 +66,7 @@ Partial Class frmADDStock_QTY
         Me.txtReturnQty.Anchor = CType((System.Windows.Forms.AnchorStyles.Bottom Or System.Windows.Forms.AnchorStyles.Left), System.Windows.Forms.AnchorStyles)
         Me.txtReturnQty.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle
         Me.txtReturnQty.Font = New System.Drawing.Font("Microsoft YaHei UI", 14.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.txtReturnQty.Location = New System.Drawing.Point(573, 329)
+        Me.txtReturnQty.Location = New System.Drawing.Point(268, 355)
         Me.txtReturnQty.Name = "txtReturnQty"
         Me.txtReturnQty.Size = New System.Drawing.Size(82, 32)
         Me.txtReturnQty.TabIndex = 317
@@ -76,7 +76,7 @@ Partial Class frmADDStock_QTY
         Me.Label1.Anchor = CType((System.Windows.Forms.AnchorStyles.Bottom Or System.Windows.Forms.AnchorStyles.Left), System.Windows.Forms.AnchorStyles)
         Me.Label1.AutoSize = True
         Me.Label1.Font = New System.Drawing.Font("Microsoft YaHei UI", 12.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.Label1.Location = New System.Drawing.Point(367, 334)
+        Me.Label1.Location = New System.Drawing.Point(62, 360)
         Me.Label1.Name = "Label1"
         Me.Label1.Size = New System.Drawing.Size(28, 21)
         Me.Label1.TabIndex = 318
@@ -88,7 +88,7 @@ Partial Class frmADDStock_QTY
         Me.lblSKU.Anchor = CType((System.Windows.Forms.AnchorStyles.Bottom Or System.Windows.Forms.AnchorStyles.Left), System.Windows.Forms.AnchorStyles)
         Me.lblSKU.AutoSize = True
         Me.lblSKU.Font = New System.Drawing.Font("Microsoft YaHei UI Light", 12.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.lblSKU.Location = New System.Drawing.Point(136, 50)
+        Me.lblSKU.Location = New System.Drawing.Point(151, 71)
         Me.lblSKU.Name = "lblSKU"
         Me.lblSKU.Size = New System.Drawing.Size(17, 21)
         Me.lblSKU.TabIndex = 321
@@ -100,7 +100,7 @@ Partial Class frmADDStock_QTY
         Me.lblBarcode.Anchor = CType((System.Windows.Forms.AnchorStyles.Bottom Or System.Windows.Forms.AnchorStyles.Left), System.Windows.Forms.AnchorStyles)
         Me.lblBarcode.AutoSize = True
         Me.lblBarcode.Font = New System.Drawing.Font("Microsoft YaHei UI Light", 12.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.lblBarcode.Location = New System.Drawing.Point(136, 9)
+        Me.lblBarcode.Location = New System.Drawing.Point(151, 30)
         Me.lblBarcode.Name = "lblBarcode"
         Me.lblBarcode.Size = New System.Drawing.Size(17, 21)
         Me.lblBarcode.TabIndex = 320
@@ -112,7 +112,7 @@ Partial Class frmADDStock_QTY
         Me.lblDescription.Anchor = CType((System.Windows.Forms.AnchorStyles.Bottom Or System.Windows.Forms.AnchorStyles.Left), System.Windows.Forms.AnchorStyles)
         Me.lblDescription.AutoSize = True
         Me.lblDescription.Font = New System.Drawing.Font("Microsoft YaHei UI Light", 12.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.lblDescription.Location = New System.Drawing.Point(136, 122)
+        Me.lblDescription.Location = New System.Drawing.Point(151, 143)
         Me.lblDescription.Name = "lblDescription"
         Me.lblDescription.Size = New System.Drawing.Size(17, 21)
         Me.lblDescription.TabIndex = 323
@@ -124,7 +124,7 @@ Partial Class frmADDStock_QTY
         Me.lblBrand.Anchor = CType((System.Windows.Forms.AnchorStyles.Bottom Or System.Windows.Forms.AnchorStyles.Left), System.Windows.Forms.AnchorStyles)
         Me.lblBrand.AutoSize = True
         Me.lblBrand.Font = New System.Drawing.Font("Microsoft YaHei UI Light", 12.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.lblBrand.Location = New System.Drawing.Point(136, 81)
+        Me.lblBrand.Location = New System.Drawing.Point(151, 102)
         Me.lblBrand.Name = "lblBrand"
         Me.lblBrand.Size = New System.Drawing.Size(17, 21)
         Me.lblBrand.TabIndex = 322
@@ -136,7 +136,7 @@ Partial Class frmADDStock_QTY
         Me.lblMaxOrderQty.Anchor = CType((System.Windows.Forms.AnchorStyles.Bottom Or System.Windows.Forms.AnchorStyles.Left), System.Windows.Forms.AnchorStyles)
         Me.lblMaxOrderQty.AutoSize = True
         Me.lblMaxOrderQty.Font = New System.Drawing.Font("Microsoft YaHei UI Light", 12.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.lblMaxOrderQty.Location = New System.Drawing.Point(136, 269)
+        Me.lblMaxOrderQty.Location = New System.Drawing.Point(151, 290)
         Me.lblMaxOrderQty.Name = "lblMaxOrderQty"
         Me.lblMaxOrderQty.Size = New System.Drawing.Size(17, 21)
         Me.lblMaxOrderQty.TabIndex = 327
@@ -148,7 +148,7 @@ Partial Class frmADDStock_QTY
         Me.lblVendor.Anchor = CType((System.Windows.Forms.AnchorStyles.Bottom Or System.Windows.Forms.AnchorStyles.Left), System.Windows.Forms.AnchorStyles)
         Me.lblVendor.AutoSize = True
         Me.lblVendor.Font = New System.Drawing.Font("Microsoft YaHei UI Light", 12.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.lblVendor.Location = New System.Drawing.Point(136, 228)
+        Me.lblVendor.Location = New System.Drawing.Point(151, 249)
         Me.lblVendor.Name = "lblVendor"
         Me.lblVendor.Size = New System.Drawing.Size(17, 21)
         Me.lblVendor.TabIndex = 326
@@ -160,7 +160,7 @@ Partial Class frmADDStock_QTY
         Me.lblPrice.Anchor = CType((System.Windows.Forms.AnchorStyles.Bottom Or System.Windows.Forms.AnchorStyles.Left), System.Windows.Forms.AnchorStyles)
         Me.lblPrice.AutoSize = True
         Me.lblPrice.Font = New System.Drawing.Font("Microsoft YaHei UI Light", 12.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.lblPrice.Location = New System.Drawing.Point(136, 197)
+        Me.lblPrice.Location = New System.Drawing.Point(151, 218)
         Me.lblPrice.Name = "lblPrice"
         Me.lblPrice.Size = New System.Drawing.Size(17, 21)
         Me.lblPrice.TabIndex = 325
@@ -172,7 +172,7 @@ Partial Class frmADDStock_QTY
         Me.lblSize.Anchor = CType((System.Windows.Forms.AnchorStyles.Bottom Or System.Windows.Forms.AnchorStyles.Left), System.Windows.Forms.AnchorStyles)
         Me.lblSize.AutoSize = True
         Me.lblSize.Font = New System.Drawing.Font("Microsoft YaHei UI Light", 12.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.lblSize.Location = New System.Drawing.Point(136, 156)
+        Me.lblSize.Location = New System.Drawing.Point(151, 177)
         Me.lblSize.Name = "lblSize"
         Me.lblSize.Size = New System.Drawing.Size(17, 21)
         Me.lblSize.TabIndex = 324
@@ -209,7 +209,7 @@ Partial Class frmADDStock_QTY
         Me.btnSubmit.ForeColor = System.Drawing.SystemColors.ControlText
         Me.btnSubmit.Image = CType(resources.GetObject("btnSubmit.Image"), System.Drawing.Image)
         Me.btnSubmit.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft
-        Me.btnSubmit.Location = New System.Drawing.Point(482, 391)
+        Me.btnSubmit.Location = New System.Drawing.Point(586, 391)
         Me.btnSubmit.Name = "btnSubmit"
         Me.btnSubmit.Size = New System.Drawing.Size(98, 47)
         Me.btnSubmit.TabIndex = 328
@@ -236,6 +236,7 @@ Partial Class frmADDStock_QTY
         Me.Controls.Add(Me.Label3)
         Me.Controls.Add(Me.txtReturnQty)
         Me.Controls.Add(Me.Label1)
+        Me.FormBorderStyle = System.Windows.Forms.FormBorderStyle.None
         Me.Name = "frmADDStock_QTY"
         Me.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen
         Me.Text = "frmADDStock_QTY"

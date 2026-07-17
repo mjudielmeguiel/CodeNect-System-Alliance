@@ -24,6 +24,35 @@ Public Class frmPOS_System
     Private cashAmount As Decimal = 0
     Private onlineAmount As Decimal = 0
 
+    Private Sub frmPOS_System_FormClosing(sender As Object, e As FormClosingEventArgs) Handles MyBase.FormClosing
+        ' ✅ Siguradong magiging OFFLINE bago tuluyang magsara
+        SetUserStatus("OFFLINE")
+    End Sub
+
+    ' ✅ I-update ang status ng user sa database
+    ' ✅ Function para palitan ang status ng user
+    Private Sub SetUserStatus(status As String)
+        Try
+            Using conn As New SqlConnection(DBConnection.connStr)
+                ' Eksaktong pangalan ng column base sa table mo: STATUS, LAST_LOGIN_DATETIME, USERNAME
+                Dim sql As String = "
+                UPDATE dbo.User_Accounts 
+                SET STATUS = @NewStatus, 
+                    LAST_LOGIN_DATETIME = GETDATE()
+                WHERE USERNAME = @User"
+
+                Using cmd As New SqlCommand(sql, conn)
+                    cmd.Parameters.AddWithValue("@NewStatus", status)
+                    cmd.Parameters.AddWithValue("@User", Login.txtUsername.Text.Trim()) ' Siguradong tama ang username
+                    conn.Open()
+                    cmd.ExecuteNonQuery()
+                End Using
+            End Using
+        Catch ex As Exception
+            MessageBox.Show("Status Update Error: " & ex.Message, "Notice", MessageBoxButtons.OK, MessageBoxIcon.Warning)
+        End Try
+    End Sub
+
     Private Sub DeterminePaymentMethod()
         ' Reset values first
         paymentMethod = "Cash"
@@ -70,6 +99,8 @@ Public Class frmPOS_System
         lblChange.Text = "0.00"
         lblRemainingBalance.Text = ""
         lblRemainingBalance.Visible = False
+
+        SetUserStatus("ONLINE")
     End Sub
 
     Private Sub GetUserBranch()
@@ -666,8 +697,10 @@ Public Class frmPOS_System
     End Sub
 
     Private Sub btnExit_Click(sender As Object, e As EventArgs) Handles btnExit.Click
-        If MessageBox.Show("Are you sure you want to exit the application?", "CodeNect System Alliance", MessageBoxButtons.YesNo, MessageBoxIcon.Question) = DialogResult.Yes Then
-            Application.Restart()
+        If MessageBox.Show("Are you sure you want to exit/logout?", "Confirm", MessageBoxButtons.YesNo, MessageBoxIcon.Question) = DialogResult.Yes Then
+            SetUserStatus("OFFLINE") ' ✅ I-set muna bago umalis
+            Me.Hide()
+            Login.Show() ' o Application.Exit() kung gusto mong isara buong sistema
         End If
     End Sub
 

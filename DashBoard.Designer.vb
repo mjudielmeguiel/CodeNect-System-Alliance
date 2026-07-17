@@ -63,7 +63,6 @@ Partial Class DashBoard
         Me.StockOrderingToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
         Me.StockTransferToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
         Me.ReturnToVendorToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
-        Me.BtnTransactions = New System.Windows.Forms.ToolStripButton()
         Me.ToolStripButton7 = New System.Windows.Forms.ToolStripDropDownButton()
         Me.Inventory = New System.Windows.Forms.ToolStripMenuItem()
         Me.Sotex = New System.Windows.Forms.ToolStripMenuItem()
@@ -87,6 +86,7 @@ Partial Class DashBoard
         Me.SalesTransactionsToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
         Me.ToolStripButton6 = New System.Windows.Forms.ToolStripButton()
         Me.Panel2 = New System.Windows.Forms.Panel()
+        Me.tsDiscounts = New System.Windows.Forms.ToolStripButton()
         Me.Panel1.SuspendLayout()
         CType(Me.userPic, System.ComponentModel.ISupportInitialize).BeginInit()
         CType(Me.adminpic, System.ComponentModel.ISupportInitialize).BeginInit()
@@ -351,7 +351,7 @@ Partial Class DashBoard
         '
         Me.ToolStrip2.BackColor = System.Drawing.SystemColors.ControlLight
         Me.ToolStrip2.ImageScalingSize = New System.Drawing.Size(32, 32)
-        Me.ToolStrip2.Items.AddRange(New System.Windows.Forms.ToolStripItem() {Me.toolbarCheckIn, Me.BtnTransactions, Me.ToolStripButton7, Me.Btn_Manage, Me.toolbarRoom, Me.ToolStripButton12, Me.TsVendolist, Me.ToolStripButton13, Me.ToolStripButton1, Me.ToolStripButton6})
+        Me.ToolStrip2.Items.AddRange(New System.Windows.Forms.ToolStripItem() {Me.toolbarCheckIn, Me.ToolStripButton7, Me.Btn_Manage, Me.toolbarRoom, Me.ToolStripButton12, Me.TsVendolist, Me.ToolStripButton13, Me.tsDiscounts, Me.ToolStripButton1, Me.ToolStripButton6})
         Me.ToolStrip2.Location = New System.Drawing.Point(0, 82)
         Me.ToolStrip2.Name = "ToolStrip2"
         Me.ToolStrip2.Size = New System.Drawing.Size(1366, 39)
@@ -389,16 +389,6 @@ Partial Class DashBoard
         Me.ReturnToVendorToolStripMenuItem.Name = "ReturnToVendorToolStripMenuItem"
         Me.ReturnToVendorToolStripMenuItem.Size = New System.Drawing.Size(166, 22)
         Me.ReturnToVendorToolStripMenuItem.Text = "Return to Vendor"
-        '
-        'BtnTransactions
-        '
-        Me.BtnTransactions.Font = New System.Drawing.Font("Segoe UI Semibold", 9.0!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.BtnTransactions.Image = CType(resources.GetObject("BtnTransactions.Image"), System.Drawing.Image)
-        Me.BtnTransactions.ImageTransparentColor = System.Drawing.Color.Magenta
-        Me.BtnTransactions.Name = "BtnTransactions"
-        Me.BtnTransactions.Size = New System.Drawing.Size(91, 36)
-        Me.BtnTransactions.Text = "  IN/OUT"
-        Me.BtnTransactions.ToolTipText = "Exit"
         '
         'ToolStripButton7
         '
@@ -521,25 +511,25 @@ Partial Class DashBoard
         'TOP1000SKUToolStripMenuItem
         '
         Me.TOP1000SKUToolStripMenuItem.Name = "TOP1000SKUToolStripMenuItem"
-        Me.TOP1000SKUToolStripMenuItem.Size = New System.Drawing.Size(174, 22)
+        Me.TOP1000SKUToolStripMenuItem.Size = New System.Drawing.Size(180, 22)
         Me.TOP1000SKUToolStripMenuItem.Text = "TOP 1000 SKU"
         '
         'B1T1ToolStripMenuItem
         '
         Me.B1T1ToolStripMenuItem.Name = "B1T1ToolStripMenuItem"
-        Me.B1T1ToolStripMenuItem.Size = New System.Drawing.Size(174, 22)
+        Me.B1T1ToolStripMenuItem.Size = New System.Drawing.Size(180, 22)
         Me.B1T1ToolStripMenuItem.Text = "BUY 1 TAKE 1"
         '
         'SALESToolStripMenuItem1
         '
         Me.SALESToolStripMenuItem1.Name = "SALESToolStripMenuItem1"
-        Me.SALESToolStripMenuItem1.Size = New System.Drawing.Size(174, 22)
+        Me.SALESToolStripMenuItem1.Size = New System.Drawing.Size(180, 22)
         Me.SALESToolStripMenuItem1.Text = "50% PROMO SALE"
         '
         'PriceUpdateToolStripMenuItem
         '
         Me.PriceUpdateToolStripMenuItem.Name = "PriceUpdateToolStripMenuItem"
-        Me.PriceUpdateToolStripMenuItem.Size = New System.Drawing.Size(174, 22)
+        Me.PriceUpdateToolStripMenuItem.Size = New System.Drawing.Size(180, 22)
         Me.PriceUpdateToolStripMenuItem.Text = "Price Update"
         '
         'ToolStripButton1
@@ -582,6 +572,16 @@ Partial Class DashBoard
         Me.Panel2.Name = "Panel2"
         Me.Panel2.Size = New System.Drawing.Size(1366, 625)
         Me.Panel2.TabIndex = 16
+        '
+        'tsDiscounts
+        '
+        Me.tsDiscounts.Font = New System.Drawing.Font("Segoe UI Semibold", 9.0!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.tsDiscounts.Image = CType(resources.GetObject("tsDiscounts.Image"), System.Drawing.Image)
+        Me.tsDiscounts.ImageTransparentColor = System.Drawing.Color.Magenta
+        Me.tsDiscounts.Name = "tsDiscounts"
+        Me.tsDiscounts.Size = New System.Drawing.Size(96, 36)
+        Me.tsDiscounts.Text = "Discounts"
+        Me.tsDiscounts.ToolTipText = "Exit"
         '
         'DashBoard
         '
@@ -668,7 +668,6 @@ Partial Class DashBoard
     Friend WithEvents PriceUpdateToolStripMenuItem As ToolStripMenuItem
     Friend WithEvents TsVendolist As ToolStripButton
     Friend WithEvents ReturnToVendorToolStripMenuItem As ToolStripMenuItem
-    Friend WithEvents BtnTransactions As ToolStripButton
     Friend WithEvents ConnectionSettingsToolStripMenuItem As ToolStripMenuItem
     Friend WithEvents Btn_Manage As ToolStripDropDownButton
     Friend WithEvents AddProductToolStripMenuItem As ToolStripMenuItem
@@ -678,4 +677,5 @@ Partial Class DashBoard
     Friend WithEvents ToolStripButton1 As ToolStripDropDownButton
     Friend WithEvents TopBranchToolStripMenuItem As ToolStripMenuItem
     Friend WithEvents SalesTransactionsToolStripMenuItem As ToolStripMenuItem
+    Friend WithEvents tsDiscounts As ToolStripButton
 End Class

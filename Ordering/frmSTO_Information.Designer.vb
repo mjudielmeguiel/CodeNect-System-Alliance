@@ -160,7 +160,7 @@ Partial Class frmSTO_Information
         '
         'txtDR
         '
-        Me.txtDR.Anchor = CType((System.Windows.Forms.AnchorStyles.Bottom Or System.Windows.Forms.AnchorStyles.Left), System.Windows.Forms.AnchorStyles)
+        Me.txtDR.Anchor = CType((System.Windows.Forms.AnchorStyles.Top Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
         Me.txtDR.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle
         Me.txtDR.Font = New System.Drawing.Font("Microsoft YaHei UI", 14.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.txtDR.Location = New System.Drawing.Point(1199, 16)
