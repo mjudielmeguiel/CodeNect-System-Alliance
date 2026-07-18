@@ -14,10 +14,10 @@ Public Class Description_Manager
         dgvProducts.AllowUserToAddRows = False
         dgvProducts.RowHeadersVisible = False
 
-        KuninAngLahatNgProdukto()
+        LoadAllProducts()
     End Sub
 
-    Private Sub KuninAngLahatNgProdukto(Optional SearchText As String = "")
+    Private Sub LoadAllProducts(Optional SearchText As String = "")
         Try
             Dim SqlQuery As String = "
                 SELECT 
@@ -26,17 +26,17 @@ Public Class Description_Manager
                     VENDOR, TOTAL, PRODUCT_IMAGE, ACCOUNT_ID, BRANCH_ID
                 FROM inv.Inventory_Master_file "
 
-            Dim mayFilter As Boolean = False
+            Dim hasFilter As Boolean = False
 
             If Not String.IsNullOrEmpty(CurrentBranchID) Then
                 SqlQuery &= " WHERE BRANCH_ID = @BranchID "
-                mayFilter = True
+                hasFilter = True
             Else
-                MessageBox.Show("Walang nakuha na Branch ID mula sa login! Ipakikita ang lahat ng produkto muna.", "Babala", MessageBoxButtons.OK, MessageBoxIcon.Warning)
+                MessageBox.Show("No Branch ID retrieved from login! Showing all products for now.", "Warning", MessageBoxButtons.OK, MessageBoxIcon.Warning)
             End If
 
             If Not String.IsNullOrWhiteSpace(SearchText) Then
-                SqlQuery &= If(mayFilter, " AND ", " WHERE ") & " 
+                SqlQuery &= If(hasFilter, " AND ", " WHERE ") & " 
                    (BARCODE LIKE '%' + @Search + '%' 
                     OR SKU LIKE '%' + @Search + '%' 
                     OR BRAND LIKE '%' + @Search + '%' 
@@ -47,8 +47,8 @@ Public Class Description_Manager
             SqlQuery &= " ORDER BY DESCRIPTIONS ASC"
 
             Dim dt As New DataTable()
-            Using koneksyon As New SqlConnection(connStr)
-                Using cmd As New SqlCommand(SqlQuery, koneksyon)
+            Using connection As New SqlConnection(connStr)
+                Using cmd As New SqlCommand(SqlQuery, connection)
 
                     If Not String.IsNullOrEmpty(CurrentBranchID) Then
                         cmd.Parameters.Add("@BranchID", SqlDbType.NVarChar, 20).Value = CurrentBranchID.Trim()
@@ -70,7 +70,7 @@ Public Class Description_Manager
                 dgvProducts.DataSource = Nothing
                 lblTotalAmount.Text = "0.00"
                 If Not String.IsNullOrEmpty(CurrentBranchID) Then
-                    MessageBox.Show("Walang produkto na nakarehistro para sa Branch ID: " & CurrentBranchID, "Walang Nahanap", MessageBoxButtons.OK, MessageBoxIcon.Information)
+                    MessageBox.Show("No products registered for Branch ID: " & CurrentBranchID, "No Records Found", MessageBoxButtons.OK, MessageBoxIcon.Information)
                 End If
                 Exit Sub
             End If
@@ -79,7 +79,7 @@ Public Class Description_Manager
                 If .Columns.Contains("BARCODE") Then .Columns("BARCODE").HeaderText = "Barcode"
                 If .Columns.Contains("SKU") Then .Columns("SKU").HeaderText = "SKU"
                 If .Columns.Contains("BRAND") Then .Columns("BRAND").HeaderText = "Brand"
-                If .Columns.Contains("DESCRIPTIONS") Then .Columns("DESCRIPTIONS").HeaderText = "Descriptions"
+                If .Columns.Contains("DESCRIPTIONS") Then .Columns("DESCRIPTIONS").HeaderText = "Description"
                 If .Columns.Contains("CATEGORY") Then .Columns("CATEGORY").HeaderText = "Category"
                 If .Columns.Contains("SIZE") Then .Columns("SIZE").HeaderText = "Size"
                 If .Columns.Contains("PRICE") Then .Columns("PRICE").HeaderText = "Price"
@@ -108,13 +108,13 @@ Public Class Description_Manager
                 If .Columns.Contains("PRODUCT_IMAGE") Then .Columns("PRODUCT_IMAGE").Visible = False
             End With
 
-            Dim Kabuuan As Decimal = 0
+            Dim GrandTotal As Decimal = 0
             For Each row As DataRow In dt.Rows
                 If Not IsDBNull(row("TOTAL")) Then
-                    Kabuuan += CDec(row("TOTAL"))
+                    GrandTotal += CDec(row("TOTAL"))
                 End If
             Next
-            lblTotalAmount.Text = Kabuuan.ToString("N2")
+            lblTotalAmount.Text = GrandTotal.ToString("N2")
 
         Catch ex As Exception
             MessageBox.Show("System Error: " & ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
@@ -124,24 +124,20 @@ Public Class Description_Manager
 
     Private Sub dgvProducts_CellDoubleClick(sender As Object, e As DataGridViewCellEventArgs) Handles dgvProducts.CellDoubleClick
         If e.RowIndex >= 0 Then
-            Dim napilingLinya As DataGridViewRow = dgvProducts.Rows(e.RowIndex)
-            Dim frmDetalye As New frmProduct_Information
-            frmDetalye.LoadDataFromGrid(napilingLinya)
-            frmDetalye.ShowDialog()
-            KuninAngLahatNgProdukto(txtSearch.Text.Trim())
+            Dim selectedRow As DataGridViewRow = dgvProducts.Rows(e.RowIndex)
+            Dim frmDetails As New frmProduct_Information
+            frmDetails.LoadDataFromGrid(selectedRow)
+            frmDetails.ShowDialog()
+            LoadAllProducts(txtSearch.Text.Trim())
         End If
     End Sub
 
     Private Sub btnRefresh_Click(sender As Object, e As EventArgs) Handles btnRefresh.Click
         txtSearch.Clear()
-        KuninAngLahatNgProdukto()
+        LoadAllProducts()
     End Sub
 
     Private Sub txtSearch_TextChanged(sender As Object, e As EventArgs) Handles txtSearch.TextChanged
-        KuninAngLahatNgProdukto(txtSearch.Text.Trim())
-    End Sub
-
-    Private Sub btnAdd_Click(sender As Object, e As EventArgs) Handles btnAdd.Click
-
+        LoadAllProducts(txtSearch.Text.Trim())
     End Sub
 End Class

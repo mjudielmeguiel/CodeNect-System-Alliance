@@ -103,7 +103,7 @@ Public Class frmPOS_System
     Private Sub GetUserBranch()
         Try
             Using conn As New SqlConnection(DBConnection.connStr)
-                Dim sql As String = "SELECT BRANCH_ID, FULL_NAME FROM dbo.User_Accounts WHERE USERNAME = @Username"
+                Dim sql As String = "SELECT BRANCH_ID, FULL_NAME, ACCOUNT_ID FROM dbo.User_Accounts WHERE USERNAME = @Username"
                 Using cmd As New SqlCommand(sql, conn)
                     cmd.Parameters.AddWithValue("@Username", LoggedInUser)
                     conn.Open()
@@ -127,7 +127,7 @@ Public Class frmPOS_System
     Private Sub GetBranchDetails()
         Try
             Using conn As New SqlConnection(DBConnection.connStr)
-                Dim sql As String = "SELECT BranchName, Address, TIN FROM dbo.Branch_Info WHERE BranchCode = @BranchCode"
+                Dim sql As String = "SELECT BRANCH AS BranchName, ADDRESS, TIN, ACCOUNT_ID FROM dbo.Branches WHERE BRANCH_ID = @BranchCode"
 
                 Using cmd As New SqlCommand(sql, conn)
                     cmd.Parameters.AddWithValue("@BranchCode", UserBranchCode)
@@ -135,7 +135,7 @@ Public Class frmPOS_System
                     Using dr As SqlDataReader = cmd.ExecuteReader()
                         If dr.Read() Then
                             BranchName = dr("BranchName").ToString().Trim()
-                            BranchAddress = dr("Address").ToString().Trim()
+                            BranchAddress = dr("ADDRESS").ToString().Trim()
                             BranchTIN = dr("TIN").ToString().Trim()
                         Else
                             BranchName = UserBranchCode & " BRANCH"
@@ -594,6 +594,80 @@ Public Class frmPOS_System
         End Try
     End Sub
 
+    ' ✅ NEW FUNCTION: SAVE TO DAILY_SALES_LOG TABLE
+    ' ✅ AYOS NA PARA SA DAILY SALES LOG
+    Private Sub SaveToDailySalesLog()
+        Try
+            Dim vatable = Math.Round(totalAmount / 1.12D, 2)
+            Dim vatAmt = Math.Round(totalAmount - vatable, 2)
+
+            ' Kunin muna ang tamang ACCOUNT_ID ng branch
+            Dim branchAccountID As String = ""
+            Using connCheck As New SqlConnection(DBConnection.connStr)
+                Dim sqlCheck As String = "SELECT ACCOUNT_ID FROM dbo.Branches WHERE RTRIM(LTRIM(UPPER(BRANCH_ID))) = RTRIM(LTRIM(UPPER(@BranchCode)))"
+                Using cmdCheck As New SqlCommand(sqlCheck, connCheck)
+                    cmdCheck.Parameters.AddWithValue("@BranchCode", UserBranchCode)
+                    connCheck.Open()
+                    Dim result = cmdCheck.ExecuteScalar()
+                    If result IsNot Nothing Then branchAccountID = result.ToString().Trim()
+                End Using
+            End Using
+
+            Using conn As New SqlConnection(DBConnection.connStr)
+                Dim sql As String = "
+                MERGE INTO dbo.Daily_Sales_Log AS Target
+                USING (
+                    SELECT 
+                        @AccountID AS ACCOUNT_ID,
+                        @BranchCode AS BRANCH_ID,
+                        @BranchName AS BRANCH_NAME,
+                        CAST(GETDATE() AS DATE) AS Transaction_Date
+                ) AS Source
+                ON Target.ACCOUNT_ID = Source.ACCOUNT_ID 
+                   AND Target.BRANCH_ID = Source.BRANCH_ID 
+                   AND Target.Transaction_Date = Source.Transaction_Date
+
+                WHEN MATCHED THEN
+                    UPDATE SET
+                        Total_Transactions = Total_Transactions + 1,
+                        Cash_Sales = ISNULL(Cash_Sales, 0) + @CashAmt,
+                        Online_Sales = ISNULL(Online_Sales, 0) + @OnlineAmt,
+                        Total_Discount = ISNULL(Total_Discount, 0) + @DiscAmt,
+                        Total_VAT = ISNULL(Total_VAT, 0) + @VatAmt,
+                        Net_Sales = ISNULL(Net_Sales, 0) + @NetAmt,
+                        Recorded_At = GETDATE()
+
+                WHEN NOT MATCHED THEN
+                    INSERT (
+                        ACCOUNT_ID, BRANCH_ID, BRANCH_NAME, Transaction_Date,
+                        Total_Transactions, Cash_Sales, Online_Sales, Total_Discount,
+                        Total_VAT, Net_Sales
+                    )
+                    VALUES (
+                        @AccountID, @BranchCode, @BranchName, Source.Transaction_Date,
+                        1, @CashAmt, @OnlineAmt, @DiscAmt, @VatAmt, @NetAmt
+                    );
+            "
+
+                Using cmd As New SqlCommand(sql, conn)
+                    cmd.Parameters.AddWithValue("@AccountID", branchAccountID)
+                    cmd.Parameters.AddWithValue("@BranchCode", UserBranchCode)
+                    cmd.Parameters.AddWithValue("@BranchName", BranchName)
+                    cmd.Parameters.AddWithValue("@CashAmt", cashAmount)
+                    cmd.Parameters.AddWithValue("@OnlineAmt", onlineAmount)
+                    cmd.Parameters.AddWithValue("@DiscAmt", discountAmount)
+                    cmd.Parameters.AddWithValue("@VatAmt", vatAmt)
+                    cmd.Parameters.AddWithValue("@NetAmt", finalTotal)
+
+                    conn.Open()
+                    cmd.ExecuteNonQuery()
+                End Using
+            End Using
+        Catch ex As Exception
+            MessageBox.Show("Error saving to Daily Sales Log: " & ex.Message, "Database Error", MessageBoxButtons.OK, MessageBoxIcon.Warning)
+        End Try
+    End Sub
+
     Private Sub btnCheckOut_Click(sender As Object, e As EventArgs) Handles btnCheckOut.Click
         If dgvCart.Rows.Count = 0 Then
             MessageBox.Show("No items in the cart.", "Empty Transaction", MessageBoxButtons.OK, MessageBoxIcon.Warning)
@@ -626,6 +700,7 @@ Public Class frmPOS_System
 
         SaveSalesTransaction()
         SaveToDailySalesSummary()
+        SaveToDailySalesLog() ' ✅ CALL NEW FUNCTION HERE
         MessageBox.Show(rtbReceipt.Text, "Official Receipt", MessageBoxButtons.OK, MessageBoxIcon.Information)
 
         ResetAll()

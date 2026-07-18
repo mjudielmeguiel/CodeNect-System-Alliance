@@ -291,10 +291,22 @@
     <Compile Include="frmConnectionSettings.vb">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="inventory\Inventory.Designer.vb">
+    <Compile Include="Reports\frmBad_Order.Designer.vb">
+      <DependentUpon>frmBad_Order.vb</DependentUpon>
+    </Compile>
+    <Compile Include="Reports\frmBad_Order.vb">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Reports\frmExpiry.Designer.vb">
+      <DependentUpon>frmExpiry.vb</DependentUpon>
+    </Compile>
+    <Compile Include="Reports\frmExpiry.vb">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Reports\Inventory.Designer.vb">
       <DependentUpon>Inventory.vb</DependentUpon>
     </Compile>
-    <Compile Include="inventory\Inventory.vb">
+    <Compile Include="Reports\Inventory.vb">
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="Ordering\frmADDStock_QTY.Designer.vb">
@@ -546,7 +558,13 @@
     <EmbeddedResource Include="frmConnectionSettings.resx">
       <DependentUpon>frmConnectionSettings.vb</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="inventory\Inventory.resx">
+    <EmbeddedResource Include="Reports\frmBad_Order.resx">
+      <DependentUpon>frmBad_Order.vb</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Reports\frmExpiry.resx">
+      <DependentUpon>frmExpiry.vb</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Reports\Inventory.resx">
       <DependentUpon>Inventory.vb</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Ordering\frmADDStock_QTY.resx">

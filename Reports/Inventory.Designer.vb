@@ -26,9 +26,6 @@ Partial Class Inventory
         Dim DataGridViewCellStyle1 As System.Windows.Forms.DataGridViewCellStyle = New System.Windows.Forms.DataGridViewCellStyle()
         Dim DataGridViewCellStyle2 As System.Windows.Forms.DataGridViewCellStyle = New System.Windows.Forms.DataGridViewCellStyle()
         Dim DataGridViewCellStyle3 As System.Windows.Forms.DataGridViewCellStyle = New System.Windows.Forms.DataGridViewCellStyle()
-        Me.Panel3 = New System.Windows.Forms.Panel()
-        Me.txtActualQty = New System.Windows.Forms.TextBox()
-        Me.txtBarcode = New System.Windows.Forms.TextBox()
         Me.Panel2 = New System.Windows.Forms.Panel()
         Me.btnCancel = New System.Windows.Forms.Button()
         Me.btnAdd = New System.Windows.Forms.Button()
@@ -48,43 +45,11 @@ Partial Class Inventory
         Me.Panel1 = New System.Windows.Forms.Panel()
         Me.lblPreparedBy = New System.Windows.Forms.Label()
         Me.dgvInventory = New System.Windows.Forms.DataGridView()
-        Me.Panel4 = New System.Windows.Forms.Panel()
-        Me.TextBox2 = New System.Windows.Forms.TextBox()
-        Me.Panel3.SuspendLayout()
         Me.Panel2.SuspendLayout()
         CType(Me.userPic, System.ComponentModel.ISupportInitialize).BeginInit()
         Me.Panel1.SuspendLayout()
         CType(Me.dgvInventory, System.ComponentModel.ISupportInitialize).BeginInit()
-        Me.Panel4.SuspendLayout()
         Me.SuspendLayout()
-        '
-        'Panel3
-        '
-        Me.Panel3.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle
-        Me.Panel3.Controls.Add(Me.txtActualQty)
-        Me.Panel3.Controls.Add(Me.txtBarcode)
-        Me.Panel3.Location = New System.Drawing.Point(12, 232)
-        Me.Panel3.Name = "Panel3"
-        Me.Panel3.Size = New System.Drawing.Size(1342, 49)
-        Me.Panel3.TabIndex = 303
-        '
-        'txtActualQty
-        '
-        Me.txtActualQty.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle
-        Me.txtActualQty.Font = New System.Drawing.Font("Microsoft Sans Serif", 12.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.txtActualQty.Location = New System.Drawing.Point(462, 12)
-        Me.txtActualQty.Name = "txtActualQty"
-        Me.txtActualQty.Size = New System.Drawing.Size(126, 26)
-        Me.txtActualQty.TabIndex = 298
-        '
-        'txtBarcode
-        '
-        Me.txtBarcode.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle
-        Me.txtBarcode.Font = New System.Drawing.Font("Microsoft Sans Serif", 12.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.txtBarcode.Location = New System.Drawing.Point(21, 12)
-        Me.txtBarcode.Name = "txtBarcode"
-        Me.txtBarcode.Size = New System.Drawing.Size(435, 26)
-        Me.txtBarcode.TabIndex = 297
         '
         'Panel2
         '
@@ -370,32 +335,12 @@ Partial Class Inventory
         Me.dgvInventory.Size = New System.Drawing.Size(1342, 414)
         Me.dgvInventory.TabIndex = 302
         '
-        'Panel4
-        '
-        Me.Panel4.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle
-        Me.Panel4.Controls.Add(Me.TextBox2)
-        Me.Panel4.Location = New System.Drawing.Point(12, 177)
-        Me.Panel4.Name = "Panel4"
-        Me.Panel4.Size = New System.Drawing.Size(504, 49)
-        Me.Panel4.TabIndex = 304
-        '
-        'TextBox2
-        '
-        Me.TextBox2.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle
-        Me.TextBox2.Font = New System.Drawing.Font("Microsoft Sans Serif", 12.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.TextBox2.Location = New System.Drawing.Point(21, 18)
-        Me.TextBox2.Name = "TextBox2"
-        Me.TextBox2.Size = New System.Drawing.Size(435, 26)
-        Me.TextBox2.TabIndex = 297
-        '
         'Inventory
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(6.0!, 13.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
         Me.ClientSize = New System.Drawing.Size(1366, 768)
-        Me.Controls.Add(Me.Panel4)
         Me.Controls.Add(Me.lblGrandTotal)
-        Me.Controls.Add(Me.Panel3)
         Me.Controls.Add(Me.Panel2)
         Me.Controls.Add(Me.Panel1)
         Me.Controls.Add(Me.dgvInventory)
@@ -404,21 +349,13 @@ Partial Class Inventory
         Me.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen
         Me.Text = "Inventory"
         Me.WindowState = System.Windows.Forms.FormWindowState.Maximized
-        Me.Panel3.ResumeLayout(False)
-        Me.Panel3.PerformLayout()
         Me.Panel2.ResumeLayout(False)
         CType(Me.userPic, System.ComponentModel.ISupportInitialize).EndInit()
         Me.Panel1.ResumeLayout(False)
         CType(Me.dgvInventory, System.ComponentModel.ISupportInitialize).EndInit()
-        Me.Panel4.ResumeLayout(False)
-        Me.Panel4.PerformLayout()
         Me.ResumeLayout(False)
 
     End Sub
-
-    Friend WithEvents Panel3 As Panel
-    Friend WithEvents txtActualQty As TextBox
-    Friend WithEvents txtBarcode As TextBox
     Friend WithEvents Panel2 As Panel
     Friend WithEvents lblGrandTotal As Label
     Friend WithEvents btnCancel As Button
@@ -438,6 +375,4 @@ Partial Class Inventory
     Friend WithEvents Panel1 As Panel
     Friend WithEvents lblPreparedBy As Label
     Friend WithEvents dgvInventory As DataGridView
-    Friend WithEvents Panel4 As Panel
-    Friend WithEvents TextBox2 As TextBox
 End Class

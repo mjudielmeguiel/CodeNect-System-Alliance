@@ -256,6 +256,13 @@ Public Class DashBoard
         Discount.Show()
     End Sub
 
+    Private Sub Bo_Click(sender As Object, e As EventArgs) Handles Bo.Click
+        Dim BO As New frmBad_Order
+        BO.Show()
+        BO.lblPreparedBy.Text = ToolStripStatusLabel1.Text 'Trim lang from Dashboard to Bad Order Form
+        BO.lblNameBranch.Text = ToolStripStatusLabel4.Text
+    End Sub
+
 #End Region
 
 End Class

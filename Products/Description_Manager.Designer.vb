@@ -33,7 +33,6 @@ Partial Class Description_Manager
         Me.btnRefresh = New System.Windows.Forms.Button()
         Me.lblTotalAmount = New System.Windows.Forms.TextBox()
         Me.Panel1 = New System.Windows.Forms.Panel()
-        Me.btnAdd = New System.Windows.Forms.Button()
         Me.dgvProducts = New System.Windows.Forms.DataGridView()
         STOCK_AVAILABLELabel = New System.Windows.Forms.Label()
         Label1 = New System.Windows.Forms.Label()
@@ -54,7 +53,7 @@ Partial Class Description_Manager
         '
         Label1.Anchor = CType((System.Windows.Forms.AnchorStyles.Top Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
         Label1.AutoSize = True
-        Label1.Location = New System.Drawing.Point(707, 17)
+        Label1.Location = New System.Drawing.Point(848, 17)
         Label1.Name = "Label1"
         Label1.Size = New System.Drawing.Size(34, 13)
         Label1.TabIndex = 272
@@ -86,7 +85,7 @@ Partial Class Description_Manager
         Me.txtSearch.Location = New System.Drawing.Point(65, 10)
         Me.txtSearch.Margin = New System.Windows.Forms.Padding(2)
         Me.txtSearch.Name = "txtSearch"
-        Me.txtSearch.Size = New System.Drawing.Size(637, 26)
+        Me.txtSearch.Size = New System.Drawing.Size(778, 26)
         Me.txtSearch.TabIndex = 212
         '
         'btnRefresh
@@ -112,7 +111,7 @@ Partial Class Description_Manager
         Me.lblTotalAmount.Anchor = CType((System.Windows.Forms.AnchorStyles.Top Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
         Me.lblTotalAmount.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle
         Me.lblTotalAmount.Font = New System.Drawing.Font("Microsoft Sans Serif", 12.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.lblTotalAmount.Location = New System.Drawing.Point(756, 10)
+        Me.lblTotalAmount.Location = New System.Drawing.Point(897, 10)
         Me.lblTotalAmount.Margin = New System.Windows.Forms.Padding(2)
         Me.lblTotalAmount.Name = "lblTotalAmount"
         Me.lblTotalAmount.Size = New System.Drawing.Size(157, 26)
@@ -123,7 +122,6 @@ Partial Class Description_Manager
         Me.Panel1.Anchor = CType(((System.Windows.Forms.AnchorStyles.Bottom Or System.Windows.Forms.AnchorStyles.Left) _
             Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
         Me.Panel1.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle
-        Me.Panel1.Controls.Add(Me.btnAdd)
         Me.Panel1.Controls.Add(Label1)
         Me.Panel1.Controls.Add(STOCK_AVAILABLELabel)
         Me.Panel1.Controls.Add(Me.Button6)
@@ -134,24 +132,6 @@ Partial Class Description_Manager
         Me.Panel1.Name = "Panel1"
         Me.Panel1.Size = New System.Drawing.Size(1342, 48)
         Me.Panel1.TabIndex = 219
-        '
-        'btnAdd
-        '
-        Me.btnAdd.Anchor = CType((System.Windows.Forms.AnchorStyles.Top Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
-        Me.btnAdd.BackColor = System.Drawing.Color.Maroon
-        Me.btnAdd.BackgroundImageLayout = System.Windows.Forms.ImageLayout.None
-        Me.btnAdd.FlatStyle = System.Windows.Forms.FlatStyle.Flat
-        Me.btnAdd.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.btnAdd.ForeColor = System.Drawing.SystemColors.ButtonHighlight
-        Me.btnAdd.Image = CType(resources.GetObject("btnAdd.Image"), System.Drawing.Image)
-        Me.btnAdd.Location = New System.Drawing.Point(918, 5)
-        Me.btnAdd.Name = "btnAdd"
-        Me.btnAdd.Size = New System.Drawing.Size(135, 37)
-        Me.btnAdd.TabIndex = 273
-        Me.btnAdd.Text = " Import"
-        Me.btnAdd.TextAlign = System.Drawing.ContentAlignment.MiddleRight
-        Me.btnAdd.TextImageRelation = System.Windows.Forms.TextImageRelation.ImageBeforeText
-        Me.btnAdd.UseVisualStyleBackColor = False
         '
         'dgvProducts
         '
@@ -216,5 +196,4 @@ Partial Class Description_Manager
     Friend WithEvents Panel1 As Panel
     Friend WithEvents DataGridViewTextBoxColumn2 As DataGridViewTextBoxColumn
     Friend WithEvents dgvProducts As DataGridView
-    Friend WithEvents btnAdd As Button
 End Class

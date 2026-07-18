@@ -177,12 +177,12 @@ Public Class ADD_Branch
 
     Private Sub btnSave_Click(sender As Object, e As EventArgs) Handles btnSave.Click
         If String.IsNullOrWhiteSpace(txtBranch.Text) Or txtBranch.Text = ph_Branch Or
-           String.IsNullOrWhiteSpace(txtTIN.Text) Or txtTIN.Text = ph_TIN Or
-           String.IsNullOrWhiteSpace(txtAddress.Text) Or txtAddress.Text = ph_Address Or
-           String.IsNullOrWhiteSpace(txtEmail.Text) Or txtEmail.Text = ph_Email Or
-           String.IsNullOrWhiteSpace(txtContact.Text) Or txtContact.Text = ph_Contact Or
-           String.IsNullOrWhiteSpace(txtManager.Text) Or txtManager.Text = ph_Manager Or
-           String.IsNullOrWhiteSpace(cmbBusinessType.Text) Or cmbBusinessType.Text = ph_BusinessType Then
+       String.IsNullOrWhiteSpace(txtTIN.Text) Or txtTIN.Text = ph_TIN Or
+       String.IsNullOrWhiteSpace(txtAddress.Text) Or txtAddress.Text = ph_Address Or
+       String.IsNullOrWhiteSpace(txtEmail.Text) Or txtEmail.Text = ph_Email Or
+       String.IsNullOrWhiteSpace(txtContact.Text) Or txtContact.Text = ph_Contact Or
+       String.IsNullOrWhiteSpace(txtManager.Text) Or txtManager.Text = ph_Manager Or
+       String.IsNullOrWhiteSpace(cmbBusinessType.Text) Or cmbBusinessType.Text = ph_BusinessType Then
             MessageBox.Show("Please fill in all required fields.", "Warning", MessageBoxButtons.OK, MessageBoxIcon.Warning)
             Return
         End If
@@ -193,6 +193,7 @@ Public Class ADD_Branch
         Try
             Using conn As New SqlConnection(connStr)
                 conn.Open()
+                ' ✅ TINANGGAL NA ANG TIN_REGISTERED SA QUERY
                 Dim cmd As New SqlCommand("INSERT INTO Branches (ACCOUNT_ID, ACCOUNT, BRANCH_ID, BRANCH, TIN, BUSINESS_TYPE, BUSINESS_LOGO, ADDRESS, EMAIL, CONTACT, MANAGER, REGISTRATION_DATE, STATUS) VALUES (@AID, @ACC, @BID, @BRN, @TIN, @BT, @LOGO, @ADDR, @EML, @CONT, @MGR, @REGDATE, @STAT)", conn)
                 cmd.Parameters.AddWithValue("@AID", currentAccountID)
                 cmd.Parameters.AddWithValue("@ACC", currentAccountName)
@@ -205,7 +206,8 @@ Public Class ADD_Branch
                 cmd.Parameters.AddWithValue("@EML", txtEmail.Text)
                 cmd.Parameters.AddWithValue("@CONT", txtContact.Text)
                 cmd.Parameters.AddWithValue("@MGR", txtManager.Text)
-                cmd.Parameters.AddWithValue("@REGDATE", DateTime.Now)
+                ' ✅ Siguradong tama ang format ng petsa
+                cmd.Parameters.Add("@REGDATE", SqlDbType.DateTime).Value = DateTime.Now
                 cmd.Parameters.AddWithValue("@STAT", "OFFLINE")
                 cmd.ExecuteNonQuery()
             End Using
