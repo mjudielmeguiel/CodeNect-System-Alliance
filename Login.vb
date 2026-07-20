@@ -1,4 +1,7 @@
 ﻿Imports System.Data.SqlClient
+Imports System.IO
+Imports System.Xml
+Imports MySqlConnector
 
 Public Class Login
 
@@ -26,7 +29,8 @@ Public Class Login
             Return
         End If
 
-        Using conn As New SqlConnection(connStr)
+        ' Use the connection string from our DBConnection module
+        Using conn As New MySqlConnection(DBConnection.connStr)
             Try
                 conn.Open()
 
@@ -36,11 +40,11 @@ Public Class Login
                 Dim adminID As String = ""
                 Dim adminFullName As String = ""
 
-                Dim queryAdmin As String = "SELECT ID, ACCOUNT_ID, STATUS, ACCOUNT FROM adm.Account WHERE USERNAME=@user"
-                Using cmdAdmin As New SqlCommand(queryAdmin, conn)
+                Dim queryAdmin As String = "SELECT ID, ACCOUNT_ID, STATUS, ACCOUNT FROM adm_Account WHERE USERNAME=@user"
+                Using cmdAdmin As New MySqlCommand(queryAdmin, conn)
                     cmdAdmin.Parameters.AddWithValue("@user", username)
 
-                    Using drAdmin As SqlDataReader = cmdAdmin.ExecuteReader()
+                    Using drAdmin As MySqlDataReader = cmdAdmin.ExecuteReader()
                         If drAdmin.Read() Then
                             isAdminFound = True
                             adminID = drAdmin("ID").ToString().Trim()
@@ -54,8 +58,8 @@ Public Class Login
                 If isAdminFound Then
                     ' GET PASSWORD SEPARATELY FOR ADMIN
                     Dim passCheck As String = ""
-                    Dim queryAdminPass As String = "SELECT PASSWORD FROM adm.Account WHERE ID=@id"
-                    Using cmdPass As New SqlCommand(queryAdminPass, conn)
+                    Dim queryAdminPass As String = "SELECT PASSWORD FROM adm_Account WHERE ID=@id"
+                    Using cmdPass As New MySqlCommand(queryAdminPass, conn)
                         cmdPass.Parameters.AddWithValue("@id", adminID)
                         passCheck = cmdPass.ExecuteScalar().ToString().Trim()
                     End Using
@@ -71,7 +75,7 @@ Public Class Login
 
                         Case "OFFLINE"
                             If passCheck = password Then
-                                Using cmdUpdate As New SqlCommand("UPDATE adm.Account SET STATUS = 'ACTIVE' WHERE ID = @id", conn)
+                                Using cmdUpdate As New MySqlCommand("UPDATE adm_Account SET STATUS = 'ACTIVE' WHERE ID = @id", conn)
                                     cmdUpdate.Parameters.AddWithValue("@id", adminID)
                                     cmdUpdate.ExecuteNonQuery()
                                 End Using
@@ -105,10 +109,10 @@ Public Class Login
                 Dim fullName As String = ""
 
                 Dim queryUser As String = "SELECT ID, ACCOUNT_ID, BRANCH_ID, BRANCH, USER_TYPE, STATUS, FULL_NAME, PASSWORD FROM User_Accounts WHERE USERNAME=@user"
-                Using cmdUser As New SqlCommand(queryUser, conn)
+                Using cmdUser As New MySqlCommand(queryUser, conn)
                     cmdUser.Parameters.AddWithValue("@user", username)
 
-                    Using drUser As SqlDataReader = cmdUser.ExecuteReader()
+                    Using drUser As MySqlDataReader = cmdUser.ExecuteReader()
                         If drUser.Read() Then
                             userFound = True
                             userID = drUser("ID").ToString().Trim()
@@ -144,7 +148,7 @@ Public Class Login
                 If storedPassword = password Then
                     attemptCount = 0
 
-                    Using cmdUpdate As New SqlCommand("UPDATE User_Accounts SET STATUS = 'ACTIVE' WHERE ID = @id", conn)
+                    Using cmdUpdate As New MySqlCommand("UPDATE User_Accounts SET STATUS = 'ACTIVE' WHERE ID = @id", conn)
                         cmdUpdate.Parameters.AddWithValue("@id", userID)
                         cmdUpdate.ExecuteNonQuery()
                     End Using
@@ -154,7 +158,7 @@ Public Class Login
                     LoggedInUserType = userType
                     LoggedInUsername = fullName
 
-                    ' ✅ CASHIER/POS USERS - DIREKTANG PAPUNTA SA POS SYSTEM
+                    ' ✅ CASHIER/POS USERS - GO DIRECTLY TO POS
                     If userType.Equals("CASHIER", StringComparison.OrdinalIgnoreCase) OrElse
                        userType.Equals("POS", StringComparison.OrdinalIgnoreCase) Then
 
@@ -166,13 +170,13 @@ Public Class Login
                         Return
                     End If
 
-                    ' LAHAT NG IBANG USER TYPE PUPUNTA SA DASHBOARD
+                    ' ALL OTHER USERS GO TO DASHBOARD
                     DashBoard.UserToolStripMenuItem.Text = LoggedInUsername
                     DashBoard.ToolStripStatusLabel1.Text = LoggedInUsername
                     DashBoard.ToolStripStatusLabel4.Text = branchName
                     DashBoard.Label1.Text = userType.ToUpper() & " DASHBOARD"
 
-                    ' KONTROL SA MGA BUTTON/MENU BASE SA USER TYPE
+                    ' PERMISSIONS BASED ON USER TYPE
                     Select Case userType.ToUpper()
                         Case "BRANCH ADMINISTRATOR", "IT SUPPORT"
                             DashBoard.UserManageToolStripMenuItem.Visible = True
@@ -182,7 +186,7 @@ Public Class Login
                             DashBoard.UserManageToolStripMenuItem.Visible = False
                             DashBoard.Btn_Manage.Visible = True
 
-                        Case "RECIEVING DEPARTMENT UNIT"
+                        Case "RECEIVING DEPARTMENT UNIT"
                             DashBoard.UserManageToolStripMenuItem.Visible = False
                             DashBoard.Btn_Manage.Visible = False
 
@@ -197,7 +201,7 @@ Public Class Login
                 Else
                     attemptCount += 1
                     If attemptCount >= maxAttempts Then
-                        Using cmdLock As New SqlCommand("UPDATE User_Accounts SET STATUS = 'LOCKED' WHERE ID = @id", conn)
+                        Using cmdLock As New MySqlCommand("UPDATE User_Accounts SET STATUS = 'LOCKED' WHERE ID = @id", conn)
                             cmdLock.Parameters.AddWithValue("@id", userID)
                             cmdLock.ExecuteNonQuery()
                         End Using
@@ -208,6 +212,8 @@ Public Class Login
                     End If
                 End If
 
+            Catch ex As MySqlException
+                MessageBox.Show("Database Error: " & ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
             Catch ex As Exception
                 MessageBox.Show("System Error: " & ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
             End Try
@@ -229,7 +235,7 @@ Public Class Login
         If txt.Text = "Enter Username" OrElse txt.Text = "Enter Password" Then
             txt.Text = ""
             txt.ForeColor = Color.Black
-            If txt.Name = "txtPassword" Then txt.PasswordChar = "*"
+            If txt.Name = "txtPassword" Then txt.PasswordChar = "*"c
         End If
     End Sub
 
@@ -263,7 +269,7 @@ Public Class Login
     End Sub
 
     Private Sub btnShowPass_Click(sender As Object, e As EventArgs) Handles btnShowPass.Click
-        If txtPassword.PasswordChar = "" Then
+        If txtPassword.PasswordChar = ControlChars.NullChar Then
             txtPassword.PasswordChar = "●"c
         Else
             txtPassword.PasswordChar = ControlChars.NullChar

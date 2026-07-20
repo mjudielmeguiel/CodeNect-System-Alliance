@@ -1,8 +1,8 @@
-﻿Imports System.Data.OleDb
+﻿Imports System.Data.SqlClient
 Imports System.Net
 Imports System.Net.NetworkInformation
 Imports ClosedXML.Excel
-Imports System.Data.SqlClient
+Imports MySqlConnector
 
 Public Class DashBoard
 
@@ -20,36 +20,33 @@ Public Class DashBoard
 
     Private Sub SetAccountOffline()
         Try
-            Using conn As New SqlConnection(connStr)
+            Using conn As New MySqlConnection(DBConnection.connStr)
                 conn.Open()
                 Dim cmdText As String = ""
                 Dim paramValue As String = ""
 
                 ' ✅ Kung ADMIN ang naka-login
                 If Login.LoggedInUserType.Equals("ADMIN", StringComparison.OrdinalIgnoreCase) Then
-                    cmdText = "UPDATE adm.Account SET STATUS = 'OFFLINE' WHERE ACCOUNT_ID = @ID"
+                    cmdText = "UPDATE adm_Account SET STATUS = 'OFFLINE' WHERE ACCOUNT_ID = @ID"
                     paramValue = Login.LoggedInAccountID
 
                     ' ✅ Kung Regular User ang naka-login
                 Else
-                    cmdText = "UPDATE dbo.User_Accounts SET STATUS = 'OFFLINE' WHERE ID = @ID"
+                    cmdText = "UPDATE User_Accounts SET STATUS = 'OFFLINE' WHERE ID = @ID"
                     paramValue = Login.LoggedInUserID
                 End If
 
                 ' Siguradong may laman ang halaga bago isagawa
                 If String.IsNullOrEmpty(paramValue) Then Return
 
-                Using cmd As New SqlCommand(cmdText, conn)
+                Using cmd As New MySqlCommand(cmdText, conn)
                     cmd.Parameters.AddWithValue("@ID", paramValue)
                     Dim rowsAffected As Integer = cmd.ExecuteNonQuery()
 
-                    ' ✅ Tinanggal na ang babala kung walang nai-update, o kaya ay gawing impormasyon lang
-                    ' Kung gusto mo pa ring makita pero hindi nakaka-alarma, gamitin ito:
-                    ' If rowsAffected = 0 Then
-                    '     MessageBox.Show("Walang nai-update na tala.", "Impormasyon", MessageBoxButtons.OK, MessageBoxIcon.Information)
-                    ' End If
                 End Using
             End Using
+        Catch ex As MySqlException
+            MessageBox.Show("Database Error: " & ex.Message, "System Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
         Catch ex As Exception
             MessageBox.Show("Error sa pag-update ng katayuan: " & ex.Message, "System Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
         End Try
@@ -97,14 +94,6 @@ Public Class DashBoard
         Add_User.Show()
     End Sub
 
-    'Private Sub ADDToolStripMenuItem2_Click(sender As Object, e As EventArgs) Handles ADDToolStripMenuItem2.Click
-    '    ADD_Vendor.Show()
-    'End Sub
-
-    'Private Sub ADDProductVendorToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles ADDProductVendorToolStripMenuItem.Click
-    'ADD_Vendor_Product.ShowDialog()
-    'End Sub
-
     Private Sub toolbarRoom_Click(sender As Object, e As EventArgs) Handles toolbarRoom.Click
         ShelfTag_Printer.Show()
     End Sub
@@ -115,7 +104,6 @@ Public Class DashBoard
 #End Region
 
 #Region "DATA AND INFORMATIONS"
-
 
     Private Sub ToolStripButton10_Click(sender As Object, e As EventArgs) Handles TsVendolist.Click
         Panel2.Controls.Clear()
@@ -142,13 +130,8 @@ Public Class DashBoard
         inv.Show()
     End Sub
 
-    Private Sub Panel2_Paint(sender As Object, e As PaintEventArgs) Handles Panel2.Paint
-    End Sub
-
     Private Sub StockOrderingToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles StockOrderingToolStripMenuItem.Click
-
         Dim Ordering As New Stock_Ordering
-
         Ordering.lblpreparedby.Text = ToolStripStatusLabel1.Text
         Ordering.lblbranch.Text = ToolStripStatusLabel4.Text
         Ordering.lblstatus.Text = "PENDING"
@@ -157,9 +140,7 @@ Public Class DashBoard
     End Sub
 
     Private Sub StockTransferToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles StockTransferToolStripMenuItem.Click
-
         Dim STR As New Stock_Transfer
-
         STR.lblPreparedBy.Text = ToolStripStatusLabel1.Text
         STR.lblFromBranch.Text = ToolStripStatusLabel4.Text
         STR.lblstatus.Text = "PENDING"
@@ -233,10 +214,8 @@ Public Class DashBoard
     Private Sub tsDiscounts_Click(sender As Object, e As EventArgs) Handles tsDiscounts.Click
         Panel2.Controls.Clear()
         Dim Discount As New frmDiscountRecords
-
         ' Send values from your Login module
         Discount.SetUser(Login.LoggedInUserID, Login.LoggedInBranchID)
-
         Discount.TopLevel = False
         Discount.FormBorderStyle = FormBorderStyle.None
         Discount.Dock = DockStyle.Fill
