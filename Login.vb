@@ -167,6 +167,7 @@ Public Class Login
                     End If
 
                     ' LAHAT NG IBANG USER TYPE PUPUNTA SA DASHBOARD
+                    DashBoard.UserToolStripMenuItem.Text = LoggedInUsername
                     DashBoard.ToolStripStatusLabel1.Text = LoggedInUsername
                     DashBoard.ToolStripStatusLabel4.Text = branchName
                     DashBoard.Label1.Text = userType.ToUpper() & " DASHBOARD"

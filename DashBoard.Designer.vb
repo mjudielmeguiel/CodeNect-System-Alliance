@@ -32,6 +32,11 @@ Partial Class DashBoard
         Me.ToolStripButton3 = New System.Windows.Forms.ToolStripDropDownButton()
         Me.UserToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
         Me.UserManageToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
+        Me.UserAccountToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
+        Me.BranchToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
+        Me.ProductToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
+        Me.ScanToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
+        Me.ManualToolStripMenuItem1 = New System.Windows.Forms.ToolStripMenuItem()
         Me.ToolStripSeparator1 = New System.Windows.Forms.ToolStripSeparator()
         Me.SwitchAccountToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
         Me.LogOutToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
@@ -67,14 +72,8 @@ Partial Class DashBoard
         Me.Inventory = New System.Windows.Forms.ToolStripMenuItem()
         Me.Sotex = New System.Windows.Forms.ToolStripMenuItem()
         Me.Bo = New System.Windows.Forms.ToolStripMenuItem()
-        Me.Btn_Manage = New System.Windows.Forms.ToolStripDropDownButton()
-        Me.AddProductToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
-        Me.ManualToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
-        Me.ProductListToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
         Me.toolbarRoom = New System.Windows.Forms.ToolStripButton()
-        Me.ToolStripButton12 = New System.Windows.Forms.ToolStripDropDownButton()
-        Me.ADDToolStripMenuItem1 = New System.Windows.Forms.ToolStripMenuItem()
-        Me.ManageToolStripMenuItem3 = New System.Windows.Forms.ToolStripMenuItem()
+        Me.ToolStripButton12 = New System.Windows.Forms.ToolStripButton()
         Me.TsVendolist = New System.Windows.Forms.ToolStripButton()
         Me.ToolStripButton13 = New System.Windows.Forms.ToolStripDropDownButton()
         Me.TOP1000SKUToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
@@ -87,6 +86,7 @@ Partial Class DashBoard
         Me.SalesTransactionsToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
         Me.ToolStripButton6 = New System.Windows.Forms.ToolStripButton()
         Me.Panel2 = New System.Windows.Forms.Panel()
+        Me.Btn_Manage = New System.Windows.Forms.ToolStripButton()
         Me.Panel1.SuspendLayout()
         CType(Me.userPic, System.ComponentModel.ISupportInitialize).BeginInit()
         CType(Me.adminpic, System.ComponentModel.ISupportInitialize).BeginInit()
@@ -170,10 +170,45 @@ Partial Class DashBoard
         '
         'UserManageToolStripMenuItem
         '
+        Me.UserManageToolStripMenuItem.DropDownItems.AddRange(New System.Windows.Forms.ToolStripItem() {Me.UserAccountToolStripMenuItem, Me.BranchToolStripMenuItem, Me.ProductToolStripMenuItem})
         Me.UserManageToolStripMenuItem.Image = CType(resources.GetObject("UserManageToolStripMenuItem.Image"), System.Drawing.Image)
         Me.UserManageToolStripMenuItem.Name = "UserManageToolStripMenuItem"
         Me.UserManageToolStripMenuItem.Size = New System.Drawing.Size(190, 26)
-        Me.UserManageToolStripMenuItem.Text = "ADD Account"
+        Me.UserManageToolStripMenuItem.Text = "Create New"
+        '
+        'UserAccountToolStripMenuItem
+        '
+        Me.UserAccountToolStripMenuItem.Image = CType(resources.GetObject("UserAccountToolStripMenuItem.Image"), System.Drawing.Image)
+        Me.UserAccountToolStripMenuItem.Name = "UserAccountToolStripMenuItem"
+        Me.UserAccountToolStripMenuItem.Size = New System.Drawing.Size(176, 26)
+        Me.UserAccountToolStripMenuItem.Text = "User Account"
+        '
+        'BranchToolStripMenuItem
+        '
+        Me.BranchToolStripMenuItem.Image = CType(resources.GetObject("BranchToolStripMenuItem.Image"), System.Drawing.Image)
+        Me.BranchToolStripMenuItem.Name = "BranchToolStripMenuItem"
+        Me.BranchToolStripMenuItem.Size = New System.Drawing.Size(176, 26)
+        Me.BranchToolStripMenuItem.Text = "Branch"
+        '
+        'ProductToolStripMenuItem
+        '
+        Me.ProductToolStripMenuItem.DropDownItems.AddRange(New System.Windows.Forms.ToolStripItem() {Me.ScanToolStripMenuItem, Me.ManualToolStripMenuItem1})
+        Me.ProductToolStripMenuItem.Image = CType(resources.GetObject("ProductToolStripMenuItem.Image"), System.Drawing.Image)
+        Me.ProductToolStripMenuItem.Name = "ProductToolStripMenuItem"
+        Me.ProductToolStripMenuItem.Size = New System.Drawing.Size(176, 26)
+        Me.ProductToolStripMenuItem.Text = "Product"
+        '
+        'ScanToolStripMenuItem
+        '
+        Me.ScanToolStripMenuItem.Name = "ScanToolStripMenuItem"
+        Me.ScanToolStripMenuItem.Size = New System.Drawing.Size(132, 26)
+        Me.ScanToolStripMenuItem.Text = "Scan"
+        '
+        'ManualToolStripMenuItem1
+        '
+        Me.ManualToolStripMenuItem1.Name = "ManualToolStripMenuItem1"
+        Me.ManualToolStripMenuItem1.Size = New System.Drawing.Size(132, 26)
+        Me.ManualToolStripMenuItem1.Text = "Manual"
         '
         'ToolStripSeparator1
         '
@@ -315,7 +350,7 @@ Partial Class DashBoard
         '
         'StatusStrip1
         '
-        Me.StatusStrip1.Font = New System.Drawing.Font("Segoe UI", 12.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.StatusStrip1.Font = New System.Drawing.Font("Microsoft JhengHei UI", 12.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.StatusStrip1.ImageScalingSize = New System.Drawing.Size(20, 20)
         Me.StatusStrip1.Items.AddRange(New System.Windows.Forms.ToolStripItem() {Me.ToolStripStatusLabel1, Me.ToolStripStatusLabel4, Me.ToolStripStatusLabel3})
         Me.StatusStrip1.Location = New System.Drawing.Point(0, 746)
@@ -332,7 +367,6 @@ Partial Class DashBoard
         '
         'ToolStripStatusLabel4
         '
-        Me.ToolStripStatusLabel4.Enabled = False
         Me.ToolStripStatusLabel4.Name = "ToolStripStatusLabel4"
         Me.ToolStripStatusLabel4.Size = New System.Drawing.Size(450, 17)
         Me.ToolStripStatusLabel4.Spring = True
@@ -404,54 +438,22 @@ Partial Class DashBoard
         '
         Me.Inventory.Image = CType(resources.GetObject("Inventory.Image"), System.Drawing.Image)
         Me.Inventory.Name = "Inventory"
-        Me.Inventory.Size = New System.Drawing.Size(214, 38)
+        Me.Inventory.Size = New System.Drawing.Size(198, 22)
         Me.Inventory.Text = "Inventory Management"
         '
         'Sotex
         '
         Me.Sotex.Image = CType(resources.GetObject("Sotex.Image"), System.Drawing.Image)
         Me.Sotex.Name = "Sotex"
-        Me.Sotex.Size = New System.Drawing.Size(214, 38)
+        Me.Sotex.Size = New System.Drawing.Size(198, 22)
         Me.Sotex.Text = "Soon to Expire"
         '
         'Bo
         '
         Me.Bo.Image = CType(resources.GetObject("Bo.Image"), System.Drawing.Image)
         Me.Bo.Name = "Bo"
-        Me.Bo.Size = New System.Drawing.Size(214, 38)
+        Me.Bo.Size = New System.Drawing.Size(198, 22)
         Me.Bo.Text = "Bad Order"
-        '
-        'Btn_Manage
-        '
-        Me.Btn_Manage.DropDownItems.AddRange(New System.Windows.Forms.ToolStripItem() {Me.AddProductToolStripMenuItem, Me.ManualToolStripMenuItem, Me.ProductListToolStripMenuItem})
-        Me.Btn_Manage.Font = New System.Drawing.Font("Segoe UI Semibold", 9.0!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.Btn_Manage.Image = CType(resources.GetObject("Btn_Manage.Image"), System.Drawing.Image)
-        Me.Btn_Manage.ImageTransparentColor = System.Drawing.Color.Magenta
-        Me.Btn_Manage.Name = "Btn_Manage"
-        Me.Btn_Manage.Size = New System.Drawing.Size(163, 36)
-        Me.Btn_Manage.Text = "Product Descriptions"
-        Me.Btn_Manage.ToolTipText = "Checkout"
-        '
-        'AddProductToolStripMenuItem
-        '
-        Me.AddProductToolStripMenuItem.Image = CType(resources.GetObject("AddProductToolStripMenuItem.Image"), System.Drawing.Image)
-        Me.AddProductToolStripMenuItem.Name = "AddProductToolStripMenuItem"
-        Me.AddProductToolStripMenuItem.Size = New System.Drawing.Size(141, 22)
-        Me.AddProductToolStripMenuItem.Text = "Add Product"
-        '
-        'ManualToolStripMenuItem
-        '
-        Me.ManualToolStripMenuItem.Image = CType(resources.GetObject("ManualToolStripMenuItem.Image"), System.Drawing.Image)
-        Me.ManualToolStripMenuItem.Name = "ManualToolStripMenuItem"
-        Me.ManualToolStripMenuItem.Size = New System.Drawing.Size(141, 22)
-        Me.ManualToolStripMenuItem.Text = "Manual"
-        '
-        'ProductListToolStripMenuItem
-        '
-        Me.ProductListToolStripMenuItem.Image = CType(resources.GetObject("ProductListToolStripMenuItem.Image"), System.Drawing.Image)
-        Me.ProductListToolStripMenuItem.Name = "ProductListToolStripMenuItem"
-        Me.ProductListToolStripMenuItem.Size = New System.Drawing.Size(141, 22)
-        Me.ProductListToolStripMenuItem.Text = "Product List"
         '
         'toolbarRoom
         '
@@ -465,28 +467,13 @@ Partial Class DashBoard
         '
         'ToolStripButton12
         '
-        Me.ToolStripButton12.DropDownItems.AddRange(New System.Windows.Forms.ToolStripItem() {Me.ADDToolStripMenuItem1, Me.ManageToolStripMenuItem3})
         Me.ToolStripButton12.Font = New System.Drawing.Font("Segoe UI Semibold", 9.0!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.ToolStripButton12.Image = CType(resources.GetObject("ToolStripButton12.Image"), System.Drawing.Image)
         Me.ToolStripButton12.ImageTransparentColor = System.Drawing.Color.Magenta
         Me.ToolStripButton12.Name = "ToolStripButton12"
-        Me.ToolStripButton12.Size = New System.Drawing.Size(100, 36)
+        Me.ToolStripButton12.Size = New System.Drawing.Size(91, 36)
         Me.ToolStripButton12.Text = "Branches"
         Me.ToolStripButton12.ToolTipText = "Logout"
-        '
-        'ADDToolStripMenuItem1
-        '
-        Me.ADDToolStripMenuItem1.Image = CType(resources.GetObject("ADDToolStripMenuItem1.Image"), System.Drawing.Image)
-        Me.ADDToolStripMenuItem1.Name = "ADDToolStripMenuItem1"
-        Me.ADDToolStripMenuItem1.Size = New System.Drawing.Size(117, 22)
-        Me.ADDToolStripMenuItem1.Text = "ADD"
-        '
-        'ManageToolStripMenuItem3
-        '
-        Me.ManageToolStripMenuItem3.Image = CType(resources.GetObject("ManageToolStripMenuItem3.Image"), System.Drawing.Image)
-        Me.ManageToolStripMenuItem3.Name = "ManageToolStripMenuItem3"
-        Me.ManageToolStripMenuItem3.Size = New System.Drawing.Size(117, 22)
-        Me.ManageToolStripMenuItem3.Text = "Manage"
         '
         'TsVendolist
         '
@@ -584,6 +571,16 @@ Partial Class DashBoard
         Me.Panel2.Size = New System.Drawing.Size(1366, 625)
         Me.Panel2.TabIndex = 16
         '
+        'Btn_Manage
+        '
+        Me.Btn_Manage.Font = New System.Drawing.Font("Segoe UI Semibold", 9.0!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.Btn_Manage.Image = CType(resources.GetObject("Btn_Manage.Image"), System.Drawing.Image)
+        Me.Btn_Manage.ImageTransparentColor = System.Drawing.Color.Magenta
+        Me.Btn_Manage.Name = "Btn_Manage"
+        Me.Btn_Manage.Size = New System.Drawing.Size(154, 36)
+        Me.Btn_Manage.Text = "Product Descriptions"
+        Me.Btn_Manage.ToolTipText = "Checkout"
+        '
         'DashBoard
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(6.0!, 13.0!)
@@ -646,9 +643,6 @@ Partial Class DashBoard
     Friend WithEvents toolbarCheckIn As ToolStripDropDownButton
     Friend WithEvents StockTransferToolStripMenuItem As ToolStripMenuItem
     Friend WithEvents toolbarRoom As ToolStripButton
-    Friend WithEvents ToolStripButton12 As ToolStripDropDownButton
-    Friend WithEvents ADDToolStripMenuItem1 As ToolStripMenuItem
-    Friend WithEvents ManageToolStripMenuItem3 As ToolStripMenuItem
     Friend WithEvents ToolStripButton6 As ToolStripButton
     Friend WithEvents ToolStrip2 As ToolStrip
     Friend WithEvents StockOrderingToolStripMenuItem As ToolStripMenuItem
@@ -670,13 +664,16 @@ Partial Class DashBoard
     Friend WithEvents TsVendolist As ToolStripButton
     Friend WithEvents ReturnToVendorToolStripMenuItem As ToolStripMenuItem
     Friend WithEvents ConnectionSettingsToolStripMenuItem As ToolStripMenuItem
-    Friend WithEvents Btn_Manage As ToolStripDropDownButton
-    Friend WithEvents AddProductToolStripMenuItem As ToolStripMenuItem
-    Friend WithEvents ManualToolStripMenuItem As ToolStripMenuItem
-    Friend WithEvents ProductListToolStripMenuItem As ToolStripMenuItem
     Friend WithEvents AccountRecoveryToolStripMenuItem As ToolStripMenuItem
     Friend WithEvents ToolStripButton1 As ToolStripDropDownButton
     Friend WithEvents TopBranchToolStripMenuItem As ToolStripMenuItem
     Friend WithEvents SalesTransactionsToolStripMenuItem As ToolStripMenuItem
     Friend WithEvents tsDiscounts As ToolStripButton
+    Friend WithEvents UserAccountToolStripMenuItem As ToolStripMenuItem
+    Friend WithEvents BranchToolStripMenuItem As ToolStripMenuItem
+    Friend WithEvents ProductToolStripMenuItem As ToolStripMenuItem
+    Friend WithEvents ToolStripButton12 As ToolStripButton
+    Friend WithEvents ScanToolStripMenuItem As ToolStripMenuItem
+    Friend WithEvents ManualToolStripMenuItem1 As ToolStripMenuItem
+    Friend WithEvents Btn_Manage As ToolStripButton
 End Class

@@ -41,9 +41,11 @@ Partial Class frmBad_Order
         Me.txtBarcode = New System.Windows.Forms.TextBox()
         Me.dgvInventory = New System.Windows.Forms.DataGridView()
         Me.Panel2 = New System.Windows.Forms.Panel()
+        Me.Panel3 = New System.Windows.Forms.Panel()
         CType(Me.userPic, System.ComponentModel.ISupportInitialize).BeginInit()
         Me.Panel1.SuspendLayout()
         CType(Me.dgvInventory, System.ComponentModel.ISupportInitialize).BeginInit()
+        Me.Panel3.SuspendLayout()
         Me.SuspendLayout()
         '
         'userPic
@@ -199,10 +201,10 @@ Partial Class frmBad_Order
         '
         Me.Label2.Anchor = CType((System.Windows.Forms.AnchorStyles.Bottom Or System.Windows.Forms.AnchorStyles.Left), System.Windows.Forms.AnchorStyles)
         Me.Label2.AutoSize = True
-        Me.Label2.Font = New System.Drawing.Font("Microsoft YaHei UI", 12.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.Label2.Location = New System.Drawing.Point(12, 729)
+        Me.Label2.Font = New System.Drawing.Font("Microsoft YaHei UI", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.Label2.Location = New System.Drawing.Point(12, 16)
         Me.Label2.Name = "Label2"
-        Me.Label2.Size = New System.Drawing.Size(95, 21)
+        Me.Label2.Size = New System.Drawing.Size(78, 19)
         Me.Label2.TabIndex = 322
         Me.Label2.Text = "BARCODE :"
         Me.Label2.TextAlign = System.Drawing.ContentAlignment.MiddleCenter
@@ -211,10 +213,10 @@ Partial Class frmBad_Order
         '
         Me.txtBarcode.Anchor = CType((System.Windows.Forms.AnchorStyles.Bottom Or System.Windows.Forms.AnchorStyles.Left), System.Windows.Forms.AnchorStyles)
         Me.txtBarcode.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle
-        Me.txtBarcode.Font = New System.Drawing.Font("Microsoft YaHei UI", 14.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.txtBarcode.Location = New System.Drawing.Point(113, 724)
+        Me.txtBarcode.Font = New System.Drawing.Font("Microsoft YaHei UI", 12.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.txtBarcode.Location = New System.Drawing.Point(96, 12)
         Me.txtBarcode.Name = "txtBarcode"
-        Me.txtBarcode.Size = New System.Drawing.Size(460, 32)
+        Me.txtBarcode.Size = New System.Drawing.Size(807, 28)
         Me.txtBarcode.TabIndex = 321
         '
         'dgvInventory
@@ -249,7 +251,7 @@ Partial Class frmBad_Order
         DataGridViewCellStyle3.SelectionForeColor = System.Drawing.SystemColors.HighlightText
         DataGridViewCellStyle3.WrapMode = System.Windows.Forms.DataGridViewTriState.[True]
         Me.dgvInventory.RowHeadersDefaultCellStyle = DataGridViewCellStyle3
-        Me.dgvInventory.Size = New System.Drawing.Size(923, 538)
+        Me.dgvInventory.Size = New System.Drawing.Size(923, 475)
         Me.dgvInventory.TabIndex = 323
         '
         'Panel2
@@ -261,15 +263,25 @@ Partial Class frmBad_Order
         Me.Panel2.Size = New System.Drawing.Size(413, 534)
         Me.Panel2.TabIndex = 324
         '
+        'Panel3
+        '
+        Me.Panel3.Anchor = CType((System.Windows.Forms.AnchorStyles.Top Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
+        Me.Panel3.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle
+        Me.Panel3.Controls.Add(Me.txtBarcode)
+        Me.Panel3.Controls.Add(Me.Label2)
+        Me.Panel3.Location = New System.Drawing.Point(12, 650)
+        Me.Panel3.Name = "Panel3"
+        Me.Panel3.Size = New System.Drawing.Size(923, 53)
+        Me.Panel3.TabIndex = 325
+        '
         'frmBad_Order
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(6.0!, 13.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
         Me.ClientSize = New System.Drawing.Size(1366, 768)
+        Me.Controls.Add(Me.Panel3)
         Me.Controls.Add(Me.Panel2)
         Me.Controls.Add(Me.dgvInventory)
-        Me.Controls.Add(Me.Label2)
-        Me.Controls.Add(Me.txtBarcode)
         Me.Controls.Add(Me.lblNameBranch)
         Me.Controls.Add(Me.lblStatus)
         Me.Controls.Add(Me.lblPreparedBy)
@@ -286,8 +298,9 @@ Partial Class frmBad_Order
         CType(Me.userPic, System.ComponentModel.ISupportInitialize).EndInit()
         Me.Panel1.ResumeLayout(False)
         CType(Me.dgvInventory, System.ComponentModel.ISupportInitialize).EndInit()
+        Me.Panel3.ResumeLayout(False)
+        Me.Panel3.PerformLayout()
         Me.ResumeLayout(False)
-        Me.PerformLayout()
 
     End Sub
 
@@ -306,4 +319,5 @@ Partial Class frmBad_Order
     Friend WithEvents txtBarcode As TextBox
     Friend WithEvents dgvInventory As DataGridView
     Friend WithEvents Panel2 As Panel
+    Friend WithEvents Panel3 As Panel
 End Class
