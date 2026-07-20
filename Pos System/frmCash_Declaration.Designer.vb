@@ -73,7 +73,7 @@ Partial Class frmCash_Declaration
         '
         'Panel2
         '
-        Me.Panel2.BackColor = System.Drawing.SystemColors.Control
+        Me.Panel2.BackColor = System.Drawing.Color.DarkRed
         Me.Panel2.Controls.Add(Me.lbltransactiontype)
         Me.Panel2.Controls.Add(Me.adminpic)
         Me.Panel2.Dock = System.Windows.Forms.DockStyle.Top
@@ -86,7 +86,7 @@ Partial Class frmCash_Declaration
         '
         Me.lbltransactiontype.AutoSize = True
         Me.lbltransactiontype.Font = New System.Drawing.Font("Microsoft YaHei UI", 20.25!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.lbltransactiontype.ForeColor = System.Drawing.Color.DarkRed
+        Me.lbltransactiontype.ForeColor = System.Drawing.SystemColors.Control
         Me.lbltransactiontype.Location = New System.Drawing.Point(79, 9)
         Me.lbltransactiontype.Name = "lbltransactiontype"
         Me.lbltransactiontype.Size = New System.Drawing.Size(244, 36)
@@ -491,7 +491,7 @@ Partial Class frmCash_Declaration
         '
         Me.lblTotal.AutoSize = True
         Me.lblTotal.Font = New System.Drawing.Font("Microsoft YaHei UI", 12.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.lblTotal.Location = New System.Drawing.Point(402, 584)
+        Me.lblTotal.Location = New System.Drawing.Point(402, 658)
         Me.lblTotal.Name = "lblTotal"
         Me.lblTotal.Size = New System.Drawing.Size(17, 21)
         Me.lblTotal.TabIndex = 373
@@ -509,7 +509,7 @@ Partial Class frmCash_Declaration
         Me.btnClose.ForeColor = System.Drawing.SystemColors.ControlText
         Me.btnClose.Image = CType(resources.GetObject("btnClose.Image"), System.Drawing.Image)
         Me.btnClose.ImageAlign = System.Drawing.ContentAlignment.MiddleRight
-        Me.btnClose.Location = New System.Drawing.Point(492, 704)
+        Me.btnClose.Location = New System.Drawing.Point(492, 640)
         Me.btnClose.Name = "btnClose"
         Me.btnClose.Size = New System.Drawing.Size(98, 47)
         Me.btnClose.TabIndex = 374
@@ -527,7 +527,7 @@ Partial Class frmCash_Declaration
         Me.btnDeclare.ForeColor = System.Drawing.SystemColors.ActiveCaptionText
         Me.btnDeclare.Image = CType(resources.GetObject("btnDeclare.Image"), System.Drawing.Image)
         Me.btnDeclare.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft
-        Me.btnDeclare.Location = New System.Drawing.Point(277, 704)
+        Me.btnDeclare.Location = New System.Drawing.Point(277, 640)
         Me.btnDeclare.Name = "btnDeclare"
         Me.btnDeclare.Size = New System.Drawing.Size(105, 47)
         Me.btnDeclare.TabIndex = 375
@@ -546,7 +546,7 @@ Partial Class frmCash_Declaration
         Me.Button1.ForeColor = System.Drawing.SystemColors.ControlText
         Me.Button1.Image = CType(resources.GetObject("Button1.Image"), System.Drawing.Image)
         Me.Button1.ImageAlign = System.Drawing.ContentAlignment.MiddleRight
-        Me.Button1.Location = New System.Drawing.Point(388, 704)
+        Me.Button1.Location = New System.Drawing.Point(388, 640)
         Me.Button1.Name = "Button1"
         Me.Button1.Size = New System.Drawing.Size(98, 47)
         Me.Button1.TabIndex = 384
@@ -558,7 +558,7 @@ Partial Class frmCash_Declaration
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(6.0!, 13.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
-        Me.ClientSize = New System.Drawing.Size(602, 763)
+        Me.ClientSize = New System.Drawing.Size(602, 699)
         Me.Controls.Add(Me.Button1)
         Me.Controls.Add(Me.btnDeclare)
         Me.Controls.Add(Me.btnClose)

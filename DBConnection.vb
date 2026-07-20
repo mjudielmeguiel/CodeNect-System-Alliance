@@ -11,7 +11,7 @@ Module DBConnection
     Public ReadOnly Property connStr As String
         Get
             If Not File.Exists(settingsFile) Then
-                Return "Data Source=192.168.68.108\SQLEXPRESS, 1433;Initial Catalog=CodeNectDB;User ID=CodeNect_Database;Password=Password1*;Encrypt=False;TrustServerCertificate=True"
+                Return "Data Source=192.168.68.110\SQLEXPRESS, 1433;Initial Catalog=CodeNectDB;User ID=CodeNect_Database;Password=Password1*;Encrypt=False;TrustServerCertificate=True"
             End If
 
             Try
