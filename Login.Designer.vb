@@ -71,7 +71,7 @@ Partial Class Login
         Me.Button1.ForeColor = System.Drawing.SystemColors.ButtonHighlight
         Me.Button1.Image = CType(resources.GetObject("Button1.Image"), System.Drawing.Image)
         Me.Button1.ImageAlign = System.Drawing.ContentAlignment.MiddleRight
-        Me.Button1.Location = New System.Drawing.Point(12, 273)
+        Me.Button1.Location = New System.Drawing.Point(15, 255)
         Me.Button1.Name = "Button1"
         Me.Button1.Size = New System.Drawing.Size(337, 37)
         Me.Button1.TabIndex = 25
