@@ -32,9 +32,6 @@ Partial Class Add_User
         Dim Label2 As System.Windows.Forms.Label
         Dim Label3 As System.Windows.Forms.Label
         Dim resources As System.ComponentModel.ComponentResourceManager = New System.ComponentModel.ComponentResourceManager(GetType(Add_User))
-        Me.btnSave = New System.Windows.Forms.Button()
-        Me.Button5 = New System.Windows.Forms.Button()
-        Me.btnCancel = New System.Windows.Forms.Button()
         Me.txtBranchID = New System.Windows.Forms.TextBox()
         Me.txtContact = New System.Windows.Forms.TextBox()
         Me.cboBranch = New System.Windows.Forms.ComboBox()
@@ -48,6 +45,19 @@ Partial Class Add_User
         Me.Panel2 = New System.Windows.Forms.Panel()
         Me.userPic = New System.Windows.Forms.PictureBox()
         Me.Label1 = New System.Windows.Forms.Label()
+        Me.btnSave = New System.Windows.Forms.Button()
+        Me.btnCancel = New System.Windows.Forms.Button()
+        Me.Label15 = New System.Windows.Forms.Label()
+        Me.Label4 = New System.Windows.Forms.Label()
+        Me.Label5 = New System.Windows.Forms.Label()
+        Me.Label6 = New System.Windows.Forms.Label()
+        Me.Label7 = New System.Windows.Forms.Label()
+        Me.Label8 = New System.Windows.Forms.Label()
+        Me.Label9 = New System.Windows.Forms.Label()
+        Me.Label10 = New System.Windows.Forms.Label()
+        Me.Label11 = New System.Windows.Forms.Label()
+        Me.Label12 = New System.Windows.Forms.Label()
+        Me.Label13 = New System.Windows.Forms.Label()
         BRANCHLabel = New System.Windows.Forms.Label()
         CONTACTLabel = New System.Windows.Forms.Label()
         EMAILLabel = New System.Windows.Forms.Label()
@@ -65,7 +75,7 @@ Partial Class Add_User
         'BRANCHLabel
         '
         BRANCHLabel.AutoSize = True
-        BRANCHLabel.Location = New System.Drawing.Point(12, 205)
+        BRANCHLabel.Location = New System.Drawing.Point(16, 294)
         BRANCHLabel.Name = "BRANCHLabel"
         BRANCHLabel.Size = New System.Drawing.Size(55, 13)
         BRANCHLabel.TabIndex = 6
@@ -74,7 +84,7 @@ Partial Class Add_User
         'CONTACTLabel
         '
         CONTACTLabel.AutoSize = True
-        CONTACTLabel.Location = New System.Drawing.Point(12, 140)
+        CONTACTLabel.Location = New System.Drawing.Point(342, 223)
         CONTACTLabel.Name = "CONTACTLabel"
         CONTACTLabel.Size = New System.Drawing.Size(61, 13)
         CONTACTLabel.TabIndex = 8
@@ -83,7 +93,7 @@ Partial Class Add_User
         'EMAILLabel
         '
         EMAILLabel.AutoSize = True
-        EMAILLabel.Location = New System.Drawing.Point(12, 172)
+        EMAILLabel.Location = New System.Drawing.Point(16, 223)
         EMAILLabel.Name = "EMAILLabel"
         EMAILLabel.Size = New System.Drawing.Size(42, 13)
         EMAILLabel.TabIndex = 10
@@ -92,7 +102,7 @@ Partial Class Add_User
         'USERLabel
         '
         USERLabel.AutoSize = True
-        USERLabel.Location = New System.Drawing.Point(12, 74)
+        USERLabel.Location = New System.Drawing.Point(16, 159)
         USERLabel.Name = "USERLabel"
         USERLabel.Size = New System.Drawing.Size(70, 13)
         USERLabel.TabIndex = 12
@@ -101,7 +111,7 @@ Partial Class Add_User
         'USERTYPELabel
         '
         USERTYPELabel.AutoSize = True
-        USERTYPELabel.Location = New System.Drawing.Point(12, 107)
+        USERTYPELabel.Location = New System.Drawing.Point(339, 158)
         USERTYPELabel.Name = "USERTYPELabel"
         USERTYPELabel.Size = New System.Drawing.Size(68, 13)
         USERTYPELabel.TabIndex = 14
@@ -110,7 +120,7 @@ Partial Class Add_User
         'USERNAMELabel
         '
         USERNAMELabel.AutoSize = True
-        USERNAMELabel.Location = New System.Drawing.Point(12, 238)
+        USERNAMELabel.Location = New System.Drawing.Point(342, 296)
         USERNAMELabel.Name = "USERNAMELabel"
         USERNAMELabel.Size = New System.Drawing.Size(71, 13)
         USERNAMELabel.TabIndex = 16
@@ -119,7 +129,7 @@ Partial Class Add_User
         'PASSWORDLabel
         '
         PASSWORDLabel.AutoSize = True
-        PASSWORDLabel.Location = New System.Drawing.Point(12, 302)
+        PASSWORDLabel.Location = New System.Drawing.Point(16, 360)
         PASSWORDLabel.Name = "PASSWORDLabel"
         PASSWORDLabel.Size = New System.Drawing.Size(73, 13)
         PASSWORDLabel.TabIndex = 18
@@ -128,7 +138,7 @@ Partial Class Add_User
         'Label2
         '
         Label2.AutoSize = True
-        Label2.Location = New System.Drawing.Point(12, 270)
+        Label2.Location = New System.Drawing.Point(339, 360)
         Label2.Name = "Label2"
         Label2.Size = New System.Drawing.Size(125, 13)
         Label2.TabIndex = 22
@@ -138,71 +148,20 @@ Partial Class Add_User
         '
         Label3.AutoSize = True
         Label3.ForeColor = System.Drawing.Color.Red
-        Label3.Location = New System.Drawing.Point(498, 324)
+        Label3.Location = New System.Drawing.Point(567, 405)
         Label3.Name = "Label3"
         Label3.Size = New System.Drawing.Size(63, 13)
         Label3.TabIndex = 126
         Label3.Text = "Password1*"
         '
-        'btnSave
-        '
-        Me.btnSave.BackColor = System.Drawing.Color.Maroon
-        Me.btnSave.BackgroundImageLayout = System.Windows.Forms.ImageLayout.None
-        Me.btnSave.FlatStyle = System.Windows.Forms.FlatStyle.Flat
-        Me.btnSave.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.btnSave.ForeColor = System.Drawing.SystemColors.ButtonHighlight
-        Me.btnSave.Image = CType(resources.GetObject("btnSave.Image"), System.Drawing.Image)
-        Me.btnSave.Location = New System.Drawing.Point(274, 358)
-        Me.btnSave.Name = "btnSave"
-        Me.btnSave.Size = New System.Drawing.Size(140, 37)
-        Me.btnSave.TabIndex = 127
-        Me.btnSave.Text = " Save"
-        Me.btnSave.TextAlign = System.Drawing.ContentAlignment.MiddleRight
-        Me.btnSave.TextImageRelation = System.Windows.Forms.TextImageRelation.ImageBeforeText
-        Me.btnSave.UseVisualStyleBackColor = False
-        '
-        'Button5
-        '
-        Me.Button5.BackColor = System.Drawing.Color.Maroon
-        Me.Button5.BackgroundImageLayout = System.Windows.Forms.ImageLayout.None
-        Me.Button5.FlatStyle = System.Windows.Forms.FlatStyle.Flat
-        Me.Button5.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.Button5.ForeColor = System.Drawing.SystemColors.ButtonHighlight
-        Me.Button5.Image = CType(resources.GetObject("Button5.Image"), System.Drawing.Image)
-        Me.Button5.Location = New System.Drawing.Point(274, 358)
-        Me.Button5.Name = "Button5"
-        Me.Button5.Size = New System.Drawing.Size(140, 37)
-        Me.Button5.TabIndex = 128
-        Me.Button5.Text = " Save"
-        Me.Button5.TextAlign = System.Drawing.ContentAlignment.MiddleRight
-        Me.Button5.TextImageRelation = System.Windows.Forms.TextImageRelation.ImageBeforeText
-        Me.Button5.UseVisualStyleBackColor = False
-        '
-        'btnCancel
-        '
-        Me.btnCancel.BackColor = System.Drawing.SystemColors.ControlLight
-        Me.btnCancel.BackgroundImageLayout = System.Windows.Forms.ImageLayout.None
-        Me.btnCancel.FlatStyle = System.Windows.Forms.FlatStyle.Flat
-        Me.btnCancel.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.btnCancel.ForeColor = System.Drawing.Color.Maroon
-        Me.btnCancel.Image = CType(resources.GetObject("btnCancel.Image"), System.Drawing.Image)
-        Me.btnCancel.Location = New System.Drawing.Point(420, 358)
-        Me.btnCancel.Name = "btnCancel"
-        Me.btnCancel.Size = New System.Drawing.Size(141, 37)
-        Me.btnCancel.TabIndex = 126
-        Me.btnCancel.Text = "Cancel"
-        Me.btnCancel.TextAlign = System.Drawing.ContentAlignment.MiddleRight
-        Me.btnCancel.TextImageRelation = System.Windows.Forms.TextImageRelation.ImageBeforeText
-        Me.btnCancel.UseVisualStyleBackColor = False
-        '
         'txtBranchID
         '
         Me.txtBranchID.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle
         Me.txtBranchID.Font = New System.Drawing.Font("Microsoft Sans Serif", 12.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.txtBranchID.Location = New System.Drawing.Point(420, 199)
+        Me.txtBranchID.Location = New System.Drawing.Point(636, 376)
         Me.txtBranchID.Name = "txtBranchID"
         Me.txtBranchID.ReadOnly = True
-        Me.txtBranchID.Size = New System.Drawing.Size(141, 26)
+        Me.txtBranchID.Size = New System.Drawing.Size(191, 26)
         Me.txtBranchID.TabIndex = 130
         Me.txtBranchID.TextAlign = System.Windows.Forms.HorizontalAlignment.Center
         '
@@ -210,9 +169,9 @@ Partial Class Add_User
         '
         Me.txtContact.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle
         Me.txtContact.Font = New System.Drawing.Font("Microsoft Sans Serif", 12.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.txtContact.Location = New System.Drawing.Point(147, 133)
+        Me.txtContact.Location = New System.Drawing.Point(342, 239)
         Me.txtContact.Name = "txtContact"
-        Me.txtContact.Size = New System.Drawing.Size(268, 26)
+        Me.txtContact.Size = New System.Drawing.Size(288, 26)
         Me.txtContact.TabIndex = 129
         Me.txtContact.TextAlign = System.Windows.Forms.HorizontalAlignment.Center
         '
@@ -222,18 +181,18 @@ Partial Class Add_User
         Me.cboBranch.Font = New System.Drawing.Font("Microsoft Sans Serif", 12.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.cboBranch.FormattingEnabled = True
         Me.cboBranch.Items.AddRange(New Object() {"IT", "ADMIN", "MANAGER", "SUPERVISOR", "RDU", "CASHIER"})
-        Me.cboBranch.Location = New System.Drawing.Point(147, 197)
+        Me.cboBranch.Location = New System.Drawing.Point(19, 310)
         Me.cboBranch.Name = "cboBranch"
-        Me.cboBranch.Size = New System.Drawing.Size(268, 28)
+        Me.cboBranch.Size = New System.Drawing.Size(317, 28)
         Me.cboBranch.TabIndex = 128
         '
         'picProfile
         '
         Me.picProfile.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle
         Me.picProfile.Image = CType(resources.GetObject("picProfile.Image"), System.Drawing.Image)
-        Me.picProfile.Location = New System.Drawing.Point(421, 67)
+        Me.picProfile.Location = New System.Drawing.Point(636, 174)
         Me.picProfile.Name = "picProfile"
-        Me.picProfile.Size = New System.Drawing.Size(140, 124)
+        Me.picProfile.Size = New System.Drawing.Size(191, 164)
         Me.picProfile.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom
         Me.picProfile.TabIndex = 127
         Me.picProfile.TabStop = False
@@ -242,9 +201,9 @@ Partial Class Add_User
         '
         Me.txtConfirmPassword.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle
         Me.txtConfirmPassword.Font = New System.Drawing.Font("Microsoft Sans Serif", 12.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.txtConfirmPassword.Location = New System.Drawing.Point(147, 263)
+        Me.txtConfirmPassword.Location = New System.Drawing.Point(342, 376)
         Me.txtConfirmPassword.Name = "txtConfirmPassword"
-        Me.txtConfirmPassword.Size = New System.Drawing.Size(414, 26)
+        Me.txtConfirmPassword.Size = New System.Drawing.Size(288, 26)
         Me.txtConfirmPassword.TabIndex = 23
         Me.txtConfirmPassword.TextAlign = System.Windows.Forms.HorizontalAlignment.Center
         Me.txtConfirmPassword.UseSystemPasswordChar = True
@@ -253,9 +212,9 @@ Partial Class Add_User
         '
         Me.txtEmail.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle
         Me.txtEmail.Font = New System.Drawing.Font("Microsoft Sans Serif", 12.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.txtEmail.Location = New System.Drawing.Point(147, 165)
+        Me.txtEmail.Location = New System.Drawing.Point(19, 239)
         Me.txtEmail.Name = "txtEmail"
-        Me.txtEmail.Size = New System.Drawing.Size(268, 26)
+        Me.txtEmail.Size = New System.Drawing.Size(317, 26)
         Me.txtEmail.TabIndex = 11
         Me.txtEmail.TextAlign = System.Windows.Forms.HorizontalAlignment.Center
         '
@@ -263,9 +222,9 @@ Partial Class Add_User
         '
         Me.txtFullName.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle
         Me.txtFullName.Font = New System.Drawing.Font("Microsoft Sans Serif", 12.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.txtFullName.Location = New System.Drawing.Point(147, 67)
+        Me.txtFullName.Location = New System.Drawing.Point(19, 175)
         Me.txtFullName.Name = "txtFullName"
-        Me.txtFullName.Size = New System.Drawing.Size(268, 26)
+        Me.txtFullName.Size = New System.Drawing.Size(317, 26)
         Me.txtFullName.TabIndex = 13
         Me.txtFullName.TextAlign = System.Windows.Forms.HorizontalAlignment.Center
         '
@@ -275,18 +234,18 @@ Partial Class Add_User
         Me.cboUserType.Font = New System.Drawing.Font("Microsoft Sans Serif", 12.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.cboUserType.FormattingEnabled = True
         Me.cboUserType.Items.AddRange(New Object() {"IT", "ADMIN", "MANAGER", "SUPERVISOR", "RDU", "CASHIER"})
-        Me.cboUserType.Location = New System.Drawing.Point(146, 99)
+        Me.cboUserType.Location = New System.Drawing.Point(342, 174)
         Me.cboUserType.Name = "cboUserType"
-        Me.cboUserType.Size = New System.Drawing.Size(269, 28)
+        Me.cboUserType.Size = New System.Drawing.Size(288, 28)
         Me.cboUserType.TabIndex = 15
         '
         'txtUsername
         '
         Me.txtUsername.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle
         Me.txtUsername.Font = New System.Drawing.Font("Microsoft Sans Serif", 12.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.txtUsername.Location = New System.Drawing.Point(147, 231)
+        Me.txtUsername.Location = New System.Drawing.Point(342, 312)
         Me.txtUsername.Name = "txtUsername"
-        Me.txtUsername.Size = New System.Drawing.Size(414, 26)
+        Me.txtUsername.Size = New System.Drawing.Size(288, 26)
         Me.txtUsername.TabIndex = 17
         Me.txtUsername.TextAlign = System.Windows.Forms.HorizontalAlignment.Center
         '
@@ -294,9 +253,9 @@ Partial Class Add_User
         '
         Me.txtPassword.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle
         Me.txtPassword.Font = New System.Drawing.Font("Microsoft Sans Serif", 12.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.txtPassword.Location = New System.Drawing.Point(147, 295)
+        Me.txtPassword.Location = New System.Drawing.Point(19, 376)
         Me.txtPassword.Name = "txtPassword"
-        Me.txtPassword.Size = New System.Drawing.Size(414, 26)
+        Me.txtPassword.Size = New System.Drawing.Size(317, 26)
         Me.txtPassword.TabIndex = 19
         Me.txtPassword.TextAlign = System.Windows.Forms.HorizontalAlignment.Center
         Me.txtPassword.UseSystemPasswordChar = True
@@ -309,7 +268,7 @@ Partial Class Add_User
         Me.Panel2.Dock = System.Windows.Forms.DockStyle.Top
         Me.Panel2.Location = New System.Drawing.Point(0, 0)
         Me.Panel2.Name = "Panel2"
-        Me.Panel2.Size = New System.Drawing.Size(573, 54)
+        Me.Panel2.Size = New System.Drawing.Size(839, 54)
         Me.Panel2.TabIndex = 137
         '
         'userPic
@@ -334,19 +293,209 @@ Partial Class Add_User
         Me.Label1.TabIndex = 0
         Me.Label1.Text = "ADD NEW USER ACCOUNT"
         '
+        'btnSave
+        '
+        Me.btnSave.Anchor = CType((System.Windows.Forms.AnchorStyles.Bottom Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
+        Me.btnSave.BackColor = System.Drawing.SystemColors.Control
+        Me.btnSave.BackgroundImageLayout = System.Windows.Forms.ImageLayout.None
+        Me.btnSave.FlatAppearance.BorderSize = 0
+        Me.btnSave.FlatStyle = System.Windows.Forms.FlatStyle.Flat
+        Me.btnSave.Font = New System.Drawing.Font("Microsoft YaHei UI Light", 12.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.btnSave.ForeColor = System.Drawing.SystemColors.ControlText
+        Me.btnSave.Image = CType(resources.GetObject("btnSave.Image"), System.Drawing.Image)
+        Me.btnSave.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft
+        Me.btnSave.Location = New System.Drawing.Point(625, 440)
+        Me.btnSave.Name = "btnSave"
+        Me.btnSave.Size = New System.Drawing.Size(98, 47)
+        Me.btnSave.TabIndex = 320
+        Me.btnSave.Text = "Save"
+        Me.btnSave.TextImageRelation = System.Windows.Forms.TextImageRelation.TextBeforeImage
+        Me.btnSave.UseVisualStyleBackColor = False
+        '
+        'btnCancel
+        '
+        Me.btnCancel.Anchor = CType((System.Windows.Forms.AnchorStyles.Bottom Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
+        Me.btnCancel.BackColor = System.Drawing.SystemColors.Control
+        Me.btnCancel.BackgroundImageLayout = System.Windows.Forms.ImageLayout.None
+        Me.btnCancel.FlatAppearance.BorderSize = 0
+        Me.btnCancel.FlatStyle = System.Windows.Forms.FlatStyle.Flat
+        Me.btnCancel.Font = New System.Drawing.Font("Microsoft YaHei UI Light", 12.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.btnCancel.ForeColor = System.Drawing.SystemColors.ControlText
+        Me.btnCancel.Image = CType(resources.GetObject("btnCancel.Image"), System.Drawing.Image)
+        Me.btnCancel.ImageAlign = System.Drawing.ContentAlignment.MiddleRight
+        Me.btnCancel.Location = New System.Drawing.Point(729, 440)
+        Me.btnCancel.Name = "btnCancel"
+        Me.btnCancel.Size = New System.Drawing.Size(98, 47)
+        Me.btnCancel.TabIndex = 319
+        Me.btnCancel.Text = "Close"
+        Me.btnCancel.TextImageRelation = System.Windows.Forms.TextImageRelation.TextBeforeImage
+        Me.btnCancel.UseVisualStyleBackColor = False
+        '
+        'Label15
+        '
+        Me.Label15.Anchor = CType((System.Windows.Forms.AnchorStyles.Bottom Or System.Windows.Forms.AnchorStyles.Left), System.Windows.Forms.AnchorStyles)
+        Me.Label15.AutoSize = True
+        Me.Label15.Font = New System.Drawing.Font("Microsoft YaHei UI", 12.0!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.Label15.ForeColor = System.Drawing.Color.Red
+        Me.Label15.Location = New System.Drawing.Point(85, -36)
+        Me.Label15.Name = "Label15"
+        Me.Label15.Size = New System.Drawing.Size(18, 22)
+        Me.Label15.TabIndex = 337
+        Me.Label15.Text = "*"
+        Me.Label15.TextAlign = System.Drawing.ContentAlignment.MiddleCenter
+        '
+        'Label4
+        '
+        Me.Label4.Anchor = CType((System.Windows.Forms.AnchorStyles.Bottom Or System.Windows.Forms.AnchorStyles.Left), System.Windows.Forms.AnchorStyles)
+        Me.Label4.AutoSize = True
+        Me.Label4.Font = New System.Drawing.Font("Microsoft YaHei UI", 12.0!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.Label4.ForeColor = System.Drawing.Color.Red
+        Me.Label4.Location = New System.Drawing.Point(425, -37)
+        Me.Label4.Name = "Label4"
+        Me.Label4.Size = New System.Drawing.Size(18, 22)
+        Me.Label4.TabIndex = 338
+        Me.Label4.Text = "*"
+        Me.Label4.TextAlign = System.Drawing.ContentAlignment.MiddleCenter
+        '
+        'Label5
+        '
+        Me.Label5.Anchor = CType((System.Windows.Forms.AnchorStyles.Bottom Or System.Windows.Forms.AnchorStyles.Left), System.Windows.Forms.AnchorStyles)
+        Me.Label5.AutoSize = True
+        Me.Label5.Font = New System.Drawing.Font("Microsoft YaHei UI", 12.0!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.Label5.ForeColor = System.Drawing.Color.Red
+        Me.Label5.Location = New System.Drawing.Point(92, 149)
+        Me.Label5.Name = "Label5"
+        Me.Label5.Size = New System.Drawing.Size(18, 22)
+        Me.Label5.TabIndex = 339
+        Me.Label5.Text = "*"
+        Me.Label5.TextAlign = System.Drawing.ContentAlignment.MiddleCenter
+        '
+        'Label6
+        '
+        Me.Label6.Anchor = CType((System.Windows.Forms.AnchorStyles.Bottom Or System.Windows.Forms.AnchorStyles.Left), System.Windows.Forms.AnchorStyles)
+        Me.Label6.AutoSize = True
+        Me.Label6.Font = New System.Drawing.Font("Microsoft YaHei UI", 12.0!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.Label6.ForeColor = System.Drawing.Color.Red
+        Me.Label6.Location = New System.Drawing.Point(413, 149)
+        Me.Label6.Name = "Label6"
+        Me.Label6.Size = New System.Drawing.Size(18, 22)
+        Me.Label6.TabIndex = 340
+        Me.Label6.Text = "*"
+        Me.Label6.TextAlign = System.Drawing.ContentAlignment.MiddleCenter
+        '
+        'Label7
+        '
+        Me.Label7.Anchor = CType((System.Windows.Forms.AnchorStyles.Bottom Or System.Windows.Forms.AnchorStyles.Left), System.Windows.Forms.AnchorStyles)
+        Me.Label7.AutoSize = True
+        Me.Label7.Font = New System.Drawing.Font("Microsoft YaHei UI", 12.0!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.Label7.ForeColor = System.Drawing.Color.Red
+        Me.Label7.Location = New System.Drawing.Point(409, 214)
+        Me.Label7.Name = "Label7"
+        Me.Label7.Size = New System.Drawing.Size(18, 22)
+        Me.Label7.TabIndex = 341
+        Me.Label7.Text = "*"
+        Me.Label7.TextAlign = System.Drawing.ContentAlignment.MiddleCenter
+        '
+        'Label8
+        '
+        Me.Label8.Anchor = CType((System.Windows.Forms.AnchorStyles.Bottom Or System.Windows.Forms.AnchorStyles.Left), System.Windows.Forms.AnchorStyles)
+        Me.Label8.AutoSize = True
+        Me.Label8.Font = New System.Drawing.Font("Microsoft YaHei UI", 12.0!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.Label8.ForeColor = System.Drawing.Color.Red
+        Me.Label8.Location = New System.Drawing.Point(419, 287)
+        Me.Label8.Name = "Label8"
+        Me.Label8.Size = New System.Drawing.Size(18, 22)
+        Me.Label8.TabIndex = 342
+        Me.Label8.Text = "*"
+        Me.Label8.TextAlign = System.Drawing.ContentAlignment.MiddleCenter
+        '
+        'Label9
+        '
+        Me.Label9.Anchor = CType((System.Windows.Forms.AnchorStyles.Bottom Or System.Windows.Forms.AnchorStyles.Left), System.Windows.Forms.AnchorStyles)
+        Me.Label9.AutoSize = True
+        Me.Label9.Font = New System.Drawing.Font("Microsoft YaHei UI", 12.0!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.Label9.ForeColor = System.Drawing.Color.Red
+        Me.Label9.Location = New System.Drawing.Point(470, 351)
+        Me.Label9.Name = "Label9"
+        Me.Label9.Size = New System.Drawing.Size(18, 22)
+        Me.Label9.TabIndex = 343
+        Me.Label9.Text = "*"
+        Me.Label9.TextAlign = System.Drawing.ContentAlignment.MiddleCenter
+        '
+        'Label10
+        '
+        Me.Label10.Anchor = CType((System.Windows.Forms.AnchorStyles.Bottom Or System.Windows.Forms.AnchorStyles.Left), System.Windows.Forms.AnchorStyles)
+        Me.Label10.AutoSize = True
+        Me.Label10.Font = New System.Drawing.Font("Microsoft YaHei UI", 12.0!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.Label10.ForeColor = System.Drawing.Color.Red
+        Me.Label10.Location = New System.Drawing.Point(95, 351)
+        Me.Label10.Name = "Label10"
+        Me.Label10.Size = New System.Drawing.Size(18, 22)
+        Me.Label10.TabIndex = 344
+        Me.Label10.Text = "*"
+        Me.Label10.TextAlign = System.Drawing.ContentAlignment.MiddleCenter
+        '
+        'Label11
+        '
+        Me.Label11.Anchor = CType((System.Windows.Forms.AnchorStyles.Bottom Or System.Windows.Forms.AnchorStyles.Left), System.Windows.Forms.AnchorStyles)
+        Me.Label11.AutoSize = True
+        Me.Label11.Font = New System.Drawing.Font("Microsoft YaHei UI", 12.0!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.Label11.ForeColor = System.Drawing.Color.Red
+        Me.Label11.Location = New System.Drawing.Point(77, 285)
+        Me.Label11.Name = "Label11"
+        Me.Label11.Size = New System.Drawing.Size(18, 22)
+        Me.Label11.TabIndex = 345
+        Me.Label11.Text = "*"
+        Me.Label11.TextAlign = System.Drawing.ContentAlignment.MiddleCenter
+        '
+        'Label12
+        '
+        Me.Label12.Anchor = CType((System.Windows.Forms.AnchorStyles.Bottom Or System.Windows.Forms.AnchorStyles.Left), System.Windows.Forms.AnchorStyles)
+        Me.Label12.AutoSize = True
+        Me.Label12.Font = New System.Drawing.Font("Microsoft YaHei UI", 12.0!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.Label12.ForeColor = System.Drawing.Color.Red
+        Me.Label12.Location = New System.Drawing.Point(64, 214)
+        Me.Label12.Name = "Label12"
+        Me.Label12.Size = New System.Drawing.Size(18, 22)
+        Me.Label12.TabIndex = 346
+        Me.Label12.Text = "*"
+        Me.Label12.TextAlign = System.Drawing.ContentAlignment.MiddleCenter
+        '
+        'Label13
+        '
+        Me.Label13.Anchor = CType((System.Windows.Forms.AnchorStyles.Bottom Or System.Windows.Forms.AnchorStyles.Left), System.Windows.Forms.AnchorStyles)
+        Me.Label13.AutoSize = True
+        Me.Label13.Font = New System.Drawing.Font("Microsoft YaHei UI", 14.25!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.Label13.Location = New System.Drawing.Point(7, 79)
+        Me.Label13.Name = "Label13"
+        Me.Label13.Size = New System.Drawing.Size(210, 26)
+        Me.Label13.TabIndex = 347
+        Me.Label13.Text = "Fill User Information"
+        Me.Label13.TextAlign = System.Drawing.ContentAlignment.MiddleCenter
+        '
         'Add_User
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(6.0!, 13.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
-        Me.ClientSize = New System.Drawing.Size(573, 407)
+        Me.ClientSize = New System.Drawing.Size(839, 499)
+        Me.Controls.Add(Me.Label13)
+        Me.Controls.Add(Me.Label12)
+        Me.Controls.Add(Me.Label11)
+        Me.Controls.Add(Me.Label10)
+        Me.Controls.Add(Me.Label9)
+        Me.Controls.Add(Me.Label8)
+        Me.Controls.Add(Me.Label7)
+        Me.Controls.Add(Me.Label6)
+        Me.Controls.Add(Me.Label5)
+        Me.Controls.Add(Me.Label4)
+        Me.Controls.Add(Me.Label15)
+        Me.Controls.Add(Me.btnSave)
+        Me.Controls.Add(Me.btnCancel)
         Me.Controls.Add(Me.txtBranchID)
         Me.Controls.Add(Me.txtContact)
-        Me.Controls.Add(Me.btnSave)
         Me.Controls.Add(Me.cboBranch)
-        Me.Controls.Add(Me.Button5)
         Me.Controls.Add(Me.picProfile)
         Me.Controls.Add(BRANCHLabel)
-        Me.Controls.Add(Me.btnCancel)
         Me.Controls.Add(CONTACTLabel)
         Me.Controls.Add(Label3)
         Me.Controls.Add(EMAILLabel)
@@ -375,9 +524,6 @@ Partial Class Add_User
         Me.PerformLayout()
 
     End Sub
-    Friend WithEvents btnSave As Button
-    Friend WithEvents Button5 As Button
-    Friend WithEvents btnCancel As Button
     Friend WithEvents Panel2 As Panel
     Friend WithEvents userPic As PictureBox
     Friend WithEvents Label1 As Label
@@ -391,4 +537,17 @@ Partial Class Add_User
     Friend WithEvents cboBranch As ComboBox
     Friend WithEvents txtContact As TextBox
     Friend WithEvents txtBranchID As TextBox
+    Friend WithEvents btnSave As Button
+    Friend WithEvents btnCancel As Button
+    Friend WithEvents Label15 As Label
+    Friend WithEvents Label4 As Label
+    Friend WithEvents Label5 As Label
+    Friend WithEvents Label6 As Label
+    Friend WithEvents Label7 As Label
+    Friend WithEvents Label8 As Label
+    Friend WithEvents Label9 As Label
+    Friend WithEvents Label10 As Label
+    Friend WithEvents Label11 As Label
+    Friend WithEvents Label12 As Label
+    Friend WithEvents Label13 As Label
 End Class

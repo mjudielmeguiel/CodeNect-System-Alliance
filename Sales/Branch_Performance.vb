@@ -11,7 +11,6 @@ Public Class Branch_Performance
         Try
             Dim dt As New DataTable()
 
-            ' Kukunin LAHAT ng laman, eksaktong pangalan ng column
             Dim sql As String = "
                 SELECT
                     ACCOUNT_ID,

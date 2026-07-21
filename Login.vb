@@ -52,7 +52,7 @@ Public Class Login
                 End Using
 
                 If isAdminFound Then
-                    ' GET PASSWORD SEPARATELY FOR ADMIN
+
                     Dim passCheck As String = ""
                     Dim queryAdminPass As String = "SELECT PASSWORD FROM adm.Account WHERE ID=@id"
                     Using cmdPass As New SqlCommand(queryAdminPass, conn)

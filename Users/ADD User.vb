@@ -20,7 +20,7 @@ Public Class Add_User
 
         LoadBranches()
 
-        ' Default password placeholder
+
         txtPassword.Text = "Password1*"
         txtConfirmPassword.Text = "Password1*"
         txtPassword.PasswordChar = "*"c
@@ -96,7 +96,7 @@ Public Class Add_User
     End Function
 
 #Region "SAVE BUTTON"
-    Private Sub btnSave_Click(sender As Object, e As EventArgs) Handles btnSave.Click
+    Private Sub btnSave_Click(sender As Object, e As EventArgs)
 
         ' --- VALIDATION ---
         If String.IsNullOrWhiteSpace(txtFullName.Text) Then
@@ -172,7 +172,7 @@ Public Class Add_User
                     cmd.Parameters.Add("@BrName", SqlDbType.NVarChar, 100).Value = branchName
                     cmd.Parameters.Add("@Pro", SqlDbType.VarBinary).Value = If(NewProfilePhoto IsNot Nothing, NewProfilePhoto, DBNull.Value)
                     cmd.Parameters.Add("@User", SqlDbType.NVarChar, 50).Value = txtUsername.Text.Trim()
-                    cmd.Parameters.Add("@Pass", SqlDbType.NVarChar, 100).Value = txtPassword.Text ' Note: For production, use hashing!
+                    cmd.Parameters.Add("@Pass", SqlDbType.NVarChar, 100).Value = txtPassword.Text 
                     cmd.Parameters.Add("@Full", SqlDbType.NVarChar, 150).Value = txtFullName.Text.Trim()
                     cmd.Parameters.Add("@Type", SqlDbType.NVarChar, 50).Value = cboUserType.Text.Trim()
                     cmd.Parameters.Add("@Contact", SqlDbType.NVarChar, 30).Value = txtContact.Text.Trim()
@@ -193,7 +193,7 @@ Public Class Add_User
 
 #End Region
 
-    Private Sub btnCancel_Click(sender As Object, e As EventArgs) Handles btnCancel.Click
+    Private Sub btnCancel_Click(sender As Object, e As EventArgs)
         Me.Close()
     End Sub
 

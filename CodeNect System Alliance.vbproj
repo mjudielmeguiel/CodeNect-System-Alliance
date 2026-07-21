@@ -11,7 +11,7 @@
     <AssemblyName>CodeNect System Alliance</AssemblyName>
     <FileAlignment>512</FileAlignment>
     <MyType>WindowsForms</MyType>
-    <TargetFrameworkVersion>v4.8.1</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
     <Deterministic>true</Deterministic>
     <TargetFrameworkProfile />
@@ -276,6 +276,12 @@
       <DependentUpon>frmBranch_Info.vb</DependentUpon>
     </Compile>
     <Compile Include="Branch\frmBranch_Info.vb">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Data Reports\frmBadOrder_Report.Designer.vb">
+      <DependentUpon>frmBadOrder_Report.vb</DependentUpon>
+    </Compile>
+    <Compile Include="Data Reports\frmBadOrder_Report.vb">
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="DBConnection.vb" />
@@ -551,6 +557,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Branch\frmBranch_Info.resx">
       <DependentUpon>frmBranch_Info.vb</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Data Reports\frmBadOrder_Report.resx">
+      <DependentUpon>frmBadOrder_Report.vb</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Discounts\frmDiscountRecords.resx">
       <DependentUpon>frmDiscountRecords.vb</DependentUpon>

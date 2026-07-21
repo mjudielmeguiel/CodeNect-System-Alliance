@@ -83,7 +83,6 @@ Partial Class Branch_Performance
         Me.btnExport.FlatStyle = System.Windows.Forms.FlatStyle.Flat
         Me.btnExport.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.btnExport.ForeColor = System.Drawing.SystemColors.ButtonHighlight
-        Me.btnExport.Image = CType(resources.GetObject("btnExport.Image"), System.Drawing.Image)
         Me.btnExport.Location = New System.Drawing.Point(1200, 5)
         Me.btnExport.Name = "btnExport"
         Me.btnExport.Size = New System.Drawing.Size(135, 37)
