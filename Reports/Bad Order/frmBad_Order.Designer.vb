@@ -1,9 +1,9 @@
-﻿<Global.Microsoft.VisualBasic.CompilerServices.DesignerGenerated()> _
+﻿<Global.Microsoft.VisualBasic.CompilerServices.DesignerGenerated()>
 Partial Class frmBad_Order
     Inherits System.Windows.Forms.Form
 
     'Form overrides dispose to clean up the component list.
-    <System.Diagnostics.DebuggerNonUserCode()> _
+    <System.Diagnostics.DebuggerNonUserCode()>
     Protected Overrides Sub Dispose(ByVal disposing As Boolean)
         Try
             If disposing AndAlso components IsNot Nothing Then
@@ -20,7 +20,7 @@ Partial Class frmBad_Order
     'NOTE: The following procedure is required by the Windows Form Designer
     'It can be modified using the Windows Form Designer.  
     'Do not modify it using the code editor.
-    <System.Diagnostics.DebuggerStepThrough()> _
+    <System.Diagnostics.DebuggerStepThrough()>
     Private Sub InitializeComponent()
         Dim resources As System.ComponentModel.ComponentResourceManager = New System.ComponentModel.ComponentResourceManager(GetType(frmBad_Order))
         Dim DataGridViewCellStyle1 As System.Windows.Forms.DataGridViewCellStyle = New System.Windows.Forms.DataGridViewCellStyle()
@@ -216,7 +216,7 @@ Partial Class frmBad_Order
         Me.txtBarcode.Font = New System.Drawing.Font("Microsoft YaHei UI", 12.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.txtBarcode.Location = New System.Drawing.Point(96, 12)
         Me.txtBarcode.Name = "txtBarcode"
-        Me.txtBarcode.Size = New System.Drawing.Size(807, 28)
+        Me.txtBarcode.Size = New System.Drawing.Size(299, 28)
         Me.txtBarcode.TabIndex = 321
         '
         'dgvInventory
@@ -251,7 +251,7 @@ Partial Class frmBad_Order
         DataGridViewCellStyle3.SelectionForeColor = System.Drawing.SystemColors.HighlightText
         DataGridViewCellStyle3.WrapMode = System.Windows.Forms.DataGridViewTriState.[True]
         Me.dgvInventory.RowHeadersDefaultCellStyle = DataGridViewCellStyle3
-        Me.dgvInventory.Size = New System.Drawing.Size(923, 475)
+        Me.dgvInventory.Size = New System.Drawing.Size(923, 534)
         Me.dgvInventory.TabIndex = 323
         '
         'Panel2
@@ -260,7 +260,7 @@ Partial Class frmBad_Order
         Me.Panel2.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle
         Me.Panel2.Location = New System.Drawing.Point(941, 169)
         Me.Panel2.Name = "Panel2"
-        Me.Panel2.Size = New System.Drawing.Size(413, 534)
+        Me.Panel2.Size = New System.Drawing.Size(413, 475)
         Me.Panel2.TabIndex = 324
         '
         'Panel3
@@ -269,9 +269,9 @@ Partial Class frmBad_Order
         Me.Panel3.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle
         Me.Panel3.Controls.Add(Me.txtBarcode)
         Me.Panel3.Controls.Add(Me.Label2)
-        Me.Panel3.Location = New System.Drawing.Point(12, 650)
+        Me.Panel3.Location = New System.Drawing.Point(941, 650)
         Me.Panel3.Name = "Panel3"
-        Me.Panel3.Size = New System.Drawing.Size(923, 53)
+        Me.Panel3.Size = New System.Drawing.Size(413, 53)
         Me.Panel3.TabIndex = 325
         '
         'frmBad_Order

@@ -72,6 +72,7 @@ Partial Class DashBoard
         Me.Inventory = New System.Windows.Forms.ToolStripMenuItem()
         Me.Sotex = New System.Windows.Forms.ToolStripMenuItem()
         Me.Bo = New System.Windows.Forms.ToolStripMenuItem()
+        Me.Btn_Manage = New System.Windows.Forms.ToolStripButton()
         Me.toolbarRoom = New System.Windows.Forms.ToolStripButton()
         Me.ToolStripButton12 = New System.Windows.Forms.ToolStripButton()
         Me.TsVendolist = New System.Windows.Forms.ToolStripButton()
@@ -86,7 +87,6 @@ Partial Class DashBoard
         Me.SalesTransactionsToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
         Me.ToolStripButton6 = New System.Windows.Forms.ToolStripButton()
         Me.Panel2 = New System.Windows.Forms.Panel()
-        Me.Btn_Manage = New System.Windows.Forms.ToolStripButton()
         Me.Panel1.SuspendLayout()
         CType(Me.userPic, System.ComponentModel.ISupportInitialize).BeginInit()
         CType(Me.adminpic, System.ComponentModel.ISupportInitialize).BeginInit()
@@ -242,59 +242,59 @@ Partial Class DashBoard
         'tsStockOrdering
         '
         Me.tsStockOrdering.Name = "tsStockOrdering"
-        Me.tsStockOrdering.Size = New System.Drawing.Size(199, 26)
+        Me.tsStockOrdering.Size = New System.Drawing.Size(204, 26)
         Me.tsStockOrdering.Text = "Stock Ordering"
         '
         'tsStockTransfer
         '
         Me.tsStockTransfer.Name = "tsStockTransfer"
-        Me.tsStockTransfer.Size = New System.Drawing.Size(199, 26)
+        Me.tsStockTransfer.Size = New System.Drawing.Size(204, 26)
         Me.tsStockTransfer.Text = "Stock Transfer"
         '
         'ReturnToVendorToolStripMenuItem1
         '
         Me.ReturnToVendorToolStripMenuItem1.Name = "ReturnToVendorToolStripMenuItem1"
-        Me.ReturnToVendorToolStripMenuItem1.Size = New System.Drawing.Size(199, 26)
+        Me.ReturnToVendorToolStripMenuItem1.Size = New System.Drawing.Size(204, 26)
         Me.ReturnToVendorToolStripMenuItem1.Text = "Return to Vendor"
         '
         'ToolStripSeparator3
         '
         Me.ToolStripSeparator3.Name = "ToolStripSeparator3"
-        Me.ToolStripSeparator3.Size = New System.Drawing.Size(196, 6)
+        Me.ToolStripSeparator3.Size = New System.Drawing.Size(201, 6)
         '
         'StockCountToolStripMenuItem1
         '
         Me.StockCountToolStripMenuItem1.Name = "StockCountToolStripMenuItem1"
-        Me.StockCountToolStripMenuItem1.Size = New System.Drawing.Size(199, 26)
-        Me.StockCountToolStripMenuItem1.Text = "Stock Count"
+        Me.StockCountToolStripMenuItem1.Size = New System.Drawing.Size(204, 26)
+        Me.StockCountToolStripMenuItem1.Text = "Inventory Reports"
         '
         'DamageToolStripMenuItem
         '
         Me.DamageToolStripMenuItem.Name = "DamageToolStripMenuItem"
-        Me.DamageToolStripMenuItem.Size = New System.Drawing.Size(199, 26)
+        Me.DamageToolStripMenuItem.Size = New System.Drawing.Size(204, 26)
         Me.DamageToolStripMenuItem.Text = "Damage (B/O)"
         '
         'ExpiryToolStripMenuItem
         '
         Me.ExpiryToolStripMenuItem.Name = "ExpiryToolStripMenuItem"
-        Me.ExpiryToolStripMenuItem.Size = New System.Drawing.Size(199, 26)
+        Me.ExpiryToolStripMenuItem.Size = New System.Drawing.Size(204, 26)
         Me.ExpiryToolStripMenuItem.Text = "Expiry"
         '
         'ToolStripMenuItem2
         '
         Me.ToolStripMenuItem2.Name = "ToolStripMenuItem2"
-        Me.ToolStripMenuItem2.Size = New System.Drawing.Size(196, 6)
+        Me.ToolStripMenuItem2.Size = New System.Drawing.Size(201, 6)
         '
         'PromoUpdatesToolStripMenuItem
         '
         Me.PromoUpdatesToolStripMenuItem.Name = "PromoUpdatesToolStripMenuItem"
-        Me.PromoUpdatesToolStripMenuItem.Size = New System.Drawing.Size(199, 26)
+        Me.PromoUpdatesToolStripMenuItem.Size = New System.Drawing.Size(204, 26)
         Me.PromoUpdatesToolStripMenuItem.Text = "Promo Updates"
         '
         'SalesToolStripMenuItem
         '
         Me.SalesToolStripMenuItem.Name = "SalesToolStripMenuItem"
-        Me.SalesToolStripMenuItem.Size = New System.Drawing.Size(199, 26)
+        Me.SalesToolStripMenuItem.Size = New System.Drawing.Size(204, 26)
         Me.SalesToolStripMenuItem.Text = "Sales"
         '
         'ToolStripButton2
@@ -361,6 +361,7 @@ Partial Class DashBoard
         '
         'ToolStripStatusLabel1
         '
+        Me.ToolStripStatusLabel1.IsLink = True
         Me.ToolStripStatusLabel1.Name = "ToolStripStatusLabel1"
         Me.ToolStripStatusLabel1.Size = New System.Drawing.Size(450, 17)
         Me.ToolStripStatusLabel1.Spring = True
@@ -454,6 +455,16 @@ Partial Class DashBoard
         Me.Bo.Name = "Bo"
         Me.Bo.Size = New System.Drawing.Size(198, 22)
         Me.Bo.Text = "Bad Order"
+        '
+        'Btn_Manage
+        '
+        Me.Btn_Manage.Font = New System.Drawing.Font("Segoe UI Semibold", 9.0!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.Btn_Manage.Image = CType(resources.GetObject("Btn_Manage.Image"), System.Drawing.Image)
+        Me.Btn_Manage.ImageTransparentColor = System.Drawing.Color.Magenta
+        Me.Btn_Manage.Name = "Btn_Manage"
+        Me.Btn_Manage.Size = New System.Drawing.Size(154, 36)
+        Me.Btn_Manage.Text = "Product Descriptions"
+        Me.Btn_Manage.ToolTipText = "Checkout"
         '
         'toolbarRoom
         '
@@ -570,16 +581,6 @@ Partial Class DashBoard
         Me.Panel2.Name = "Panel2"
         Me.Panel2.Size = New System.Drawing.Size(1366, 625)
         Me.Panel2.TabIndex = 16
-        '
-        'Btn_Manage
-        '
-        Me.Btn_Manage.Font = New System.Drawing.Font("Segoe UI Semibold", 9.0!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.Btn_Manage.Image = CType(resources.GetObject("Btn_Manage.Image"), System.Drawing.Image)
-        Me.Btn_Manage.ImageTransparentColor = System.Drawing.Color.Magenta
-        Me.Btn_Manage.Name = "Btn_Manage"
-        Me.Btn_Manage.Size = New System.Drawing.Size(154, 36)
-        Me.Btn_Manage.Text = "Product Descriptions"
-        Me.Btn_Manage.ToolTipText = "Checkout"
         '
         'DashBoard
         '

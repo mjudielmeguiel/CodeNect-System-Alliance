@@ -247,7 +247,7 @@ Public Class DashBoard
     Private Sub Bo_Click(sender As Object, e As EventArgs) Handles Bo.Click
         Dim BO As New frmBad_Order
         BO.Show()
-        BO.lblPreparedBy.Text = ToolStripStatusLabel1.Text 'Trim lang from Dashboard to Bad Order Form
+        BO.lblPreparedBy.Text = ToolStripStatusLabel1.Text
         BO.lblNameBranch.Text = ToolStripStatusLabel4.Text
     End Sub
 
@@ -284,6 +284,16 @@ Public Class DashBoard
         frmBottom.Dock = DockStyle.Fill
         Panel2.Controls.Add(frmBottom)
         frmBottom.Show()
+    End Sub
+
+    Private Sub StockCountToolStripMenuItem1_Click(sender As Object, e As EventArgs) Handles StockCountToolStripMenuItem1.Click
+        Panel2.Controls.Clear()
+        Dim Inventory As New frmInventory_DATA
+        Inventory.TopLevel = False
+        Inventory.FormBorderStyle = FormBorderStyle.None
+        Inventory.Dock = DockStyle.Fill
+        Panel2.Controls.Add(Inventory)
+        Inventory.Show()
     End Sub
 
 #End Region
