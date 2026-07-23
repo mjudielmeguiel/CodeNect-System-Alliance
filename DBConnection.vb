@@ -1,5 +1,4 @@
-﻿Imports System.Data.SqlClient
-Imports System.IO
+﻿Imports System.IO
 Imports System.Xml
 Imports MySqlConnector
 
@@ -10,8 +9,8 @@ Module DBConnection
     Public ReadOnly Property connStr As String
         Get
             If Not File.Exists(settingsFile) Then
-                ' Default connection string for XAMPP MySQL
-                ' Port = 3306 (default) or 3307 if you changed it earlier
+                ' ✅ DEFAULT CONNECTION STRING FOR XAMPP MYSQL
+                ' XAMPP Default: Server=localhost, Port=3306, User=root, Walang Password
                 Return "Server=localhost;Port=3306;Database=CodeNectDB;User ID=root;Password=;SslMode=None;Allow User Variables=True;"
             End If
 
@@ -29,7 +28,8 @@ Module DBConnection
 
                 Return $"Server={ip};Port={port};Database={db};User ID={user};Password={pass};Connect Timeout={oras};SslMode=None;"
             Catch
-                Return ""
+                ' Kapag may error sa pagbasa ng file, gagamitin pa rin ang default XAMPP settings
+                Return "Server=localhost;Port=3306;Database=CodeNectDB;User ID=root;Password=;SslMode=None;Allow User Variables=True;"
             End Try
         End Get
     End Property
@@ -40,10 +40,17 @@ Module DBConnection
                 conn.Open()
                 Return True
             Catch ex As MySqlException
-                MessageBox.Show("Connection Error: " & ex.Message, "Database Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
+                MessageBox.Show("XAMPP MySQL Error: " & ex.Message & vbCrLf &
+                                "Check if XAMPP Apache & MySQL are running.",
+                                "Database Connection Error",
+                                MessageBoxButtons.OK,
+                                MessageBoxIcon.Error)
                 Return False
             Catch ex As Exception
-                MessageBox.Show("Error: " & ex.Message, "General Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
+                MessageBox.Show("General Error: " & ex.Message,
+                                "Error",
+                                MessageBoxButtons.OK,
+                                MessageBoxIcon.Error)
                 Return False
             End Try
         End Using

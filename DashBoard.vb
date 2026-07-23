@@ -1,5 +1,4 @@
-﻿Imports System.Data.SqlClient
-Imports System.Net
+﻿Imports System.Net
 Imports System.Net.NetworkInformation
 Imports ClosedXML.Excel
 Imports MySqlConnector
@@ -25,9 +24,9 @@ Public Class DashBoard
                 Dim cmdText As String = ""
                 Dim paramValue As String = ""
 
-                ' ✅ Kung ADMIN ang naka-login
+                ' ✅ Kung ADMIN ang naka-login → TABLE: `account`
                 If Login.LoggedInUserType.Equals("ADMIN", StringComparison.OrdinalIgnoreCase) Then
-                    cmdText = "UPDATE adm_Account SET STATUS = 'OFFLINE' WHERE ACCOUNT_ID = @ID"
+                    cmdText = "UPDATE account SET STATUS = 'OFFLINE' WHERE ACCOUNT_ID = @ID"
                     paramValue = Login.LoggedInAccountID
 
                     ' ✅ Kung Regular User ang naka-login
@@ -41,12 +40,11 @@ Public Class DashBoard
 
                 Using cmd As New MySqlCommand(cmdText, conn)
                     cmd.Parameters.AddWithValue("@ID", paramValue)
-                    Dim rowsAffected As Integer = cmd.ExecuteNonQuery()
-
+                    cmd.ExecuteNonQuery()
                 End Using
             End Using
         Catch ex As MySqlException
-            MessageBox.Show("Database Error: " & ex.Message, "System Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
+            MessageBox.Show("XAMPP MySQL Error: " & ex.Message, "System Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
         Catch ex As Exception
             MessageBox.Show("Error sa pag-update ng katayuan: " & ex.Message, "System Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
         End Try
@@ -226,7 +224,7 @@ Public Class DashBoard
     Private Sub Bo_Click(sender As Object, e As EventArgs) Handles Bo.Click
         Dim BO As New frmBad_Order
         BO.Show()
-        BO.lblPreparedBy.Text = ToolStripStatusLabel1.Text 'Trim lang from Dashboard to Bad Order Form
+        BO.lblPreparedBy.Text = ToolStripStatusLabel1.Text
         BO.lblNameBranch.Text = ToolStripStatusLabel4.Text
     End Sub
 

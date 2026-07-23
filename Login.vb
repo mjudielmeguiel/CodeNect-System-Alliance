@@ -1,5 +1,4 @@
-﻿Imports System.Data.SqlClient
-Imports System.IO
+﻿Imports System.IO
 Imports System.Xml
 Imports MySqlConnector
 
@@ -19,6 +18,7 @@ Public Class Login
         Dim username As String = txtUsername.Text.Trim()
         Dim password As String = txtPassword.Text.Trim()
 
+        ' Validate inputs
         If username = "" OrElse username = "Enter Username" Then
             MessageBox.Show("Please enter your Username", "Notice", MessageBoxButtons.OK, MessageBoxIcon.Warning)
             Return
@@ -29,21 +29,22 @@ Public Class Login
             Return
         End If
 
-        ' Use the connection string from our DBConnection module
+        ' Connect to XAMPP MySQL
         Using conn As New MySqlConnection(DBConnection.connStr)
             Try
                 conn.Open()
 
-                ' CHECK ADMIN ACCOUNT (NO ATTEMPT LOCK)
+                ' ==============================================
+                ' CHECK ADMIN ACCOUNT FIRST
+                ' ==============================================
                 Dim isAdminFound As Boolean = False
                 Dim adminStatus As String = ""
                 Dim adminID As String = ""
                 Dim adminFullName As String = ""
 
-                Dim queryAdmin As String = "SELECT ID, ACCOUNT_ID, STATUS, ACCOUNT FROM adm_Account WHERE USERNAME=@user"
+                Dim queryAdmin As String = "SELECT ID, ACCOUNT_ID, STATUS, ACCOUNT FROM Account WHERE USERNAME=@user"
                 Using cmdAdmin As New MySqlCommand(queryAdmin, conn)
                     cmdAdmin.Parameters.AddWithValue("@user", username)
-
                     Using drAdmin As MySqlDataReader = cmdAdmin.ExecuteReader()
                         If drAdmin.Read() Then
                             isAdminFound = True
@@ -56,9 +57,9 @@ Public Class Login
                 End Using
 
                 If isAdminFound Then
-                    ' GET PASSWORD SEPARATELY FOR ADMIN
+                    ' Get password separately
                     Dim passCheck As String = ""
-                    Dim queryAdminPass As String = "SELECT PASSWORD FROM adm_Account WHERE ID=@id"
+                    Dim queryAdminPass As String = "SELECT PASSWORD FROM Account WHERE ID=@id"
                     Using cmdPass As New MySqlCommand(queryAdminPass, conn)
                         cmdPass.Parameters.AddWithValue("@id", adminID)
                         passCheck = cmdPass.ExecuteScalar().ToString().Trim()
@@ -68,23 +69,24 @@ Public Class Login
                         Case "ACTIVE"
                             MessageBox.Show("This account is already logged in on another device.", "Already Logged In", MessageBoxButtons.OK, MessageBoxIcon.Exclamation)
                             Return
-
                         Case "LOCKED"
                             MessageBox.Show("Account is LOCKED. Please contact IT.", "Locked", MessageBoxButtons.OK, MessageBoxIcon.Stop)
                             Return
-
                         Case "OFFLINE"
                             If passCheck = password Then
-                                Using cmdUpdate As New MySqlCommand("UPDATE adm_Account SET STATUS = 'ACTIVE' WHERE ID = @id", conn)
+                                ' Update status to Active
+                                Using cmdUpdate As New MySqlCommand("UPDATE Account SET STATUS = 'ACTIVE' WHERE ID = @id", conn)
                                     cmdUpdate.Parameters.AddWithValue("@id", adminID)
                                     cmdUpdate.ExecuteNonQuery()
                                 End Using
 
+                                ' Set session variables
                                 LoggedInUserID = adminID
                                 LoggedInBranchID = ""
                                 LoggedInUserType = "ADMIN"
                                 LoggedInUsername = adminFullName
 
+                                ' Open Dashboard for Admin
                                 DashBoard.ToolStripStatusLabel1.Text = LoggedInUsername
                                 DashBoard.ToolStripStatusLabel4.Text = "MAIN OFFICE"
                                 DashBoard.Label1.Text = "ADMIN PANEL"
@@ -92,13 +94,15 @@ Public Class Login
                                 Me.Hide()
                                 DashBoard.Show()
                             Else
-                                MessageBox.Show("Username or Password does not exist", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
+                                MessageBox.Show("Incorrect Password", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
                             End If
                     End Select
                     Return
                 End If
 
-                ' CHECK REGULAR USER ACCOUNT (WITH ATTEMPT LOCK)
+                ' ==============================================
+                ' CHECK REGULAR USER ACCOUNT
+                ' ==============================================
                 Dim userFound As Boolean = False
                 Dim userStatus As String = ""
                 Dim userID As String = ""
@@ -111,7 +115,6 @@ Public Class Login
                 Dim queryUser As String = "SELECT ID, ACCOUNT_ID, BRANCH_ID, BRANCH, USER_TYPE, STATUS, FULL_NAME, PASSWORD FROM User_Accounts WHERE USERNAME=@user"
                 Using cmdUser As New MySqlCommand(queryUser, conn)
                     cmdUser.Parameters.AddWithValue("@user", username)
-
                     Using drUser As MySqlDataReader = cmdUser.ExecuteReader()
                         If drUser.Read() Then
                             userFound = True
@@ -128,40 +131,40 @@ Public Class Login
                 End Using
 
                 If Not userFound Then
-                    MessageBox.Show("Username or Password does not exist", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
+                    MessageBox.Show("Username does not exist", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
                     Return
                 End If
 
+                ' Check account status
                 Select Case userStatus.ToUpper()
                     Case "ACTIVE"
                         MessageBox.Show("This account is already logged in on another device.", "Already Logged In", MessageBoxButtons.OK, MessageBoxIcon.Exclamation)
                         Return
-
                     Case "LOCKED"
                         MessageBox.Show("Account is LOCKED after 3 failed attempts. Contact IT to unlock.", "Locked", MessageBoxButtons.OK, MessageBoxIcon.Stop)
                         Return
-
                     Case "OFFLINE"
                         ' Continue login process
                 End Select
 
+                ' Verify password
                 If storedPassword = password Then
                     attemptCount = 0
-
+                    ' Update status to Active
                     Using cmdUpdate As New MySqlCommand("UPDATE User_Accounts SET STATUS = 'ACTIVE' WHERE ID = @id", conn)
                         cmdUpdate.Parameters.AddWithValue("@id", userID)
                         cmdUpdate.ExecuteNonQuery()
                     End Using
 
+                    ' Set session variables
                     LoggedInUserID = userID
                     LoggedInBranchID = branchCode
                     LoggedInUserType = userType
                     LoggedInUsername = fullName
 
-                    ' ✅ CASHIER/POS USERS - GO DIRECTLY TO POS
+                    ' Redirect based on User Type
                     If userType.Equals("CASHIER", StringComparison.OrdinalIgnoreCase) OrElse
                        userType.Equals("POS", StringComparison.OrdinalIgnoreCase) Then
-
                         frmPOS_System.tsname.Text = LoggedInUsername
                         frmPOS_System.tsbranch.Text = branchName
                         frmPOS_System.ToolStripStatusLabel3.Text = userType.ToUpper()
@@ -170,26 +173,23 @@ Public Class Login
                         Return
                     End If
 
-                    ' ALL OTHER USERS GO TO DASHBOARD
+                    ' Open Dashboard for other users
                     DashBoard.UserToolStripMenuItem.Text = LoggedInUsername
                     DashBoard.ToolStripStatusLabel1.Text = LoggedInUsername
                     DashBoard.ToolStripStatusLabel4.Text = branchName
                     DashBoard.Label1.Text = userType.ToUpper() & " DASHBOARD"
 
-                    ' PERMISSIONS BASED ON USER TYPE
+                    ' Set permissions
                     Select Case userType.ToUpper()
                         Case "BRANCH ADMINISTRATOR", "IT SUPPORT"
                             DashBoard.UserManageToolStripMenuItem.Visible = True
                             DashBoard.Btn_Manage.Visible = True
-
                         Case "BRANCH MANAGER", "SUPERVISOR", "INVENTORY CLERK", "SALES STAFF"
                             DashBoard.UserManageToolStripMenuItem.Visible = False
                             DashBoard.Btn_Manage.Visible = True
-
                         Case "RECEIVING DEPARTMENT UNIT"
                             DashBoard.UserManageToolStripMenuItem.Visible = False
                             DashBoard.Btn_Manage.Visible = False
-
                         Case Else
                             DashBoard.UserManageToolStripMenuItem.Visible = False
                             DashBoard.Btn_Manage.Visible = False
@@ -199,6 +199,7 @@ Public Class Login
                     Me.Hide()
 
                 Else
+                    ' Wrong password handling
                     attemptCount += 1
                     If attemptCount >= maxAttempts Then
                         Using cmdLock As New MySqlCommand("UPDATE User_Accounts SET STATUS = 'LOCKED' WHERE ID = @id", conn)
@@ -208,12 +209,12 @@ Public Class Login
                         MessageBox.Show("ACCOUNT LOCKED! Contact IT to unlock.", "Locked", MessageBoxButtons.OK, MessageBoxIcon.Stop)
                         attemptCount = 0
                     Else
-                        MessageBox.Show("Username or Password does not exist. Remaining attempts: " & (maxAttempts - attemptCount), "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
+                        MessageBox.Show("Incorrect Password. Remaining attempts: " & (maxAttempts - attemptCount), "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
                     End If
                 End If
 
             Catch ex As MySqlException
-                MessageBox.Show("Database Error: " & ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
+                MessageBox.Show("XAMPP MySQL Error: " & ex.Message, "Database Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
             Catch ex As Exception
                 MessageBox.Show("System Error: " & ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
             End Try
