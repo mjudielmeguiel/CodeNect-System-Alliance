@@ -296,6 +296,17 @@ Public Class DashBoard
         Inventory.Show()
     End Sub
 
+    Private Sub DamageToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles DamageToolStripMenuItem.Click
+
+        Panel2.Controls.Clear()
+        Dim BO As New frmBadOrder_DATA
+        BO.TopLevel = False
+        BO.FormBorderStyle = FormBorderStyle.None
+        BO.Dock = DockStyle.Fill
+        Panel2.Controls.Add(BO)
+        BO.Show()
+    End Sub
+
 #End Region
 
 End Class

@@ -278,10 +278,10 @@
     <Compile Include="Branch\frmBranch_Info.vb">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Data Reports\frmBadOrder_Report.Designer.vb">
-      <DependentUpon>frmBadOrder_Report.vb</DependentUpon>
+    <Compile Include="Reports\Bad Order\frmBadOrder_DATA.Designer.vb">
+      <DependentUpon>frmBadOrder_DATA.vb</DependentUpon>
     </Compile>
-    <Compile Include="Data Reports\frmBadOrder_Report.vb">
+    <Compile Include="Reports\Bad Order\frmBadOrder_DATA.vb">
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="DBConnection.vb" />
@@ -576,8 +576,8 @@
     <EmbeddedResource Include="Branch\frmBranch_Info.resx">
       <DependentUpon>frmBranch_Info.vb</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Data Reports\frmBadOrder_Report.resx">
-      <DependentUpon>frmBadOrder_Report.vb</DependentUpon>
+    <EmbeddedResource Include="Reports\Bad Order\frmBadOrder_DATA.resx">
+      <DependentUpon>frmBadOrder_DATA.vb</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Discounts\frmDiscountRecords.resx">
       <DependentUpon>frmDiscountRecords.vb</DependentUpon>

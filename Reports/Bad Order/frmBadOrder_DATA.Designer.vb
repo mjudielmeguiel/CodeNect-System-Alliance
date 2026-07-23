@@ -1,5 +1,5 @@
 ﻿<Global.Microsoft.VisualBasic.CompilerServices.DesignerGenerated()> _
-Partial Class frmBadOrder_Report
+Partial Class frmBadOrder_DATA
     Inherits System.Windows.Forms.Form
 
     'Form overrides dispose to clean up the component list.
@@ -24,7 +24,7 @@ Partial Class frmBadOrder_Report
     Private Sub InitializeComponent()
         Dim Label1 As System.Windows.Forms.Label
         Dim STOCK_AVAILABLELabel As System.Windows.Forms.Label
-        Dim resources As System.ComponentModel.ComponentResourceManager = New System.ComponentModel.ComponentResourceManager(GetType(frmBadOrder_Report))
+        Dim resources As System.ComponentModel.ComponentResourceManager = New System.ComponentModel.ComponentResourceManager(GetType(frmBadOrder_DATA))
         Dim DataGridViewCellStyle1 As System.Windows.Forms.DataGridViewCellStyle = New System.Windows.Forms.DataGridViewCellStyle()
         Dim DataGridViewCellStyle2 As System.Windows.Forms.DataGridViewCellStyle = New System.Windows.Forms.DataGridViewCellStyle()
         Dim DataGridViewCellStyle3 As System.Windows.Forms.DataGridViewCellStyle = New System.Windows.Forms.DataGridViewCellStyle()
@@ -38,6 +38,25 @@ Partial Class frmBadOrder_Report
         Me.Panel1.SuspendLayout()
         CType(Me.dgvProducts, System.ComponentModel.ISupportInitialize).BeginInit()
         Me.SuspendLayout()
+        '
+        'Label1
+        '
+        Label1.Anchor = CType((System.Windows.Forms.AnchorStyles.Top Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
+        Label1.AutoSize = True
+        Label1.Location = New System.Drawing.Point(848, 17)
+        Label1.Name = "Label1"
+        Label1.Size = New System.Drawing.Size(34, 13)
+        Label1.TabIndex = 272
+        Label1.Text = "Total:"
+        '
+        'STOCK_AVAILABLELabel
+        '
+        STOCK_AVAILABLELabel.AutoSize = True
+        STOCK_AVAILABLELabel.Location = New System.Drawing.Point(16, 17)
+        STOCK_AVAILABLELabel.Name = "STOCK_AVAILABLELabel"
+        STOCK_AVAILABLELabel.Size = New System.Drawing.Size(44, 13)
+        STOCK_AVAILABLELabel.TabIndex = 271
+        STOCK_AVAILABLELabel.Text = "Search:"
         '
         'txtSearch
         '
@@ -64,25 +83,6 @@ Partial Class frmBadOrder_Report
         Me.Panel1.Name = "Panel1"
         Me.Panel1.Size = New System.Drawing.Size(1342, 48)
         Me.Panel1.TabIndex = 221
-        '
-        'Label1
-        '
-        Label1.Anchor = CType((System.Windows.Forms.AnchorStyles.Top Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
-        Label1.AutoSize = True
-        Label1.Location = New System.Drawing.Point(848, 17)
-        Label1.Name = "Label1"
-        Label1.Size = New System.Drawing.Size(34, 13)
-        Label1.TabIndex = 272
-        Label1.Text = "Total:"
-        '
-        'STOCK_AVAILABLELabel
-        '
-        STOCK_AVAILABLELabel.AutoSize = True
-        STOCK_AVAILABLELabel.Location = New System.Drawing.Point(16, 17)
-        STOCK_AVAILABLELabel.Name = "STOCK_AVAILABLELabel"
-        STOCK_AVAILABLELabel.Size = New System.Drawing.Size(44, 13)
-        STOCK_AVAILABLELabel.TabIndex = 271
-        STOCK_AVAILABLELabel.Text = "Search:"
         '
         'btnRefresh
         '
