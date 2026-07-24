@@ -20,12 +20,38 @@ Public Class frmPOS_System
     Private totalPaid As Decimal = 0
     Private paymentDetails As New List(Of String)()
 
-    Private paymentMethod As String = "Cash" ' Default
+    ' ✅ Malinaw na pagtukoy ng paraan ng pagbabayad
+    Private paymentMethod As String = "Cash"
     Private cashAmount As Decimal = 0
     Private onlineAmount As Decimal = 0
 
+    Private Sub frmPOS_System_FormClosing(sender As Object, e As FormClosingEventArgs) Handles MyBase.FormClosing
+        SetUserStatus("OFFLINE")
+    End Sub
+
+    Private Sub SetUserStatus(status As String)
+        Try
+            Using conn As New SqlConnection(DBConnection.connStr)
+                Dim sql As String = "
+                UPDATE dbo.User_Accounts 
+                SET STATUS = @NewStatus, 
+                    LAST_LOGIN_DATETIME = GETDATE()
+                WHERE USERNAME = @User"
+
+                Using cmd As New SqlCommand(sql, conn)
+                    cmd.Parameters.AddWithValue("@NewStatus", status)
+                    cmd.Parameters.AddWithValue("@User", Login.txtUsername.Text.Trim())
+                    conn.Open()
+                    cmd.ExecuteNonQuery()
+                End Using
+            End Using
+        Catch ex As Exception
+            MessageBox.Show("Status Update Error: " & ex.Message, "Notice", MessageBoxButtons.OK, MessageBoxIcon.Warning)
+        End Try
+    End Sub
+
     Private Sub DeterminePaymentMethod()
-        ' Reset values first
+        ' I-reset muna ang mga halaga
         paymentMethod = "Cash"
         cashAmount = 0
         onlineAmount = 0
@@ -40,13 +66,13 @@ Public Class frmPOS_System
             End If
         Next
 
-        ' Decide final payment type
+        ' ✅ Tukuyin kung anong klase ng pagbabayad
         If cashAmount > 0 AndAlso onlineAmount > 0 Then
-            paymentMethod = "Split (Cash + Online)"
+            paymentMethod = "Split Payment (Cash + Online)"
         ElseIf onlineAmount > 0 Then
-            paymentMethod = "Online"
+            paymentMethod = "Online Payment"
         Else
-            paymentMethod = "Cash"
+            paymentMethod = "Cash Payment"
         End If
     End Sub
 
@@ -70,12 +96,14 @@ Public Class frmPOS_System
         lblChange.Text = "0.00"
         lblRemainingBalance.Text = ""
         lblRemainingBalance.Visible = False
+
+        SetUserStatus("ONLINE")
     End Sub
 
     Private Sub GetUserBranch()
         Try
             Using conn As New SqlConnection(DBConnection.connStr)
-                Dim sql As String = "SELECT BRANCH_ID, FULL_NAME FROM dbo.User_Accounts WHERE USERNAME = @Username"
+                Dim sql As String = "SELECT BRANCH_ID, FULL_NAME, ACCOUNT_ID FROM dbo.User_Accounts WHERE USERNAME = @Username"
                 Using cmd As New SqlCommand(sql, conn)
                     cmd.Parameters.AddWithValue("@Username", LoggedInUser)
                     conn.Open()
@@ -99,7 +127,7 @@ Public Class frmPOS_System
     Private Sub GetBranchDetails()
         Try
             Using conn As New SqlConnection(DBConnection.connStr)
-                Dim sql As String = "SELECT BranchName, Address, TIN FROM dbo.Branch_Info WHERE BranchCode = @BranchCode"
+                Dim sql As String = "SELECT BRANCH AS BranchName, ADDRESS, TIN, ACCOUNT_ID FROM dbo.Branches WHERE BRANCH_ID = @BranchCode"
 
                 Using cmd As New SqlCommand(sql, conn)
                     cmd.Parameters.AddWithValue("@BranchCode", UserBranchCode)
@@ -107,7 +135,7 @@ Public Class frmPOS_System
                     Using dr As SqlDataReader = cmd.ExecuteReader()
                         If dr.Read() Then
                             BranchName = dr("BranchName").ToString().Trim()
-                            BranchAddress = dr("Address").ToString().Trim()
+                            BranchAddress = dr("ADDRESS").ToString().Trim()
                             BranchTIN = dr("TIN").ToString().Trim()
                         Else
                             BranchName = UserBranchCode & " BRANCH"
@@ -238,14 +266,12 @@ Public Class frmPOS_System
     End Function
 
     Private Sub dgvCart_KeyDown(sender As Object, e As KeyEventArgs) Handles dgvCart.KeyDown
-        ' When Enter is pressed and a row is selected
         If e.KeyCode = Keys.Enter AndAlso dgvCart.SelectedRows.Count > 0 Then
-            e.SuppressKeyPress = True ' Prevent default beep/action
+            e.SuppressKeyPress = True
 
             Dim row As DataGridViewRow = dgvCart.SelectedRows(0)
 
             Using frmQty As New frmProductQTY()
-                ' Pass the required data
                 frmQty.Barcode = row.Cells("Barcode").Value.ToString().Trim()
                 frmQty.CurrentQty = CInt(row.Cells("Qty").Value)
 
@@ -253,11 +279,9 @@ Public Class frmPOS_System
                     Dim newQuantity As Integer = frmQty.CurrentQty
                     Dim price As Decimal = CDec(row.Cells("Price").Value)
 
-                    ' Update the row
                     row.Cells("Qty").Value = newQuantity
                     row.Cells("SubTotal").Value = Math.Round(price * newQuantity, 2)
 
-                    ' Recalculate total
                     ComputeTotal()
                 End If
             End Using
@@ -356,6 +380,13 @@ Public Class frmPOS_System
         sb.AppendLine("----------------------------------------")
 
         sb.AppendLine($"TOTAL : {totalAmount,20:N2}")
+
+        ' ✅ Ipakita ang paraan ng pagbabayad sa resibo
+        DeterminePaymentMethod()
+        sb.AppendLine($"PAYMENT METHOD: {paymentMethod}")
+        If cashAmount > 0 Then sb.AppendLine($"Cash Paid: {cashAmount,18:N2}")
+        If onlineAmount > 0 Then sb.AppendLine($"Online Paid: {onlineAmount,16:N2}")
+
         sb.AppendLine($"Amount Paid : {amountPaid,12:N2}")
         sb.AppendLine($"Remaining Balance : {remainingBalance,6:N2}")
         sb.AppendLine($"Change : {changeAmount,20:N2}")
@@ -415,7 +446,6 @@ Public Class frmPOS_System
         totalPaid = Math.Round(totalPaid + applyAmt, 2)
         paymentDetails.Add($"Cash: ₱{applyAmt:N2}")
 
-        ' ✅ SAVE CASH PAYMENT TO DATABASE
         SaveCashPaymentToDB(applyAmt)
 
         txtAmountInput.Clear()
@@ -446,6 +476,9 @@ Public Class frmPOS_System
 
     Private Sub SaveSalesTransaction()
         Try
+            ' ✅ Siguraduhin na tama ang pagtukoy ng paraan ng pagbabayad bago i-save
+            DeterminePaymentMethod()
+
             Using conn As New SqlConnection(DBConnection.connStr)
                 Dim vatable = Math.Round(totalAmount / 1.12D, 2)
                 Dim vatAmt = Math.Round(totalAmount - vatable, 2)
@@ -453,20 +486,20 @@ Public Class frmPOS_System
                 Dim discountType = If(discountPercent > 0, "PWD / Senior", "None")
 
                 Dim sql As String = "
-                INSERT INTO dbo.Sales_Transactions (
-                    Transaction_ID, Branch_Code, Cashier_ID, Cashier_Name,
-                    Transaction_Date, Item_Count, Subtotal_Amount, VATable_Amount,
-                    VAT_Amount, Discount_Type, Discount_Percent, Discount_Amount,
-                    Amount_Due, Amount_Paid, Cash_Amount, Online_Amount,
-                    Change_Amount, Payment_Method
-                )
-                VALUES (
-                    @TransID, @BranchCode, @CashierID, @CashierName,
-                    CAST(GETDATE() AS DATE), @ItemCount, @Subtotal, @VATable,
-                    @VAT, @DiscType, @DiscPercent, @DiscAmount,
-                    @AmountDue, @AmountPaid, @CashAmt, @OnlineAmt,
-                    @Change, @PaymentMethod
-                )"
+             INSERT INTO dbo.Sales_Transactions (
+                 Transaction_ID, Branch_Code, Cashier_ID, Cashier_Name,
+                 Transaction_Date, Transaction_Time, Item_Count, Subtotal_Amount, VATable_Amount,
+                 VAT_Amount, Discount_Type, Discount_Percent, Discount_Amount,
+                 Amount_Due, Amount_Paid, Cash_Amount, Online_Amount,
+                 Change_Amount, Payment_Method, Status
+             )
+             VALUES (
+                 @TransID, @BranchCode, @CashierID, @CashierName,
+                 CAST(GETDATE() AS DATE), CAST(GETDATE() AS TIME), @ItemCount, @Subtotal, @VATable,
+                 @VAT, @DiscType, @DiscPercent, @DiscAmount,
+                 @AmountDue, @AmountPaid, @CashAmt, @OnlineAmt,
+                 @Change, @PaymentMethod, 'Completed'
+             )"
 
                 Using cmd As New SqlCommand(sql, conn)
                     cmd.Parameters.AddWithValue("@TransID", currentOrderID)
@@ -489,10 +522,149 @@ Public Class frmPOS_System
 
                     conn.Open()
                     cmd.ExecuteNonQuery()
+
+                    ' ✅ AUTOMATICALLY UPDATE BRANCH TOTAL SALES
+                    Dim updateSalesSql As String = "
+                     UPDATE dbo.Branches
+                     SET SALES = ISNULL(SALES, 0) + @AddAmount
+                     WHERE RTRIM(LTRIM(UPPER(BRANCH_ID))) = RTRIM(LTRIM(UPPER(@BranchCode)))
+                 "
+                    Using cmdUpdate As New SqlCommand(updateSalesSql, conn)
+                        cmdUpdate.Parameters.AddWithValue("@AddAmount", finalTotal)
+                        cmdUpdate.Parameters.AddWithValue("@BranchCode", UserBranchCode)
+                        cmdUpdate.ExecuteNonQuery()
+                    End Using
+
                 End Using
             End Using
         Catch ex As Exception
             MessageBox.Show("Failed to save sales record: " & ex.Message, "Database Error", MessageBoxButtons.OK, MessageBoxIcon.Warning)
+        End Try
+    End Sub
+
+    Private Sub SaveToDailySalesSummary()
+        Try
+            Using conn As New SqlConnection(DBConnection.connStr)
+                Dim sql As String = "
+                IF EXISTS (SELECT 1 FROM dbo.Daily_Sales_Summary 
+                           WHERE Transaction_Date = CAST(GETDATE() AS DATE) 
+                           AND Branch_Code = @BranchCode 
+                           AND Cashier_ID = @CashierID)
+                BEGIN
+                    UPDATE dbo.Daily_Sales_Summary
+                    SET 
+                        Total_Transactions = Total_Transactions + 1,
+                        Total_Sales_Amount = Total_Sales_Amount + @SalesAmt,
+                        Total_Cash = Total_Cash + @CashAmt,
+                        Total_Online = Total_Online + @OnlineAmt,
+                        Date_Added = GETDATE()
+                    WHERE 
+                        Transaction_Date = CAST(GETDATE() AS DATE) 
+                        AND Branch_Code = @BranchCode 
+                        AND Cashier_ID = @CashierID
+                END
+                ELSE
+                BEGIN
+                    INSERT INTO dbo.Daily_Sales_Summary (
+                        Branch_Code, Cashier_ID, Cashier_Name,
+                        Transaction_Date, Total_Transactions, Total_Sales_Amount,
+                        Total_Cash, Total_Online, Date_Added
+                    )
+                    VALUES (
+                        @BranchCode, @CashierID, @CashierName,
+                        CAST(GETDATE() AS DATE), 1, @SalesAmt,
+                        @CashAmt, @OnlineAmt, GETDATE()
+                    )
+                END"
+
+                Using cmd As New SqlCommand(sql, conn)
+                    cmd.Parameters.AddWithValue("@BranchCode", UserBranchCode)
+                    cmd.Parameters.AddWithValue("@CashierID", Login.txtUsername.Text.Trim())
+                    cmd.Parameters.AddWithValue("@CashierName", LoggedInUser)
+                    cmd.Parameters.AddWithValue("@SalesAmt", finalTotal)
+                    cmd.Parameters.AddWithValue("@CashAmt", cashAmount)
+                    cmd.Parameters.AddWithValue("@OnlineAmt", onlineAmount)
+
+                    conn.Open()
+                    cmd.ExecuteNonQuery()
+                End Using
+            End Using
+        Catch ex As Exception
+            MessageBox.Show("Error updating daily sales summary: " & ex.Message, "Database Error", MessageBoxButtons.OK, MessageBoxIcon.Warning)
+        End Try
+    End Sub
+
+    ' ✅ NEW FUNCTION: SAVE TO DAILY_SALES_LOG TABLE
+    ' ✅ AYOS NA PARA SA DAILY SALES LOG
+    Private Sub SaveToDailySalesLog()
+        Try
+            Dim vatable = Math.Round(totalAmount / 1.12D, 2)
+            Dim vatAmt = Math.Round(totalAmount - vatable, 2)
+
+            ' Kunin muna ang tamang ACCOUNT_ID ng branch
+            Dim branchAccountID As String = ""
+            Using connCheck As New SqlConnection(DBConnection.connStr)
+                Dim sqlCheck As String = "SELECT ACCOUNT_ID FROM dbo.Branches WHERE RTRIM(LTRIM(UPPER(BRANCH_ID))) = RTRIM(LTRIM(UPPER(@BranchCode)))"
+                Using cmdCheck As New SqlCommand(sqlCheck, connCheck)
+                    cmdCheck.Parameters.AddWithValue("@BranchCode", UserBranchCode)
+                    connCheck.Open()
+                    Dim result = cmdCheck.ExecuteScalar()
+                    If result IsNot Nothing Then branchAccountID = result.ToString().Trim()
+                End Using
+            End Using
+
+            Using conn As New SqlConnection(DBConnection.connStr)
+                Dim sql As String = "
+                MERGE INTO dbo.Daily_Sales_Log AS Target
+                USING (
+                    SELECT 
+                        @AccountID AS ACCOUNT_ID,
+                        @BranchCode AS BRANCH_ID,
+                        @BranchName AS BRANCH_NAME,
+                        CAST(GETDATE() AS DATE) AS Transaction_Date
+                ) AS Source
+                ON Target.ACCOUNT_ID = Source.ACCOUNT_ID 
+                   AND Target.BRANCH_ID = Source.BRANCH_ID 
+                   AND Target.Transaction_Date = Source.Transaction_Date
+
+                WHEN MATCHED THEN
+                    UPDATE SET
+                        Total_Transactions = Total_Transactions + 1,
+                        Cash_Sales = ISNULL(Cash_Sales, 0) + @CashAmt,
+                        Online_Sales = ISNULL(Online_Sales, 0) + @OnlineAmt,
+                        Total_Discount = ISNULL(Total_Discount, 0) + @DiscAmt,
+                        Total_VAT = ISNULL(Total_VAT, 0) + @VatAmt,
+                        Net_Sales = ISNULL(Net_Sales, 0) + @NetAmt,
+                        Recorded_At = GETDATE()
+
+                WHEN NOT MATCHED THEN
+                    INSERT (
+                        ACCOUNT_ID, BRANCH_ID, BRANCH_NAME, Transaction_Date,
+                        Total_Transactions, Cash_Sales, Online_Sales, Total_Discount,
+                        Total_VAT, Net_Sales
+                    )
+                    VALUES (
+                        @AccountID, @BranchCode, @BranchName, Source.Transaction_Date,
+                        1, @CashAmt, @OnlineAmt, @DiscAmt, @VatAmt, @NetAmt
+                    );
+            "
+
+                Using cmd As New SqlCommand(sql, conn)
+                    cmd.Parameters.AddWithValue("@AccountID", branchAccountID)
+                    cmd.Parameters.AddWithValue("@BranchCode", UserBranchCode)
+                    cmd.Parameters.AddWithValue("@BranchName", BranchName)
+                    cmd.Parameters.AddWithValue("@CashAmt", cashAmount)
+                    cmd.Parameters.AddWithValue("@OnlineAmt", onlineAmount)
+                    cmd.Parameters.AddWithValue("@DiscAmt", discountAmount)
+                    cmd.Parameters.AddWithValue("@VatAmt", vatAmt)
+                    cmd.Parameters.AddWithValue("@NetAmt", finalTotal)
+
+                    conn.Open()
+                    cmd.ExecuteNonQuery()
+                End Using
+            End Using
+        Catch ex As Exception
+            MessageBox.Show("Error saving to Daily Sales Log: " & ex.Message, "Database Error", MessageBoxButtons.OK, MessageBoxIcon.Warning)
         End Try
     End Sub
 
@@ -514,7 +686,6 @@ Public Class frmPOS_System
 
         Dim changeAmount As Decimal = Math.Max(0, Math.Round(totalNowPaid - finalTotal, 2))
 
-        ' Finalize payment
         If currentInput > 0 Then
             Dim applyAmt As Decimal = Math.Min(currentInput, finalTotal - totalPaid)
             If applyAmt > 0 Then
@@ -525,10 +696,11 @@ Public Class frmPOS_System
         End If
 
         DeductStockFromInventory()
-
         DeterminePaymentMethod()
 
         SaveSalesTransaction()
+        SaveToDailySalesSummary()
+        SaveToDailySalesLog() ' ✅ CALL NEW FUNCTION HERE
         MessageBox.Show(rtbReceipt.Text, "Official Receipt", MessageBoxButtons.OK, MessageBoxIcon.Information)
 
         ResetAll()
@@ -580,17 +752,14 @@ Public Class frmPOS_System
     End Sub
 
     Private Sub btnDiscount_Click(sender As Object, e As EventArgs) Handles btnDiscount.Click
-        ' Check if there are items in the cart first
         If dgvCart.Rows.Count = 0 Then
             MessageBox.Show("No items in the cart to apply discount.", "Empty Transaction", MessageBoxButtons.OK, MessageBoxIcon.Warning)
             Return
         End If
 
         Dim frmDisc As New frmPWDDiscount()
-
         frmDisc.TransactionTotal = totalAmount
         frmDisc.ORNumber = currentOrderID
-
         frmDisc.ShowDialog()
     End Sub
 
@@ -599,20 +768,24 @@ Public Class frmPOS_System
             MessageBox.Show("Please select an item to remove.", "No Item Selected", MessageBoxButtons.OK, MessageBoxIcon.Warning)
             Return
         End If
-        If MessageBox.Show("Remove selected item from cart?", "Confirm Action", MessageBoxButtons.YesNo, MessageBoxIcon.Question) = DialogResult.Yes Then
+        If MessageBox.Show("Remove selected item from cart?", "CodeNect System Alliance", MessageBoxButtons.YesNo, MessageBoxIcon.Question) = DialogResult.Yes Then
             dgvCart.Rows.Remove(dgvCart.SelectedRows(0))
             ComputeTotal()
         End If
     End Sub
 
     Private Sub btnCancelTransaction_Click(sender As Object, e As EventArgs) Handles btnCancelTransaction.Click
-        If MessageBox.Show("Cancel the entire transaction?", "Confirm Action", MessageBoxButtons.YesNo, MessageBoxIcon.Question) = DialogResult.Yes Then
+        If MessageBox.Show("Cancel the entire transaction?", "CodeNect System Alliance", MessageBoxButtons.YesNo, MessageBoxIcon.Question) = DialogResult.Yes Then
             ResetAll()
         End If
     End Sub
 
     Private Sub btnExit_Click(sender As Object, e As EventArgs) Handles btnExit.Click
-        Me.Close()
+        If MessageBox.Show("Are you sure you want to exit/logout?", "Confirm", MessageBoxButtons.YesNo, MessageBoxIcon.Question) = DialogResult.Yes Then
+            SetUserStatus("OFFLINE")
+            Me.Hide()
+            Login.Show()
+        End If
     End Sub
 
     Private Sub ResetAll()
@@ -635,10 +808,20 @@ Public Class frmPOS_System
         finalTotal = 0
         totalPaid = 0
         paymentDetails.Clear()
+        cashAmount = 0
+        onlineAmount = 0
+        paymentMethod = "Cash"
         currentOrderID = ""
     End Sub
 
     Private Sub Button1_Click(sender As Object, e As EventArgs) Handles Button1.Click
         frmCash_Declaration.Show()
     End Sub
+
+    Private Sub Button2_Click(sender As Object, e As EventArgs) Handles Button2.Click
+        frmHold_Transaction.Show()
+        Me.Enabled = False
+        frmHold_Transaction.TopMost = True
+    End Sub
+
 End Class

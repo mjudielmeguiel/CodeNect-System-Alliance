@@ -398,9 +398,9 @@ Partial Class frmPWDDiscount
         Me.lblTotalBeforeDiscount.ForeColor = System.Drawing.Color.DarkRed
         Me.lblTotalBeforeDiscount.Location = New System.Drawing.Point(94, 625)
         Me.lblTotalBeforeDiscount.Name = "lblTotalBeforeDiscount"
-        Me.lblTotalBeforeDiscount.Size = New System.Drawing.Size(76, 20)
+        Me.lblTotalBeforeDiscount.Size = New System.Drawing.Size(15, 20)
         Me.lblTotalBeforeDiscount.TabIndex = 337
-        Me.lblTotalBeforeDiscount.Text = "Discount :"
+        Me.lblTotalBeforeDiscount.Text = "-"
         '
         'frmPWDDiscount
         '

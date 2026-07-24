@@ -2,7 +2,7 @@
 
 Public Class frmPWDDiscount
 
-    ' Mga variable para hawakan ang halaga ng transaksyon
+    ' Transaction values
     Public Property TransactionTotal As Decimal = 0
     Public Property DiscountAmount As Decimal = 0
     Public Property FinalAmount As Decimal = 0
@@ -17,7 +17,6 @@ Public Class frmPWDDiscount
         dtpDateOfBirth.Format = DateTimePickerFormat.Custom
         dtpDateOfBirth.CustomFormat = " "
 
-        ' Ipakita ang kasalukuyang kabuuan para makita ng user
         lblTotalBeforeDiscount.Text = $"Total Amount: ₱ {TransactionTotal:N2}"
     End Sub
 
@@ -30,7 +29,7 @@ Public Class frmPWDDiscount
         If idNum = "" Then Exit Sub
 
         Try
-            Using conn As New SqlConnection(DBConnection.connStr)
+            Using conn As New SqlConnection(connStr)
                 Dim query As String = "SELECT TOP 1 * FROM PWD_Discount WHERE ID_Number = @idnum ORDER BY DateRecorded DESC"
                 Using cmd As New SqlCommand(query, conn)
                     cmd.Parameters.AddWithValue("@idnum", idNum)
@@ -58,141 +57,109 @@ Public Class frmPWDDiscount
                             rdomale.Checked = (gender = "Male")
                             rdofemale.Checked = (gender = "Female")
 
-                            MessageBox.Show("✅ Existing record found! You can still update details if needed.", "Record Found", MessageBoxButtons.OK, MessageBoxIcon.Information)
+                            MessageBox.Show("✅ Details loaded from previous record.", "Auto-Fill", MessageBoxButtons.OK, MessageBoxIcon.Information)
                         Else
                             ClearFields(keepID:=True)
+                            MessageBox.Show("ℹ️ New ID — please fill in the details.", "New Record", MessageBoxButtons.OK, MessageBoxIcon.Information)
                         End If
                     End Using
                 End Using
             End Using
         Catch ex As Exception
-            MessageBox.Show("Error searching record: " & ex.Message, "System Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
+            MessageBox.Show("Error loading record: " & ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
         End Try
     End Sub
 
     Private Sub btnApplyDiscount_Click(sender As Object, e As EventArgs) Handles btnApplyDiscount.Click
-        ' Validate required fields
+        ' Validation
         If String.IsNullOrWhiteSpace(cboIDType.Text) Then
-            MessageBox.Show("Please select ID Type.", "Required Field", MessageBoxButtons.OK, MessageBoxIcon.Warning)
-            cboIDType.Focus()
-            Return
+            MessageBox.Show("Select ID Type.", "Required", MessageBoxButtons.OK, MessageBoxIcon.Warning)
+            cboIDType.Focus() : Return
         End If
         If String.IsNullOrWhiteSpace(txtIDNumber.Text) Then
-            MessageBox.Show("Please enter ID Number.", "Required Field", MessageBoxButtons.OK, MessageBoxIcon.Warning)
-            txtIDNumber.Focus()
-            Return
+            MessageBox.Show("Enter ID Number.", "Required", MessageBoxButtons.OK, MessageBoxIcon.Warning)
+            txtIDNumber.Focus() : Return
         End If
         If String.IsNullOrWhiteSpace(txtSurname.Text) Then
-            MessageBox.Show("Please enter Surname.", "Required Field", MessageBoxButtons.OK, MessageBoxIcon.Warning)
-            txtSurname.Focus()
-            Return
+            MessageBox.Show("Enter Surname.", "Required", MessageBoxButtons.OK, MessageBoxIcon.Warning)
+            txtSurname.Focus() : Return
         End If
         If String.IsNullOrWhiteSpace(txtFirstName.Text) Then
-            MessageBox.Show("Please enter First Name.", "Required Field", MessageBoxButtons.OK, MessageBoxIcon.Warning)
-            txtFirstName.Focus()
-            Return
+            MessageBox.Show("Enter First Name.", "Required", MessageBoxButtons.OK, MessageBoxIcon.Warning)
+            txtFirstName.Focus() : Return
         End If
         If String.IsNullOrWhiteSpace(rchFullAddress.Text) Then
-            MessageBox.Show("Please enter Full Address.", "Required Field", MessageBoxButtons.OK, MessageBoxIcon.Warning)
-            rchFullAddress.Focus()
+            MessageBox.Show("Enter Full Address.", "Required", MessageBoxButtons.OK, MessageBoxIcon.Warning)
+            rchFullAddress.Focus() : Return
+        End If
+        If Not rdomale.Checked AndAlso Not rdofemale.Checked Then
+            MessageBox.Show("Select Gender.", "Required", MessageBoxButtons.OK, MessageBoxIcon.Warning)
             Return
         End If
 
-        ' --- COMPUTE DISCOUNT ---
-        Const DISCOUNT_RATE As Decimal = 20D ' 20% discount
-        Dim vatableAmount As Decimal = Math.Round(TransactionTotal / 1.12D, 2) ' Ihiwalay ang VAT
+        ' Discount calculation
+        Const DISCOUNT_RATE As Decimal = 20D
+        Dim vatableAmount As Decimal = Math.Round(TransactionTotal / 1.12D, 2)
         DiscountAmount = Math.Round(vatableAmount * (DISCOUNT_RATE / 100), 2)
         FinalAmount = Math.Round(TransactionTotal - DiscountAmount, 2)
 
-        ' Ipakita ang detalye ng discount sa user
         Dim summary As String =
-            $"--- DISCOUNT DETAILS ---{vbCrLf}" &
-            $"Original Total: ₱ {TransactionTotal:N2}{vbCrLf}" &
-            $"VATable Amount: ₱ {vatableAmount:N2}{vbCrLf}" &
+            $"--- DISCOUNT SUMMARY ---{vbCrLf}" &
+            $"Total Amount: ₱ {TransactionTotal:N2}{vbCrLf}" &
+            $"Vatable Amount: ₱ {vatableAmount:N2}{vbCrLf}" &
             $"Discount ({DISCOUNT_RATE}%): ₱ {DiscountAmount:N2}{vbCrLf}" &
-            $"Amount To Pay: ₱ {FinalAmount:N2}{vbCrLf}"
+            $"Amount Due: ₱ {FinalAmount:N2}"
 
         MessageBox.Show(summary, "Discount Applied", MessageBoxButtons.OK, MessageBoxIcon.Information)
 
-        ' --- SAVE RECORD TO DATABASE ---
         SaveToDatabase()
-
-        ' Ipadala ang halaga pabalik sa POS form
         frmPOS_System.ApplyPWDDiscount(CInt(DISCOUNT_RATE), True)
-
         Me.Close()
     End Sub
 
     Private Sub SaveToDatabase()
-        Dim gender As String = If(rdomale.Checked, "Male", If(rdofemale.Checked, "Female", ""))
-
         Try
-            Using conn As New SqlConnection(DBConnection.connStr)
-                ' Gamitin ang MERGE para mag-UPDATE kung may existing ID, o mag-INSERT kung bago
+            Using conn As New SqlConnection(connStr)
                 Dim sql As String = "
-                MERGE INTO dbo.PWD_Discount AS Target
-                USING (SELECT @idnum AS ID_Number) AS Source
-                ON Target.ID_Number = Source.ID_Number
-                WHEN MATCHED THEN
-                    UPDATE SET
-                        ID_Type = @idtype,
-                        Surname = @lname,
-                        FirstName = @fname,
-                        MiddleName = @mname,
-                        Suffix = @suffix,
-                        Gender = @gender,
-                        DateOfBirth = @dob,
-                        FullAddress = @address,
-                        ContactNumber = @contact,
-                        Email = @email,
-                        Discount_Percent = 20.00,
-                        Discount_Amount = @discAmt,
-                        VAT_Exempt = 1,
-                        Transaction_Total = @transTotal,
-                        Amount_After_Discount = @finalAmt,
-                        OR_Number = @orNo,
-                        DateRecorded = GETDATE()
-                WHEN NOT MATCHED THEN
-                    INSERT (
-                        ID_Type, ID_Number, Surname, FirstName, MiddleName, Suffix, Gender, DateOfBirth,
-                        FullAddress, ContactNumber, Email, Discount_Percent, Discount_Amount,
-                        VAT_Exempt, Transaction_Total, Amount_After_Discount, OR_Number, DateRecorded
+                    INSERT INTO PWD_Discount (
+                        Account_ID, Branch_ID, ID_Type, ID_Number, Surname, FirstName, MiddleName, Suffix, Gender,
+                        FullAddress, ContactNumber, Email, DateCreated, DateRecorded, DateOfBirth,
+                        Discount_Percent, Discount_Amount, VAT_Exempt, Transaction_Total, Amount_After_Discount, OR_Number
+                    ) VALUES (
+                        @AccountID, @BranchID, @IDType, @IDNumber, @Surname, @FirstName, @MiddleName, @Suffix, @Gender,
+                        @Address, @Contact, @Email, GETDATE(), GETDATE(), @DOB,
+                        @DiscPct, @DiscAmt, @VATExempt, @Total, @Net, @OR
                     )
-                    VALUES (
-                        @idtype, @idnum, @lname, @fname, @mname, @suffix, @gender, @dob,
-                        @address, @contact, @email, 20.00, @discAmt,
-                        1, @transTotal, @finalAmt, @orNo, GETDATE()
-                    );"
+                "
 
                 Using cmd As New SqlCommand(sql, conn)
-                    cmd.Parameters.AddWithValue("@idtype", cboIDType.Text.Trim())
-                    cmd.Parameters.AddWithValue("@idnum", txtIDNumber.Text.Trim())
-                    cmd.Parameters.AddWithValue("@lname", txtSurname.Text.Trim())
-                    cmd.Parameters.AddWithValue("@fname", txtFirstName.Text.Trim())
-                    cmd.Parameters.AddWithValue("@mname", If(String.IsNullOrWhiteSpace(txtMiddleName.Text), DBNull.Value, txtMiddleName.Text.Trim()))
-                    cmd.Parameters.AddWithValue("@suffix", If(String.IsNullOrWhiteSpace(cboSuffix.Text), DBNull.Value, cboSuffix.Text.Trim()))
-                    cmd.Parameters.AddWithValue("@gender", If(String.IsNullOrWhiteSpace(gender), DBNull.Value, gender))
-
-                    If dtpDateOfBirth.CustomFormat <> " " Then
-                        cmd.Parameters.AddWithValue("@dob", dtpDateOfBirth.Value.Date)
-                    Else
-                        cmd.Parameters.AddWithValue("@dob", DBNull.Value)
-                    End If
-
-                    cmd.Parameters.AddWithValue("@address", rchFullAddress.Text.Trim())
-                    cmd.Parameters.AddWithValue("@contact", If(String.IsNullOrWhiteSpace(txtContact.Text), DBNull.Value, txtContact.Text.Trim()))
-                    cmd.Parameters.AddWithValue("@email", If(String.IsNullOrWhiteSpace(txtEmail.Text), DBNull.Value, txtEmail.Text.Trim()))
-                    cmd.Parameters.AddWithValue("@discAmt", DiscountAmount)
-                    cmd.Parameters.AddWithValue("@transTotal", TransactionTotal)
-                    cmd.Parameters.AddWithValue("@finalAmt", FinalAmount)
-                    cmd.Parameters.AddWithValue("@orNo", If(String.IsNullOrWhiteSpace(ORNumber), DBNull.Value, ORNumber))
+                    cmd.Parameters.AddWithValue("@AccountID", Login.LoggedInAccountID)
+                    cmd.Parameters.AddWithValue("@BranchID", Login.LoggedInBranchID)
+                    cmd.Parameters.AddWithValue("@IDType", cboIDType.Text.Trim())
+                    cmd.Parameters.AddWithValue("@IDNumber", txtIDNumber.Text.Trim())
+                    cmd.Parameters.AddWithValue("@Surname", txtSurname.Text.Trim())
+                    cmd.Parameters.AddWithValue("@FirstName", txtFirstName.Text.Trim())
+                    cmd.Parameters.AddWithValue("@MiddleName", If(String.IsNullOrWhiteSpace(txtMiddleName.Text), DBNull.Value, txtMiddleName.Text.Trim()))
+                    cmd.Parameters.AddWithValue("@Suffix", If(String.IsNullOrWhiteSpace(cboSuffix.Text), DBNull.Value, cboSuffix.Text.Trim()))
+                    cmd.Parameters.AddWithValue("@Gender", If(rdomale.Checked, "Male", "Female"))
+                    cmd.Parameters.AddWithValue("@Address", rchFullAddress.Text.Trim())
+                    cmd.Parameters.AddWithValue("@Contact", If(String.IsNullOrWhiteSpace(txtContact.Text), DBNull.Value, txtContact.Text.Trim()))
+                    cmd.Parameters.AddWithValue("@Email", If(String.IsNullOrWhiteSpace(txtEmail.Text), DBNull.Value, txtEmail.Text.Trim()))
+                    cmd.Parameters.AddWithValue("@DOB", If(dtpDateOfBirth.CustomFormat = " ", DBNull.Value, dtpDateOfBirth.Value.Date))
+                    cmd.Parameters.AddWithValue("@DiscPct", 20D)
+                    cmd.Parameters.AddWithValue("@DiscAmt", DiscountAmount)
+                    cmd.Parameters.AddWithValue("@VATExempt", 1)
+                    cmd.Parameters.AddWithValue("@Total", TransactionTotal)
+                    cmd.Parameters.AddWithValue("@Net", FinalAmount)
+                    cmd.Parameters.AddWithValue("@OR", If(String.IsNullOrWhiteSpace(ORNumber), DBNull.Value, ORNumber.Trim()))
 
                     conn.Open()
                     cmd.ExecuteNonQuery()
                 End Using
             End Using
+            MessageBox.Show("✅ Record saved successfully!", "Saved", MessageBoxButtons.OK, MessageBoxIcon.Information)
         Catch ex As Exception
-            MessageBox.Show("Error saving record: " & ex.Message, "Database Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
+            MessageBox.Show("❌ Error saving: " & ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
         End Try
     End Sub
 

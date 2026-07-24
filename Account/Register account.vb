@@ -1,4 +1,4 @@
-﻿Imports System.Data.SqlClient
+﻿Imports MySqlConnector
 Imports System.Text.RegularExpressions
 
 Public Class Register_account
@@ -48,6 +48,11 @@ Public Class Register_account
 
     Private Sub btnSave_Click(sender As Object, e As EventArgs) Handles btnSave.Click
 
+        ' ✅ Gamit na ang TestConnection ng DBConnection module mo
+        If Not DBConnection.TestConnection() Then
+            Exit Sub
+        End If
+
         If txtAccount.Text = "" Or txtAccount.Text = "Enter Account Name" Or
            txtAddress.Text = "" Or txtAddress.Text = "Enter Complete Address" Or
            txtContact.Text = "" Or txtContact.Text = "Enter Contact Number" Or
@@ -80,17 +85,18 @@ Public Class Register_account
         End If
 
         Try
-            Using connCheck As New SqlConnection(connStr)
+            ' ✅ Tama na ang pagtawag sa connection string galing sa module mo
+            Using connCheck As New MySqlConnection(DBConnection.connStr)
                 connCheck.Open()
 
-                Dim cmdUser As New SqlCommand("SELECT COUNT(*) FROM adm.Account WHERE USERNAME=@VAL", connCheck)
+                Dim cmdUser As New MySqlCommand("SELECT COUNT(*) FROM `account` WHERE `USER_NAME`=@VAL", connCheck)
                 cmdUser.Parameters.AddWithValue("@VAL", txtUsername.Text.Trim().ToUpper())
                 If CInt(cmdUser.ExecuteScalar()) > 0 Then
                     MessageBox.Show("Username already exists.", "DUPLICATE", MessageBoxButtons.OK, MessageBoxIcon.Error)
                     Exit Sub
                 End If
 
-                Dim cmdEmail As New SqlCommand("SELECT COUNT(*) FROM adm.Account WHERE EMAIL=@VAL", connCheck)
+                Dim cmdEmail As New MySqlCommand("SELECT COUNT(*) FROM `account` WHERE `EMAIL`=@VAL", connCheck)
                 cmdEmail.Parameters.AddWithValue("@VAL", txtEmail.Text.Trim().ToLower())
                 If CInt(cmdEmail.ExecuteScalar()) > 0 Then
                     MessageBox.Show("Email already exists.", "DUPLICATE", MessageBoxButtons.OK, MessageBoxIcon.Error)
@@ -108,11 +114,13 @@ Public Class Register_account
             Dim CurrentNow As DateTime = Date.Now
             Dim newAccountID As String = txtAccountID.Text
 
-            Dim cmdInsert As String = "INSERT INTO adm.Account (ACCOUNT_ID, ACCOUNT, ADDRESS, CONTACT, EMAIL, USERNAME, PASSWORD, STATUS, CREATE_AT) " &
-                                       "VALUES (@AID, @ACC, @ADDR, @CONT, @EMAIL, @USER, @PASS, 'OFFLINE', @CRT)"
+            Dim cmdInsert As String = "INSERT INTO `account` 
+            (`ACCOUNT_ID`, `ACCOUNT`, `ADDRESS`, `CONTACT`, `EMAIL`, `USER_NAME`, `PASSWORD`, `STATUS`, `CREATE_AT`) 
+            VALUES (@AID, @ACC, @ADDR, @CONT, @EMAIL, @USER, @PASS, 'OFFLINE', @CRT)"
 
-            Using conn As New SqlConnection(connStr)
-                Using cmd As New SqlCommand(cmdInsert, conn)
+            ' ✅ Gamit na ulit ang DBConnection.connStr
+            Using conn As New MySqlConnection(DBConnection.connStr)
+                Using cmd As New MySqlCommand(cmdInsert, conn)
                     cmd.Parameters.AddWithValue("@AID", newAccountID)
                     cmd.Parameters.AddWithValue("@ACC", txtAccount.Text.Trim())
                     cmd.Parameters.AddWithValue("@ADDR", txtAddress.Text.Trim())
@@ -164,6 +172,7 @@ Public Class Register_account
     Private Sub btnCancel_Click(sender As Object, e As EventArgs) Handles btnCancel.Click
         Me.Close()
     End Sub
+
 #Region "Placeholder Text Handling"
     Private Sub txtAccount_GotFocus(sender As Object, e As EventArgs) Handles txtAccount.GotFocus
         If txtAccount.Text = "Enter Account Name" Then

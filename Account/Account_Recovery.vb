@@ -1,7 +1,6 @@
-﻿Imports System.Data.Common
-Imports System.Data.SqlClient
-Imports System.Reflection.Emit
+﻿Imports System.Reflection.Emit
 Imports System.Text.RegularExpressions
+Imports MySqlConnector
 
 Public Class Account_Recovery
 
@@ -15,10 +14,9 @@ Public Class Account_Recovery
         txtConfirmPassword.PasswordChar = "●"c
     End Sub
 
-    ' --- ✅ BINAGO: 6 DIGITS LANG ANG RECOVERY ID ---
+    ' --- 6 DIGITS LANG ANG RECOVERY ID ---
     Private Sub GenerateRecoveryID()
         Dim rnd As New Random()
-        ' Bumubuo ng numero mula 100000 hanggang 999999
         Dim num As Integer = rnd.Next(100000, 999999)
         txtRecoveryID.Text = num.ToString()
         txtRecoveryID.ReadOnly = True
@@ -36,10 +34,12 @@ Public Class Account_Recovery
 
     Private Sub GetUsernameFromEmail(email As String)
         Try
-            Using conn As New SqlConnection(connStr)
+            ' ✅ BINAGO: SqlConnection → MySqlConnection
+            Using conn As New MySqlConnection(connStr)
                 conn.Open()
-                Dim cmd As New SqlCommand("SELECT TOP 1 USERNAME FROM User_Accounts WHERE EMAIL = @EMAIL", conn)
-                cmd.Parameters.Add("@EMAIL", SqlDbType.NVarChar, 100).Value = email
+                ' ✅ BINAGO: SELECT TOP 1 → LIMIT 1 ; SqlCommand → MySqlCommand
+                Dim cmd As New MySqlCommand("SELECT USERNAME FROM User_Accounts WHERE EMAIL = @EMAIL LIMIT 1", conn)
+                cmd.Parameters.AddWithValue("@EMAIL", email)
 
                 Dim result As Object = cmd.ExecuteScalar()
                 If result IsNot Nothing Then
@@ -109,16 +109,18 @@ Public Class Account_Recovery
         End If
 
         Try
-            Using conn As New SqlConnection(connStr)
+            ' ✅ BINAGO: SqlConnection → MySqlConnection
+            Using conn As New MySqlConnection(connStr)
                 conn.Open()
-                Dim cmd As New SqlCommand("INSERT INTO Recovery (RECOVERY_ID, EMAIL, USERNAME, PASSWORD, REASON)
+                ' ✅ BINAGO: SqlCommand → MySqlCommand ; mas malinis na parameters
+                Dim cmd As New MySqlCommand("INSERT INTO Recovery (RECOVERY_ID, EMAIL, USERNAME, PASSWORD, REASON)
                                            VALUES (@RID, @EMAIL, @USER, @PASS, @REASON)", conn)
 
-                cmd.Parameters.Add("@RID", SqlDbType.NVarChar, 6).Value = txtRecoveryID.Text.Trim()
-                cmd.Parameters.Add("@EMAIL", SqlDbType.NVarChar, 100).Value = txtEmail.Text.Trim()
-                cmd.Parameters.Add("@USER", SqlDbType.NVarChar, 50).Value = txtUsername.Text.Trim()
-                cmd.Parameters.Add("@PASS", SqlDbType.NVarChar, 255).Value = txtNewPassword.Text
-                cmd.Parameters.Add("@REASON", SqlDbType.NVarChar, 500).Value = txtReason.Text.Trim()
+                cmd.Parameters.AddWithValue("@RID", txtRecoveryID.Text.Trim())
+                cmd.Parameters.AddWithValue("@EMAIL", txtEmail.Text.Trim())
+                cmd.Parameters.AddWithValue("@USER", txtUsername.Text.Trim())
+                cmd.Parameters.AddWithValue("@PASS", txtNewPassword.Text)
+                cmd.Parameters.AddWithValue("@REASON", txtReason.Text.Trim())
 
                 cmd.ExecuteNonQuery()
             End Using

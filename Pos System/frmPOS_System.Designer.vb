@@ -55,6 +55,8 @@ Partial Class frmPOS_System
         Me.Button1 = New System.Windows.Forms.Button()
         Me.Button2 = New System.Windows.Forms.Button()
         Me.btnCheckOut = New System.Windows.Forms.Button()
+        Me.Label5 = New System.Windows.Forms.Label()
+        Me.Label6 = New System.Windows.Forms.Label()
         Me.Panel2.SuspendLayout()
         CType(Me.adminpic, System.ComponentModel.ISupportInitialize).BeginInit()
         CType(Me.dgvCart, System.ComponentModel.ISupportInitialize).BeginInit()
@@ -66,7 +68,7 @@ Partial Class frmPOS_System
         '
         'Panel2
         '
-        Me.Panel2.BackColor = System.Drawing.SystemColors.Control
+        Me.Panel2.BackColor = System.Drawing.Color.DarkRed
         Me.Panel2.Controls.Add(Me.lbldiscount)
         Me.Panel2.Controls.Add(Me.adminpic)
         Me.Panel2.Dock = System.Windows.Forms.DockStyle.Top
@@ -79,7 +81,7 @@ Partial Class frmPOS_System
         '
         Me.lbldiscount.AutoSize = True
         Me.lbldiscount.Font = New System.Drawing.Font("Microsoft YaHei UI", 20.25!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.lbldiscount.ForeColor = System.Drawing.Color.DarkRed
+        Me.lbldiscount.ForeColor = System.Drawing.Color.White
         Me.lbldiscount.Location = New System.Drawing.Point(79, 9)
         Me.lbldiscount.Name = "lbldiscount"
         Me.lbldiscount.Size = New System.Drawing.Size(223, 36)
@@ -88,6 +90,7 @@ Partial Class frmPOS_System
         '
         'adminpic
         '
+        Me.adminpic.BackColor = System.Drawing.Color.Transparent
         Me.adminpic.Dock = System.Windows.Forms.DockStyle.Left
         Me.adminpic.Image = CType(resources.GetObject("adminpic.Image"), System.Drawing.Image)
         Me.adminpic.Location = New System.Drawing.Point(0, 0)
@@ -178,7 +181,7 @@ Partial Class frmPOS_System
         '
         Me.txtAmountInput.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle
         Me.txtAmountInput.Font = New System.Drawing.Font("Microsoft YaHei UI", 12.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.txtAmountInput.Location = New System.Drawing.Point(198, 96)
+        Me.txtAmountInput.Location = New System.Drawing.Point(198, 135)
         Me.txtAmountInput.Margin = New System.Windows.Forms.Padding(2)
         Me.txtAmountInput.Name = "txtAmountInput"
         Me.txtAmountInput.Size = New System.Drawing.Size(123, 28)
@@ -313,6 +316,8 @@ Partial Class frmPOS_System
         '
         Me.Panel4.Anchor = CType((System.Windows.Forms.AnchorStyles.Top Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
         Me.Panel4.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle
+        Me.Panel4.Controls.Add(Me.Label5)
+        Me.Panel4.Controls.Add(Me.Label6)
         Me.Panel4.Controls.Add(Me.Label1)
         Me.Panel4.Controls.Add(Me.lblRemainingBalance)
         Me.Panel4.Controls.Add(Me.txtAmountInput)
@@ -321,7 +326,7 @@ Partial Class frmPOS_System
         Me.Panel4.Controls.Add(Me.lblChange)
         Me.Panel4.Location = New System.Drawing.Point(1017, 146)
         Me.Panel4.Name = "Panel4"
-        Me.Panel4.Size = New System.Drawing.Size(337, 146)
+        Me.Panel4.Size = New System.Drawing.Size(337, 199)
         Me.Panel4.TabIndex = 340
         '
         'Label1
@@ -351,7 +356,7 @@ Partial Class frmPOS_System
         Me.Label4.AutoSize = True
         Me.Label4.Font = New System.Drawing.Font("Microsoft YaHei UI", 12.0!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.Label4.ForeColor = System.Drawing.Color.DarkRed
-        Me.Label4.Location = New System.Drawing.Point(16, 98)
+        Me.Label4.Location = New System.Drawing.Point(16, 137)
         Me.Label4.Name = "Label4"
         Me.Label4.Size = New System.Drawing.Size(134, 22)
         Me.Label4.TabIndex = 353
@@ -378,9 +383,9 @@ Partial Class frmPOS_System
         Me.rtbReceipt.Anchor = CType(((System.Windows.Forms.AnchorStyles.Top Or System.Windows.Forms.AnchorStyles.Bottom) _
             Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
         Me.rtbReceipt.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle
-        Me.rtbReceipt.Location = New System.Drawing.Point(1017, 298)
+        Me.rtbReceipt.Location = New System.Drawing.Point(1017, 351)
         Me.rtbReceipt.Name = "rtbReceipt"
-        Me.rtbReceipt.Size = New System.Drawing.Size(337, 332)
+        Me.rtbReceipt.Size = New System.Drawing.Size(337, 279)
         Me.rtbReceipt.TabIndex = 381
         Me.rtbReceipt.Text = ""
         '
@@ -450,6 +455,28 @@ Partial Class frmPOS_System
         Me.btnCheckOut.Text = "Check out"
         Me.btnCheckOut.TextImageRelation = System.Windows.Forms.TextImageRelation.TextBeforeImage
         Me.btnCheckOut.UseVisualStyleBackColor = False
+        '
+        'Label5
+        '
+        Me.Label5.AutoSize = True
+        Me.Label5.Font = New System.Drawing.Font("Microsoft YaHei UI", 12.0!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.Label5.ForeColor = System.Drawing.Color.DarkRed
+        Me.Label5.Location = New System.Drawing.Point(16, 98)
+        Me.Label5.Name = "Label5"
+        Me.Label5.Size = New System.Drawing.Size(165, 22)
+        Me.Label5.TabIndex = 363
+        Me.Label5.Text = "Mode of Payment :"
+        '
+        'Label6
+        '
+        Me.Label6.AutoSize = True
+        Me.Label6.Font = New System.Drawing.Font("Microsoft YaHei UI Light", 11.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.Label6.ForeColor = System.Drawing.Color.DarkRed
+        Me.Label6.Location = New System.Drawing.Point(194, 98)
+        Me.Label6.Name = "Label6"
+        Me.Label6.Size = New System.Drawing.Size(15, 20)
+        Me.Label6.TabIndex = 362
+        Me.Label6.Text = "-"
         '
         'frmPOS_System
         '
@@ -522,4 +549,6 @@ Partial Class frmPOS_System
     Friend WithEvents btnCheckOut As Button
     Friend WithEvents Label1 As Label
     Friend WithEvents lblRemainingBalance As Label
+    Friend WithEvents Label5 As Label
+    Friend WithEvents Label6 As Label
 End Class

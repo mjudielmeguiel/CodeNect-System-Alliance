@@ -117,9 +117,6 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <metadata name="STOCK_AVAILABLELabel.GenerateMember" type="System.Boolean, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
-    <value>False</value>
-  </metadata>
   <metadata name="Label2.GenerateMember" type="System.Boolean, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
     <value>False</value>
   </metadata>
@@ -127,7 +124,7 @@
     <value>False</value>
   </metadata>
   <assembly alias="System.Drawing" name="System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a" />
-  <data name="btnSaveToExcel.Image" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+  <data name="btnExport.Image" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
     <value>
         iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABGdBTUEAALGPC/xhBQAAAAlwSFlzAAAO
         vAAADrwBlbxySQAAAkpJREFUOE+V0m9MEnEcx/F73DjgjoAzCkduLdcUTemQBJTQUPBYFrjsKlMHxljL
@@ -143,7 +140,7 @@
         wq/Se8GVgpQAAAAASUVORK5CYII=
 </value>
   </data>
-  <data name="btnRefresh.Image" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+  <data name="btnLoad.Image" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
     <value>
         iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAABGdBTUEAALGPC/xhBQAAAAlwSFlzAAAS
         cQAAEnEB89x6jgAAAYNJREFUSEvllTsuRVEUhr8g0Wg8QyGhNwc04lETGgO4BqGTMAwajEDpPQJaBQkq
@@ -156,4 +153,20 @@
         gg==
 </value>
   </data>
+  <data name="btnReset.Image" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+    <value>
+        iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAABGdBTUEAALGPC/xhBQAAAAlwSFlzAAAS
+        cQAAEnEB89x6jgAAAYNJREFUSEvllTsuRVEUhr8g0Wg8QyGhNwc04lETGgO4BqGTMAwajEDpPQJaBQkq
+        RuCRL1k3OXdfzt3n3FtIfN3Za2Wfvff617/gv9APjAGzwAwwGmtdMwxsAcfAPfAEPAJ3sbYZObVYAC6A
+        d+AKOAB2gAawD1xHzBxzK7EBPAM3wBowlCbEmjFzzF1PE35jEXgBToDJNPgDU8Bp/GQ+DaaMAJdxqpzN
+        m/iTW+C8U02WgFdgJQ1ksAy8ReFV2ECaIOPxRINpoAPTwC7wAJwBR8B2mtQNc7H5J/AR6vJGLUyEFH2m
+        Ovis9sgXsAf0FYN+uGjQpNVisAIezkN62Ba8jtfyel7T63rtnmFBDqNAbm7BLFwVFIYCUShtKCmlpcSU
+        WluBMrAGSry0hjaJzWLT2Dy52JQ2p01qs5Ziu9v2tn/OT9xcW9FefKIsNK6qZqdBVqJo11qzFq1Va9lK
+        UQuvbddNrImFd7g4ZOwRh47DxzWHUam55aLCHJOOS8em47MnI/Pv8w314k8/JF0sbwAAAABJRU5ErkJg
+        gg==
+</value>
+  </data>
+  <metadata name="STOCK_AVAILABLELabel.GenerateMember" type="System.Boolean, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
+    <value>False</value>
+  </metadata>
 </root>
