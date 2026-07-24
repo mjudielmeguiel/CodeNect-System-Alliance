@@ -9,9 +9,7 @@ Module DBConnection
     Public ReadOnly Property connStr As String
         Get
             If Not File.Exists(settingsFile) Then
-                ' ✅ DEFAULT CONNECTION STRING FOR XAMPP MYSQL
-                ' XAMPP Default: Server=localhost, Port=3306, User=root, Walang Password
-                Return "Server=localhost;Port=3306;Database=CodeNectDB;User ID=root;Password=;SslMode=None;Allow User Variables=True;"
+                Return "Server=127.0.0.1;Port=3306;Database=codenectdb;User ID=root;Password=;SslMode=None;Allow User Variables=True;"
             End If
 
             Try
@@ -28,8 +26,7 @@ Module DBConnection
 
                 Return $"Server={ip};Port={port};Database={db};User ID={user};Password={pass};Connect Timeout={oras};SslMode=None;"
             Catch
-                ' Kapag may error sa pagbasa ng file, gagamitin pa rin ang default XAMPP settings
-                Return "Server=localhost;Port=3306;Database=CodeNectDB;User ID=root;Password=;SslMode=None;Allow User Variables=True;"
+                Return "Server=127.0.0.1;Port=3306;Database=codenectdb;User ID=root;Password=;SslMode=None;Allow User Variables=True;"
             End Try
         End Get
     End Property
@@ -41,16 +38,16 @@ Module DBConnection
                 Return True
             Catch ex As MySqlException
                 MessageBox.Show("XAMPP MySQL Error: " & ex.Message & vbCrLf &
-                                "Check if XAMPP Apache & MySQL are running.",
-                                "Database Connection Error",
-                                MessageBoxButtons.OK,
-                                MessageBoxIcon.Error)
+                                    "Check if XAMPP Apache & MySQL are running.",
+                                    "Database Connection Error",
+                                    MessageBoxButtons.OK,
+                                    MessageBoxIcon.Error)
                 Return False
             Catch ex As Exception
                 MessageBox.Show("General Error: " & ex.Message,
-                                "Error",
-                                MessageBoxButtons.OK,
-                                MessageBoxIcon.Error)
+                                    "Error",
+                                    MessageBoxButtons.OK,
+                                    MessageBoxIcon.Error)
                 Return False
             End Try
         End Using

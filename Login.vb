@@ -42,7 +42,7 @@ Public Class Login
                 Dim adminID As String = ""
                 Dim adminFullName As String = ""
 
-                Dim queryAdmin As String = "SELECT ID, ACCOUNT_ID, STATUS, ACCOUNT FROM Account WHERE USERNAME=@user"
+                Dim queryAdmin As String = "SELECT ID, ACCOUNT_ID, STATUS, ACCOUNT FROM Account WHERE USER_NAME=@user"
                 Using cmdAdmin As New MySqlCommand(queryAdmin, conn)
                     cmdAdmin.Parameters.AddWithValue("@user", username)
                     Using drAdmin As MySqlDataReader = cmdAdmin.ExecuteReader()
@@ -100,9 +100,7 @@ Public Class Login
                     Return
                 End If
 
-                ' ==============================================
-                ' CHECK REGULAR USER ACCOUNT
-                ' ==============================================
+                ' REGULAR USER ACCOUNT
                 Dim userFound As Boolean = False
                 Dim userStatus As String = ""
                 Dim userID As String = ""
