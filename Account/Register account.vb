@@ -1,5 +1,6 @@
-﻿Imports MySqlConnector
-Imports System.Text.RegularExpressions
+﻿Imports System.Text.RegularExpressions
+Imports ClosedXML.Excel
+Imports MySqlConnector
 
 Public Class Register_account
 
@@ -8,30 +9,27 @@ Public Class Register_account
         txtAccountID.ForeColor = Color.Black
         txtAccountID.ReadOnly = True
 
-        txtAccount.Text = "Enter Account Name"
-        txtAccount.ForeColor = Color.Gray
+        txtPassword.PasswordChar = "*"c
+        txtConfirmPassword.PasswordChar = "*"c
 
-        txtAddress.Text = "Enter Complete Address"
-        txtAddress.ForeColor = Color.Gray
-
-        txtContact.Text = "Enter Contact Number"
-        txtContact.ForeColor = Color.Gray
-
-        txtEmail.Text = "Enter Email Address"
-        txtEmail.ForeColor = Color.Gray
-
-        txtUsername.Text = "Enter Username"
-        txtUsername.ForeColor = Color.Gray
-
-        txtPassword.Text = "Enter Password"
-        txtPassword.ForeColor = Color.Gray
-        txtPassword.PasswordChar = Nothing
-
-        txtConfirmPassword.Text = "Confirm Password"
-        txtConfirmPassword.ForeColor = Color.Gray
-        txtConfirmPassword.PasswordChar = Nothing
+        ' ✅ LOAD BUSINESS TYPE LANG
+        LoadBusinessTypeOptions()
     End Sub
 
+    ' ==================== BUSINESS TYPE ====================
+    Private Sub LoadBusinessTypeOptions()
+        cboBusinessType.DropDownStyle = ComboBoxStyle.DropDownList
+        cboBusinessType.Items.Clear()
+        cboBusinessType.Items.AddRange({
+            "Sole Proprietorship",
+            "Partnership",
+            "Corporation",
+            "Cooperative",
+            "Freelancer / Self-Employed"
+        })
+    End Sub
+
+    ' ==================== HELPER FUNCTIONS ====================
     Private Function GenerateRandomID() As String
         Dim rnd As New Random()
         Return rnd.Next(100000, 999999).ToString()
@@ -46,25 +44,26 @@ Public Class Register_account
         Return Regex.IsMatch(password, pattern)
     End Function
 
+    ' ==================== SAVE BUTTON ====================
     Private Sub btnSave_Click(sender As Object, e As EventArgs) Handles btnSave.Click
+        If Not DBConnection.TestConnection() Then Exit Sub
 
-        ' ✅ Gamit na ang TestConnection ng DBConnection module mo
-        If Not DBConnection.TestConnection() Then
+        ' ✅ VALIDATION – TINANGGAL NA ANG ADDRESS FIELDS
+        If String.IsNullOrWhiteSpace(txtAccountID.Text) OrElse
+           String.IsNullOrWhiteSpace(txtAccount.Text) OrElse
+           String.IsNullOrWhiteSpace(txtOwnerFullName.Text) OrElse
+           cboBusinessType.SelectedIndex = -1 OrElse
+           String.IsNullOrWhiteSpace(txtContact.Text) OrElse
+           String.IsNullOrWhiteSpace(txtEmail.Text) OrElse
+           String.IsNullOrWhiteSpace(txtUsername.Text) OrElse
+           String.IsNullOrWhiteSpace(txtPassword.Text) OrElse
+           String.IsNullOrWhiteSpace(txtConfirmPassword.Text) Then
+
+            MessageBox.Show("Please fill in all required basic information.", "INCOMPLETE", MessageBoxButtons.OK, MessageBoxIcon.Warning)
             Exit Sub
         End If
 
-        If txtAccount.Text = "" Or txtAccount.Text = "Enter Account Name" Or
-           txtAddress.Text = "" Or txtAddress.Text = "Enter Complete Address" Or
-           txtContact.Text = "" Or txtContact.Text = "Enter Contact Number" Or
-           txtEmail.Text = "" Or txtEmail.Text = "Enter Email Address" Or
-           txtUsername.Text = "" Or txtUsername.Text = "Enter Username" Or
-           txtPassword.Text = "" Or txtPassword.Text = "Enter Password" Or
-           txtConfirmPassword.Text = "" Or txtConfirmPassword.Text = "Confirm Password" Then
-
-            MessageBox.Show("Please fill in all required fields.", "INCOMPLETE", MessageBoxButtons.OK, MessageBoxIcon.Warning)
-            Exit Sub
-        End If
-
+        ' ✅ PASSWORD CHECK
         If Not IsPasswordStrong(txtPassword.Text.Trim()) Then
             MessageBox.Show("Weak Password!" & vbCrLf &
                           "Must contain:" & vbCrLf &
@@ -84,11 +83,10 @@ Public Class Register_account
             Exit Sub
         End If
 
+        ' ✅ CHECK DUPLICATES
         Try
-            ' ✅ Tama na ang pagtawag sa connection string galing sa module mo
             Using connCheck As New MySqlConnection(DBConnection.connStr)
                 connCheck.Open()
-
                 Dim cmdUser As New MySqlCommand("SELECT COUNT(*) FROM `account` WHERE `USER_NAME`=@VAL", connCheck)
                 cmdUser.Parameters.AddWithValue("@VAL", txtUsername.Text.Trim().ToUpper())
                 If CInt(cmdUser.ExecuteScalar()) > 0 Then
@@ -103,27 +101,27 @@ Public Class Register_account
                     txtEmail.Focus()
                     Exit Sub
                 End If
-
             End Using
         Catch ex As Exception
             MessageBox.Show("ERROR: " & ex.Message, "ERROR", MessageBoxButtons.OK, MessageBoxIcon.Error)
             Exit Sub
         End Try
 
+        ' ✅ SAVE – TINANGGAL NA ANG ADDRESS COLUMNS
         Try
             Dim CurrentNow As DateTime = Date.Now
             Dim newAccountID As String = txtAccountID.Text
 
             Dim cmdInsert As String = "INSERT INTO `account` 
-            (`ACCOUNT_ID`, `ACCOUNT`, `ADDRESS`, `CONTACT`, `EMAIL`, `USER_NAME`, `PASSWORD`, `STATUS`, `CREATE_AT`) 
-            VALUES (@AID, @ACC, @ADDR, @CONT, @EMAIL, @USER, @PASS, 'OFFLINE', @CRT)"
+            (`ACCOUNT_ID`, `ACCOUNT`, `OWNER_FULLNAME`, `BUSINESS_TYPE`, `CONTACT`, `EMAIL`, `USER_NAME`, `PASSWORD`, `STATUS`, `Verified_Account`, `CREATE_AT`) 
+            VALUES (@AID, @ACC, @OWNER, @BTYPE, @CONT, @EMAIL, @USER, @PASS, 'PENDING', 0, @CRT)"
 
-            ' ✅ Gamit na ulit ang DBConnection.connStr
             Using conn As New MySqlConnection(DBConnection.connStr)
                 Using cmd As New MySqlCommand(cmdInsert, conn)
                     cmd.Parameters.AddWithValue("@AID", newAccountID)
                     cmd.Parameters.AddWithValue("@ACC", txtAccount.Text.Trim())
-                    cmd.Parameters.AddWithValue("@ADDR", txtAddress.Text.Trim())
+                    cmd.Parameters.AddWithValue("@OWNER", txtOwnerFullName.Text.Trim())
+                    cmd.Parameters.AddWithValue("@BTYPE", cboBusinessType.Text)
                     cmd.Parameters.AddWithValue("@CONT", txtContact.Text.Trim())
                     cmd.Parameters.AddWithValue("@EMAIL", txtEmail.Text.Trim().ToLower())
                     cmd.Parameters.AddWithValue("@USER", txtUsername.Text.Trim().ToUpper())
@@ -135,7 +133,10 @@ Public Class Register_account
                 End Using
             End Using
 
-            MessageBox.Show("SUCCESS! Account created." & vbCrLf & "Account ID: " & newAccountID, "SUCCESS", MessageBoxButtons.OK, MessageBoxIcon.Information)
+            MessageBox.Show("SUCCESS! Basic Business Account Created." & vbCrLf &
+                            "Account ID: " & newAccountID & vbCrLf & vbCrLf &
+                            "Full verification & documents can be submitted later.",
+                            "ACCOUNT CREATED", MessageBoxButtons.OK, MessageBoxIcon.Information)
             ClearFields()
             RefreshAccountID()
 
@@ -144,129 +145,20 @@ Public Class Register_account
         End Try
     End Sub
 
+    ' ==================== CLEAR FIELDS ====================
     Private Sub ClearFields()
-        txtAccount.Text = "Enter Account Name"
-        txtAccount.ForeColor = Color.Gray
-
-        txtAddress.Text = "Enter Complete Address"
-        txtAddress.ForeColor = Color.Gray
-
-        txtContact.Text = "Enter Contact Number"
-        txtContact.ForeColor = Color.Gray
-
-        txtEmail.Text = "Enter Email Address"
-        txtEmail.ForeColor = Color.Gray
-
-        txtUsername.Text = "Enter Username"
-        txtUsername.ForeColor = Color.Gray
-
-        txtPassword.Text = "Enter Password"
-        txtPassword.ForeColor = Color.Gray
-        txtPassword.PasswordChar = Nothing
-
-        txtConfirmPassword.Text = "Confirm Password"
-        txtConfirmPassword.ForeColor = Color.Gray
-        txtConfirmPassword.PasswordChar = Nothing
+        txtAccount.Clear()
+        txtOwnerFullName.Clear()
+        cboBusinessType.SelectedIndex = -1
+        txtContact.Clear()
+        txtEmail.Clear()
+        txtUsername.Clear()
+        txtPassword.Clear()
+        txtConfirmPassword.Clear()
     End Sub
 
     Private Sub btnCancel_Click(sender As Object, e As EventArgs) Handles btnCancel.Click
         Me.Close()
     End Sub
 
-#Region "Placeholder Text Handling"
-    Private Sub txtAccount_GotFocus(sender As Object, e As EventArgs) Handles txtAccount.GotFocus
-        If txtAccount.Text = "Enter Account Name" Then
-            txtAccount.Text = ""
-            txtAccount.ForeColor = Color.Black
-        End If
-    End Sub
-    Private Sub txtAccount_LostFocus(sender As Object, e As EventArgs) Handles txtAccount.LostFocus
-        If String.IsNullOrWhiteSpace(txtAccount.Text) Then
-            txtAccount.Text = "Enter Account Name"
-            txtAccount.ForeColor = Color.Gray
-        End If
-    End Sub
-
-    Private Sub txtAddress_GotFocus(sender As Object, e As EventArgs) Handles txtAddress.GotFocus
-        If txtAddress.Text = "Enter Complete Address" Then
-            txtAddress.Text = ""
-            txtAddress.ForeColor = Color.Black
-        End If
-    End Sub
-    Private Sub txtAddress_LostFocus(sender As Object, e As EventArgs) Handles txtAddress.LostFocus
-        If String.IsNullOrWhiteSpace(txtAddress.Text) Then
-            txtAddress.Text = "Enter Complete Address"
-            txtAddress.ForeColor = Color.Gray
-        End If
-    End Sub
-
-    Private Sub txtContact_GotFocus(sender As Object, e As EventArgs) Handles txtContact.GotFocus
-        If txtContact.Text = "Enter Contact Number" Then
-            txtContact.Text = ""
-            txtContact.ForeColor = Color.Black
-        End If
-    End Sub
-    Private Sub txtContact_LostFocus(sender As Object, e As EventArgs) Handles txtContact.LostFocus
-        If String.IsNullOrWhiteSpace(txtContact.Text) Then
-            txtContact.Text = "Enter Contact Number"
-            txtContact.ForeColor = Color.Gray
-        End If
-    End Sub
-
-    Private Sub txtEmail_GotFocus(sender As Object, e As EventArgs) Handles txtEmail.GotFocus
-        If txtEmail.Text = "Enter Email Address" Then
-            txtEmail.Text = ""
-            txtEmail.ForeColor = Color.Black
-        End If
-    End Sub
-    Private Sub txtEmail_LostFocus(sender As Object, e As EventArgs) Handles txtEmail.LostFocus
-        If String.IsNullOrWhiteSpace(txtEmail.Text) Then
-            txtEmail.Text = "Enter Email Address"
-            txtEmail.ForeColor = Color.Gray
-        End If
-    End Sub
-
-    Private Sub txtUsername_GotFocus(sender As Object, e As EventArgs) Handles txtUsername.GotFocus
-        If txtUsername.Text = "Enter Username" Then
-            txtUsername.Text = ""
-            txtUsername.ForeColor = Color.Black
-        End If
-    End Sub
-    Private Sub txtUsername_LostFocus(sender As Object, e As EventArgs) Handles txtUsername.LostFocus
-        If String.IsNullOrWhiteSpace(txtUsername.Text) Then
-            txtUsername.Text = "Enter Username"
-            txtUsername.ForeColor = Color.Gray
-        End If
-    End Sub
-
-    Private Sub txtPassword_GotFocus(sender As Object, e As EventArgs) Handles txtPassword.GotFocus
-        If txtPassword.Text = "Enter Password" Then
-            txtPassword.Text = ""
-            txtPassword.ForeColor = Color.Black
-            txtPassword.PasswordChar = "*"
-        End If
-    End Sub
-    Private Sub txtPassword_LostFocus(sender As Object, e As EventArgs) Handles txtPassword.LostFocus
-        If String.IsNullOrWhiteSpace(txtPassword.Text) Then
-            txtPassword.Text = "Enter Password"
-            txtPassword.ForeColor = Color.Gray
-            txtPassword.PasswordChar = Nothing
-        End If
-    End Sub
-
-    Private Sub txtConfirmPassword_GotFocus(sender As Object, e As EventArgs) Handles txtConfirmPassword.GotFocus
-        If txtConfirmPassword.Text = "Confirm Password" Then
-            txtConfirmPassword.Text = ""
-            txtConfirmPassword.ForeColor = Color.Black
-            txtConfirmPassword.PasswordChar = "*"
-        End If
-    End Sub
-    Private Sub txtConfirmPassword_LostFocus(sender As Object, e As EventArgs) Handles txtConfirmPassword.LostFocus
-        If String.IsNullOrWhiteSpace(txtConfirmPassword.Text) Then
-            txtConfirmPassword.Text = "Confirm Password"
-            txtConfirmPassword.ForeColor = Color.Gray
-            txtConfirmPassword.PasswordChar = Nothing
-        End If
-    End Sub
-#End Region
 End Class

@@ -1,5 +1,5 @@
 ﻿Imports System.Data
-Imports System.Data.SqlClient
+Imports MySqlConnector
 Imports System.Drawing
 Imports System.Drawing.Printing
 Imports System.IO
@@ -9,7 +9,7 @@ Imports System.Text
 Public Class ShelfTag_Printer
 
     ' ===== USE SHARED CONNECTION STRING FROM MODULE =====
-    Private conn As SqlConnection
+    Private connStr As String = DBConnection.connStr
 
     ' ===== TAG SIZES =====
     Private ReadOnly tagWidth_Normal As Single = 92.0F
@@ -30,7 +30,6 @@ Public Class ShelfTag_Printer
 
     ' ===== FORM LOAD =====
     Private Sub ShelfTag_Printer_Load(sender As Object, e As EventArgs) Handles MyBase.Load
-        conn = New SqlConnection(connStr) ' Use shared connection
         SetupGrid()
         ClearInputFields()
         rdoShelfTag.Checked = True
@@ -128,12 +127,13 @@ Public Class ShelfTag_Printer
         End If
 
         Try
-            Using conn As New SqlConnection(connStr)
+            ' ✅ SqlConnection → MySqlConnection; RTRIM+LTRIM → TRIM; inv. removed + backticks
+            Using conn As New MySqlConnection(connStr)
                 conn.Open()
-                Dim cmd As New SqlCommand("SELECT BARCODE, SKU, BRAND, DESCRIPTIONS, SIZE, PRICE, PRODUCT_IMAGE FROM inv.Inventory_Master_File WHERE RTRIM(LTRIM(BARCODE)) = @Code OR RTRIM(LTRIM(SKU)) = @Code", conn)
-                cmd.Parameters.Add("@Code", SqlDbType.NVarChar, 50).Value = txtBarcode.Text.Trim()
+                Dim cmd As New MySqlCommand("SELECT `BARCODE`, `SKU`, `BRAND`, `DESCRIPTIONS`, `SIZE`, `PRICE`, `PRODUCT_IMAGE` FROM `Inventory_Master_File` WHERE TRIM(`BARCODE`) = @Code OR TRIM(`SKU`) = @Code", conn)
+                cmd.Parameters.AddWithValue("@Code", txtBarcode.Text.Trim())
 
-                Using dr As SqlDataReader = cmd.ExecuteReader()
+                Using dr As MySqlDataReader = cmd.ExecuteReader()
                     If dr.Read() Then
                         dgvItems.Rows.Add(
                             dr("BARCODE").ToString().Trim(),
@@ -158,7 +158,6 @@ Public Class ShelfTag_Printer
     End Sub
 
     'REMOVE ITEM
-
     Private Sub btnRemove_Click_1(sender As Object, e As EventArgs) Handles btnRemove.Click
         If dgvItems.SelectedRows.Count > 0 Then
             dgvItems.Rows.RemoveAt(dgvItems.SelectedRows(0).Index)
@@ -189,7 +188,8 @@ Public Class ShelfTag_Printer
         currentItemIndex = 0
 
         Try
-            Using conn As New SqlConnection(connStr)
+            ' ✅ SqlConnection → MySqlConnection; inv. removed + backticks
+            Using conn As New MySqlConnection(connStr)
                 conn.Open()
                 For Each row As DataGridViewRow In dgvItems.Rows
                     If row.IsNewRow Then Continue For
@@ -202,8 +202,8 @@ Public Class ShelfTag_Printer
                     Dim pr = CDec(row.Cells("PRICE").Value)
                     Dim qt = CInt(row.Cells("QTY").Value)
 
-                    Dim imgCmd As New SqlCommand("SELECT PRODUCT_IMAGE FROM inv.Inventory_Master_File WHERE BARCODE = @BC", conn)
-                    imgCmd.Parameters.Add("@BC", SqlDbType.NVarChar, 50).Value = bc
+                    Dim imgCmd As New MySqlCommand("SELECT `PRODUCT_IMAGE` FROM `Inventory_Master_File` WHERE `BARCODE` = @BC", conn)
+                    imgCmd.Parameters.AddWithValue("@BC", bc)
                     Dim imgBytes As Byte() = TryCast(imgCmd.ExecuteScalar(), Byte())
 
                     For i As Integer = 1 To qt
@@ -223,7 +223,7 @@ Public Class ShelfTag_Printer
         End Try
     End Sub
 
-    ' BARCODE GENERATOR
+    ' BARCODE GENERATOR — WALANG BINAGO
     Private Function GetValidBarcodePattern(codeNum As String) As String
         Dim pureNum As String = New String(codeNum.Where(AddressOf Char.IsDigit).ToArray())
 
@@ -285,6 +285,7 @@ Public Class ShelfTag_Printer
         Return pattern.ToString()
     End Function
 
+    ' PRINT PAGE LOGIC — WALANG BINAGO SA LAYOUT O DESIGN
     Private Sub printDoc_PrintPage(sender As Object, e As PrintPageEventArgs) Handles printDoc.PrintPage
         Dim g As Graphics = e.Graphics
         g.PageUnit = GraphicsUnit.Millimeter
@@ -431,4 +432,5 @@ Public Class ShelfTag_Printer
 
         e.HasMorePages = (currentItemIndex < tempPrintList.Rows.Count)
     End Sub
+
 End Class

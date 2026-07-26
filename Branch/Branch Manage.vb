@@ -1,5 +1,5 @@
-﻿Imports System.Data.SqlClient
-Imports System.IO
+﻿Imports System.IO
+Imports MySqlConnector
 
 Public Class Branch_Manage
 
@@ -16,25 +16,26 @@ Public Class Branch_Manage
                 Return
             End If
 
-            Dim Sql As String = "SELECT ACCOUNT_ID, ACCOUNT, BRANCH_ID, BRANCH, TIN, BUSINESS_TYPE, ADDRESS, EMAIL, CONTACT, MANAGER " &
-                                 "FROM dbo.Branches " &
-                                 "WHERE ACCOUNT_ID = @AccID "
+            ' ✅ MySQL syntax: % lang, walang +, may backticks, walang dbo.
+            Dim Sql As String = "SELECT `ACCOUNT_ID`, `ACCOUNT`, `BRANCH_ID`, `BRANCH`, `TIN`, `BUSINESS_TYPE`, `ADDRESS`, `EMAIL`, `CONTACT`, `MANAGER` " &
+                                 "FROM `branches` " &
+                                 "WHERE `ACCOUNT_ID` = @AccID "
 
             If Not String.IsNullOrEmpty(SearchText) Then
-                Sql &= "AND (BRANCH LIKE '%' + @Filter + '%' OR ADDRESS LIKE '%' + @Filter + '%' OR MANAGER LIKE '%' + @Filter + '%') "
+                Sql &= "AND (`BRANCH` LIKE CONCAT('%', @Filter, '%') OR `ADDRESS` LIKE CONCAT('%', @Filter, '%') OR `MANAGER` LIKE CONCAT('%', @Filter, '%')) "
             End If
 
-            Sql &= "ORDER BY BRANCH ASC"
+            Sql &= "ORDER BY `BRANCH` ASC"
 
-            Using Conn As New SqlConnection(connStr)
-                Using Cmd As New SqlCommand(Sql, Conn)
+            Using Conn As New MySqlConnection(DBConnection.connStr)
+                Using Cmd As New MySqlCommand(Sql, Conn)
                     Cmd.Parameters.AddWithValue("@AccID", CurrentAccountID)
 
                     If Not String.IsNullOrEmpty(SearchText) Then
                         Cmd.Parameters.AddWithValue("@Filter", SearchText)
                     End If
 
-                    Dim Da As New SqlDataAdapter(Cmd)
+                    Dim Da As New MySqlDataAdapter(Cmd)
                     Dim Dt As New DataTable
                     Da.Fill(Dt)
 

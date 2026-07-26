@@ -1,7 +1,9 @@
 ﻿Imports System.Data
-Imports System.Data.SqlClient
+Imports MySqlConnector
 
 Public Class User_Account_Manage
+
+    Private connStr As String = DBConnection.connStr
 
     Private Sub User_Account_Manage_Load(sender As Object, e As EventArgs) Handles MyBase.Load
         SetupColumns()
@@ -35,44 +37,45 @@ Public Class User_Account_Manage
         dgvUsers.Rows.Clear()
 
         Try
-            Dim sql As String = "
-                SELECT 
-                    u.ID, u.FULL_NAME, u.USER_TYPE, u.BRANCH_ID, 
-                    b.BRANCH AS BRANCH_NAME, u.EMAIL, u.CONTACT, u.STATUS, 
-                    u.DATE_CREATED, u.PROFILE
-                FROM User_Accounts u
-                LEFT JOIN Branches b ON u.BRANCH_ID = b.BRANCH_ID
-                WHERE 1=1"
+            ' ✅ Backticks added; no dbo./schema prefix
+            Dim sql As New Text.StringBuilder()
+            sql.AppendLine("SELECT ")
+            sql.AppendLine("    u.`ID`, u.`FULL_NAME`, u.`USER_TYPE`, u.`BRANCH_ID`, ")
+            sql.AppendLine("    b.`BRANCH` AS `BRANCH_NAME`, u.`EMAIL`, u.`CONTACT`, u.`STATUS`, ")
+            sql.AppendLine("    u.`DATE_CREATED`, u.`PROFILE`")
+            sql.AppendLine("FROM `User_Accounts` u")
+            sql.AppendLine("LEFT JOIN `Branches` b ON u.`BRANCH_ID` = b.`BRANCH_ID`")
+            sql.AppendLine("WHERE 1=1")
 
-            Using conn As New SqlConnection(connStr)
-                Using cmd As New SqlCommand(sql, conn)
+            Using conn As New MySqlConnection(connStr)
+                Using cmd As New MySqlCommand(sql.ToString(), conn)
 
                     ' Filter based on logged-in user's role
                     If Login.LoggedInUserType.Equals("ADMIN", StringComparison.OrdinalIgnoreCase) Then
-                        cmd.Parameters.Add("@AccID", SqlDbType.NVarChar, 50).Value = Login.LoggedInAccountID
-                        sql &= " AND u.ACCOUNT_ID = @AccID"
+                        cmd.Parameters.AddWithValue("@AccID", Login.LoggedInAccountID)
+                        sql.AppendLine(" AND u.`ACCOUNT_ID` = @AccID")
                     Else
-                        cmd.Parameters.Add("@BranchID", SqlDbType.NVarChar, 20).Value = Login.LoggedInBranchID
-                        sql &= " AND u.BRANCH_ID = @BranchID AND u.USER_TYPE <> 'ADMIN'"
+                        cmd.Parameters.AddWithValue("@BranchID", Login.LoggedInBranchID)
+                        sql.AppendLine(" AND u.`BRANCH_ID` = @BranchID AND u.`USER_TYPE` <> 'ADMIN'")
                     End If
 
                     ' Filter by user type if not "ALL"
                     If filterType <> "ALL" Then
-                        cmd.Parameters.Add("@Type", SqlDbType.NVarChar, 50).Value = filterType
-                        sql &= " AND u.USER_TYPE = @Type"
+                        cmd.Parameters.AddWithValue("@Type", filterType)
+                        sql.AppendLine(" AND u.`USER_TYPE` = @Type")
                     End If
 
                     ' Filter by search text
                     If Not String.IsNullOrEmpty(searchText) Then
-                        cmd.Parameters.Add("@Search", SqlDbType.NVarChar, 150).Value = "%" & searchText & "%"
-                        sql &= " AND u.FULL_NAME LIKE @Search"
+                        cmd.Parameters.AddWithValue("@Search", "%" & searchText & "%")
+                        sql.AppendLine(" AND u.`FULL_NAME` LIKE @Search")
                     End If
 
-                    sql &= " ORDER BY u.DATE_CREATED DESC"
-                    cmd.CommandText = sql
+                    sql.AppendLine(" ORDER BY u.`DATE_CREATED` DESC")
+                    cmd.CommandText = sql.ToString()
 
                     conn.Open()
-                    Using dr As SqlDataReader = cmd.ExecuteReader()
+                    Using dr As MySqlDataReader = cmd.ExecuteReader()
                         While dr.Read()
                             Dim userID As Integer = CInt(dr("ID"))
                             Dim fullName As String = dr("FULL_NAME").ToString().Trim()

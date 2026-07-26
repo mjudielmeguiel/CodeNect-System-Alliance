@@ -1,9 +1,10 @@
 ﻿Imports System.Data
-Imports System.Data.SqlClient
+Imports MySqlConnector
 
 Public Class Return_To_Vendor
 
     Private orderList As New DataTable()
+    Private connStr As String = DBConnection.connStr
 
     Private Sub Return_To_Vendor_Load(sender As Object, e As EventArgs) Handles MyBase.Load
         GenerateRTVNumber()
@@ -18,8 +19,9 @@ Public Class Return_To_Vendor
 
     Private Sub GenerateRTVNumber()
         Try
-            Using con As New SqlConnection(connStr)
-                Dim cmd As New SqlCommand("SELECT ISNULL(MAX(RTV_NUMBER), 0) + 1 FROM dbo.RTV_DATA", con)
+            Using con As New MySqlConnection(connStr)
+                ' ✅ ISNULL → IFNULL, dbo. removed, backticks added
+                Dim cmd As New MySqlCommand("SELECT IFNULL(MAX(`RTV_NUMBER`), 0) + 1 FROM `RTV_DATA`", con)
                 con.Open()
                 Dim nextRTV As Integer = CInt(cmd.ExecuteScalar())
                 lblRTVnumber.Text = nextRTV.ToString("D6")
@@ -31,10 +33,10 @@ Public Class Return_To_Vendor
 
     Private Sub LoadVendors()
         Try
-            Using con As New SqlConnection(connStr)
-                Dim query As String = "SELECT VENDOR_CODE, VENDOR FROM VENDOR WHERE STATUS = 'Active' ORDER BY VENDOR"
-                Dim cmd As New SqlCommand(query, con)
-                Dim da As New SqlDataAdapter(cmd)
+            Using con As New MySqlConnection(connStr)
+                Dim query As String = "SELECT `VENDOR_CODE`, `VENDOR` FROM `VENDOR` WHERE `STATUS` = 'Active' ORDER BY `VENDOR`"
+                Dim cmd As New MySqlCommand(query, con)
+                Dim da As New MySqlDataAdapter(cmd)
                 Dim dt As New DataTable()
                 da.Fill(dt)
 
@@ -75,14 +77,15 @@ Public Class Return_To_Vendor
 
     Private Sub SearchProduct(barcode As String, vendorCode As String)
         Try
-            Using con As New SqlConnection(connStr)
-                Dim query As String = "SELECT BARCODE, SKU, BRAND, DESCRIPTIONS, SIZE, PRICE, VENDOR_CODE, VENDOR, AVAILABLE " &
-                                      "FROM inv.Inventory_Master_file WHERE BARCODE = @Barcode"
+            Using con As New MySqlConnection(connStr)
+                ' ✅ inv. prefix removed, backticks added
+                Dim query As String = "SELECT `BARCODE`, `SKU`, `BRAND`, `DESCRIPTIONS`, `SIZE`, `PRICE`, `VENDOR_CODE`, `VENDOR`, `AVAILABLE` " &
+                                      "FROM `Inventory_Master_file` WHERE `BARCODE` = @Barcode"
 
-                Using cmd As New SqlCommand(query, con)
-                    cmd.Parameters.Add("@Barcode", SqlDbType.NChar, 15).Value = barcode
+                Using cmd As New MySqlCommand(query, con)
+                    cmd.Parameters.AddWithValue("@Barcode", barcode)
                     con.Open()
-                    Dim dr As SqlDataReader = cmd.ExecuteReader()
+                    Dim dr As MySqlDataReader = cmd.ExecuteReader()
 
                     If dr.Read() Then
                         txtBarcode.Tag = New With {
@@ -191,21 +194,23 @@ Public Class Return_To_Vendor
         Dim grandTotal As Decimal = CDec(lbltotal.Text)
 
         Try
-            Using con As New SqlConnection(connStr)
+            Using con As New MySqlConnection(connStr)
                 con.Open()
-                Dim tran As SqlTransaction = con.BeginTransaction()
+                ' ✅ SqlTransaction → MySqlTransaction
+                Dim tran As MySqlTransaction = con.BeginTransaction()
 
                 Try
-                    Dim cmdHeader As New SqlCommand("INSERT INTO dbo.RTV_DATA (RTV_NUMBER, [FROM], [TO], REQUEST_DATE, PREPARED_BY, TRANSACTION_TYPE, TOTAL, STATUS) " &
-                                                "VALUES (@RTV, @From, @To, GETDATE(), @PreparedBy, @Type, @Total, @Status)", con, tran)
+                    ' ✅ GETDATE() → NOW(), dbo. removed, backticks added
+                    Dim cmdHeader As New MySqlCommand("INSERT INTO `RTV_DATA` (`RTV_NUMBER`, `FROM`, `TO`, `REQUEST_DATE`, `PREPARED_BY`, `TRANSACTION_TYPE`, `TOTAL`, `STATUS`) " &
+                                                "VALUES (@RTV, @From, @To, NOW(), @PreparedBy, @Type, @Total, @Status)", con, tran)
 
-                    cmdHeader.Parameters.Add("@RTV", SqlDbType.NChar, 15).Value = rtvNumber.Trim()
-                    cmdHeader.Parameters.Add("@From", SqlDbType.NVarChar, 100).Value = If(branchName.Length > 100, branchName.Substring(0, 100), branchName)
-                    cmdHeader.Parameters.Add("@To", SqlDbType.NVarChar, 100).Value = If(vendorName.Length > 100, vendorName.Substring(0, 100), vendorName)
-                    cmdHeader.Parameters.Add("@PreparedBy", SqlDbType.NVarChar, 50).Value = If(preparedBy.Length > 50, preparedBy.Substring(0, 50), preparedBy)
-                    cmdHeader.Parameters.Add("@Type", SqlDbType.NVarChar, 50).Value = lbltransactiontype.Text
-                    cmdHeader.Parameters.Add("@Total", SqlDbType.Decimal).Value = grandTotal
-                    cmdHeader.Parameters.Add("@Status", SqlDbType.NVarChar, 20).Value = lblstatus.Text
+                    cmdHeader.Parameters.AddWithValue("@RTV", rtvNumber.Trim())
+                    cmdHeader.Parameters.AddWithValue("@From", If(branchName.Length > 100, branchName.Substring(0, 100), branchName))
+                    cmdHeader.Parameters.AddWithValue("@To", If(vendorName.Length > 100, vendorName.Substring(0, 100), vendorName))
+                    cmdHeader.Parameters.AddWithValue("@PreparedBy", If(preparedBy.Length > 50, preparedBy.Substring(0, 50), preparedBy))
+                    cmdHeader.Parameters.AddWithValue("@Type", lbltransactiontype.Text)
+                    cmdHeader.Parameters.AddWithValue("@Total", grandTotal)
+                    cmdHeader.Parameters.AddWithValue("@Status", lblstatus.Text)
 
                     cmdHeader.ExecuteNonQuery()
 
@@ -213,28 +218,30 @@ Public Class Return_To_Vendor
                         Dim barcode As String = row("BARCODE").ToString()
                         Dim qtyReturn As Integer = CInt(row("STOCK_OUT"))
 
-                        Dim cmdLine As New SqlCommand("INSERT INTO dbo.Return_to_Vendor (RTV_NUMBER, BARCODE, SKU, BRAND, DESCRIPTIONS, SIZE, PRICE, ORDER_QTY, VENDOR_CODE, VENDOR_NAME, STOCK_IN, STOCK_OUT, TOTAL) " &
+                        ' ✅ dbo. removed, backticks added
+                        Dim cmdLine As New MySqlCommand("INSERT INTO `Return_to_Vendor` (`RTV_NUMBER`, `BARCODE`, `SKU`, `BRAND`, `DESCRIPTIONS`, `SIZE`, `PRICE`, `ORDER_QTY`, `VENDOR_CODE`, `VENDOR_NAME`, `STOCK_IN`, `STOCK_OUT`, `TOTAL`) " &
                                                   "VALUES (@RTV, @Barcode, @SKU, @Brand, @Desc, @Size, @Price, @Qty, @VendorCode, @Vendor, @StockIn, @StockOut, @Subtotal)", con, tran)
 
-                        cmdLine.Parameters.Add("@RTV", SqlDbType.NChar, 15).Value = rtvNumber.Trim()
-                        cmdLine.Parameters.Add("@Barcode", SqlDbType.NChar, 15).Value = barcode
-                        cmdLine.Parameters.Add("@SKU", SqlDbType.NChar, 15).Value = row("SKU").ToString()
-                        cmdLine.Parameters.Add("@Brand", SqlDbType.VarChar, 255).Value = row("BRAND").ToString()
-                        cmdLine.Parameters.Add("@Desc", SqlDbType.VarChar, 255).Value = row("DESCRIPTIONS").ToString()
-                        cmdLine.Parameters.Add("@Size", SqlDbType.VarChar, 20).Value = row("SIZE").ToString()
-                        cmdLine.Parameters.Add("@Price", SqlDbType.Decimal).Value = row("PRICE")
-                        cmdLine.Parameters.Add("@Qty", SqlDbType.Int).Value = row("ORDER_QTY")
-                        cmdLine.Parameters.Add("@VendorCode", SqlDbType.NChar, 10).Value = row("VENDOR_CODE").ToString()
-                        cmdLine.Parameters.Add("@Vendor", SqlDbType.VarChar, 100).Value = row("VENDOR_NAME").ToString()
-                        cmdLine.Parameters.Add("@StockIn", SqlDbType.Int).Value = row("STOCK_IN")
-                        cmdLine.Parameters.Add("@StockOut", SqlDbType.Int).Value = qtyReturn
-                        cmdLine.Parameters.Add("@Subtotal", SqlDbType.Decimal).Value = row("TOTAL")
+                        cmdLine.Parameters.AddWithValue("@RTV", rtvNumber.Trim())
+                        cmdLine.Parameters.AddWithValue("@Barcode", barcode)
+                        cmdLine.Parameters.AddWithValue("@SKU", row("SKU").ToString())
+                        cmdLine.Parameters.AddWithValue("@Brand", row("BRAND").ToString())
+                        cmdLine.Parameters.AddWithValue("@Desc", row("DESCRIPTIONS").ToString())
+                        cmdLine.Parameters.AddWithValue("@Size", row("SIZE").ToString())
+                        cmdLine.Parameters.AddWithValue("@Price", row("PRICE"))
+                        cmdLine.Parameters.AddWithValue("@Qty", row("ORDER_QTY"))
+                        cmdLine.Parameters.AddWithValue("@VendorCode", row("VENDOR_CODE").ToString())
+                        cmdLine.Parameters.AddWithValue("@Vendor", row("VENDOR_NAME").ToString())
+                        cmdLine.Parameters.AddWithValue("@StockIn", row("STOCK_IN"))
+                        cmdLine.Parameters.AddWithValue("@StockOut", qtyReturn)
+                        cmdLine.Parameters.AddWithValue("@Subtotal", row("TOTAL"))
 
                         cmdLine.ExecuteNonQuery()
 
-                        Dim cmdUpdateStock As New SqlCommand("UPDATE inv.Inventory_Master_file SET AVAILABLE = AVAILABLE - @QtyReturn WHERE BARCODE = @Barcode", con, tran)
-                        cmdUpdateStock.Parameters.Add("@QtyReturn", SqlDbType.Int).Value = qtyReturn
-                        cmdUpdateStock.Parameters.Add("@Barcode", SqlDbType.NChar, 15).Value = barcode
+                        ' ✅ inv. prefix removed, backticks added
+                        Dim cmdUpdateStock As New MySqlCommand("UPDATE `Inventory_Master_file` SET `AVAILABLE` = `AVAILABLE` - @QtyReturn WHERE `BARCODE` = @Barcode", con, tran)
+                        cmdUpdateStock.Parameters.AddWithValue("@QtyReturn", qtyReturn)
+                        cmdUpdateStock.Parameters.AddWithValue("@Barcode", barcode)
                         cmdUpdateStock.ExecuteNonQuery()
                     Next
 

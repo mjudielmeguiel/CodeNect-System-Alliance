@@ -1,5 +1,5 @@
 ﻿Imports System.Data
-Imports System.Data.SqlClient
+Imports MySqlConnector
 Imports System.IO
 Imports System.Drawing
 Imports System.Drawing.Imaging
@@ -8,6 +8,7 @@ Public Class frmProduct_Information
 
     Private _ProductID As Integer = 0
     Private _OriginalImageBytes As Byte() = Nothing
+    Private connStr As String = DBConnection.connStr
 
     Public Sub LoadDataFromGrid(row As DataGridViewRow)
         Try
@@ -93,11 +94,12 @@ Public Class frmProduct_Information
         End If
 
         Try
-            Using con As New SqlConnection(connStr)
-                Dim query As String = "UPDATE inv.Inventory_Master_file SET PRODUCT_IMAGE = @PRODUCT_IMAGE WHERE ID = @ID"
-                Using cmd As New SqlCommand(query, con)
-                    cmd.Parameters.Add("@PRODUCT_IMAGE", SqlDbType.VarBinary).Value = If(imgBytes IsNot Nothing, imgBytes, DBNull.Value)
-                    cmd.Parameters.Add("@ID", SqlDbType.Int).Value = _ProductID
+            Using con As New MySqlConnection(connStr)
+                ' ✅ inv. prefix removed, backticks added
+                Dim query As String = "UPDATE `Inventory_Master_file` SET `PRODUCT_IMAGE` = @PRODUCT_IMAGE WHERE `ID` = @ID"
+                Using cmd As New MySqlCommand(query, con)
+                    cmd.Parameters.AddWithValue("@PRODUCT_IMAGE", If(imgBytes IsNot Nothing, imgBytes, DBNull.Value))
+                    cmd.Parameters.AddWithValue("@ID", _ProductID)
 
                     con.Open()
                     cmd.ExecuteNonQuery()
@@ -117,9 +119,10 @@ Public Class frmProduct_Information
         End If
 
         Try
-            Using con As New SqlConnection(connStr)
-                Using cmd As New SqlCommand("DELETE FROM inv.Inventory_Master_file WHERE ID = @ID", con)
-                    cmd.Parameters.Add("@ID", SqlDbType.Int).Value = _ProductID
+            Using con As New MySqlConnection(connStr)
+                ' ✅ inv. prefix removed, backticks added
+                Using cmd As New MySqlCommand("DELETE FROM `Inventory_Master_file` WHERE `ID` = @ID", con)
+                    cmd.Parameters.AddWithValue("@ID", _ProductID)
                     con.Open()
                     cmd.ExecuteNonQuery()
                 End Using

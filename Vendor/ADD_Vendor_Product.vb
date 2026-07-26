@@ -1,7 +1,11 @@
-﻿Imports System.Data.SqlClient
+﻿Imports System.Data
+Imports MySqlConnector
+Imports System.Drawing
 Imports System.IO
 
 Public Class ADD_Vendor_Product
+
+    Private connStr As String = DBConnection.connStr
 
     Private Sub ADD_Vendor_Product_Load(sender As Object, e As EventArgs) Handles MyBase.Load
         LoadVendors()
@@ -30,44 +34,32 @@ Public Class ADD_Vendor_Product
     End Sub
 
     Private Sub txtBarcode_GotFocus(sender As Object, e As EventArgs) Handles txtBarcode.GotFocus
-        If txtBarcode.ForeColor = Color.Gray Then
-            txtBarcode.Text = ""
-        End If
+        If txtBarcode.ForeColor = Color.Gray Then txtBarcode.Text = ""
         txtBarcode.ForeColor = Color.Black
     End Sub
 
     Private Sub txtBrand_GotFocus(sender As Object, e As EventArgs) Handles txtBrand.GotFocus
-        If txtBrand.ForeColor = Color.Gray Then
-            txtBrand.Text = ""
-        End If
+        If txtBrand.ForeColor = Color.Gray Then txtBrand.Text = ""
         txtBrand.ForeColor = Color.Black
     End Sub
 
     Private Sub txtDescription_GotFocus(sender As Object, e As EventArgs) Handles txtDescription.GotFocus
-        If txtDescription.ForeColor = Color.Gray Then
-            txtDescription.Text = ""
-        End If
+        If txtDescription.ForeColor = Color.Gray Then txtDescription.Text = ""
         txtDescription.ForeColor = Color.Black
     End Sub
 
     Private Sub txtUnit_GotFocus(sender As Object, e As EventArgs) Handles txtUnit.GotFocus
-        If txtUnit.ForeColor = Color.Gray Then
-            txtUnit.Text = ""
-        End If
+        If txtUnit.ForeColor = Color.Gray Then txtUnit.Text = ""
         txtUnit.ForeColor = Color.Black
     End Sub
 
     Private Sub txtSize_GotFocus(sender As Object, e As EventArgs) Handles txtSize.GotFocus
-        If txtSize.ForeColor = Color.Gray Then
-            txtSize.Text = ""
-        End If
+        If txtSize.ForeColor = Color.Gray Then txtSize.Text = ""
         txtSize.ForeColor = Color.Black
     End Sub
 
     Private Sub txtPrice_GotFocus(sender As Object, e As EventArgs) Handles txtPrice.GotFocus
-        If txtPrice.ForeColor = Color.Gray Then
-            txtPrice.Text = ""
-        End If
+        If txtPrice.ForeColor = Color.Gray Then txtPrice.Text = ""
         txtPrice.ForeColor = Color.Black
     End Sub
 
@@ -115,28 +107,29 @@ Public Class ADD_Vendor_Product
 
     Private Sub LoadVendors()
         Try
-            Dim conn As New SqlConnection(connStr)
-            Dim sql As String = "SELECT VENDOR_CODE, VENDOR FROM vendor ORDER BY VENDOR ASC"
-            Dim cmd As New SqlCommand(sql, conn)
-            Dim dt As New DataTable()
-            Dim da As New SqlDataAdapter(cmd)
+            ' ✅ MySqlConnection + backticks
+            Using conn As New MySqlConnection(connStr)
+                Dim sql As String = "SELECT `VENDOR_CODE`, `VENDOR` FROM `vendor` ORDER BY `VENDOR` ASC"
+                Using cmd As New MySqlCommand(sql, conn)
+                    Dim dt As New DataTable()
+                    Using da As New MySqlDataAdapter(cmd)
+                        conn.Open()
+                        da.Fill(dt)
+                    End Using
 
-            conn.Open()
-            da.Fill(dt)
+                    cboVendorCode.DataSource = dt
+                    cboVendorCode.DisplayMember = "VENDOR_CODE"
+                    cboVendorCode.ValueMember = "VENDOR_CODE"
+                    cboVendorCode.Text = "Select Vendor Code"
+                    cboVendorCode.ForeColor = Color.Gray
 
-            cboVendorCode.DataSource = dt
-            cboVendorCode.DisplayMember = "VENDOR_CODE"
-            cboVendorCode.ValueMember = "VENDOR_CODE"
-            cboVendorCode.Text = "Select Vendor Code"
-            cboVendorCode.ForeColor = Color.Gray
-
-            cboVendorName.DataSource = dt.Copy()
-            cboVendorName.DisplayMember = "VENDOR"
-            cboVendorName.ValueMember = "VENDOR_CODE"
-            cboVendorName.Text = "Select Vendor Name"
-            cboVendorName.ForeColor = Color.Gray
-
-            conn.Close()
+                    cboVendorName.DataSource = dt.Copy()
+                    cboVendorName.DisplayMember = "VENDOR"
+                    cboVendorName.ValueMember = "VENDOR_CODE"
+                    cboVendorName.Text = "Select Vendor Name"
+                    cboVendorName.ForeColor = Color.Gray
+                End Using
+            End Using
         Catch ex As Exception
             MessageBox.Show("Error loading vendors: " & ex.Message)
         End Try
@@ -234,11 +227,7 @@ Public Class ADD_Vendor_Product
     End Sub
 
     Private Sub cboCategory_SelectedIndexChanged(sender As Object, e As EventArgs) Handles cboCategory.SelectedIndexChanged
-        If Not cboCategory.Text.StartsWith("---") Then
-            cboCategory.ForeColor = Color.Black
-        Else
-            cboCategory.ForeColor = Color.Gray
-        End If
+        cboCategory.ForeColor = If(cboCategory.Text.StartsWith("---"), Color.Gray, Color.Black)
     End Sub
 
     Private Sub cboVendorCode_SelectedIndexChanged(sender As Object, e As EventArgs) Handles cboVendorCode.SelectedIndexChanged
@@ -256,80 +245,87 @@ Public Class ADD_Vendor_Product
     End Sub
 
     Private Sub picProduct_DoubleClick(sender As Object, e As EventArgs) Handles picProduct.DoubleClick
-        Dim openFile As New OpenFileDialog()
-        openFile.Filter = "Image Files|*.jpg;*.jpeg;*.png;*.bmp"
-        openFile.Title = "Select Product Image"
-
-        If openFile.ShowDialog() = DialogResult.OK Then
-            picProduct.Image = Image.FromFile(openFile.FileName)
-            picProduct.SizeMode = PictureBoxSizeMode.Zoom
-        End If
+        Using openFile As New OpenFileDialog()
+            openFile.Filter = "Image Files|*.jpg;*.jpeg;*.png;*.bmp"
+            openFile.Title = "Select Product Image"
+            If openFile.ShowDialog() = DialogResult.OK Then
+                picProduct.Image = Image.FromFile(openFile.FileName)
+                picProduct.SizeMode = PictureBoxSizeMode.Zoom
+            End If
+        End Using
     End Sub
 
     Private Sub btnSaveProduct_Click(sender As Object, e As EventArgs) Handles btnSaveProduct.Click
-        If txtBarcode.Text = "" Or txtBarcode.Text = "BARCODE" Then
+        ' Validation
+        If txtBarcode.Text = "" OrElse txtBarcode.Text = "BARCODE" Then
             MessageBox.Show("Please enter the product barcode.")
             txtBarcode.Focus()
             Return
         End If
-
-        If txtDescription.Text = "" Or txtDescription.Text = "DESCRIPTION" Then
+        If txtDescription.Text = "" OrElse txtDescription.Text = "DESCRIPTION" Then
             MessageBox.Show("Please enter the product description.")
             txtDescription.Focus()
             Return
         End If
-
-        If txtBrand.Text = "" Or txtBrand.Text = "BRAND" Then
+        If txtBrand.Text = "" OrElse txtBrand.Text = "BRAND" Then
             MessageBox.Show("Please enter the product brand.")
             txtBrand.Focus()
             Return
         End If
-
-        If cboCategory.Text = "" Or cboCategory.Text = "Select Category" Or cboCategory.Text.StartsWith("---") Then
+        If cboCategory.Text = "" OrElse cboCategory.Text = "Select Category" OrElse cboCategory.Text.StartsWith("---") Then
             MessageBox.Show("Please select a valid category.")
             cboCategory.DroppedDown = True
             Return
         End If
-
-        If cboVendorCode.Text = "" Or cboVendorCode.Text = "Select Vendor Code" Then
+        If cboVendorCode.Text = "" OrElse cboVendorCode.Text = "Select Vendor Code" Then
             MessageBox.Show("Please select a vendor.")
             cboVendorCode.DroppedDown = True
             Return
         End If
-
-        If txtPrice.Text = "" Or txtPrice.Text = "PRICE" Or Not IsNumeric(txtPrice.Text) Then
+        If txtPrice.Text = "" OrElse txtPrice.Text = "PRICE" OrElse Not IsNumeric(txtPrice.Text) Then
             MessageBox.Show("Please enter a valid price.")
             txtPrice.SelectAll()
             txtPrice.Focus()
             Return
         End If
 
+        ' Prepare image bytes
         Dim imageBytes() As Byte = Nothing
         If picProduct.Image IsNot Nothing Then
-            Dim ms As New MemoryStream()
-            picProduct.Image.Save(ms, picProduct.Image.RawFormat)
-            imageBytes = ms.ToArray()
+            Using ms As New MemoryStream()
+                picProduct.Image.Save(ms, picProduct.Image.RawFormat)
+                imageBytes = ms.ToArray()
+            End Using
         End If
 
         Try
-            Dim conn As New SqlConnection(connStr)
-            Dim sql As String = "INSERT INTO Vendor_Products (BARCODE, DESCRIPTIONS, BRAND, CATEGORY, VENDOR_CODE, VENDOR, UNIT, SIZE, PRICE, PRODUCT_IMAGE, DATE_ADDED) VALUES (@BARCODE, @DESCRIPTIONS, @BRAND, @CATEGORY, @VENDOR_CODE, @VENDOR, @UNIT, @SIZE, @PRICE, @PRODUCT_IMAGE, GETDATE())"
+            ' ✅ GETDATE() → NOW(), backticks added
+            Dim sql As String = "
+                INSERT INTO `Vendor_Products` (
+                    `BARCODE`, `DESCRIPTIONS`, `BRAND`, `CATEGORY`, `VENDOR_CODE`, `VENDOR`, 
+                    `UNIT`, `SIZE`, `PRICE`, `PRODUCT_IMAGE`, `DATE_ADDED`
+                ) VALUES (
+                    @BARCODE, @DESCRIPTIONS, @BRAND, @CATEGORY, @VENDOR_CODE, @VENDOR, 
+                    @UNIT, @SIZE, @PRICE, @PRODUCT_IMAGE, NOW()
+                )"
 
-            Dim cmd As New SqlCommand(sql, conn)
-            cmd.Parameters.AddWithValue("@BARCODE", txtBarcode.Text.Trim())
-            cmd.Parameters.AddWithValue("@DESCRIPTIONS", txtDescription.Text.Trim())
-            cmd.Parameters.AddWithValue("@BRAND", txtBrand.Text.Trim())
-            cmd.Parameters.AddWithValue("@CATEGORY", cboCategory.Text.Trim())
-            cmd.Parameters.AddWithValue("@VENDOR_CODE", cboVendorCode.SelectedValue.ToString())
-            cmd.Parameters.AddWithValue("@VENDOR", cboVendorName.Text.Trim())
-            cmd.Parameters.AddWithValue("@UNIT", If(txtUnit.Text = "UNIT", "", txtUnit.Text.Trim()))
-            cmd.Parameters.AddWithValue("@SIZE", If(txtSize.Text = "SIZE / WEIGHT", "", txtSize.Text.Trim()))
-            cmd.Parameters.AddWithValue("@PRICE", CDec(txtPrice.Text.Trim()))
-            cmd.Parameters.AddWithValue("@PRODUCT_IMAGE", If(imageBytes, DBNull.Value))
+            Using conn As New MySqlConnection(connStr)
+                Using cmd As New MySqlCommand(sql, conn)
+                    cmd.Parameters.AddWithValue("@BARCODE", txtBarcode.Text.Trim())
+                    cmd.Parameters.AddWithValue("@DESCRIPTIONS", txtDescription.Text.Trim())
+                    cmd.Parameters.AddWithValue("@BRAND", txtBrand.Text.Trim())
+                    cmd.Parameters.AddWithValue("@CATEGORY", cboCategory.Text.Trim())
+                    cmd.Parameters.AddWithValue("@VENDOR_CODE", cboVendorCode.SelectedValue.ToString())
+                    cmd.Parameters.AddWithValue("@VENDOR", cboVendorName.Text.Trim())
+                    cmd.Parameters.AddWithValue("@UNIT", If(txtUnit.Text = "UNIT", "", txtUnit.Text.Trim()))
+                    cmd.Parameters.AddWithValue("@SIZE", If(txtSize.Text = "SIZE / WEIGHT", "", txtSize.Text.Trim()))
+                    cmd.Parameters.AddWithValue("@PRICE", CDec(txtPrice.Text.Trim()))
+                    cmd.Parameters.AddWithValue("@PRODUCT_IMAGE", If(imageBytes IsNot Nothing, imageBytes, DBNull.Value))
 
-            conn.Open()
-            cmd.ExecuteNonQuery()
-            conn.Close()
+                    conn.Open()
+                    cmd.ExecuteNonQuery()
+                End Using
+            End Using
 
             MessageBox.Show("Product saved successfully!")
             ClearForm()

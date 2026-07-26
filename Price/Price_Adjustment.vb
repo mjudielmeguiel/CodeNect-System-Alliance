@@ -1,8 +1,10 @@
-﻿Imports System.Data.SqlClient
+﻿Imports MySqlConnector
 Imports System.Drawing
 Imports System.IO
 
 Public Class Price_Adjustment
+
+    Private connStr As String = DBConnection.connStr
 
     Private Sub txtbarcode_TextChanged(sender As Object, e As EventArgs) Handles txtbarcode.TextChanged
         Dim searchValue As String = txtbarcode.Text.Trim()
@@ -18,18 +20,18 @@ Public Class Price_Adjustment
         ClearDisplay()
 
         Try
-            Using conn As New SqlConnection(connStr)
+            Using conn As New MySqlConnection(connStr)
                 conn.Open()
 
-                ' Query na walang branch filter muna
-                Dim sql As String = "SELECT BRAND, DESCRIPTIONS, SIZE, VENDOR_CODE, VENDOR, PRICE, AVAILABILITY, PRODUCT_IMAGE " &
-                                    "FROM inv.Inventory_Master_file " &
-                                    "WHERE (BARCODE = @Key OR SKU = @Key)"
+                ' ✅ inv. prefix removed, backticks added
+                Dim sql As String = "SELECT `BRAND`, `DESCRIPTIONS`, `SIZE`, `VENDOR_CODE`, `VENDOR`, `PRICE`, `AVAILABILITY`, `PRODUCT_IMAGE` " &
+                                    "FROM `Inventory_Master_file` " &
+                                    "WHERE (`BARCODE` = @Key OR `SKU` = @Key)"
 
-                Using cmd As New SqlCommand(sql, conn)
-                    cmd.Parameters.Add("@Key", SqlDbType.VarChar).Value = searchKey
+                Using cmd As New MySqlCommand(sql, conn)
+                    cmd.Parameters.AddWithValue("@Key", searchKey)
 
-                    Using reader As SqlDataReader = cmd.ExecuteReader()
+                    Using reader As MySqlDataReader = cmd.ExecuteReader()
                         If reader.Read() Then
                             lblBrand.Text = reader("BRAND").ToString()
                             lblDesc.Text = reader("DESCRIPTIONS").ToString()
@@ -40,6 +42,7 @@ Public Class Price_Adjustment
 
                             txtPrice.Text = Convert.ToDecimal(reader("PRICE")).ToString("F2")
 
+                            ' ✅ Image loading works the same in MySQL
                             If Not reader.IsDBNull(reader.GetOrdinal("PRODUCT_IMAGE")) Then
                                 Dim imgBytes As Byte() = DirectCast(reader("PRODUCT_IMAGE"), Byte())
                                 Using ms As New MemoryStream(imgBytes)
@@ -49,7 +52,6 @@ Public Class Price_Adjustment
                                 picProduct.Image = Nothing
                             End If
 
-                            ' Check kung available
                             If reader("AVAILABILITY").ToString().Trim().ToUpper() <> "AVAILABLE" Then
                                 MessageBox.Show("This product is NOT carried by this branch.", "Product Not Available", MessageBoxButtons.OK, MessageBoxIcon.Warning)
                                 ClearAllFields()
@@ -91,17 +93,17 @@ Public Class Price_Adjustment
         End If
 
         Try
-            Using conn As New SqlConnection(connStr)
+            Using conn As New MySqlConnection(connStr)
                 conn.Open()
 
-                ' Walang branch filter muna
-                Dim updSql As String = "UPDATE inv.Inventory_Master_file " &
-                                       "SET PRICE = @NewPrice " &
-                                       "WHERE (BARCODE = @Key OR SKU = @Key) AND AVAILABILITY = 'AVAILABLE'"
+                ' ✅ Updated for MySQL
+                Dim updSql As String = "UPDATE `Inventory_Master_file` " &
+                                       "SET `PRICE` = @NewPrice " &
+                                       "WHERE (`BARCODE` = @Key OR `SKU` = @Key) AND `AVAILABILITY` = 'AVAILABLE'"
 
-                Using cmd As New SqlCommand(updSql, conn)
-                    cmd.Parameters.Add("@NewPrice", SqlDbType.Decimal).Value = newPrice
-                    cmd.Parameters.Add("@Key", SqlDbType.VarChar).Value = searchKey
+                Using cmd As New MySqlCommand(updSql, conn)
+                    cmd.Parameters.AddWithValue("@NewPrice", newPrice)
+                    cmd.Parameters.AddWithValue("@Key", searchKey)
 
                     Dim rowsUpdated As Integer = cmd.ExecuteNonQuery()
 

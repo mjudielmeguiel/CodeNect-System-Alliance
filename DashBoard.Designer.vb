@@ -72,6 +72,7 @@ Partial Class DashBoard
         Me.Inventory = New System.Windows.Forms.ToolStripMenuItem()
         Me.Sotex = New System.Windows.Forms.ToolStripMenuItem()
         Me.Bo = New System.Windows.Forms.ToolStripMenuItem()
+        Me.Btn_Manage = New System.Windows.Forms.ToolStripButton()
         Me.toolbarRoom = New System.Windows.Forms.ToolStripButton()
         Me.ToolStripButton12 = New System.Windows.Forms.ToolStripButton()
         Me.TsVendolist = New System.Windows.Forms.ToolStripButton()
@@ -86,7 +87,6 @@ Partial Class DashBoard
         Me.SalesTransactionsToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
         Me.ToolStripButton6 = New System.Windows.Forms.ToolStripButton()
         Me.Panel2 = New System.Windows.Forms.Panel()
-        Me.Btn_Manage = New System.Windows.Forms.ToolStripButton()
         Me.Panel1.SuspendLayout()
         CType(Me.userPic, System.ComponentModel.ISupportInitialize).BeginInit()
         CType(Me.adminpic, System.ComponentModel.ISupportInitialize).BeginInit()
@@ -455,6 +455,16 @@ Partial Class DashBoard
         Me.Bo.Size = New System.Drawing.Size(198, 22)
         Me.Bo.Text = "Bad Order"
         '
+        'Btn_Manage
+        '
+        Me.Btn_Manage.Font = New System.Drawing.Font("Segoe UI Semibold", 9.0!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.Btn_Manage.Image = CType(resources.GetObject("Btn_Manage.Image"), System.Drawing.Image)
+        Me.Btn_Manage.ImageTransparentColor = System.Drawing.Color.Magenta
+        Me.Btn_Manage.Name = "Btn_Manage"
+        Me.Btn_Manage.Size = New System.Drawing.Size(154, 36)
+        Me.Btn_Manage.Text = "Product Descriptions"
+        Me.Btn_Manage.ToolTipText = "Checkout"
+        '
         'toolbarRoom
         '
         Me.toolbarRoom.Font = New System.Drawing.Font("Segoe UI Semibold", 9.0!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
@@ -570,16 +580,6 @@ Partial Class DashBoard
         Me.Panel2.Name = "Panel2"
         Me.Panel2.Size = New System.Drawing.Size(1366, 625)
         Me.Panel2.TabIndex = 16
-        '
-        'Btn_Manage
-        '
-        Me.Btn_Manage.Font = New System.Drawing.Font("Segoe UI Semibold", 9.0!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.Btn_Manage.Image = CType(resources.GetObject("Btn_Manage.Image"), System.Drawing.Image)
-        Me.Btn_Manage.ImageTransparentColor = System.Drawing.Color.Magenta
-        Me.Btn_Manage.Name = "Btn_Manage"
-        Me.Btn_Manage.Size = New System.Drawing.Size(154, 36)
-        Me.Btn_Manage.Text = "Product Descriptions"
-        Me.Btn_Manage.ToolTipText = "Checkout"
         '
         'DashBoard
         '

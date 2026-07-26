@@ -1,8 +1,9 @@
 ﻿Imports System.Data
-Imports System.Data.SqlClient
+Imports MySqlConnector
 
 Public Class Description_Manager
     Private CurrentBranchID As String = ""
+    Private connStr As String = DBConnection.connStr
 
     Private Sub Description_Manager_Load(sender As Object, e As EventArgs) Handles MyBase.Load
         CurrentBranchID = Login.LoggedInBranchID
@@ -21,15 +22,15 @@ Public Class Description_Manager
         Try
             Dim SqlQuery As String = "
                 SELECT 
-                    ID, BARCODE, SKU, BRAND, DESCRIPTIONS, CATEGORY, SIZE, 
-                    PRICE, UNIT, AVAILABLE, AVAILABILITY, VENDOR_CODE, 
-                    VENDOR, TOTAL, PRODUCT_IMAGE, ACCOUNT_ID, BRANCH_ID
-                FROM inv.Inventory_Master_file "
+                    `ID`, `BARCODE`, `SKU`, `BRAND`, `DESCRIPTIONS`, `CATEGORY`, `SIZE`, 
+                    `PRICE`, `UNIT`, `AVAILABLE`, `AVAILABILITY`, `VENDOR_CODE`, 
+                    `VENDOR`, `TOTAL`, `PRODUCT_IMAGE`, `ACCOUNT_ID`, `BRANCH_ID`
+                FROM `Inventory_Master_file` "
 
             Dim hasFilter As Boolean = False
 
             If Not String.IsNullOrEmpty(CurrentBranchID) Then
-                SqlQuery &= " WHERE BRANCH_ID = @BranchID "
+                SqlQuery &= " WHERE `BRANCH_ID` = @BranchID "
                 hasFilter = True
             Else
                 MessageBox.Show("No Branch ID retrieved from login! Showing all products for now.", "Warning", MessageBoxButtons.OK, MessageBoxIcon.Warning)
@@ -37,28 +38,28 @@ Public Class Description_Manager
 
             If Not String.IsNullOrWhiteSpace(SearchText) Then
                 SqlQuery &= If(hasFilter, " AND ", " WHERE ") & " 
-                   (BARCODE LIKE '%' + @Search + '%' 
-                    OR SKU LIKE '%' + @Search + '%' 
-                    OR BRAND LIKE '%' + @Search + '%' 
-                    OR DESCRIPTIONS LIKE '%' + @Search + '%' 
-                    OR CATEGORY LIKE '%' + @Search + '%')"
+                   (`BARCODE` LIKE CONCAT('%', @Search, '%') 
+                    OR `SKU` LIKE CONCAT('%', @Search, '%') 
+                    OR `BRAND` LIKE CONCAT('%', @Search, '%') 
+                    OR `DESCRIPTIONS` LIKE CONCAT('%', @Search, '%') 
+                    OR `CATEGORY` LIKE CONCAT('%', @Search, '%'))"
             End If
 
-            SqlQuery &= " ORDER BY DESCRIPTIONS ASC"
+            SqlQuery &= " ORDER BY `DESCRIPTIONS` ASC"
 
             Dim dt As New DataTable()
-            Using connection As New SqlConnection(connStr)
-                Using cmd As New SqlCommand(SqlQuery, connection)
+            Using connection As New MySqlConnection(connStr)
+                Using cmd As New MySqlCommand(SqlQuery, connection)
 
                     If Not String.IsNullOrEmpty(CurrentBranchID) Then
-                        cmd.Parameters.Add("@BranchID", SqlDbType.NVarChar, 20).Value = CurrentBranchID.Trim()
+                        cmd.Parameters.AddWithValue("@BranchID", CurrentBranchID.Trim())
                     End If
 
                     If Not String.IsNullOrWhiteSpace(SearchText) Then
-                        cmd.Parameters.Add("@Search", SqlDbType.NVarChar, 255).Value = SearchText.Trim()
+                        cmd.Parameters.AddWithValue("@Search", SearchText.Trim())
                     End If
 
-                    Using da As New SqlDataAdapter(cmd)
+                    Using da As New MySqlDataAdapter(cmd)
                         da.Fill(dt)
                     End Using
                 End Using

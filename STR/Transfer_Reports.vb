@@ -1,5 +1,5 @@
 ﻿Imports System.Data
-Imports System.Data.SqlClient
+Imports MySqlConnector
 
 Public Class Transfer_Reports
     Private connStr As String = DBConnection.connStr
@@ -19,14 +19,16 @@ Public Class Transfer_Reports
 
     Sub LoadData()
         Try
-            Using conn As New SqlConnection(connStr)
+            Using conn As New MySqlConnection(connStr)
                 conn.Open()
-                Dim sql As String = "SELECT STR_NUMBER AS [Document No], DR, FROM_MV, PREPARED_BY, REQUEST_DATE, TO_MV, RECEIVER, RECEIVE_DATE, STATUS, TOTAL FROM STR_DATA WHERE REQUEST_DATE BETWEEN @d1 AND @d2 ORDER BY STR_NUMBER DESC"
-                Using cmd As New SqlCommand(sql, conn)
-                    cmd.Parameters.Add("@d1", SqlDbType.DateTime).Value = dtpFrom.Value
-                    cmd.Parameters.Add("@d2", SqlDbType.DateTime).Value = dtpTo.Value
+                ' ✅ Brackets removed, backticks added, alias adjusted
+                Dim sql As String = "SELECT `STR_NUMBER` AS `Document No`, `DR`, `FROM_MV`, `PREPARED_BY`, `REQUEST_DATE`, `TO_MV`, `RECEIVER`, `RECEIVE_DATE`, `STATUS`, `TOTAL` " &
+                                    "FROM `STR_DATA` WHERE `REQUEST_DATE` BETWEEN @d1 AND @d2 ORDER BY `STR_NUMBER` DESC"
+                Using cmd As New MySqlCommand(sql, conn)
+                    cmd.Parameters.AddWithValue("@d1", dtpFrom.Value)
+                    cmd.Parameters.AddWithValue("@d2", dtpTo.Value)
                     Dim dt As New DataTable()
-                    Using da As New SqlDataAdapter(cmd)
+                    Using da As New MySqlDataAdapter(cmd)
                         da.Fill(dt)
                     End Using
                     dgvHistory.DataSource = dt

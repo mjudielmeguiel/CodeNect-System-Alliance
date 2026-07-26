@@ -237,6 +237,7 @@ Partial Class frmADDStock_QTY
         Me.Controls.Add(Me.txtReturnQty)
         Me.Controls.Add(Me.Label1)
         Me.FormBorderStyle = System.Windows.Forms.FormBorderStyle.None
+        Me.Icon = CType(resources.GetObject("$this.Icon"), System.Drawing.Icon)
         Me.Name = "frmADDStock_QTY"
         Me.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen
         Me.Text = "frmADDStock_QTY"

@@ -1,4 +1,4 @@
-﻿Imports System.Data.SqlClient
+﻿Imports MySqlConnector
 
 Public Class frmProductQTY
 
@@ -17,10 +17,10 @@ Public Class frmProductQTY
 
     Private Sub LoadStock()
         Try
-            Using conn As New SqlConnection(DBConnection.connStr)
+            Using conn As New MySqlConnection(DBConnection.connStr)
                 conn.Open()
-                Dim cmd As New SqlCommand("SELECT ISNULL(AVAILABLE, 0) FROM inv.Inventory_Master_file WHERE RTRIM(LTRIM(BARCODE)) = @Barcode", conn)
-                cmd.Parameters.Add("@Barcode", SqlDbType.VarChar, 100).Value = Barcode.Trim()
+                Dim cmd As New MySqlCommand("SELECT IFNULL(`AVAILABLE`, 0) FROM `Inventory_Master_file` WHERE TRIM(`BARCODE`) = @Barcode", conn)
+                cmd.Parameters.AddWithValue("@Barcode", Barcode.Trim())
 
                 Dim result As Object = cmd.ExecuteScalar()
                 Dim availableStock As Integer = If(result IsNot Nothing, CInt(result), 0)
@@ -56,10 +56,10 @@ Public Class frmProductQTY
 
         Dim availableStock As Integer = 0
         Try
-            Using conn As New SqlConnection(DBConnection.connStr)
+            Using conn As New MySqlConnection(DBConnection.connStr)
                 conn.Open()
-                Dim cmd As New SqlCommand("SELECT ISNULL(AVAILABLE, 0) FROM inv.Inventory_Master_file WHERE RTRIM(LTRIM(BARCODE)) = @Barcode", conn)
-                cmd.Parameters.Add("@Barcode", SqlDbType.VarChar, 100).Value = Barcode.Trim()
+                Dim cmd As New MySqlCommand("SELECT IFNULL(`AVAILABLE`, 0) FROM `Inventory_Master_file` WHERE TRIM(`BARCODE`) = @Barcode", conn)
+                cmd.Parameters.AddWithValue("@Barcode", Barcode.Trim())
 
                 Dim result As Object = cmd.ExecuteScalar()
                 availableStock = If(result IsNot Nothing, CInt(result), 0)

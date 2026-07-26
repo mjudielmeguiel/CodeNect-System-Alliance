@@ -1,5 +1,5 @@
 ﻿Imports System.Data
-Imports System.Data.SqlClient
+Imports MySqlConnector
 Imports System.Drawing
 Imports System.IO
 
@@ -7,6 +7,7 @@ Public Class Edit_User
 
     Private currentUserID As Integer
     Private userImageData As Byte() = Nothing
+    Private connStr As String = DBConnection.connStr ' Ensure connection string is set
 
     Public Sub LoadUserDetails(userInfo As Object)
         Try
@@ -54,10 +55,11 @@ Public Class Edit_User
 
     Private Sub LoadImageFromDB()
         Try
-            Using conn As New SqlConnection(connStr)
-                Dim sql As String = "SELECT PROFILE FROM User_Accounts WHERE ID = @UID"
-                Using cmd As New SqlCommand(sql, conn)
-                    cmd.Parameters.Add("@UID", SqlDbType.Int).Value = currentUserID
+            Using conn As New MySqlConnection(connStr)
+                ' ✅ Backticks added for table/column names
+                Dim sql As String = "SELECT `PROFILE` FROM `User_Accounts` WHERE `ID` = @UID"
+                Using cmd As New MySqlCommand(sql, conn)
+                    cmd.Parameters.AddWithValue("@UID", currentUserID)
                     conn.Open()
                     Dim result = cmd.ExecuteScalar()
 
@@ -99,11 +101,12 @@ Public Class Edit_User
     Private Sub LoadBranchCombo()
         Try
             Dim dt As New DataTable()
-            Dim sql As String = "SELECT BRANCH_ID, BRANCH FROM Branches ORDER BY BRANCH ASC"
+            ' ✅ Backticks added, no dbo. prefix
+            Dim sql As String = "SELECT `BRANCH_ID`, `BRANCH` FROM `Branches` ORDER BY `BRANCH` ASC"
 
-            Using conn As New SqlConnection(connStr)
-                Using cmd As New SqlCommand(sql, conn)
-                    Using da As New SqlDataAdapter(cmd)
+            Using conn As New MySqlConnection(connStr)
+                Using cmd As New MySqlCommand(sql, conn)
+                    Using da As New MySqlDataAdapter(cmd)
                         da.Fill(dt)
                     End Using
                 End Using
@@ -132,40 +135,41 @@ Public Class Edit_User
         End If
 
         Try
+            ' ✅ All identifiers wrapped in backticks
             Dim sql As String = "
-                UPDATE User_Accounts 
+                UPDATE `User_Accounts` 
                 SET 
-                    FULL_NAME = @FN,
-                    USER_TYPE = @UT,
-                    BRANCH_ID = @BID,
-                    BRANCH = @BName,
-                    EMAIL = @EM,
-                    CONTACT = @CT,
-                    STATUS = @ST,
-                    PROFILE = @PROFILE"
+                    `FULL_NAME` = @FN,
+                    `USER_TYPE` = @UT,
+                    `BRANCH_ID` = @BID,
+                    `BRANCH` = @BName,
+                    `EMAIL` = @EM,
+                    `CONTACT` = @CT,
+                    `STATUS` = @ST,
+                    `PROFILE` = @PROFILE"
 
             ' Only update password if a new one is provided
             If Not String.IsNullOrWhiteSpace(txtNewPass.Text) Then
-                sql &= ", PASSWORD = @PASS"
+                sql &= ", `PASSWORD` = @PASS"
             End If
 
-            sql &= " WHERE ID = @UID"
+            sql &= " WHERE `ID` = @UID"
 
-            Using conn As New SqlConnection(connStr)
-                Using cmd As New SqlCommand(sql, conn)
-                    cmd.Parameters.Add("@UID", SqlDbType.Int).Value = currentUserID
-                    cmd.Parameters.Add("@FN", SqlDbType.NVarChar, 150).Value = txtFullName.Text.Trim()
-                    cmd.Parameters.Add("@UT", SqlDbType.NVarChar, 50).Value = If(cbousertype.SelectedItem IsNot Nothing, cbousertype.SelectedItem.ToString().Trim(), DBNull.Value)
-                    cmd.Parameters.Add("@BID", SqlDbType.NVarChar, 20).Value = cboBranch.SelectedValue.ToString().Trim()
-                    cmd.Parameters.Add("@BName", SqlDbType.NVarChar, 100).Value = cboBranch.Text.Trim()
-                    cmd.Parameters.Add("@EM", SqlDbType.NVarChar, 100).Value = If(String.IsNullOrWhiteSpace(txtEmail.Text), DBNull.Value, txtEmail.Text.Trim())
-                    cmd.Parameters.Add("@CT", SqlDbType.NVarChar, 30).Value = If(String.IsNullOrWhiteSpace(txtContact.Text), DBNull.Value, txtContact.Text.Trim())
-                    cmd.Parameters.Add("@ST", SqlDbType.NVarChar, 20).Value = If(cboStatus.SelectedItem IsNot Nothing, cboStatus.SelectedItem.ToString().Trim(), DBNull.Value)
-                    cmd.Parameters.Add("@PROFILE", SqlDbType.VarBinary).Value = If(userImageData IsNot Nothing, userImageData, DBNull.Value)
+            Using conn As New MySqlConnection(connStr)
+                Using cmd As New MySqlCommand(sql, conn)
+                    cmd.Parameters.AddWithValue("@UID", currentUserID)
+                    cmd.Parameters.AddWithValue("@FN", txtFullName.Text.Trim())
+                    cmd.Parameters.AddWithValue("@UT", If(cbousertype.SelectedItem IsNot Nothing, cbousertype.SelectedItem.ToString().Trim(), DBNull.Value))
+                    cmd.Parameters.AddWithValue("@BID", cboBranch.SelectedValue.ToString().Trim())
+                    cmd.Parameters.AddWithValue("@BName", cboBranch.Text.Trim())
+                    cmd.Parameters.AddWithValue("@EM", If(String.IsNullOrWhiteSpace(txtEmail.Text), DBNull.Value, txtEmail.Text.Trim()))
+                    cmd.Parameters.AddWithValue("@CT", If(String.IsNullOrWhiteSpace(txtContact.Text), DBNull.Value, txtContact.Text.Trim()))
+                    cmd.Parameters.AddWithValue("@ST", If(cboStatus.SelectedItem IsNot Nothing, cboStatus.SelectedItem.ToString().Trim(), DBNull.Value))
+                    cmd.Parameters.AddWithValue("@PROFILE", If(userImageData IsNot Nothing, userImageData, DBNull.Value))
 
                     If Not String.IsNullOrWhiteSpace(txtNewPass.Text) Then
                         ' Note: For production, use hashing instead of plain text
-                        cmd.Parameters.Add("@PASS", SqlDbType.NVarChar, 100).Value = txtNewPass.Text.Trim()
+                        cmd.Parameters.AddWithValue("@PASS", txtNewPass.Text.Trim())
                     End If
 
                     conn.Open()
@@ -194,13 +198,14 @@ Public Class Edit_User
         If confirm = DialogResult.No Then Return
 
         Try
-            Using conn As New SqlConnection(connStr)
+            Using conn As New MySqlConnection(connStr)
                 conn.Open()
+                ' ✅ SqlTransaction → MySqlTransaction
                 Using trans = conn.BeginTransaction()
                     Try
-                        Dim delSql As String = "DELETE FROM User_Accounts WHERE ID = @UID"
-                        Using cmd As New SqlCommand(delSql, conn, trans)
-                            cmd.Parameters.Add("@UID", SqlDbType.Int).Value = currentUserID
+                        Dim delSql As String = "DELETE FROM `User_Accounts` WHERE `ID` = @UID"
+                        Using cmd As New MySqlCommand(delSql, conn, trans)
+                            cmd.Parameters.AddWithValue("@UID", currentUserID)
                             cmd.ExecuteNonQuery()
                         End Using
 

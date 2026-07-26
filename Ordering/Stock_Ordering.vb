@@ -1,20 +1,16 @@
-﻿Imports System.Data
-Imports System.Data.SqlClient
+﻿Imports MySqlConnector
 
 Public Class Stock_Ordering
 
-    ' Use your existing global connection string from Module
     Private orderList As New DataTable()
 
     Private Sub Stock_Ordering_Load(sender As Object, e As EventArgs) Handles MyBase.Load
         GeneratePONumber()
-        LoadVendors()          ' Load Vendors from your VENDOR table
-        SetupOrderListTable()  ' Set columns for DataGridView
+        LoadVendors()
+        SetupOrderListTable()
 
         lblstatus.Text = "PENDING"
         lbltransactiontype.Text = "STOCK ORDER"
-
-        ' Display Branch name from Dashboard
         lblbranch.Text = DashBoard.ToolStripStatusLabel4.Text.Trim()
 
         txtBarcode.Focus()
@@ -23,24 +19,24 @@ Public Class Stock_Ordering
     ' --- Generate unique PO Number ---
     Private Sub GeneratePONumber()
         Try
-            Using con As New SqlConnection(connStr)
-                Dim cmd As New SqlCommand("SELECT ISNULL(MAX(PO_NUMBER), 0) + 1 FROM STO_DATA", con)
+            Using con As New MySqlConnection(DBConnection.connStr)
+                Dim cmd As New MySqlCommand("SELECT IFNULL(MAX(`PO_NUMBER`), 0) + 1 FROM `STO_DATA`", con)
                 con.Open()
                 Dim nextPO As Integer = CInt(cmd.ExecuteScalar())
-                lblPOnumber.Text = nextPO.ToString("D6") ' Format as 000000
+                lblPOnumber.Text = nextPO.ToString("D6")
             End Using
         Catch
             lblPOnumber.Text = "000001"
         End Try
     End Sub
 
-    ' --- Load Vendors from VENDOR table into cboBranchFrom ---
+    ' --- Load Vendors ---
     Private Sub LoadVendors()
         Try
-            Using con As New SqlConnection(connStr)
-                Dim query As String = "SELECT VENDOR_CODE, VENDOR FROM VENDOR WHERE STATUS = 'Active' ORDER BY VENDOR"
-                Dim cmd As New SqlCommand(query, con)
-                Dim da As New SqlDataAdapter(cmd)
+            Using con As New MySqlConnection(DBConnection.connStr)
+                Dim query As String = "SELECT `VENDOR_CODE`, `VENDOR` FROM `VENDOR` WHERE `STATUS` = 'Active' ORDER BY `VENDOR`"
+                Dim cmd As New MySqlCommand(query, con)
+                Dim da As New MySqlDataAdapter(cmd)
                 Dim dt As New DataTable()
                 da.Fill(dt)
 
@@ -54,7 +50,7 @@ Public Class Stock_Ordering
         End Try
     End Sub
 
-    ' --- Setup grid columns ---
+    ' --- Setup grid ---
     Private Sub SetupOrderListTable()
         orderList.Columns.Add("BARCODE", GetType(String))
         orderList.Columns.Add("SKU", GetType(String))
@@ -72,7 +68,7 @@ Public Class Stock_Ordering
         dgvOrderItems.Columns("TOTAL").DefaultCellStyle.Format = "N2"
     End Sub
 
-    ' --- Load product when barcode is scanned ---
+    ' --- Search product by barcode ---
     Private Sub txtBarcode_TextChanged(sender As Object, e As EventArgs) Handles txtBarcode.TextChanged
         If txtBarcode.Text.Trim.Length >= 5 AndAlso cboBranchFrom.SelectedValue IsNot Nothing Then
             SearchProduct(txtBarcode.Text.Trim(), cboBranchFrom.SelectedValue.ToString())
@@ -81,17 +77,17 @@ Public Class Stock_Ordering
 
     Private Sub SearchProduct(barcode As String, vendorCode As String)
         Try
-            Using con As New SqlConnection(connStr)
-                Dim query As String = "SELECT BARCODE, SKU, BRAND, DESCRIPTIONS, SIZE, PRICE, VENDOR_CODE, VENDOR " &
-                                      "FROM inv.Inventory_Master_file " &
-                                      "WHERE BARCODE = @Barcode AND VENDOR_CODE = @VendorCode"
+            Using con As New MySqlConnection(DBConnection.connStr)
+                Dim query As String = "SELECT `BARCODE`, `SKU`, `BRAND`, `DESCRIPTIONS`, `SIZE`, `PRICE`, `VENDOR_CODE`, `VENDOR` " &
+                                      "FROM `Inventory_Master_file` " &
+                                      "WHERE `BARCODE` = @Barcode AND `VENDOR_CODE` = @VendorCode"
 
-                Using cmd As New SqlCommand(query, con)
-                    cmd.Parameters.Add("@Barcode", SqlDbType.NVarChar, 50).Value = barcode
-                    cmd.Parameters.Add("@VendorCode", SqlDbType.NVarChar, 10).Value = vendorCode
+                Using cmd As New MySqlCommand(query, con)
+                    cmd.Parameters.AddWithValue("@Barcode", barcode)
+                    cmd.Parameters.AddWithValue("@VendorCode", vendorCode)
 
                     con.Open()
-                    Dim dr As SqlDataReader = cmd.ExecuteReader()
+                    Dim dr As MySqlDataReader = cmd.ExecuteReader()
 
                     If dr.Read() Then
                         txtBarcode.Tag = New With {
@@ -117,7 +113,7 @@ Public Class Stock_Ordering
         End Try
     End Sub
 
-    ' --- Add item to grid ---
+    ' --- Add item to list ---
     Private Sub btnAdd_Click(sender As Object, e As EventArgs) Handles btnAdd.Click
         If txtBarcode.Tag Is Nothing Then
             MessageBox.Show("Scan a barcode first!", "Required", MessageBoxButtons.OK, MessageBoxIcon.Warning)
@@ -156,7 +152,7 @@ Public Class Stock_Ordering
         txtBarcode.Focus()
     End Sub
 
-    ' ✅ --- NEW: Remove selected item from grid ---
+    ' --- Remove item ---
     Private Sub btnRemove_Click(sender As Object, e As EventArgs) Handles btnremove.Click
         If dgvOrderItems.SelectedRows.Count = 0 Then
             MessageBox.Show("Please select a row to remove first!", "No Selection", MessageBoxButtons.OK, MessageBoxIcon.Warning)
@@ -165,10 +161,9 @@ Public Class Stock_Ordering
 
         Dim confirm As DialogResult = MessageBox.Show("Are you sure you want to remove this item?", "Confirm Remove", MessageBoxButtons.YesNo, MessageBoxIcon.Question)
         If confirm = DialogResult.Yes Then
-            ' Remove the selected row from the DataTable
             orderList.Rows(dgvOrderItems.SelectedRows(0).Index).Delete()
-            orderList.AcceptChanges() ' Confirm deletion
-            ComputeGrandTotal() ' Recalculate total after removal
+            orderList.AcceptChanges()
+            ComputeGrandTotal()
         End If
     End Sub
 
@@ -180,7 +175,7 @@ Public Class Stock_Ordering
         lbltotal.Text = total.ToString("N2")
     End Sub
 
-    ' --- Submit order ---
+    ' --- Submit order with Transaction ---
     Private Sub btnSubmit_Click(sender As Object, e As EventArgs) Handles btnSubmit.Click
         If orderList.Rows.Count = 0 Then
             MessageBox.Show("No items added!", "Empty", MessageBoxButtons.OK, MessageBoxIcon.Warning)
@@ -197,49 +192,48 @@ Public Class Stock_Ordering
         Dim poNumber As String = lblPOnumber.Text
         Dim vendorName As String = cboBranchFrom.Text
         Dim preparedBy As String = lblpreparedby.Text
-        ' Get Branch from Dashboard
         Dim branchName As String = DashBoard.ToolStripStatusLabel4.Text.Trim()
         Dim grandTotal As Decimal = CDec(lbltotal.Text)
 
         Try
-            Using con As New SqlConnection(connStr)
+            Using con As New MySqlConnection(DBConnection.connStr)
                 con.Open()
-                Dim tran As SqlTransaction = con.BeginTransaction()
+                Dim tran As MySqlTransaction = con.BeginTransaction()
 
                 Try
-                    Dim cmdHeader As New SqlCommand("INSERT INTO STO_DATA (PO_NUMBER, [FROM], [TO], REQUEST_DATE, PREPARED_BY, TRANSACTION_TYPE, TOTAL, STATUS) " &
-                                                    "VALUES (@PO, @From, @To, GETDATE(), @PreparedBy, @Type, @Total, @Status)", con, tran)
+                    ' Insert header
+                    Dim cmdHeader As New MySqlCommand("
+                        INSERT INTO `STO_DATA` 
+                        (`PO_NUMBER`, `FROM`, `TO`, `REQUEST_DATE`, `PREPARED_BY`, `TRANSACTION_TYPE`, `TOTAL`, `STATUS`) 
+                        VALUES (@PO, @From, @To, NOW(), @PreparedBy, @Type, @Total, @Status)", con, tran)
 
-                    cmdHeader.Parameters.Add("@PO", SqlDbType.NVarChar, 20).Value = poNumber
-
-                    ' Truncate values to fit column limits
-                    cmdHeader.Parameters.Add("@From", SqlDbType.NVarChar, 100).Value = If(vendorName.Length > 100, vendorName.Substring(0, 100), vendorName)
-                    cmdHeader.Parameters.Add("@To", SqlDbType.NVarChar, 100).Value = If(branchName.Length > 100, branchName.Substring(0, 100), branchName)
-                    cmdHeader.Parameters.Add("@PreparedBy", SqlDbType.NVarChar, 50).Value = If(preparedBy.Length > 50, preparedBy.Substring(0, 50), preparedBy)
-
-                    cmdHeader.Parameters.Add("@Type", SqlDbType.NVarChar, 50).Value = lbltransactiontype.Text
-                    cmdHeader.Parameters.Add("@Total", SqlDbType.Decimal).Value = grandTotal
-                    cmdHeader.Parameters.Add("@Status", SqlDbType.NVarChar, 20).Value = lblstatus.Text
-
+                    cmdHeader.Parameters.AddWithValue("@PO", poNumber)
+                    cmdHeader.Parameters.AddWithValue("@From", If(vendorName.Length > 100, vendorName.Substring(0, 100), vendorName))
+                    cmdHeader.Parameters.AddWithValue("@To", If(branchName.Length > 100, branchName.Substring(0, 100), branchName))
+                    cmdHeader.Parameters.AddWithValue("@PreparedBy", If(preparedBy.Length > 50, preparedBy.Substring(0, 50), preparedBy))
+                    cmdHeader.Parameters.AddWithValue("@Type", lbltransactiontype.Text)
+                    cmdHeader.Parameters.AddWithValue("@Total", grandTotal)
+                    cmdHeader.Parameters.AddWithValue("@Status", lblstatus.Text)
                     cmdHeader.ExecuteNonQuery()
 
                     ' Insert line items
                     For Each row As DataRow In orderList.Rows
-                        Dim cmdLine As New SqlCommand("INSERT INTO Stock_Ordering (PO_NUMBER, BARCODE, SKU, BRAND, DESCRIPTIONS, SIZE, PRICE, ORDER_QTY, VENDOR_CODE, VENDOR_NAME, TOTAL) " &
-                                                      "VALUES (@PO, @Barcode, @SKU, @Brand, @Desc, @Size, @Price, @Qty, @VendorCode, @Vendor, @Subtotal)", con, tran)
+                        Dim cmdLine As New MySqlCommand("
+                            INSERT INTO `Stock_Ordering` 
+                            (`PO_NUMBER`, `BARCODE`, `SKU`, `BRAND`, `DESCRIPTIONS`, `SIZE`, `PRICE`, `ORDER_QTY`, `VENDOR_CODE`, `VENDOR_NAME`, `TOTAL`) 
+                            VALUES (@PO, @Barcode, @SKU, @Brand, @Desc, @Size, @Price, @Qty, @VendorCode, @Vendor, @Subtotal)", con, tran)
 
-                        cmdLine.Parameters.Add("@PO", SqlDbType.NVarChar, 20).Value = poNumber
-                        cmdLine.Parameters.Add("@Barcode", SqlDbType.NVarChar, 50).Value = row("BARCODE")
-                        cmdLine.Parameters.Add("@SKU", SqlDbType.NVarChar, 20).Value = row("SKU")
-                        cmdLine.Parameters.Add("@Brand", SqlDbType.NVarChar, 100).Value = row("BRAND")
-                        cmdLine.Parameters.Add("@Desc", SqlDbType.NVarChar, 255).Value = row("DESCRIPTIONS")
-                        cmdLine.Parameters.Add("@Size", SqlDbType.NVarChar, 20).Value = row("SIZE")
-                        cmdLine.Parameters.Add("@Price", SqlDbType.Decimal).Value = row("PRICE")
-                        cmdLine.Parameters.Add("@Qty", SqlDbType.Int).Value = row("ORDER_QTY")
-                        cmdLine.Parameters.Add("@VendorCode", SqlDbType.NVarChar, 10).Value = row("VENDOR_CODE")
-                        cmdLine.Parameters.Add("@Vendor", SqlDbType.NVarChar, 100).Value = row("VENDOR_NAME")
-                        cmdLine.Parameters.Add("@Subtotal", SqlDbType.Decimal).Value = row("TOTAL")
-
+                        cmdLine.Parameters.AddWithValue("@PO", poNumber)
+                        cmdLine.Parameters.AddWithValue("@Barcode", row("BARCODE"))
+                        cmdLine.Parameters.AddWithValue("@SKU", row("SKU"))
+                        cmdLine.Parameters.AddWithValue("@Brand", row("BRAND"))
+                        cmdLine.Parameters.AddWithValue("@Desc", row("DESCRIPTIONS"))
+                        cmdLine.Parameters.AddWithValue("@Size", row("SIZE"))
+                        cmdLine.Parameters.AddWithValue("@Price", row("PRICE"))
+                        cmdLine.Parameters.AddWithValue("@Qty", row("ORDER_QTY"))
+                        cmdLine.Parameters.AddWithValue("@VendorCode", row("VENDOR_CODE"))
+                        cmdLine.Parameters.AddWithValue("@Vendor", row("VENDOR_NAME"))
+                        cmdLine.Parameters.AddWithValue("@Subtotal", row("TOTAL"))
                         cmdLine.ExecuteNonQuery()
                     Next
 
@@ -280,4 +274,5 @@ Public Class Stock_Ordering
             Me.Hide()
         End If
     End Sub
+
 End Class

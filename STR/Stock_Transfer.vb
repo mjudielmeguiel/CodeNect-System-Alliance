@@ -1,5 +1,5 @@
 ﻿Imports System.Data
-Imports System.Data.SqlClient
+Imports MySqlConnector
 
 Public Class Stock_Transfer
 
@@ -14,10 +14,10 @@ Public Class Stock_Transfer
 
     Private Sub GenerateSTRNumber()
         Try
-            Using conn As New SqlConnection(connStr)
+            Using conn As New MySqlConnection(connStr)
                 conn.Open()
-                ' Get max number, no STR-
-                Dim cmd As New SqlCommand("SELECT ISNULL(MAX(STR_NUMBER), '000000') FROM dbo.STR_DATA", conn)
+                ' ✅ ISNULL → IFNULL, dbo. removed, backticks added
+                Dim cmd As New MySqlCommand("SELECT IFNULL(MAX(`STR_NUMBER`), '000000') FROM `STR_DATA`", conn)
                 Dim lastNo As String = cmd.ExecuteScalar().ToString().Trim()
 
                 Dim lastNum As Integer = CInt(lastNo)
@@ -51,10 +51,11 @@ Public Class Stock_Transfer
 
     Private Sub LoadBranchList()
         Try
-            Using conn As New SqlConnection(connStr)
+            Using conn As New MySqlConnection(connStr)
                 conn.Open()
-                Dim cmd As New SqlCommand("SELECT DISTINCT BRANCH FROM dbo.Branches ORDER BY BRANCH", conn)
-                Dim da As New SqlDataAdapter(cmd)
+                ' ✅ dbo. removed, backticks added
+                Dim cmd As New MySqlCommand("SELECT DISTINCT `BRANCH` FROM `Branches` ORDER BY `BRANCH`", conn)
+                Dim da As New MySqlDataAdapter(cmd)
                 Dim dt As New DataTable()
                 da.Fill(dt)
                 cboToBranch.DataSource = dt
@@ -82,6 +83,7 @@ Public Class Stock_Transfer
 
         If Not IsNumeric(qtyText) OrElse CInt(qtyText) <= 0 Then
             MessageBox.Show("Enter valid quantity", "Warning", MessageBoxButtons.OK, MessageBoxIcon.Warning)
+            txtQty.Clear()
             txtQty.Focus()
             Return
         End If
@@ -89,12 +91,13 @@ Public Class Stock_Transfer
         Dim qty As Integer = CInt(qtyText)
 
         Try
-            Using conn As New SqlConnection(connStr)
+            Using conn As New MySqlConnection(connStr)
                 conn.Open()
-                Dim cmd As New SqlCommand("SELECT SKU, BARCODE, BRAND, DESCRIPTIONS, SIZE, PRICE FROM inv.Inventory_Master_file WHERE BARCODE = @Barcode", conn)
-                cmd.Parameters.Add("@Barcode", SqlDbType.NChar, 15).Value = barcode
+                ' ✅ inv. removed, backticks added
+                Dim cmd As New MySqlCommand("SELECT `SKU`, `BARCODE`, `BRAND`, `DESCRIPTIONS`, `SIZE`, `PRICE` FROM `Inventory_Master_file` WHERE `BARCODE` = @Barcode", conn)
+                cmd.Parameters.AddWithValue("@Barcode", barcode)
 
-                Dim dr As SqlDataReader = cmd.ExecuteReader()
+                Dim dr As MySqlDataReader = cmd.ExecuteReader()
                 If dr.Read() Then
                     Dim price As Decimal = CDec(dr("PRICE"))
                     Dim lineTotal As Decimal = price * qty
@@ -159,40 +162,42 @@ Public Class Stock_Transfer
         End If
 
         Try
-            Using conn As New SqlConnection(connStr)
+            Using conn As New MySqlConnection(connStr)
                 conn.Open()
-                Dim trans As SqlTransaction = conn.BeginTransaction()
+                ' ✅ SqlTransaction → MySqlTransaction
+                Dim trans As MySqlTransaction = conn.BeginTransaction()
 
                 Try
-                    ' Save ONLY 6-digit number
-                    Dim cmdHeader As New SqlCommand("
-                        INSERT INTO dbo.STR_DATA 
-                        (STR_NUMBER, FROM_MV, TO_MV, REQUEST_DATE, PREPARED_BY, TRANSACTION_TYPE, STATUS, TOTAL)
-                        VALUES (@STR, @From, @To, GETDATE(), @Prepared, 'STOCK TRANSFER', 'PENDING', @Total)", conn, trans)
+                    ' ✅ GETDATE() → NOW(), dbo. removed, backticks added
+                    Dim cmdHeader As New MySqlCommand("
+                        INSERT INTO `STR_DATA` 
+                        (`STR_NUMBER`, `FROM_MV`, `TO_MV`, `REQUEST_DATE`, `PREPARED_BY`, `TRANSACTION_TYPE`, `STATUS`, `TOTAL`)
+                        VALUES (@STR, @From, @To, NOW(), @Prepared, 'STOCK TRANSFER', 'PENDING', @Total)", conn, trans)
 
-                    cmdHeader.Parameters.Add("@STR", SqlDbType.VarChar, 6).Value = strNumber
-                    cmdHeader.Parameters.Add("@From", SqlDbType.NVarChar, 255).Value = lblFromBranch.Text.Trim()
-                    cmdHeader.Parameters.Add("@To", SqlDbType.NVarChar, 255).Value = cboToBranch.Text.Trim()
-                    cmdHeader.Parameters.Add("@Prepared", SqlDbType.NVarChar, 100).Value = lblPreparedBy.Text.Trim()
-                    cmdHeader.Parameters.Add("@Total", SqlDbType.Decimal, 10, 2).Value = CDec(lbltotal.Text)
+                    cmdHeader.Parameters.AddWithValue("@STR", strNumber)
+                    cmdHeader.Parameters.AddWithValue("@From", lblFromBranch.Text.Trim())
+                    cmdHeader.Parameters.AddWithValue("@To", cboToBranch.Text.Trim())
+                    cmdHeader.Parameters.AddWithValue("@Prepared", lblPreparedBy.Text.Trim())
+                    cmdHeader.Parameters.AddWithValue("@Total", CDec(lbltotal.Text))
                     cmdHeader.ExecuteNonQuery()
 
-                    Dim cmdDetail As New SqlCommand("
-                        INSERT INTO dbo.Stock_Transfer 
-                        (STR_NUMBER, BARCODE, SKU, BRAND, DESCRIPTIONS, SIZE, PRICE, ORDER_QTY, STOCK_OUT, TOTAL)
+                    ' ✅ dbo. removed, backticks added
+                    Dim cmdDetail As New MySqlCommand("
+                        INSERT INTO `Stock_Transfer` 
+                        (`STR_NUMBER`, `BARCODE`, `SKU`, `BRAND`, `DESCRIPTIONS`, `SIZE`, `PRICE`, `ORDER_QTY`, `STOCK_OUT`, `TOTAL`)
                         VALUES (@STR, @Barcode, @SKU, @Brand, @Desc, @Size, @Price, @Qty, @Qty, @Total)", conn, trans)
 
                     For Each row As DataGridViewRow In dgvItems.Rows
                         cmdDetail.Parameters.Clear()
-                        cmdDetail.Parameters.Add("@STR", SqlDbType.VarChar, 6).Value = strNumber
-                        cmdDetail.Parameters.Add("@Barcode", SqlDbType.NChar, 15).Value = row.Cells("BARCODE").Value
-                        cmdDetail.Parameters.Add("@SKU", SqlDbType.NChar, 20).Value = row.Cells("SKU").Value
-                        cmdDetail.Parameters.Add("@Brand", SqlDbType.VarChar, 255).Value = row.Cells("BRAND").Value
-                        cmdDetail.Parameters.Add("@Desc", SqlDbType.VarChar, 255).Value = row.Cells("DESCRIPTIONS").Value
-                        cmdDetail.Parameters.Add("@Size", SqlDbType.VarChar, 255).Value = row.Cells("SIZE").Value
-                        cmdDetail.Parameters.Add("@Price", SqlDbType.Decimal, 10, 2).Value = CDec(row.Cells("PRICE").Value)
-                        cmdDetail.Parameters.Add("@Qty", SqlDbType.Int).Value = CInt(row.Cells("QTY").Value)
-                        cmdDetail.Parameters.Add("@Total", SqlDbType.Decimal, 10, 2).Value = CDec(row.Cells("TOTAL").Value)
+                        cmdDetail.Parameters.AddWithValue("@STR", strNumber)
+                        cmdDetail.Parameters.AddWithValue("@Barcode", row.Cells("BARCODE").Value)
+                        cmdDetail.Parameters.AddWithValue("@SKU", row.Cells("SKU").Value)
+                        cmdDetail.Parameters.AddWithValue("@Brand", row.Cells("BRAND").Value)
+                        cmdDetail.Parameters.AddWithValue("@Desc", row.Cells("DESCRIPTIONS").Value)
+                        cmdDetail.Parameters.AddWithValue("@Size", row.Cells("SIZE").Value)
+                        cmdDetail.Parameters.AddWithValue("@Price", CDec(row.Cells("PRICE").Value))
+                        cmdDetail.Parameters.AddWithValue("@Qty", CInt(row.Cells("QTY").Value))
+                        cmdDetail.Parameters.AddWithValue("@Total", CDec(row.Cells("TOTAL").Value))
                         cmdDetail.ExecuteNonQuery()
                     Next
 

@@ -1,4 +1,4 @@
-﻿Imports System.Data.SqlClient
+﻿Imports MySqlConnector
 
 Public Class frmPWDDiscount
 
@@ -7,6 +7,8 @@ Public Class frmPWDDiscount
     Public Property DiscountAmount As Decimal = 0
     Public Property FinalAmount As Decimal = 0
     Public Property ORNumber As String = ""
+
+    Private connStr As String = DBConnection.connStr
 
     Private Sub frmPWDDiscount_Load(sender As Object, e As EventArgs) Handles MyBase.Load
         cboIDType.Items.AddRange(New String() {"PWD ID", "Senior Citizen ID", "Government ID", "Unified ID", "Other"})
@@ -29,13 +31,14 @@ Public Class frmPWDDiscount
         If idNum = "" Then Exit Sub
 
         Try
-            Using conn As New SqlConnection(connStr)
-                Dim query As String = "SELECT TOP 1 * FROM PWD_Discount WHERE ID_Number = @idnum ORDER BY DateRecorded DESC"
-                Using cmd As New SqlCommand(query, conn)
+            Using conn As New MySqlConnection(connStr)
+                ' ✅ TOP 1 → LIMIT 1 (MySQL syntax)
+                Dim query As String = "SELECT * FROM `PWD_Discount` WHERE `ID_Number` = @idnum ORDER BY `DateRecorded` DESC LIMIT 1"
+                Using cmd As New MySqlCommand(query, conn)
                     cmd.Parameters.AddWithValue("@idnum", idNum)
                     conn.Open()
 
-                    Using dr As SqlDataReader = cmd.ExecuteReader()
+                    Using dr As MySqlDataReader = cmd.ExecuteReader()
                         If dr.Read() Then
                             cboIDType.Text = dr("ID_Type").ToString().Trim()
                             txtSurname.Text = dr("Surname").ToString().Trim()
@@ -119,20 +122,21 @@ Public Class frmPWDDiscount
 
     Private Sub SaveToDatabase()
         Try
-            Using conn As New SqlConnection(connStr)
+            Using conn As New MySqlConnection(connStr)
+                ' ✅ GETDATE() → NOW()
                 Dim sql As String = "
-                    INSERT INTO PWD_Discount (
-                        Account_ID, Branch_ID, ID_Type, ID_Number, Surname, FirstName, MiddleName, Suffix, Gender,
-                        FullAddress, ContactNumber, Email, DateCreated, DateRecorded, DateOfBirth,
-                        Discount_Percent, Discount_Amount, VAT_Exempt, Transaction_Total, Amount_After_Discount, OR_Number
+                    INSERT INTO `PWD_Discount` (
+                        `Account_ID`, `Branch_ID`, `ID_Type`, `ID_Number`, `Surname`, `FirstName`, `MiddleName`, `Suffix`, `Gender`,
+                        `FullAddress`, `ContactNumber`, `Email`, `DateCreated`, `DateRecorded`, `DateOfBirth`,
+                        `Discount_Percent`, `Discount_Amount`, `VAT_Exempt`, `Transaction_Total`, `Amount_After_Discount`, `OR_Number`
                     ) VALUES (
                         @AccountID, @BranchID, @IDType, @IDNumber, @Surname, @FirstName, @MiddleName, @Suffix, @Gender,
-                        @Address, @Contact, @Email, GETDATE(), GETDATE(), @DOB,
+                        @Address, @Contact, @Email, NOW(), NOW(), @DOB,
                         @DiscPct, @DiscAmt, @VATExempt, @Total, @Net, @OR
                     )
                 "
 
-                Using cmd As New SqlCommand(sql, conn)
+                Using cmd As New MySqlCommand(sql, conn)
                     cmd.Parameters.AddWithValue("@AccountID", Login.LoggedInAccountID)
                     cmd.Parameters.AddWithValue("@BranchID", Login.LoggedInBranchID)
                     cmd.Parameters.AddWithValue("@IDType", cboIDType.Text.Trim())

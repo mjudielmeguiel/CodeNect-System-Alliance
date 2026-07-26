@@ -1,5 +1,5 @@
 ﻿Imports System.Data
-Imports System.Data.SqlClient
+Imports MySqlConnector
 
 Public Class frmSTR_Information
     Private connStr As String = DBConnection.connStr
@@ -9,13 +9,14 @@ Public Class frmSTR_Information
         Try
             strNumber = strNumber.Trim().PadLeft(6, "0"c)
 
-            Using conn As New SqlConnection(connStr)
+            Using conn As New MySqlConnection(connStr)
                 conn.Open()
 
-                Dim sqlHeader As String = "SELECT * FROM STR_DATA WHERE STR_NUMBER = @DocNo"
-                Using cmdHeader As New SqlCommand(sqlHeader, conn)
-                    cmdHeader.Parameters.Add("@DocNo", SqlDbType.VarChar, 6).Value = strNumber
-                    Using dr As SqlDataReader = cmdHeader.ExecuteReader()
+                ' ✅ Backticks added for table/column names
+                Dim sqlHeader As String = "SELECT * FROM `STR_DATA` WHERE `STR_NUMBER` = @DocNo"
+                Using cmdHeader As New MySqlCommand(sqlHeader, conn)
+                    cmdHeader.Parameters.AddWithValue("@DocNo", strNumber)
+                    Using dr As MySqlDataReader = cmdHeader.ExecuteReader()
                         If dr.Read() Then
                             lblSTRNumber.Text = dr("STR_NUMBER").ToString()
                             lblPreparedBy.Text = dr("PREPARED_BY").ToString()
@@ -31,12 +32,13 @@ Public Class frmSTR_Information
                     End Using
                 End Using
 
-                Dim sqlItems As String = "SELECT BARCODE, SKU, BRAND, DESCRIPTIONS, SIZE, PRICE, ORDER_QTY, STOCK_IN, STOCK_OUT, VENDOR_CODE, VENDOR_NAME, REMARKS, TOTAL 
-                                          FROM Stock_Transfer WHERE STR_NUMBER = @DocNo"
-                Using cmdItems As New SqlCommand(sqlItems, conn)
-                    cmdItems.Parameters.Add("@DocNo", SqlDbType.VarChar, 6).Value = strNumber
+                ' ✅ Backticks added for table/column names
+                Dim sqlItems As String = "SELECT `BARCODE`, `SKU`, `BRAND`, `DESCRIPTIONS`, `SIZE`, `PRICE`, `ORDER_QTY`, `STOCK_IN`, `STOCK_OUT`, `VENDOR_CODE`, `VENDOR_NAME`, `REMARKS`, `TOTAL` 
+                                          FROM `Stock_Transfer` WHERE `STR_NUMBER` = @DocNo"
+                Using cmdItems As New MySqlCommand(sqlItems, conn)
+                    cmdItems.Parameters.AddWithValue("@DocNo", strNumber)
                     dtAllItems.Clear()
-                    Using da As New SqlDataAdapter(cmdItems)
+                    Using da As New MySqlDataAdapter(cmdItems)
                         da.Fill(dtAllItems)
                     End Using
 

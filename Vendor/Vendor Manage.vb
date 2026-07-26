@@ -1,8 +1,11 @@
-﻿Imports System.Data.SqlClient
+﻿Imports System.Data
+Imports MySqlConnector
 Imports System.IO
+Imports System.Drawing
 
 Public Class Vendor_Manage
 
+    Private connStr As String = DBConnection.connStr
     Private _dtVendors As New DataTable
 
     Private Sub Vendor_Manage_Load(sender As Object, e As EventArgs) Handles MyBase.Load
@@ -143,10 +146,11 @@ Public Class Vendor_Manage
     Private Sub LoadAllVendors()
         Try
             _dtVendors.Clear()
-            Using con As New SqlConnection(connStr)
-                Dim sql As String = "SELECT ID, VENDOR_CODE, VENDOR, BUSINESS_TYPE, CONTACT, EMAIL, TIN, DTI_REG_NUMBER, VAT_STATUS, SALES_PERSON, MODE_OF_PAYMENT, BANK, BANK_ACCOUNT_NUMBER, PAYMENT_TERMS, DATE_REGISTERED, STATUS FROM vendor ORDER BY VENDOR ASC"
-                Using cmd As New SqlCommand(sql, con)
-                    Using da As New SqlDataAdapter(cmd)
+            ' ✅ MySqlConnection + backticks for identifiers
+            Using con As New MySqlConnection(connStr)
+                Dim sql As String = "SELECT `ID`, `VENDOR_CODE`, `VENDOR`, `BUSINESS_TYPE`, `CONTACT`, `EMAIL`, `TIN`, `DTI_REG_NUMBER`, `VAT_STATUS`, `SALES_PERSON`, `MODE_OF_PAYMENT`, `BANK`, `BANK_ACCOUNT_NUMBER`, `PAYMENT_TERMS`, `DATE_REGISTERED`, `STATUS` FROM `vendor` ORDER BY `VENDOR` ASC"
+                Using cmd As New MySqlCommand(sql, con)
+                    Using da As New MySqlDataAdapter(cmd)
                         da.Fill(_dtVendors)
                     End Using
                 End Using

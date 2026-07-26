@@ -1,5 +1,5 @@
-﻿Imports System.Data.SqlClient
-Imports System.IO
+﻿Imports System.IO
+Imports MySqlConnector
 
 Public Class ADD_Branch
 
@@ -39,9 +39,9 @@ Public Class ADD_Branch
         If String.IsNullOrEmpty(currentAccountID) Then Return False
 
         Try
-            Using conn As New SqlConnection(connStr)
+            Using conn As New MySqlConnection(DBConnection.connStr)
                 conn.Open()
-                Dim cmd As New SqlCommand("SELECT COUNT(*) FROM Branches WHERE ACCOUNT_ID = @AID AND BUSINESS_TYPE = 'MAIN OFFICE'", conn)
+                Dim cmd As New MySqlCommand("SELECT COUNT(*) FROM `branches` WHERE `ACCOUNT_ID` = @AID AND `BUSINESS_TYPE` = 'MAIN OFFICE'", conn)
                 cmd.Parameters.AddWithValue("@AID", currentAccountID)
                 Return CInt(cmd.ExecuteScalar()) > 0
             End Using
@@ -58,12 +58,13 @@ Public Class ADD_Branch
                 Return
             End If
 
-            Using conn As New SqlConnection(connStr)
+            Using conn As New MySqlConnection(DBConnection.connStr)
                 conn.Open()
-                Dim cmd As New SqlCommand("SELECT ACCOUNT_ID, ACCOUNT FROM adm.Account WHERE ACCOUNT_ID = @AID", conn)
+                ' ✅ Tinanggal na ang "adm." schema, tugma sa `account` table mo
+                Dim cmd As New MySqlCommand("SELECT `ACCOUNT_ID`, `ACCOUNT` FROM `account` WHERE `ACCOUNT_ID` = @AID", conn)
                 cmd.Parameters.AddWithValue("@AID", Login.LoggedInAccountID)
 
-                Using reader As SqlDataReader = cmd.ExecuteReader()
+                Using reader As MySqlDataReader = cmd.ExecuteReader()
                     If reader.Read() Then
                         currentAccountID = reader("ACCOUNT_ID").ToString().Trim()
                         currentAccountName = reader("ACCOUNT").ToString().Trim()
@@ -107,7 +108,6 @@ Public Class ADD_Branch
         End Using
     End Sub
 
-    ' ✅ Tamang pangalan ng function na walang espesyal na karakter
     Private Sub ClearInputs()
         txtBranch.Clear()
         txtTIN.Clear()
@@ -145,11 +145,12 @@ Public Class ADD_Branch
         End If
 
         Try
-            Using conn As New SqlConnection(connStr)
+            Using conn As New MySqlConnection(DBConnection.connStr)
                 conn.Open()
-                Dim cmd As New SqlCommand(
-                    "INSERT INTO Branches (ACCOUNT_ID, ACCOUNT, BRANCH_ID, BRANCH, TIN, BUSINESS_TYPE, BUSINESS_LOGO, ADDRESS, EMAIL, CONTACT, MANAGER, REGISTRATION_DATE, STATUS) " &
-                    "VALUES (@AID, @ACC, @BID, @BRN, @TIN, @BT, @LOGO, @ADDR, @EML, @CONT, @MGR, @REGDATE, @STAT)", conn)
+                ' ✅ Tugma sa eksaktong columns ng `branches` table mo
+                Dim cmd As New MySqlCommand(
+                    "INSERT INTO `branches` (`ACCOUNT_ID`, `ACCOUNT`, `BRANCH_ID`, `BRANCH`, `TIN`, `BUSINESS_TYPE`, `BUSINESS_LO`, `ADDRESS`, `EMAIL`, `CONTACT`, `MANAGER`, `REGISTRATION_DATE`, `STATUS`) " &
+                    "VALUES (@AID, @ACC, @BID, @BRN, @TIN, @BT, @LOGO, @ADDR, @EML, @CONT, @MGR, CURDATE(), 'ACTIVE')", conn)
 
                 cmd.Parameters.AddWithValue("@AID", currentAccountID)
                 cmd.Parameters.AddWithValue("@ACC", currentAccountName)
@@ -157,23 +158,22 @@ Public Class ADD_Branch
                 cmd.Parameters.AddWithValue("@BRN", txtBranch.Text.Trim())
                 cmd.Parameters.AddWithValue("@TIN", txtTIN.Text.Trim())
                 cmd.Parameters.AddWithValue("@BT", cmbBusinessType.Text)
-                cmd.Parameters.Add("@LOGO", SqlDbType.VarBinary).Value = If(logoImageData IsNot Nothing, logoImageData, DBNull.Value)
+                cmd.Parameters.AddWithValue("@LOGO", If(logoImageData IsNot Nothing, logoImageData, DBNull.Value))
                 cmd.Parameters.AddWithValue("@ADDR", txtAddress.Text.Trim())
                 cmd.Parameters.AddWithValue("@EML", txtEmail.Text.Trim())
                 cmd.Parameters.AddWithValue("@CONT", txtContact.Text.Trim())
                 cmd.Parameters.AddWithValue("@MGR", txtManager.Text.Trim())
-                cmd.Parameters.Add("@REGDATE", SqlDbType.DateTime).Value = DateTime.Now
-                cmd.Parameters.AddWithValue("@STAT", "ACTIVE")
 
                 cmd.ExecuteNonQuery()
             End Using
 
             MessageBox.Show("Matagumpay na naisave ang sangay.", "Tagumpay", MessageBoxButtons.OK, MessageBoxIcon.Information)
-            ClearInputs() ' ✅ Tamang pangalan ng function
+            ClearInputs()
             GenerateBranchID()
             SetupBusinessTypeCombo()
         Catch ex As Exception
             MessageBox.Show("May naganap na error: " & ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
         End Try
     End Sub
+
 End Class

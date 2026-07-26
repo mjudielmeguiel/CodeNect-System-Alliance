@@ -1,4 +1,4 @@
-﻿Imports System.Data.SqlClient
+﻿Imports MySqlConnector
 Imports System.Collections.Generic
 
 Public Class frmPOS_System
@@ -20,7 +20,6 @@ Public Class frmPOS_System
     Private totalPaid As Decimal = 0
     Private paymentDetails As New List(Of String)()
 
-    ' ✅ Malinaw na pagtukoy ng paraan ng pagbabayad
     Private paymentMethod As String = "Cash"
     Private cashAmount As Decimal = 0
     Private onlineAmount As Decimal = 0
@@ -31,14 +30,14 @@ Public Class frmPOS_System
 
     Private Sub SetUserStatus(status As String)
         Try
-            Using conn As New SqlConnection(DBConnection.connStr)
+            Using conn As New MySqlConnection(DBConnection.connStr)
                 Dim sql As String = "
-                UPDATE dbo.User_Accounts 
-                SET STATUS = @NewStatus, 
-                    LAST_LOGIN_DATETIME = GETDATE()
-                WHERE USERNAME = @User"
+                UPDATE `User_Accounts` 
+                SET `STATUS` = @NewStatus, 
+                    `LAST_LOGIN_DATETIME` = NOW()
+                WHERE `USERNAME` = @User"
 
-                Using cmd As New SqlCommand(sql, conn)
+                Using cmd As New MySqlCommand(sql, conn)
                     cmd.Parameters.AddWithValue("@NewStatus", status)
                     cmd.Parameters.AddWithValue("@User", Login.txtUsername.Text.Trim())
                     conn.Open()
@@ -51,7 +50,6 @@ Public Class frmPOS_System
     End Sub
 
     Private Sub DeterminePaymentMethod()
-        ' I-reset muna ang mga halaga
         paymentMethod = "Cash"
         cashAmount = 0
         onlineAmount = 0
@@ -66,7 +64,6 @@ Public Class frmPOS_System
             End If
         Next
 
-        ' ✅ Tukuyin kung anong klase ng pagbabayad
         If cashAmount > 0 AndAlso onlineAmount > 0 Then
             paymentMethod = "Split Payment (Cash + Online)"
         ElseIf onlineAmount > 0 Then
@@ -102,12 +99,12 @@ Public Class frmPOS_System
 
     Private Sub GetUserBranch()
         Try
-            Using conn As New SqlConnection(DBConnection.connStr)
-                Dim sql As String = "SELECT BRANCH_ID, FULL_NAME, ACCOUNT_ID FROM dbo.User_Accounts WHERE USERNAME = @Username"
-                Using cmd As New SqlCommand(sql, conn)
+            Using conn As New MySqlConnection(DBConnection.connStr)
+                Dim sql As String = "SELECT `BRANCH_ID`, `FULL_NAME`, `ACCOUNT_ID` FROM `User_Accounts` WHERE `USERNAME` = @Username"
+                Using cmd As New MySqlCommand(sql, conn)
                     cmd.Parameters.AddWithValue("@Username", LoggedInUser)
                     conn.Open()
-                    Using dr As SqlDataReader = cmd.ExecuteReader()
+                    Using dr As MySqlDataReader = cmd.ExecuteReader()
                         If dr.Read() Then
                             UserBranchCode = dr("BRANCH_ID").ToString().Trim()
                             LoggedInUser = dr("FULL_NAME").ToString().Trim()
@@ -126,13 +123,13 @@ Public Class frmPOS_System
 
     Private Sub GetBranchDetails()
         Try
-            Using conn As New SqlConnection(DBConnection.connStr)
-                Dim sql As String = "SELECT BRANCH AS BranchName, ADDRESS, TIN, ACCOUNT_ID FROM dbo.Branches WHERE BRANCH_ID = @BranchCode"
+            Using conn As New MySqlConnection(DBConnection.connStr)
+                Dim sql As String = "SELECT `BRANCH` AS BranchName, `ADDRESS`, `TIN`, `ACCOUNT_ID` FROM `branches` WHERE `BRANCH_ID` = @BranchCode"
 
-                Using cmd As New SqlCommand(sql, conn)
+                Using cmd As New MySqlCommand(sql, conn)
                     cmd.Parameters.AddWithValue("@BranchCode", UserBranchCode)
                     conn.Open()
-                    Using dr As SqlDataReader = cmd.ExecuteReader()
+                    Using dr As MySqlDataReader = cmd.ExecuteReader()
                         If dr.Read() Then
                             BranchName = dr("BranchName").ToString().Trim()
                             BranchAddress = dr("ADDRESS").ToString().Trim()
@@ -188,13 +185,13 @@ Public Class frmPOS_System
 
     Private Sub AddProduct(barcode As String)
         Try
-            Using conn As New SqlConnection(DBConnection.connStr)
-                Dim sql As String = "SELECT BARCODE, DESCRIPTIONS, SIZE, PRICE, AVAILABLE FROM inv.Inventory_Master_file WHERE RTRIM(LTRIM(BARCODE)) = @bcode AND RTRIM(LTRIM(BRANCH_ID)) = @branchId"
-                Using cmd As New SqlCommand(sql, conn)
+            Using conn As New MySqlConnection(DBConnection.connStr)
+                Dim sql As String = "SELECT `BARCODE`, `DESCRIPTIONS`, `SIZE`, `PRICE`, `AVAILABLE` FROM `Inventory_Master_file` WHERE TRIM(`BARCODE`) = @bcode AND TRIM(`BRANCH_ID`) = @branchId"
+                Using cmd As New MySqlCommand(sql, conn)
                     cmd.Parameters.AddWithValue("@bcode", barcode.Trim())
                     cmd.Parameters.AddWithValue("@branchId", UserBranchCode.Trim())
                     conn.Open()
-                    Using dr As SqlDataReader = cmd.ExecuteReader()
+                    Using dr As MySqlDataReader = cmd.ExecuteReader()
                         If dr.Read() Then
                             Dim stockAvailable As Integer = CInt(dr("AVAILABLE"))
                             Dim existingRow As DataGridViewRow = Nothing
@@ -255,9 +252,9 @@ Public Class frmPOS_System
     End Sub
 
     Private Function ProductExistsInAnyBranch(barcode As String) As Boolean
-        Using conn As New SqlConnection(DBConnection.connStr)
-            Dim sql As String = "SELECT COUNT(*) FROM inv.Inventory_Master_file WHERE RTRIM(LTRIM(BARCODE)) = @bcode"
-            Using cmd As New SqlCommand(sql, conn)
+        Using conn As New MySqlConnection(DBConnection.connStr)
+            Dim sql As String = "SELECT COUNT(*) FROM `Inventory_Master_file` WHERE TRIM(`BARCODE`) = @bcode"
+            Using cmd As New MySqlCommand(sql, conn)
                 cmd.Parameters.AddWithValue("@bcode", barcode.Trim())
                 conn.Open()
                 Return CInt(cmd.ExecuteScalar()) > 0
@@ -381,7 +378,6 @@ Public Class frmPOS_System
 
         sb.AppendLine($"TOTAL : {totalAmount,20:N2}")
 
-        ' ✅ Ipakita ang paraan ng pagbabayad sa resibo
         DeterminePaymentMethod()
         sb.AppendLine($"PAYMENT METHOD: {paymentMethod}")
         If cashAmount > 0 Then sb.AppendLine($"Cash Paid: {cashAmount,18:N2}")
@@ -454,15 +450,15 @@ Public Class frmPOS_System
 
     Private Sub SaveCashPaymentToDB(amount As Decimal)
         Try
-            Using conn As New SqlConnection(DBConnection.connStr)
+            Using conn As New MySqlConnection(DBConnection.connStr)
                 Dim sql As String = "
-                INSERT INTO dbo.Payments (
-                    OrderID, PaymentMethod, ReferenceNumber, AmountPaid, Sender, Remarks, PaymentDate, Status
+                INSERT INTO `Payments` (
+                    `OrderID`, `PaymentMethod`, `ReferenceNumber`, `AmountPaid`, `Sender`, `Remarks`, `PaymentDate`, `Status`
                 ) VALUES (
-                    @OrderID, 'Cash', NULL, @Amount, NULL, 'Cash payment', GETDATE(), 'Completed'
+                    @OrderID, 'Cash', NULL, @Amount, NULL, 'Cash payment', NOW(), 'Completed'
                 )"
 
-                Using cmd As New SqlCommand(sql, conn)
+                Using cmd As New MySqlCommand(sql, conn)
                     cmd.Parameters.AddWithValue("@OrderID", currentOrderID)
                     cmd.Parameters.AddWithValue("@Amount", amount)
                     conn.Open()
@@ -476,32 +472,31 @@ Public Class frmPOS_System
 
     Private Sub SaveSalesTransaction()
         Try
-            ' ✅ Siguraduhin na tama ang pagtukoy ng paraan ng pagbabayad bago i-save
             DeterminePaymentMethod()
 
-            Using conn As New SqlConnection(DBConnection.connStr)
+            Using conn As New MySqlConnection(DBConnection.connStr)
                 Dim vatable = Math.Round(totalAmount / 1.12D, 2)
                 Dim vatAmt = Math.Round(totalAmount - vatable, 2)
                 Dim itemCount = GetItemCount()
                 Dim discountType = If(discountPercent > 0, "PWD / Senior", "None")
 
                 Dim sql As String = "
-             INSERT INTO dbo.Sales_Transactions (
-                 Transaction_ID, Branch_Code, Cashier_ID, Cashier_Name,
-                 Transaction_Date, Transaction_Time, Item_Count, Subtotal_Amount, VATable_Amount,
-                 VAT_Amount, Discount_Type, Discount_Percent, Discount_Amount,
-                 Amount_Due, Amount_Paid, Cash_Amount, Online_Amount,
-                 Change_Amount, Payment_Method, Status
+             INSERT INTO `Sales_Transactions` (
+                 `Transaction_ID`, `Branch_Code`, `Cashier_ID`, `Cashier_Name`,
+                 `Transaction_Date`, `Transaction_Time`, `Item_Count`, `Subtotal_Amount`, `VATable_Amount`,
+                 `VAT_Amount`, `Discount_Type`, `Discount_Percent`, `Discount_Amount`,
+                 `Amount_Due`, `Amount_Paid`, `Cash_Amount`, `Online_Amount`,
+                 `Change_Amount`, `Payment_Method`, `Status`
              )
              VALUES (
                  @TransID, @BranchCode, @CashierID, @CashierName,
-                 CAST(GETDATE() AS DATE), CAST(GETDATE() AS TIME), @ItemCount, @Subtotal, @VATable,
+                 CURDATE(), CURTIME(), @ItemCount, @Subtotal, @VATable,
                  @VAT, @DiscType, @DiscPercent, @DiscAmount,
                  @AmountDue, @AmountPaid, @CashAmt, @OnlineAmt,
                  @Change, @PaymentMethod, 'Completed'
              )"
 
-                Using cmd As New SqlCommand(sql, conn)
+                Using cmd As New MySqlCommand(sql, conn)
                     cmd.Parameters.AddWithValue("@TransID", currentOrderID)
                     cmd.Parameters.AddWithValue("@BranchCode", UserBranchCode)
                     cmd.Parameters.AddWithValue("@CashierID", Login.txtUsername.Text.Trim())
@@ -523,13 +518,12 @@ Public Class frmPOS_System
                     conn.Open()
                     cmd.ExecuteNonQuery()
 
-                    ' ✅ AUTOMATICALLY UPDATE BRANCH TOTAL SALES
                     Dim updateSalesSql As String = "
-                     UPDATE dbo.Branches
-                     SET SALES = ISNULL(SALES, 0) + @AddAmount
-                     WHERE RTRIM(LTRIM(UPPER(BRANCH_ID))) = RTRIM(LTRIM(UPPER(@BranchCode)))
+                     UPDATE `branches`
+                     SET `SALES` = IFNULL(`SALES`, 0) + @AddAmount
+                     WHERE TRIM(UPPER(`BRANCH_ID`)) = TRIM(UPPER(@BranchCode))
                  "
-                    Using cmdUpdate As New SqlCommand(updateSalesSql, conn)
+                    Using cmdUpdate As New MySqlCommand(updateSalesSql, conn)
                         cmdUpdate.Parameters.AddWithValue("@AddAmount", finalTotal)
                         cmdUpdate.Parameters.AddWithValue("@BranchCode", UserBranchCode)
                         cmdUpdate.ExecuteNonQuery()
@@ -544,49 +538,57 @@ Public Class frmPOS_System
 
     Private Sub SaveToDailySalesSummary()
         Try
-            Using conn As New SqlConnection(DBConnection.connStr)
-                Dim sql As String = "
-                IF EXISTS (SELECT 1 FROM dbo.Daily_Sales_Summary 
-                           WHERE Transaction_Date = CAST(GETDATE() AS DATE) 
-                           AND Branch_Code = @BranchCode 
-                           AND Cashier_ID = @CashierID)
-                BEGIN
-                    UPDATE dbo.Daily_Sales_Summary
-                    SET 
-                        Total_Transactions = Total_Transactions + 1,
-                        Total_Sales_Amount = Total_Sales_Amount + @SalesAmt,
-                        Total_Cash = Total_Cash + @CashAmt,
-                        Total_Online = Total_Online + @OnlineAmt,
-                        Date_Added = GETDATE()
-                    WHERE 
-                        Transaction_Date = CAST(GETDATE() AS DATE) 
-                        AND Branch_Code = @BranchCode 
-                        AND Cashier_ID = @CashierID
-                END
-                ELSE
-                BEGIN
-                    INSERT INTO dbo.Daily_Sales_Summary (
-                        Branch_Code, Cashier_ID, Cashier_Name,
-                        Transaction_Date, Total_Transactions, Total_Sales_Amount,
-                        Total_Cash, Total_Online, Date_Added
-                    )
-                    VALUES (
-                        @BranchCode, @CashierID, @CashierName,
-                        CAST(GETDATE() AS DATE), 1, @SalesAmt,
-                        @CashAmt, @OnlineAmt, GETDATE()
-                    )
-                END"
-
-                Using cmd As New SqlCommand(sql, conn)
-                    cmd.Parameters.AddWithValue("@BranchCode", UserBranchCode)
-                    cmd.Parameters.AddWithValue("@CashierID", Login.txtUsername.Text.Trim())
-                    cmd.Parameters.AddWithValue("@CashierName", LoggedInUser)
-                    cmd.Parameters.AddWithValue("@SalesAmt", finalTotal)
-                    cmd.Parameters.AddWithValue("@CashAmt", cashAmount)
-                    cmd.Parameters.AddWithValue("@OnlineAmt", onlineAmount)
-
+            Using conn As New MySqlConnection(DBConnection.connStr)
+                Dim checkSql As String = "SELECT 1 FROM `Daily_Sales_Summary` WHERE `Transaction_Date` = CURDATE() AND `Branch_Code` = @BranchCode AND `Cashier_ID` = @CashierID LIMIT 1"
+                Using cmdCheck As New MySqlCommand(checkSql, conn)
+                    cmdCheck.Parameters.AddWithValue("@BranchCode", UserBranchCode)
+                    cmdCheck.Parameters.AddWithValue("@CashierID", Login.txtUsername.Text.Trim())
                     conn.Open()
-                    cmd.ExecuteNonQuery()
+                    Dim exists As Boolean = cmdCheck.ExecuteScalar() IsNot Nothing
+
+                    If exists Then
+                        Dim updSql As String = "
+                        UPDATE `Daily_Sales_Summary`
+                        SET 
+                            `Total_Transactions` = `Total_Transactions` + 1,
+                            `Total_Sales_Amount` = `Total_Sales_Amount` + @SalesAmt,
+                            `Total_Cash` = `Total_Cash` + @CashAmt,
+                            `Total_Online` = `Total_Online` + @OnlineAmt,
+                            `Date_Added` = NOW()
+                        WHERE 
+                            `Transaction_Date` = CURDATE() 
+                            AND `Branch_Code` = @BranchCode 
+                            AND `Cashier_ID` = @CashierID"
+                        Using cmdUpd As New MySqlCommand(updSql, conn)
+                            cmdUpd.Parameters.AddWithValue("@BranchCode", UserBranchCode)
+                            cmdUpd.Parameters.AddWithValue("@CashierID", Login.txtUsername.Text.Trim())
+                            cmdUpd.Parameters.AddWithValue("@SalesAmt", finalTotal)
+                            cmdUpd.Parameters.AddWithValue("@CashAmt", cashAmount)
+                            cmdUpd.Parameters.AddWithValue("@OnlineAmt", onlineAmount)
+                            cmdUpd.ExecuteNonQuery()
+                        End Using
+                    Else
+                        Dim insSql As String = "
+                        INSERT INTO `Daily_Sales_Summary` (
+                            `Branch_Code`, `Cashier_ID`, `Cashier_Name`,
+                            `Transaction_Date`, `Total_Transactions`, `Total_Sales_Amount`,
+                            `Total_Cash`, `Total_Online`, `Date_Added`
+                        )
+                        VALUES (
+                            @BranchCode, @CashierID, @CashierName,
+                            CURDATE(), 1, @SalesAmt,
+                            @CashAmt, @OnlineAmt, NOW()
+                        )"
+                        Using cmdIns As New MySqlCommand(insSql, conn)
+                            cmdIns.Parameters.AddWithValue("@BranchCode", UserBranchCode)
+                            cmdIns.Parameters.AddWithValue("@CashierID", Login.txtUsername.Text.Trim())
+                            cmdIns.Parameters.AddWithValue("@CashierName", LoggedInUser)
+                            cmdIns.Parameters.AddWithValue("@SalesAmt", finalTotal)
+                            cmdIns.Parameters.AddWithValue("@CashAmt", cashAmount)
+                            cmdIns.Parameters.AddWithValue("@OnlineAmt", onlineAmount)
+                            cmdIns.ExecuteNonQuery()
+                        End Using
+                    End If
                 End Using
             End Using
         Catch ex As Exception
@@ -594,18 +596,15 @@ Public Class frmPOS_System
         End Try
     End Sub
 
-    ' ✅ NEW FUNCTION: SAVE TO DAILY_SALES_LOG TABLE
-    ' ✅ AYOS NA PARA SA DAILY SALES LOG
     Private Sub SaveToDailySalesLog()
         Try
             Dim vatable = Math.Round(totalAmount / 1.12D, 2)
             Dim vatAmt = Math.Round(totalAmount - vatable, 2)
 
-            ' Kunin muna ang tamang ACCOUNT_ID ng branch
             Dim branchAccountID As String = ""
-            Using connCheck As New SqlConnection(DBConnection.connStr)
-                Dim sqlCheck As String = "SELECT ACCOUNT_ID FROM dbo.Branches WHERE RTRIM(LTRIM(UPPER(BRANCH_ID))) = RTRIM(LTRIM(UPPER(@BranchCode)))"
-                Using cmdCheck As New SqlCommand(sqlCheck, connCheck)
+            Using connCheck As New MySqlConnection(DBConnection.connStr)
+                Dim sqlCheck As String = "SELECT `ACCOUNT_ID` FROM `branches` WHERE TRIM(UPPER(`BRANCH_ID`)) = TRIM(UPPER(@BranchCode))"
+                Using cmdCheck As New MySqlCommand(sqlCheck, connCheck)
                     cmdCheck.Parameters.AddWithValue("@BranchCode", UserBranchCode)
                     connCheck.Open()
                     Dim result = cmdCheck.ExecuteScalar()
@@ -613,54 +612,59 @@ Public Class frmPOS_System
                 End Using
             End Using
 
-            Using conn As New SqlConnection(DBConnection.connStr)
-                Dim sql As String = "
-                MERGE INTO dbo.Daily_Sales_Log AS Target
-                USING (
-                    SELECT 
-                        @AccountID AS ACCOUNT_ID,
-                        @BranchCode AS BRANCH_ID,
-                        @BranchName AS BRANCH_NAME,
-                        CAST(GETDATE() AS DATE) AS Transaction_Date
-                ) AS Source
-                ON Target.ACCOUNT_ID = Source.ACCOUNT_ID 
-                   AND Target.BRANCH_ID = Source.BRANCH_ID 
-                   AND Target.Transaction_Date = Source.Transaction_Date
-
-                WHEN MATCHED THEN
-                    UPDATE SET
-                        Total_Transactions = Total_Transactions + 1,
-                        Cash_Sales = ISNULL(Cash_Sales, 0) + @CashAmt,
-                        Online_Sales = ISNULL(Online_Sales, 0) + @OnlineAmt,
-                        Total_Discount = ISNULL(Total_Discount, 0) + @DiscAmt,
-                        Total_VAT = ISNULL(Total_VAT, 0) + @VatAmt,
-                        Net_Sales = ISNULL(Net_Sales, 0) + @NetAmt,
-                        Recorded_At = GETDATE()
-
-                WHEN NOT MATCHED THEN
-                    INSERT (
-                        ACCOUNT_ID, BRANCH_ID, BRANCH_NAME, Transaction_Date,
-                        Total_Transactions, Cash_Sales, Online_Sales, Total_Discount,
-                        Total_VAT, Net_Sales
-                    )
-                    VALUES (
-                        @AccountID, @BranchCode, @BranchName, Source.Transaction_Date,
-                        1, @CashAmt, @OnlineAmt, @DiscAmt, @VatAmt, @NetAmt
-                    );
-            "
-
-                Using cmd As New SqlCommand(sql, conn)
-                    cmd.Parameters.AddWithValue("@AccountID", branchAccountID)
-                    cmd.Parameters.AddWithValue("@BranchCode", UserBranchCode)
-                    cmd.Parameters.AddWithValue("@BranchName", BranchName)
-                    cmd.Parameters.AddWithValue("@CashAmt", cashAmount)
-                    cmd.Parameters.AddWithValue("@OnlineAmt", onlineAmount)
-                    cmd.Parameters.AddWithValue("@DiscAmt", discountAmount)
-                    cmd.Parameters.AddWithValue("@VatAmt", vatAmt)
-                    cmd.Parameters.AddWithValue("@NetAmt", finalTotal)
-
+            Using conn As New MySqlConnection(DBConnection.connStr)
+                Dim checkSql As String = "SELECT 1 FROM `Daily_Sales_Log` WHERE `ACCOUNT_ID` = @AccountID AND `BRANCH_ID` = @BranchCode AND `Transaction_Date` = CURDATE() LIMIT 1"
+                Using cmdCheck As New MySqlCommand(checkSql, conn)
+                    cmdCheck.Parameters.AddWithValue("@AccountID", branchAccountID)
+                    cmdCheck.Parameters.AddWithValue("@BranchCode", UserBranchCode)
                     conn.Open()
-                    cmd.ExecuteNonQuery()
+                    Dim exists As Boolean = cmdCheck.ExecuteScalar() IsNot Nothing
+
+                    If exists Then
+                        Dim updSql As String = "
+                        UPDATE `Daily_Sales_Log`
+                        SET
+                            `Total_Transactions` = `Total_Transactions` + 1,
+                            `Cash_Sales` = IFNULL(`Cash_Sales`, 0) + @CashAmt,
+                            `Online_Sales` = IFNULL(`Online_Sales`, 0) + @OnlineAmt,
+                            `Total_Discount` = IFNULL(`Total_Discount`, 0) + @DiscAmt,
+                            `Total_VAT` = IFNULL(`Total_VAT`, 0) + @VatAmt,
+                            `Net_Sales` = IFNULL(`Net_Sales`, 0) + @NetAmt,
+                            `Recorded_At` = NOW()
+                        WHERE `ACCOUNT_ID` = @AccountID AND `BRANCH_ID` = @BranchCode AND `Transaction_Date` = CURDATE()"
+                        Using cmdUpd As New MySqlCommand(updSql, conn)
+                            cmdUpd.Parameters.AddWithValue("@AccountID", branchAccountID)
+                            cmdUpd.Parameters.AddWithValue("@BranchCode", UserBranchCode)
+                            cmdUpd.Parameters.AddWithValue("@CashAmt", cashAmount)
+                            cmdUpd.Parameters.AddWithValue("@OnlineAmt", onlineAmount)
+                            cmdUpd.Parameters.AddWithValue("@DiscAmt", discountAmount)
+                            cmdUpd.Parameters.AddWithValue("@VatAmt", vatAmt)
+                            cmdUpd.Parameters.AddWithValue("@NetAmt", finalTotal)
+                            cmdUpd.ExecuteNonQuery()
+                        End Using
+                    Else
+                        Dim insSql As String = "
+                        INSERT INTO `Daily_Sales_Log` (
+                            `ACCOUNT_ID`, `BRANCH_ID`, `BRANCH_NAME`, `Transaction_Date`,
+                            `Total_Transactions`, `Cash_Sales`, `Online_Sales`, `Total_Discount`,
+                            `Total_VAT`, `Net_Sales`
+                        )
+                        VALUES (
+                            @AccountID, @BranchCode, @BranchName, CURDATE(),
+                            1, @CashAmt, @OnlineAmt, @DiscAmt, @VatAmt, @NetAmt
+                        )"
+                        Using cmdIns As New MySqlCommand(insSql, conn)
+                            cmdIns.Parameters.AddWithValue("@AccountID", branchAccountID)
+                            cmdIns.Parameters.AddWithValue("@BranchCode", UserBranchCode)
+                            cmdIns.Parameters.AddWithValue("@BranchName", BranchName)
+                            cmdIns.Parameters.AddWithValue("@CashAmt", cashAmount)
+                            cmdIns.Parameters.AddWithValue("@OnlineAmt", onlineAmount)
+                            cmdIns.Parameters.AddWithValue("@DiscAmt", discountAmount)
+                            cmdIns.Parameters.AddWithValue("@VatAmt", vatAmt)
+                            cmdIns.Parameters.AddWithValue("@NetAmt", finalTotal)
+                            cmdIns.ExecuteNonQuery()
+                        End Using
+                    End If
                 End Using
             End Using
         Catch ex As Exception
@@ -700,7 +704,7 @@ Public Class frmPOS_System
 
         SaveSalesTransaction()
         SaveToDailySalesSummary()
-        SaveToDailySalesLog() ' ✅ CALL NEW FUNCTION HERE
+        SaveToDailySalesLog()
         MessageBox.Show(rtbReceipt.Text, "Official Receipt", MessageBoxButtons.OK, MessageBoxIcon.Information)
 
         ResetAll()
@@ -708,13 +712,13 @@ Public Class frmPOS_System
 
     Private Sub DeductStockFromInventory()
         Try
-            Using conn As New SqlConnection(DBConnection.connStr)
+            Using conn As New MySqlConnection(DBConnection.connStr)
                 conn.Open()
                 For Each row As DataGridViewRow In dgvCart.Rows
                     Dim barcode As String = row.Cells("Barcode").Value.ToString().Trim()
                     Dim qtySold As Integer = CInt(row.Cells("Qty").Value)
-                    Dim updateQuery As String = "UPDATE inv.Inventory_Master_file SET AVAILABLE = AVAILABLE - @qty WHERE RTRIM(LTRIM(BARCODE)) = @barcode AND RTRIM(LTRIM(BRANCH_ID)) = @branchId"
-                    Using cmd As New SqlCommand(updateQuery, conn)
+                    Dim updateQuery As String = "UPDATE `Inventory_Master_file` SET `AVAILABLE` = `AVAILABLE` - @qty WHERE TRIM(`BARCODE`) = @barcode AND TRIM(`BRANCH_ID`) = @branchId"
+                    Using cmd As New MySqlCommand(updateQuery, conn)
                         cmd.Parameters.AddWithValue("@qty", qtySold)
                         cmd.Parameters.AddWithValue("@barcode", barcode.Trim())
                         cmd.Parameters.AddWithValue("@branchId", UserBranchCode.Trim())

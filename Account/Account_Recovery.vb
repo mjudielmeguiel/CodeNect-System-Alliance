@@ -14,7 +14,6 @@ Public Class Account_Recovery
         txtConfirmPassword.PasswordChar = "●"c
     End Sub
 
-    ' --- 6 DIGITS LANG ANG RECOVERY ID ---
     Private Sub GenerateRecoveryID()
         Dim rnd As New Random()
         Dim num As Integer = rnd.Next(100000, 999999)
@@ -34,11 +33,10 @@ Public Class Account_Recovery
 
     Private Sub GetUsernameFromEmail(email As String)
         Try
-            ' ✅ BINAGO: SqlConnection → MySqlConnection
             Using conn As New MySqlConnection(connStr)
                 conn.Open()
-                ' ✅ BINAGO: SELECT TOP 1 → LIMIT 1 ; SqlCommand → MySqlCommand
-                Dim cmd As New MySqlCommand("SELECT USERNAME FROM User_Accounts WHERE EMAIL = @EMAIL LIMIT 1", conn)
+                ' TAMA: Table = user_accounts | Column = USERNAME, EMAIL
+                Dim cmd As New MySqlCommand("SELECT USERNAME FROM user_accounts WHERE EMAIL = @EMAIL LIMIT 1", conn)
                 cmd.Parameters.AddWithValue("@EMAIL", email)
 
                 Dim result As Object = cmd.ExecuteScalar()
@@ -109,11 +107,10 @@ Public Class Account_Recovery
         End If
 
         Try
-            ' ✅ BINAGO: SqlConnection → MySqlConnection
             Using conn As New MySqlConnection(connStr)
                 conn.Open()
-                ' ✅ BINAGO: SqlCommand → MySqlCommand ; mas malinis na parameters
-                Dim cmd As New MySqlCommand("INSERT INTO Recovery (RECOVERY_ID, EMAIL, USERNAME, PASSWORD, REASON)
+                ' Kung may table na Recovery:
+                Dim cmd As New MySqlCommand("INSERT INTO Recovery (RECOVERY_ID, EMAIL, USER_NAME, PASSWORD, REASON)
                                            VALUES (@RID, @EMAIL, @USER, @PASS, @REASON)", conn)
 
                 cmd.Parameters.AddWithValue("@RID", txtRecoveryID.Text.Trim())
@@ -123,6 +120,7 @@ Public Class Account_Recovery
                 cmd.Parameters.AddWithValue("@REASON", txtReason.Text.Trim())
 
                 cmd.ExecuteNonQuery()
+
             End Using
 
             MessageBox.Show("Recovery request submitted successfully!", "Complete", MessageBoxButtons.OK, MessageBoxIcon.Information)

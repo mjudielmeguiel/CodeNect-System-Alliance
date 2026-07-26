@@ -1,5 +1,5 @@
-﻿Imports System.Data.SqlClient
-Imports System.IO
+﻿Imports System.IO
+Imports MySqlConnector
 
 Public Class frmDiscountRecords
 
@@ -32,15 +32,15 @@ Public Class frmDiscountRecords
     ' I-load ang listahan ng mga uri ng ID
     Private Sub LoadIDTypes()
         Try
-            Using conn As New SqlConnection(connStr)
-                Dim sql As String = "SELECT DISTINCT ID_Type FROM PWD_Discount ORDER BY ID_Type"
-                Using cmd As New SqlCommand(sql, conn)
+            Using conn As New MySqlConnection(DBConnection.connStr)
+                Dim sql As String = "SELECT DISTINCT `ID_Type` FROM `PWD_Discount` ORDER BY `ID_Type`"
+                Using cmd As New MySqlCommand(sql, conn)
                     conn.Open()
                     Dim dt As New DataTable()
-                    Dim da As New SqlDataAdapter(cmd)
+                    Dim da As New MySqlDataAdapter(cmd)
                     da.Fill(dt)
 
-                    ' Maglagay ng pagpipilian na "Lahat"
+                    ' Maglagay ng pagpipilian na "All"
                     dt.Rows.InsertAt(dt.NewRow(), 0)
                     dt.Rows(0)("ID_Type") = "All"
 
@@ -59,55 +59,53 @@ Public Class frmDiscountRecords
         Dim dt As New DataTable()
 
         Try
-            Using conn As New SqlConnection(connStr)
-                ' ✅ Gamit ang OUTER APPLY para kumuha ng ISANG pangalan lang ng branch
-                ' ✅ Hindi na magdodoble ang iisang transaksyon
+            Using conn As New MySqlConnection(DBConnection.connStr)
+                ' ✅ Pinalitan ang OUTER APPLY → LEFT JOIN (tugma sa MySQL)
                 Dim sql As String = "
                     SELECT
-                        d.PWD_ID AS [PWD ID],
-                        d.Account_ID AS [Account ID],
-                        d.Branch_ID AS [Branch ID],
-                        ISNULL(b.BRANCH, '') AS [Branch Name],
-                        d.ID_Type AS [ID Type],
-                        d.ID_Number AS [ID Number],
-                        d.Surname AS [Surname],
-                        d.FirstName AS [First Name],
-                        d.MiddleName AS [Middle Name],
-                        d.Suffix AS [Suffix],
-                        d.Gender AS [Gender],
-                        d.FullAddress AS [Full Address],
-                        d.ContactNumber AS [Contact Number],
-                        d.Email AS [Email],
-                        d.DateCreated AS [Date Created],
-                        d.DateRecorded AS [Date Recorded],
-                        d.DateOfBirth AS [Date of Birth],
-                        d.Discount_Percent AS [Discount %],
-                        d.Discount_Amount AS [Discount Amount],
-                        CASE WHEN d.VAT_Exempt = 1 THEN 'Yes' ELSE 'No' END AS [VAT Exempt],
-                        d.Transaction_Total AS [Transaction Total],
-                        d.Amount_After_Discount AS [Amount After Discount],
-                        d.OR_Number AS [OR Number]
-                    FROM PWD_Discount d
-                    OUTER APPLY (
-                        SELECT TOP 1 BRANCH 
-                        FROM User_Accounts u 
-                        WHERE u.BRANCH_ID = d.Branch_ID
-                    ) AS b
+                        d.`PWD_ID` AS `PWD ID`,
+                        d.`Account_ID` AS `Account ID`,
+                        d.`Branch_ID` AS `Branch ID`,
+                        IFNULL(b.`BRANCH`, '') AS `Branch Name`,
+                        d.`ID_Type` AS `ID Type`,
+                        d.`ID_Number` AS `ID Number`,
+                        d.`Surname` AS `Surname`,
+                        d.`FirstName` AS `First Name`,
+                        d.`MiddleName` AS `Middle Name`,
+                        d.`Suffix` AS `Suffix`,
+                        d.`Gender` AS `Gender`,
+                        d.`FullAddress` AS `Full Address`,
+                        d.`ContactNumber` AS `Contact Number`,
+                        d.`Email` AS `Email`,
+                        d.`DateCreated` AS `Date Created`,
+                        d.`DateRecorded` AS `Date Recorded`,
+                        d.`DateOfBirth` AS `Date of Birth`,
+                        d.`Discount_Percent` AS `Discount %`,
+                        d.`Discount_Amount` AS `Discount Amount`,
+                        CASE WHEN d.`VAT_Exempt` = 1 THEN 'Yes' ELSE 'No' END AS `VAT Exempt`,
+                        d.`Transaction_Total` AS `Transaction Total`,
+                        d.`Amount_After_Discount` AS `Amount After Discount`,
+                        d.`OR_Number` AS `OR Number`
+                    FROM `PWD_Discount` d
+                    LEFT JOIN (
+                        SELECT DISTINCT `BRANCH`, `BRANCH_ID`
+                        FROM `User_Accounts`
+                    ) AS b ON b.`BRANCH_ID` = d.`Branch_ID`
                     WHERE 
-                        (@BranchName = 'MAIN OFFICE' OR b.BRANCH = @BranchName)
-                        AND d.DateRecorded >= @StartDate 
-                        AND d.DateRecorded < @EndDate
+                        (@BranchName = 'MAIN OFFICE' OR b.`BRANCH` = @BranchName)
+                        AND d.`DateRecorded` >= @StartDate 
+                        AND d.`DateRecorded` < @EndDate
                 "
 
                 ' Maglagay ng filter ayon sa uri ng ID kung hindi "All" ang napili
                 If cboIDType.SelectedValue IsNot Nothing AndAlso cboIDType.SelectedValue.ToString() <> "All" Then
-                    sql &= " AND d.ID_Type = @IDType"
+                    sql &= " AND d.`ID_Type` = @IDType"
                 End If
 
                 ' Ayusin ang pagkakasunod-sunod mula pinakabago hanggang luma
-                sql &= " ORDER BY d.DateRecorded DESC"
+                sql &= " ORDER BY d.`DateRecorded` DESC"
 
-                Using cmd As New SqlCommand(sql, conn)
+                Using cmd As New MySqlCommand(sql, conn)
                     cmd.Parameters.AddWithValue("@BranchName", _FilterBranchName)
                     cmd.Parameters.AddWithValue("@StartDate", dtpStart.Value.Date)
                     cmd.Parameters.AddWithValue("@EndDate", dtpEnd.Value.Date.AddDays(1))
@@ -117,7 +115,7 @@ Public Class frmDiscountRecords
                     End If
 
                     conn.Open()
-                    Dim da As New SqlDataAdapter(cmd)
+                    Dim da As New MySqlDataAdapter(cmd)
                     da.Fill(dt)
                 End Using
             End Using

@@ -1,7 +1,9 @@
 ﻿Imports System.Data
-Imports System.Data.SqlClient
+Imports MySqlConnector
 
 Public Class Branch_Performance
+
+    Private connStr As String = DBConnection.connStr
 
     Private Sub Branch_Performance_Load(sender As Object, e As EventArgs) Handles MyBase.Load
         LoadAllData()
@@ -11,33 +13,32 @@ Public Class Branch_Performance
         Try
             Dim dt As New DataTable()
 
-            ' Kukunin LAHAT ng laman, eksaktong pangalan ng column
+            ' ✅ dbo. removed, backticks added for reserved/column names
             Dim sql As String = "
                 SELECT
-                    ACCOUNT_ID,
-                    BRANCH_ID,
-                    BRANCH_NAME,
-                    Transaction_Date,
-                    Total_Transactions,
-                    Cash_Sales,
-                    Online_Sales,
-                    Total_Discount,
-                    Total_VAT,
-                    Net_Sales,
-                    Recorded_At
-                FROM dbo.Daily_Sales_Log
-                ORDER BY Transaction_Date DESC
+                    `ACCOUNT_ID`,
+                    `BRANCH_ID`,
+                    `BRANCH_NAME`,
+                    `Transaction_Date`,
+                    `Total_Transactions`,
+                    `Cash_Sales`,
+                    `Online_Sales`,
+                    `Total_Discount`,
+                    `Total_VAT`,
+                    `Net_Sales`,
+                    `Recorded_At`
+                FROM `Daily_Sales_Log`
+                ORDER BY `Transaction_Date` DESC
             "
 
-            Using conn As New SqlConnection(DBConnection.connStr)
-                Using cmd As New SqlCommand(sql, conn)
-                    Using da As New SqlDataAdapter(cmd)
+            Using conn As New MySqlConnection(connStr)
+                Using cmd As New MySqlCommand(sql, conn)
+                    Using da As New MySqlDataAdapter(cmd)
                         da.Fill(dt)
                     End Using
                 End Using
             End Using
 
-            ' Hayaan ang grid na gumawa ng column mismo base sa table
             dgvBranchList.AutoGenerateColumns = True
             dgvBranchList.DataSource = dt
 

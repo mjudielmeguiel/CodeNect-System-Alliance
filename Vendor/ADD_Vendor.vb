@@ -1,9 +1,12 @@
 ﻿Imports System.Data
-Imports System.Data.SqlClient
+Imports MySqlConnector
+Imports System.Drawing
 Imports System.IO
 Imports System.Windows.Forms
 
 Public Class ADD_Vendor
+
+    Private connStr As String = DBConnection.connStr
 
     Private Sub ADD_Vendor_Load(sender As Object, e As EventArgs) Handles MyBase.Load
         Try
@@ -49,10 +52,11 @@ Public Class ADD_Vendor
         Dim exists As Boolean = False
 
         Try
-            Using conn As New SqlConnection(connStr)
-                Dim sql As String = "SELECT COUNT(*) FROM vendor WHERE VENDOR_CODE = @VC"
-                Using cmd As New SqlCommand(sql, conn)
-                    cmd.Parameters.Add("@VC", SqlDbType.NVarChar, 10).Value = code
+            Using conn As New MySqlConnection(connStr)
+                ' ✅ Backticks added
+                Dim sql As String = "SELECT COUNT(*) FROM `vendor` WHERE `VENDOR_CODE` = @VC"
+                Using cmd As New MySqlCommand(sql, conn)
+                    cmd.Parameters.AddWithValue("@VC", code)
                     conn.Open()
                     Dim count As Integer = CInt(cmd.ExecuteScalar())
                     exists = (count > 0)
@@ -91,44 +95,45 @@ Public Class ADD_Vendor
         End If
 
         Try
+            ' ✅ GETDATE() → NOW(), backticks added for all identifiers
             Dim sqlQuery As String = "
-                INSERT INTO vendor (
-                    VENDOR_CODE, VENDOR, LOGO, BUSINESS_TYPE, CONTACT, EMAIL, TIN, ADDRESS,
-                    DTI_REG_NUMBER, VAT_STATUS, SALES_PERSON, MODE_OF_PAYMENT, BANK, BANK_ACCOUNT_NUMBER,
-                    PAYMENT_TERMS, DATE_REGISTERED, STATUS
+                INSERT INTO `vendor` (
+                    `VENDOR_CODE`, `VENDOR`, `LOGO`, `BUSINESS_TYPE`, `CONTACT`, `EMAIL`, `TIN`, `ADDRESS`,
+                    `DTI_REG_NUMBER`, `VAT_STATUS`, `SALES_PERSON`, `MODE_OF_PAYMENT`, `BANK`, `BANK_ACCOUNT_NUMBER`,
+                    `PAYMENT_TERMS`, `DATE_REGISTERED`, `STATUS`
                 ) VALUES (
                     @VENDOR_CODE, @VENDOR, @LOGO, @BUSINESS_TYPE, @CONTACT, @EMAIL, @TIN, @ADDRESS,
                     @DTI_REG_NUMBER, @VAT_STATUS, @SALES_PERSON, @MODE_OF_PAYMENT, @BANK, @BANK_ACCOUNT_NUMBER,
-                    @PAYMENT_TERMS, GETDATE(), 'Active'
+                    @PAYMENT_TERMS, NOW(), 'Active'
                 )"
 
-            Using conn As New SqlConnection(connStr)
-                Using cmd As New SqlCommand(sqlQuery, conn)
-                    cmd.Parameters.Add("@VENDOR_CODE", SqlDbType.NVarChar, 10).Value = txtVendorCode.Text.Trim()
-                    cmd.Parameters.Add("@VENDOR", SqlDbType.NVarChar, 150).Value = txtVendor.Text.Trim()
+            Using conn As New MySqlConnection(connStr)
+                Using cmd As New MySqlCommand(sqlQuery, conn)
+                    cmd.Parameters.AddWithValue("@VENDOR_CODE", txtVendorCode.Text.Trim())
+                    cmd.Parameters.AddWithValue("@VENDOR", txtVendor.Text.Trim())
 
                     ' Handle logo image
                     If picLogo.Image IsNot Nothing Then
                         Using ms As New MemoryStream()
                             picLogo.Image.Save(ms, picLogo.Image.RawFormat)
-                            cmd.Parameters.Add("@LOGO", SqlDbType.VarBinary).Value = ms.ToArray()
+                            cmd.Parameters.AddWithValue("@LOGO", ms.ToArray())
                         End Using
                     Else
-                        cmd.Parameters.Add("@LOGO", SqlDbType.VarBinary).Value = DBNull.Value
+                        cmd.Parameters.AddWithValue("@LOGO", DBNull.Value)
                     End If
 
-                    cmd.Parameters.Add("@BUSINESS_TYPE", SqlDbType.NVarChar, 50).Value = If(String.IsNullOrWhiteSpace(cboBusinessType.Text), DBNull.Value, cboBusinessType.Text.Trim())
-                    cmd.Parameters.Add("@CONTACT", SqlDbType.NVarChar, 30).Value = If(String.IsNullOrWhiteSpace(txtContact.Text), DBNull.Value, txtContact.Text.Trim())
-                    cmd.Parameters.Add("@EMAIL", SqlDbType.NVarChar, 100).Value = If(String.IsNullOrWhiteSpace(txtEmail.Text), DBNull.Value, txtEmail.Text.Trim())
-                    cmd.Parameters.Add("@TIN", SqlDbType.NVarChar, 30).Value = txtTIN.Text.Trim()
-                    cmd.Parameters.Add("@ADDRESS", SqlDbType.NVarChar, 255).Value = If(String.IsNullOrWhiteSpace(txtAddress.Text), DBNull.Value, txtAddress.Text.Trim())
-                    cmd.Parameters.Add("@DTI_REG_NUMBER", SqlDbType.NVarChar, 50).Value = If(String.IsNullOrWhiteSpace(txtDTI.Text), DBNull.Value, txtDTI.Text.Trim())
-                    cmd.Parameters.Add("@VAT_STATUS", SqlDbType.NVarChar, 20).Value = If(String.IsNullOrWhiteSpace(cboVatStatus.Text), "Active", cboVatStatus.Text.Trim())
-                    cmd.Parameters.Add("@SALES_PERSON", SqlDbType.NVarChar, 100).Value = If(String.IsNullOrWhiteSpace(txtSalesPerson.Text), DBNull.Value, txtSalesPerson.Text.Trim())
-                    cmd.Parameters.Add("@MODE_OF_PAYMENT", SqlDbType.NVarChar, 50).Value = If(String.IsNullOrWhiteSpace(cboModeOfPayment.Text), DBNull.Value, cboModeOfPayment.Text.Trim())
-                    cmd.Parameters.Add("@BANK", SqlDbType.NVarChar, 50).Value = If(String.IsNullOrWhiteSpace(cboBank.Text), DBNull.Value, cboBank.Text.Trim())
-                    cmd.Parameters.Add("@BANK_ACCOUNT_NUMBER", SqlDbType.NVarChar, 50).Value = If(String.IsNullOrWhiteSpace(txtBankAccount.Text), DBNull.Value, txtBankAccount.Text.Trim())
-                    cmd.Parameters.Add("@PAYMENT_TERMS", SqlDbType.NVarChar, 50).Value = If(String.IsNullOrWhiteSpace(cboPaymentTerms.Text), DBNull.Value, cboPaymentTerms.Text.Trim())
+                    cmd.Parameters.AddWithValue("@BUSINESS_TYPE", If(String.IsNullOrWhiteSpace(cboBusinessType.Text), DBNull.Value, cboBusinessType.Text.Trim()))
+                    cmd.Parameters.AddWithValue("@CONTACT", If(String.IsNullOrWhiteSpace(txtContact.Text), DBNull.Value, txtContact.Text.Trim()))
+                    cmd.Parameters.AddWithValue("@EMAIL", If(String.IsNullOrWhiteSpace(txtEmail.Text), DBNull.Value, txtEmail.Text.Trim()))
+                    cmd.Parameters.AddWithValue("@TIN", txtTIN.Text.Trim())
+                    cmd.Parameters.AddWithValue("@ADDRESS", If(String.IsNullOrWhiteSpace(txtAddress.Text), DBNull.Value, txtAddress.Text.Trim()))
+                    cmd.Parameters.AddWithValue("@DTI_REG_NUMBER", If(String.IsNullOrWhiteSpace(txtDTI.Text), DBNull.Value, txtDTI.Text.Trim()))
+                    cmd.Parameters.AddWithValue("@VAT_STATUS", If(String.IsNullOrWhiteSpace(cboVatStatus.Text), "Active", cboVatStatus.Text.Trim()))
+                    cmd.Parameters.AddWithValue("@SALES_PERSON", If(String.IsNullOrWhiteSpace(txtSalesPerson.Text), DBNull.Value, txtSalesPerson.Text.Trim()))
+                    cmd.Parameters.AddWithValue("@MODE_OF_PAYMENT", If(String.IsNullOrWhiteSpace(cboModeOfPayment.Text), DBNull.Value, cboModeOfPayment.Text.Trim()))
+                    cmd.Parameters.AddWithValue("@BANK", If(String.IsNullOrWhiteSpace(cboBank.Text), DBNull.Value, cboBank.Text.Trim()))
+                    cmd.Parameters.AddWithValue("@BANK_ACCOUNT_NUMBER", If(String.IsNullOrWhiteSpace(txtBankAccount.Text), DBNull.Value, txtBankAccount.Text.Trim()))
+                    cmd.Parameters.AddWithValue("@PAYMENT_TERMS", If(String.IsNullOrWhiteSpace(cboPaymentTerms.Text), DBNull.Value, cboPaymentTerms.Text.Trim()))
 
                     conn.Open()
                     cmd.ExecuteNonQuery()

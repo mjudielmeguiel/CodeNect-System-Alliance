@@ -1,6 +1,4 @@
-﻿Imports System.Data.SqlClient
-Imports System.Data
-Imports System.Drawing
+﻿Imports MySqlConnector
 
 Public Class Ordering_Reports
 
@@ -26,32 +24,32 @@ Public Class Ordering_Reports
 
     Sub LoadData()
         Try
-            Using conn As New SqlConnection(connStr)
+            Using conn As New MySqlConnection(connStr)
                 conn.Open()
 
-                ' --- ONLY STOCK ORDERING ---
+                ' ✅ Tama na ang paggamit ng backticks sa reserved words tulad ng `FROM` at `TO`
                 Dim sqlQuery As String = "SELECT 
-                            PO_NUMBER AS [Document No],
-                            DR AS [DR Number],
-                            [FROM] AS [Vendor / Source],
-                            PREPARED_BY AS [Prepared By],
-                            REQUEST_DATE AS [Request Date],
-                            [TO] AS [To Branch],
-                            RECEIVER AS [Received By],
-                            RECEIVE_DATE AS [Receive Date],
-                            STATUS,
-                            TOTAL AS [Amount],
-                            'Stock Ordering' AS [Transaction Type]
-                         FROM dbo.STO_DATA 
-                         WHERE REQUEST_DATE BETWEEN @DateStart AND @DateEnd
-                         ORDER BY PO_NUMBER DESC"
+                            `PO_NUMBER` AS `Document No`,
+                            `DR` AS `DR Number`,
+                            `FROM` AS `Vendor / Source`,
+                            `PREPARED_BY` AS `Prepared By`,
+                            `REQUEST_DATE` AS `Request Date`,
+                            `TO` AS `To Branch`,
+                            `RECEIVER` AS `Received By`,
+                            `RECEIVE_DATE` AS `Receive Date`,
+                            `STATUS`,
+                            `TOTAL` AS `Amount`,
+                            'Stock Ordering' AS `Transaction Type`
+                         FROM `STO_DATA` 
+                         WHERE `REQUEST_DATE` BETWEEN @DateStart AND @DateEnd
+                         ORDER BY `PO_NUMBER` DESC"
 
-                Using cmd As New SqlCommand(sqlQuery, conn)
-                    cmd.Parameters.Add("@DateStart", SqlDbType.DateTime).Value = dtpFrom.Value
-                    cmd.Parameters.Add("@DateEnd", SqlDbType.DateTime).Value = dtpTo.Value
+                Using cmd As New MySqlCommand(sqlQuery, conn)
+                    cmd.Parameters.AddWithValue("@DateStart", dtpFrom.Value)
+                    cmd.Parameters.AddWithValue("@DateEnd", dtpTo.Value)
 
                     Dim dtResult As New DataTable()
-                    Dim da As New SqlDataAdapter(cmd)
+                    Dim da As New MySqlDataAdapter(cmd)
                     da.Fill(dtResult)
 
                     dgvHistory.DataSource = dtResult
@@ -75,7 +73,7 @@ Public Class Ordering_Reports
                 col.DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleRight
             End If
 
-            ' Format dates
+            ' Format dates – pareho pa rin ang itsura sa display
             If col.Name.Contains("Date") Then
                 col.DefaultCellStyle.Format = "MM/dd/yyyy hh:mm tt"
                 col.DefaultCellStyle.NullValue = ""
@@ -85,14 +83,13 @@ Public Class Ordering_Reports
         dgvHistory.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.AllCells
     End Sub
 
-    ' --- DOUBLE CLICK TO OPEN DETAILS ---
+    ' Double Click to Open Details
     Private Sub dgvHistory_CellDoubleClick(sender As Object, e As DataGridViewCellEventArgs)
         If e.RowIndex < 0 Then Exit Sub
 
         Dim row As DataGridViewRow = dgvHistory.Rows(e.RowIndex)
         Dim docNo As String = row.Cells("Document No").Value.ToString().Trim()
 
-        ' Open only Stock Ordering details
         Dim frmOrder As New frmSTO_Information()
         frmOrder.LoadOrderDetails(docNo)
         frmOrder.ShowDialog()

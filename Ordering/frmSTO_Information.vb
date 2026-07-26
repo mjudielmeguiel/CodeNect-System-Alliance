@@ -1,5 +1,4 @@
-﻿Imports System.Data
-Imports System.Data.SqlClient
+﻿Imports MySqlConnector
 
 Public Class frmSTO_Information
 
@@ -7,15 +6,15 @@ Public Class frmSTO_Information
 
     Public Sub LoadOrderDetails(poNumber As String)
         Try
-            Using conn As New SqlConnection(connStr)
+            Using conn As New MySqlConnection(connStr)
                 conn.Open()
 
                 ' --- Load Header Information from STO_DATA ---
-                Dim sqlHeader As String = "SELECT * FROM dbo.STO_DATA WHERE PO_NUMBER = @DocNo"
-                Using cmdHeader As New SqlCommand(sqlHeader, conn)
-                    cmdHeader.Parameters.Add("@DocNo", SqlDbType.VarChar).Value = poNumber
+                Dim sqlHeader As String = "SELECT * FROM `STO_DATA` WHERE `PO_NUMBER` = @DocNo"
+                Using cmdHeader As New MySqlCommand(sqlHeader, conn)
+                    cmdHeader.Parameters.AddWithValue("@DocNo", poNumber)
 
-                    Using dr As SqlDataReader = cmdHeader.ExecuteReader()
+                    Using dr As MySqlDataReader = cmdHeader.ExecuteReader()
                         If dr.Read() Then
                             lblPONumber.Text = dr("PO_NUMBER").ToString()
                             txtDR.Text = dr("DR").ToString()
@@ -25,7 +24,7 @@ Public Class frmSTO_Information
                             lblstatus.Text = dr("STATUS").ToString().Trim()
                             lbltotal.Text = Convert.ToDecimal(dr("TOTAL")).ToString("N2")
 
-                            ' ✅ Check status and disable controls if already DELIVERED
+                            ' Check status and disable controls if already DELIVERED
                             SetControlsEnabled(lblstatus.Text <> "DELIVERED")
                         End If
                     End Using
@@ -33,16 +32,16 @@ Public Class frmSTO_Information
 
                 ' --- Load Stock Ordering Items into DataGridView ---
                 Dim sqlItems As String = "SELECT 
-                    BARCODE, SKU, BRAND, DESCRIPTIONS, SIZE, 
-                    PRICE, ORDER_QTY, TOTAL, VENDOR_NAME, REMARKS 
-                    FROM Stock_Ordering 
-                    WHERE PO_NUMBER = @DocNo"
+                    `BARCODE`, `SKU`, `BRAND`, `DESCRIPTIONS`, `SIZE`, 
+                    `PRICE`, `ORDER_QTY`, `TOTAL`, `VENDOR_NAME`, `REMARKS` 
+                    FROM `Stock_Ordering` 
+                    WHERE `PO_NUMBER` = @DocNo"
 
-                Using cmdItems As New SqlCommand(sqlItems, conn)
-                    cmdItems.Parameters.Add("@DocNo", SqlDbType.VarChar).Value = poNumber
+                Using cmdItems As New MySqlCommand(sqlItems, conn)
+                    cmdItems.Parameters.AddWithValue("@DocNo", poNumber)
 
                     Dim dtItems As New DataTable()
-                    Using da As New SqlDataAdapter(cmdItems)
+                    Using da As New MySqlDataAdapter(cmdItems)
                         da.Fill(dtItems)
                     End Using
 
@@ -57,7 +56,7 @@ Public Class frmSTO_Information
         End Try
     End Sub
 
-    ' --- ✅ New method to enable/disable all controls ---
+    ' Enable/disable all controls based on status
     Private Sub SetControlsEnabled(enabled As Boolean)
         txtDR.Enabled = enabled
         btnSubmit.Enabled = enabled
@@ -81,7 +80,6 @@ Public Class frmSTO_Information
             .Columns("TOTAL").DefaultCellStyle.Format = "N2"
             .AutoResizeColumns()
 
-            ' Make the whole row selectable
             .SelectionMode = DataGridViewSelectionMode.FullRowSelect
             .ReadOnly = True
         End With
@@ -91,9 +89,8 @@ Public Class frmSTO_Information
         Me.Close()
     End Sub
 
-    ' --- Double Click to Receive Item ---
+    ' Double Click to Receive Item
     Private Sub dgvItems_CellDoubleClick(sender As Object, e As DataGridViewCellEventArgs) Handles dgvItems.CellDoubleClick
-        ' Only allow double-click if status is not DELIVERED
         If lblstatus.Text.Trim() = "DELIVERED" Then
             MessageBox.Show("This order is already DELIVERED. Editing is disabled.", "Access Denied", MessageBoxButtons.OK, MessageBoxIcon.Information)
             Return
@@ -118,27 +115,24 @@ Public Class frmSTO_Information
 
             frmAddStock.ShowDialog()
 
-            ' Refresh data after closing the receive form
+            ' Refresh after receiving
             LoadOrderDetails(lblPONumber.Text)
         End If
     End Sub
 
-    ' --- ✅ UPDATED SUBMIT BUTTON WITH DR VALIDATION ---
+    ' Submit Button – Mark as DELIVERED
     Private Sub btnSubmit_Click(sender As Object, e As EventArgs) Handles btnSubmit.Click
         Try
-            ' Block if already delivered
             If lblstatus.Text.Trim() = "DELIVERED" Then
                 MessageBox.Show("This order is already DELIVERED.", "Info", MessageBoxButtons.OK, MessageBoxIcon.Information)
                 Return
             End If
 
-            ' Check if PO Number exists
             If String.IsNullOrWhiteSpace(lblPONumber.Text) Then
                 MessageBox.Show("No Order selected.", "Warning", MessageBoxButtons.OK, MessageBoxIcon.Warning)
                 Return
             End If
 
-            ' Check if DR Number is empty
             If String.IsNullOrWhiteSpace(txtDR.Text.Trim()) Then
                 MessageBox.Show("⚠️ Please enter a DR Number first before submitting!", "Missing DR Number", MessageBoxButtons.OK, MessageBoxIcon.Exclamation)
                 txtDR.Focus()
@@ -150,34 +144,37 @@ Public Class frmSTO_Information
 
             If result <> DialogResult.Yes Then Return
 
-            Using conn As New SqlConnection(connStr)
+            Using conn As New MySqlConnection(connStr)
                 conn.Open()
 
-                ' Update status, DR number and receive date
+                ' Update status, DR, and receive date
                 Dim sqlUpdate As String = "
-                    UPDATE dbo.STO_DATA
+                    UPDATE `STO_DATA`
                     SET 
-                        STATUS = 'DELIVERED',
-                        RECEIVE_DATE = GETDATE(),
-                        DR = @DRNumber
-                    WHERE PO_NUMBER = @PONumber;
+                        `STATUS` = 'DELIVERED',
+                        `RECEIVE_DATE` = NOW(),
+                        `DR` = @DRNumber
+                    WHERE `PO_NUMBER` = @PONumber;
                 "
 
-                Using cmd As New SqlCommand(sqlUpdate, conn)
-                    cmd.Parameters.Add("@PONumber", SqlDbType.VarChar, 15).Value = lblPONumber.Text
-                    cmd.Parameters.Add("@DRNumber", SqlDbType.NChar, 20).Value = txtDR.Text.Trim()
+                Using cmd As New MySqlCommand(sqlUpdate, conn)
+                    cmd.Parameters.AddWithValue("@PONumber", lblPONumber.Text)
+                    cmd.Parameters.AddWithValue("@DRNumber", txtDR.Text.Trim())
                     cmd.ExecuteNonQuery()
                 End Using
 
                 MessageBox.Show("✅ Order successfully submitted and marked as DELIVERED.", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information)
 
-                ' Refresh to show updated status and disable controls
                 LoadOrderDetails(lblPONumber.Text)
             End Using
 
         Catch ex As Exception
             MessageBox.Show("Error submitting Order: " & ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
         End Try
+    End Sub
+
+    Private Sub frmSTO_Information_Load(sender As Object, e As EventArgs) Handles MyBase.Load
+
     End Sub
 
 End Class

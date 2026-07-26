@@ -1,5 +1,5 @@
 ﻿Imports System.Data
-Imports System.Data.SqlClient
+Imports MySqlConnector
 Imports System.IO
 Imports System.Drawing
 Imports System.Drawing.Imaging
@@ -20,6 +20,7 @@ Public Class frmADDProduct_Manual
 
     Private Current_AccountID As String = ""
     Private Current_BranchID As String = ""
+    Private connStr As String = DBConnection.connStr
 
     Private Const phBarcode As String = "Enter barcode..."
     Private Const phQty As String = "Enter quantity..."
@@ -33,12 +34,13 @@ Public Class frmADDProduct_Manual
                 Return
             End If
 
-            Using conn As New SqlConnection(connStr)
-                Dim query As String = "SELECT TOP 1 ACCOUNT_ID, BRANCH_ID FROM dbo.User_Accounts WHERE RTRIM(LTRIM(BRANCH)) = RTRIM(LTRIM(@BranchName)) AND STATUS = 'Active' ORDER BY ID DESC"
-                Using cmd As New SqlCommand(query, conn)
-                    cmd.Parameters.Add("@BranchName", SqlDbType.NVarChar, 100).Value = BranchNameFromDashboard
+            Using conn As New MySqlConnection(connStr)
+                ' ✅ TOP 1 → LIMIT 1, dbo. removed, TRIM() instead of RTRIM+LTRIM
+                Dim query As String = "SELECT `ACCOUNT_ID`, `BRANCH_ID` FROM `User_Accounts` WHERE TRIM(`BRANCH`) = TRIM(@BranchName) AND `STATUS` = 'Active' ORDER BY `ID` DESC LIMIT 1"
+                Using cmd As New MySqlCommand(query, conn)
+                    cmd.Parameters.AddWithValue("@BranchName", BranchNameFromDashboard)
                     conn.Open()
-                    Dim dr As SqlDataReader = cmd.ExecuteReader()
+                    Dim dr As MySqlDataReader = cmd.ExecuteReader()
                     If dr.Read() Then
                         Current_AccountID = dr("ACCOUNT_ID").ToString().Trim()
                         Current_BranchID = dr("BRANCH_ID").ToString().Trim()
@@ -89,10 +91,11 @@ Public Class frmADDProduct_Manual
             Dim rnd As New Random()
             Do
                 newSKU = rnd.Next(100000, 999999).ToString("D6")
-                Using conn As New SqlConnection(connStr)
-                    Dim cmd As New SqlCommand("SELECT COUNT(*) FROM inv.Inventory_Master_file WHERE SKU = @SKU AND ACCOUNT_ID = @AccID", conn)
-                    cmd.Parameters.Add("@SKU", SqlDbType.NChar, 15).Value = newSKU
-                    cmd.Parameters.Add("@AccID", SqlDbType.NVarChar, 50).Value = Current_AccountID
+                Using conn As New MySqlConnection(connStr)
+                    ' ✅ inv. prefix removed, backticks added
+                    Dim cmd As New MySqlCommand("SELECT COUNT(*) FROM `Inventory_Master_file` WHERE `SKU` = @SKU AND `ACCOUNT_ID` = @AccID", conn)
+                    cmd.Parameters.AddWithValue("@SKU", newSKU)
+                    cmd.Parameters.AddWithValue("@AccID", Current_AccountID)
                     conn.Open()
                     exists = (CInt(cmd.ExecuteScalar()) > 0)
                 End Using
@@ -223,7 +226,7 @@ Public Class frmADDProduct_Manual
         lblSKU.Text = ""
         txtDescription.Text = ""
         txtBrand.Text = ""
-        cboCategory.selectedindex = -1
+        cboCategory.SelectedIndex = -1
         cboVendorCode.SelectedIndex = -1
         cboVendor.Text = ""
         txtUnit.Text = ""
@@ -268,13 +271,14 @@ Public Class frmADDProduct_Manual
         End If
 
         Try
-            Using conn As New SqlConnection(connStr)
-                Dim checkQuery As String = "SELECT COUNT(*) FROM inv.Inventory_Master_file WHERE ACCOUNT_ID = @AccID AND BRANCH_ID = @BrID AND (BARCODE = @Barcode OR SKU = @SKU)"
-                Using cmdCheck As New SqlCommand(checkQuery, conn)
-                    cmdCheck.Parameters.Add("@AccID", SqlDbType.NVarChar, 50).Value = Current_AccountID
-                    cmdCheck.Parameters.Add("@BrID", SqlDbType.NVarChar, 50).Value = Current_BranchID
-                    cmdCheck.Parameters.Add("@Barcode", SqlDbType.NChar, 15).Value = txtBarcode.Text.Trim()
-                    cmdCheck.Parameters.Add("@SKU", SqlDbType.NChar, 15).Value = lblSKU.Text.Trim()
+            Using conn As New MySqlConnection(connStr)
+                ' ✅ Updated table/column names
+                Dim checkQuery As String = "SELECT COUNT(*) FROM `Inventory_Master_file` WHERE `ACCOUNT_ID` = @AccID AND `BRANCH_ID` = @BrID AND (`BARCODE` = @Barcode OR `SKU` = @SKU)"
+                Using cmdCheck As New MySqlCommand(checkQuery, conn)
+                    cmdCheck.Parameters.AddWithValue("@AccID", Current_AccountID)
+                    cmdCheck.Parameters.AddWithValue("@BrID", Current_BranchID)
+                    cmdCheck.Parameters.AddWithValue("@Barcode", txtBarcode.Text.Trim())
+                    cmdCheck.Parameters.AddWithValue("@SKU", lblSKU.Text.Trim())
                     conn.Open()
                     Dim existingCount As Integer = CInt(cmdCheck.ExecuteScalar())
                     If existingCount > 0 Then
@@ -293,29 +297,24 @@ Public Class frmADDProduct_Manual
 
         Try
             Dim imgBytes As Byte() = ImageToByteArray(picProduct.Image)
-            Using conn As New SqlConnection(connStr)
-                Dim query As String = "INSERT INTO inv.Inventory_Master_file (ACCOUNT_ID, BRANCH_ID, PRODUCT_IMAGE, BARCODE, SKU, BRAND, DESCRIPTIONS, CATEGORY, SIZE, PRICE, UNIT, AVAILABLE, VENDOR_CODE, VENDOR) VALUES (@ACCOUNT, @BRANCH, @PRODUCT_IMAGE, @BARCODE, @SKU, @BRAND, @DESCRIPTIONS, @CATEGORY, @SIZE, @PRICE, @UNIT, @AVAILABLE, @VENDOR_CODE, @VENDOR)"
-                Using cmd As New SqlCommand(query, conn)
-                    cmd.Parameters.Add("@ACCOUNT", SqlDbType.NVarChar, 50).Value = Current_AccountID
-                    cmd.Parameters.Add("@BRANCH", SqlDbType.NVarChar, 50).Value = Current_BranchID
-                    cmd.Parameters.Add("@PRODUCT_IMAGE", SqlDbType.VarBinary).Value = If(imgBytes IsNot Nothing, imgBytes, DBNull.Value)
-                    cmd.Parameters.Add("@BARCODE", SqlDbType.NChar, 15).Value = txtBarcode.Text.Trim()
-                    cmd.Parameters.Add("@SKU", SqlDbType.NChar, 15).Value = lblSKU.Text.Trim()
-                    cmd.Parameters.Add("@BRAND", SqlDbType.VarChar, 255).Value = txtBrand.Text.Trim()
-                    cmd.Parameters.Add("@DESCRIPTIONS", SqlDbType.VarChar, 255).Value = txtDescription.Text.Trim()
-                    cmd.Parameters.Add("@CATEGORY", SqlDbType.VarChar, 255).Value = cboCategory.Text.Trim()
-                    cmd.Parameters.Add("@SIZE", SqlDbType.NVarChar, 20).Value = txtSize.Text.Trim()
-
-                    Dim priceParam As New SqlParameter("@PRICE", SqlDbType.Decimal)
-                    priceParam.Precision = 18
-                    priceParam.Scale = 2
-                    priceParam.Value = CDec(txtPrice.Text.Trim())
-                    cmd.Parameters.Add(priceParam)
-
-                    cmd.Parameters.Add("@UNIT", SqlDbType.NChar, 10).Value = txtUnit.Text.Trim()
-                    cmd.Parameters.Add("@AVAILABLE", SqlDbType.Int).Value = CInt(txtStockAvailable.Text.Trim())
-                    cmd.Parameters.Add("@VENDOR_CODE", SqlDbType.NVarChar, 10).Value = cboVendorCode.Text.Trim()
-                    cmd.Parameters.Add("@VENDOR", SqlDbType.VarChar, 100).Value = cboVendor.Text.Trim()
+            Using conn As New MySqlConnection(connStr)
+                ' ✅ Updated INSERT query for MySQL
+                Dim query As String = "INSERT INTO `Inventory_Master_file` (`ACCOUNT_ID`, `BRANCH_ID`, `PRODUCT_IMAGE`, `BARCODE`, `SKU`, `BRAND`, `DESCRIPTIONS`, `CATEGORY`, `SIZE`, `PRICE`, `UNIT`, `AVAILABLE`, `VENDOR_CODE`, `VENDOR`) VALUES (@ACCOUNT, @BRANCH, @PRODUCT_IMAGE, @BARCODE, @SKU, @BRAND, @DESCRIPTIONS, @CATEGORY, @SIZE, @PRICE, @UNIT, @AVAILABLE, @VENDOR_CODE, @VENDOR)"
+                Using cmd As New MySqlCommand(query, conn)
+                    cmd.Parameters.AddWithValue("@ACCOUNT", Current_AccountID)
+                    cmd.Parameters.AddWithValue("@BRANCH", Current_BranchID)
+                    cmd.Parameters.AddWithValue("@PRODUCT_IMAGE", If(imgBytes IsNot Nothing, imgBytes, DBNull.Value))
+                    cmd.Parameters.AddWithValue("@BARCODE", txtBarcode.Text.Trim())
+                    cmd.Parameters.AddWithValue("@SKU", lblSKU.Text.Trim())
+                    cmd.Parameters.AddWithValue("@BRAND", txtBrand.Text.Trim())
+                    cmd.Parameters.AddWithValue("@DESCRIPTIONS", txtDescription.Text.Trim())
+                    cmd.Parameters.AddWithValue("@CATEGORY", cboCategory.Text.Trim())
+                    cmd.Parameters.AddWithValue("@SIZE", txtSize.Text.Trim())
+                    cmd.Parameters.AddWithValue("@PRICE", CDec(txtPrice.Text.Trim()))
+                    cmd.Parameters.AddWithValue("@UNIT", txtUnit.Text.Trim())
+                    cmd.Parameters.AddWithValue("@AVAILABLE", CInt(txtStockAvailable.Text.Trim()))
+                    cmd.Parameters.AddWithValue("@VENDOR_CODE", cboVendorCode.Text.Trim())
+                    cmd.Parameters.AddWithValue("@VENDOR", cboVendor.Text.Trim())
 
                     conn.Open()
                     cmd.ExecuteNonQuery()

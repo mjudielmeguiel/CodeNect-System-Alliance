@@ -1,4 +1,4 @@
-﻿Imports System.Data.SqlClient
+﻿Imports MySqlConnector
 
 Public Class frmOnlinePayment
 
@@ -83,15 +83,15 @@ Public Class frmOnlinePayment
 
     Private Function SavePaymentToDatabase() As Boolean
         Try
-            Using conn As New SqlConnection(DBConnection.connStr)
+            Using conn As New MySqlConnection(DBConnection.connStr)
                 Dim sql As String = "
-                    INSERT INTO dbo.Payments (
-                        OrderID, PaymentMethod, ReferenceNumber, AmountPaid, Sender, Remarks, PaymentDate, Status
+                    INSERT INTO `Payments` (
+                        `OrderID`, `PaymentMethod`, `ReferenceNumber`, `AmountPaid`, `Sender`, `Remarks`, `PaymentDate`, `Status`
                     ) VALUES (
-                        @OrderID, @Method, @RefNo, @Amount, @Sender, @Remarks, GETDATE(), 'Completed'
+                        @OrderID, @Method, @RefNo, @Amount, @Sender, @Remarks, NOW(), 'Completed'
                     )"
 
-                Using cmd As New SqlCommand(sql, conn)
+                Using cmd As New MySqlCommand(sql, conn)
                     cmd.Parameters.AddWithValue("@OrderID", TransID)
                     cmd.Parameters.AddWithValue("@Method", PaymentMethod)
                     cmd.Parameters.AddWithValue("@RefNo", If(String.IsNullOrWhiteSpace(ReferenceNo), DBNull.Value, ReferenceNo))

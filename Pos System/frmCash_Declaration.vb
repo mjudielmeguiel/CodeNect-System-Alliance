@@ -1,4 +1,4 @@
-﻿Imports System.Data.SqlClient
+﻿' Tinanggal na ang Imports System.Data.SqlClient dahil hindi ito ginagamit dito
 
 Public Class frmCash_Declaration
 
@@ -148,4 +148,5 @@ Public Class frmCash_Declaration
             e.Handled = True
         End If
     End Sub
+
 End Class

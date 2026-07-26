@@ -1,6 +1,9 @@
-﻿Imports System.Data.SqlClient
+﻿Imports System.Data
+Imports MySqlConnector
 
 Public Class frmSalesTransactions
+
+    Private connStr As String = DBConnection.connStr
 
     Private Sub frmSalesTransactions_Load(sender As Object, e As EventArgs) Handles MyBase.Load
         ' Set default date range: Today
@@ -17,11 +20,11 @@ Public Class frmSalesTransactions
 
     Private Sub LoadBranches()
         Try
-            Using conn As New SqlConnection(DBConnection.connStr)
-                ' ✅ Gamitin ang tamang table at column names
-                Dim sql As String = "SELECT DISTINCT BRANCH_ID, BRANCH FROM dbo.Branches ORDER BY BRANCH"
-                Using cmd As New SqlCommand(sql, conn)
-                    Dim da As New SqlDataAdapter(cmd)
+            Using conn As New MySqlConnection(connStr)
+                ' ✅ dbo. removed, backticks added
+                Dim sql As String = "SELECT DISTINCT `BRANCH_ID`, `BRANCH` FROM `Branches` ORDER BY `BRANCH`"
+                Using cmd As New MySqlCommand(sql, conn)
+                    Dim da As New MySqlDataAdapter(cmd)
                     Dim dt As New DataTable()
                     da.Fill(dt)
 
@@ -43,10 +46,11 @@ Public Class frmSalesTransactions
     ' Load list of cashiers
     Private Sub LoadCashiers()
         Try
-            Using conn As New SqlConnection(DBConnection.connStr)
-                Dim sql As String = "SELECT DISTINCT Cashier_ID, Cashier_Name FROM dbo.Sales_Transactions ORDER BY Cashier_Name"
-                Using cmd As New SqlCommand(sql, conn)
-                    Dim da As New SqlDataAdapter(cmd)
+            Using conn As New MySqlConnection(connStr)
+                ' ✅ dbo. removed, backticks added
+                Dim sql As String = "SELECT DISTINCT `Cashier_ID`, `Cashier_Name` FROM `Sales_Transactions` ORDER BY `Cashier_Name`"
+                Using cmd As New MySqlCommand(sql, conn)
+                    Dim da As New MySqlDataAdapter(cmd)
                     Dim dt As New DataTable()
                     da.Fill(dt)
 
@@ -65,46 +69,46 @@ Public Class frmSalesTransactions
         End Try
     End Sub
 
-    ' ✅ Changed from Private to Public so it can be called from other forms
+    ' ✅ Public para matawagan mula sa ibang forms
     Public Sub LoadTransactions()
         Try
-            Using conn As New SqlConnection(DBConnection.connStr)
+            Using conn As New MySqlConnection(connStr)
                 Dim sql As New Text.StringBuilder()
                 sql.AppendLine("SELECT")
-                sql.AppendLine("    Transaction_ID,")
-                sql.AppendLine("    Branch_Code,")
-                sql.AppendLine("    Cashier_ID,")
-                sql.AppendLine("    Cashier_Name,")
-                sql.AppendLine("    Transaction_Date,")
-                sql.AppendLine("    Transaction_Time,")
-                sql.AppendLine("    Item_Count,")
-                sql.AppendLine("    Subtotal_Amount,")
-                sql.AppendLine("    VATable_Amount,")
-                sql.AppendLine("    VAT_Amount,")
-                sql.AppendLine("    Discount_Type,")
-                sql.AppendLine("    Discount_Percent,")
-                sql.AppendLine("    Discount_Amount,")
-                sql.AppendLine("    Amount_Due,")
-                sql.AppendLine("    Amount_Paid,")
-                sql.AppendLine("    Cash_Amount,")
-                sql.AppendLine("    Online_Amount,")
-                sql.AppendLine("    Change_Amount,")
-                sql.AppendLine("    Payment_Method,")
-                sql.AppendLine("    Status")
-                sql.AppendLine("FROM dbo.Sales_Transactions")
-                sql.AppendLine("WHERE Transaction_Date BETWEEN @DateFrom AND @DateTo")
+                sql.AppendLine("    `Transaction_ID`,")
+                sql.AppendLine("    `Branch_Code`,")
+                sql.AppendLine("    `Cashier_ID`,")
+                sql.AppendLine("    `Cashier_Name`,")
+                sql.AppendLine("    `Transaction_Date`,")
+                sql.AppendLine("    `Transaction_Time`,")
+                sql.AppendLine("    `Item_Count`,")
+                sql.AppendLine("    `Subtotal_Amount`,")
+                sql.AppendLine("    `VATable_Amount`,")
+                sql.AppendLine("    `VAT_Amount`,")
+                sql.AppendLine("    `Discount_Type`,")
+                sql.AppendLine("    `Discount_Percent`,")
+                sql.AppendLine("    `Discount_Amount`,")
+                sql.AppendLine("    `Amount_Due`,")
+                sql.AppendLine("    `Amount_Paid`,")
+                sql.AppendLine("    `Cash_Amount`,")
+                sql.AppendLine("    `Online_Amount`,")
+                sql.AppendLine("    `Change_Amount`,")
+                sql.AppendLine("    `Payment_Method`,")
+                sql.AppendLine("    `Status`")
+                sql.AppendLine("FROM `Sales_Transactions`")
+                sql.AppendLine("WHERE `Transaction_Date` BETWEEN @DateFrom AND @DateTo")
 
                 ' Add filters if selected
                 If Not String.IsNullOrEmpty(cboBranch.SelectedValue?.ToString()) Then
-                    sql.AppendLine("AND Branch_Code = @BranchCode")
+                    sql.AppendLine("AND `Branch_Code` = @BranchCode")
                 End If
                 If Not String.IsNullOrEmpty(cboCashier.SelectedValue?.ToString()) Then
-                    sql.AppendLine("AND Cashier_ID = @CashierID")
+                    sql.AppendLine("AND `Cashier_ID` = @CashierID")
                 End If
 
-                sql.AppendLine("ORDER BY Transaction_Date DESC, Transaction_Time DESC")
+                sql.AppendLine("ORDER BY `Transaction_Date` DESC, `Transaction_Time` DESC")
 
-                Using cmd As New SqlCommand(sql.ToString(), conn)
+                Using cmd As New MySqlCommand(sql.ToString(), conn)
                     cmd.Parameters.AddWithValue("@DateFrom", dtpFrom.Value.Date)
                     cmd.Parameters.AddWithValue("@DateTo", dtpTo.Value.Date.AddDays(1).AddSeconds(-1))
 
@@ -115,7 +119,7 @@ Public Class frmSalesTransactions
                         cmd.Parameters.AddWithValue("@CashierID", cboCashier.SelectedValue.ToString())
                     End If
 
-                    Dim da As New SqlDataAdapter(cmd)
+                    Dim da As New MySqlDataAdapter(cmd)
                     Dim dt As New DataTable()
                     da.Fill(dt)
 
@@ -141,7 +145,7 @@ Public Class frmSalesTransactions
             .ReadOnly = True
             .AllowUserToAddRows = False
 
-            ' ✅ Hide Branch and Cashier ID columns
+            ' Hide Branch and Cashier ID columns
             .Columns("Branch_Code").Visible = False
             .Columns("Cashier_ID").Visible = False
 
@@ -202,4 +206,5 @@ Public Class frmSalesTransactions
         cboCashier.SelectedIndex = 0
         LoadTransactions()
     End Sub
+
 End Class

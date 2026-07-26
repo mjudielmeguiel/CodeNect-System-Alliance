@@ -1,6 +1,5 @@
-﻿Imports System.Data.SqlClient
-Imports System.IO
-Imports ClosedXML.Excel
+﻿Imports System.IO
+Imports MySqlConnector
 
 Public Class frmBranch_Info
 
@@ -16,11 +15,11 @@ Public Class frmBranch_Info
         If String.IsNullOrEmpty(Login.LoggedInUserID) Then Return
 
         Try
-            Using conn As New SqlConnection(connStr)
+            Using conn As New MySqlConnection(DBConnection.connStr)
                 conn.Open()
-                Dim cmdText As String = "UPDATE dbo.User_Accounts SET STATUS = 'OFFLINE' WHERE ID = @UserID"
+                Dim cmdText As String = "UPDATE `User_Accounts` SET `STATUS` = 'OFFLINE' WHERE `ID` = @UserID"
 
-                Using cmd As New SqlCommand(cmdText, conn)
+                Using cmd As New MySqlCommand(cmdText, conn)
                     cmd.Parameters.AddWithValue("@UserID", Login.LoggedInUserID)
                     cmd.ExecuteNonQuery()
                 End Using
@@ -37,15 +36,16 @@ Public Class frmBranch_Info
 
     Private Sub LoadBranchDetails()
         Try
-            Dim Sql As String = "SELECT ACCOUNT_ID, ACCOUNT, BRANCH_ID, BRANCH, TIN, BUSINESS_TYPE, ADDRESS, EMAIL, CONTACT, MANAGER, BUSINESS_LOGO " &
-                                 "FROM dbo.Branches " &
-                                 "WHERE BRANCH_ID = @BranchID"
+            ' ✅ Tugma sa table at column na `BUSINESS_LO` mo
+            Dim Sql As String = "SELECT `ACCOUNT_ID`, `ACCOUNT`, `BRANCH_ID`, `BRANCH`, `TIN`, `BUSINESS_TYPE`, `ADDRESS`, `EMAIL`, `CONTACT`, `MANAGER`, `BUSINESS_LO` " &
+                                 "FROM `branches` " &
+                                 "WHERE `BRANCH_ID` = @BranchID"
 
-            Using Conn As New SqlConnection(connStr)
-                Using Cmd As New SqlCommand(Sql, Conn)
+            Using Conn As New MySqlConnection(DBConnection.connStr)
+                Using Cmd As New MySqlCommand(Sql, Conn)
                     Cmd.Parameters.AddWithValue("@BranchID", SelectedBranchID)
                     Conn.Open()
-                    Dim Dr As SqlDataReader = Cmd.ExecuteReader()
+                    Dim Dr As MySqlDataReader = Cmd.ExecuteReader()
 
                     If Dr.Read() Then
                         lblAccountID.Text = Dr("ACCOUNT_ID").ToString()
@@ -59,8 +59,8 @@ Public Class frmBranch_Info
                         lblContact.Text = Dr("CONTACT").ToString()
                         lblManager.Text = If(Not IsDBNull(Dr("MANAGER")), Dr("MANAGER").ToString(), "")
 
-                        If Not IsDBNull(Dr("BUSINESS_LOGO")) Then
-                            Dim imgBytes As Byte() = CType(Dr("BUSINESS_LOGO"), Byte())
+                        If Not IsDBNull(Dr("BUSINESS_LO")) Then
+                            Dim imgBytes As Byte() = CType(Dr("BUSINESS_LO"), Byte())
                             Using ms As New MemoryStream(imgBytes)
                                 picLogo.Image = Image.FromStream(ms)
                                 picLogo.SizeMode = PictureBoxSizeMode.StretchImage
@@ -80,29 +80,30 @@ Public Class frmBranch_Info
 
     Private Sub LoadProductsForBranch(Optional searchText As String = "")
         Try
+            ' ✅ Kung ang table ay `Inventory_Master_file` sa MySQL, walang `inv.` schema
             Dim Sql As String = "SELECT " &
-                                "BARCODE, SKU, BRAND, DESCRIPTIONS, CATEGORY, SIZE, " &
-                                "PRICE, UNIT, AVAILABLE, VENDOR_CODE " &
-                                "FROM inv.Inventory_Master_file " &
-                                "WHERE BRANCH_ID = @BranchID"
+                                "`BARCODE`, `SKU`, `BRAND`, `DESCRIPTIONS`, `CATEGORY`, `SIZE`, " &
+                                "`PRICE`, `UNIT`, `AVAILABLE`, `VENDOR_CODE` " &
+                                "FROM `Inventory_Master_file` " &
+                                "WHERE `BRANCH_ID` = @BranchID"
 
             If Not String.IsNullOrWhiteSpace(searchText) Then
-                Sql &= " AND (BARCODE LIKE '%' + @Search + '%' OR " &
-                       "SKU LIKE '%' + @Search + '%' OR " &
-                       "BRAND LIKE '%' + @Search + '%' OR " &
-                       "DESCRIPTIONS LIKE '%' + @Search + '%')"
+                Sql &= " AND (`BARCODE` LIKE CONCAT('%', @Search, '%') OR " &
+                       "`SKU` LIKE CONCAT('%', @Search, '%') OR " &
+                       "`BRAND` LIKE CONCAT('%', @Search, '%') OR " &
+                       "`DESCRIPTIONS` LIKE CONCAT('%', @Search, '%'))"
             End If
 
-            Sql &= " ORDER BY DESCRIPTIONS ASC"
+            Sql &= " ORDER BY `DESCRIPTIONS` ASC"
 
-            Using Conn As New SqlConnection(connStr)
-                Using Cmd As New SqlCommand(Sql, Conn)
+            Using Conn As New MySqlConnection(DBConnection.connStr)
+                Using Cmd As New MySqlCommand(Sql, Conn)
                     Cmd.Parameters.AddWithValue("@BranchID", SelectedBranchID)
                     If Not String.IsNullOrWhiteSpace(searchText) Then
                         Cmd.Parameters.AddWithValue("@Search", searchText)
                     End If
 
-                    Dim Da As New SqlDataAdapter(Cmd)
+                    Dim Da As New MySqlDataAdapter(Cmd)
                     Dim Dt As New DataTable()
                     Da.Fill(Dt)
 

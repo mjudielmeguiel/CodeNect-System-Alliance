@@ -1,6 +1,9 @@
-﻿Imports System.Data.SqlClient
+﻿Imports System.Data
+Imports MySqlConnector
 
 Public Class frmDailySalesSummary
+
+    Private connStr As String = DBConnection.connStr
 
     Private Sub frmDailySalesSummary_Load(sender As Object, e As EventArgs) Handles MyBase.Load
         ' Default: show today's summary
@@ -16,11 +19,11 @@ Public Class frmDailySalesSummary
 
     Private Sub LoadBranches()
         Try
-            Using conn As New SqlConnection(DBConnection.connStr)
-                ' ✅ Tamang table at columns
-                Dim sql As String = "SELECT DISTINCT BRANCH_ID, BRANCH FROM dbo.Branches ORDER BY BRANCH"
-                Using cmd As New SqlCommand(sql, conn)
-                    Dim da As New SqlDataAdapter(cmd)
+            Using conn As New MySqlConnection(connStr)
+                ' ✅ dbo. removed, backticks added
+                Dim sql As String = "SELECT DISTINCT `BRANCH_ID`, `BRANCH` FROM `Branches` ORDER BY `BRANCH`"
+                Using cmd As New MySqlCommand(sql, conn)
+                    Dim da As New MySqlDataAdapter(cmd)
                     Dim dt As New DataTable()
                     da.Fill(dt)
 
@@ -42,30 +45,30 @@ Public Class frmDailySalesSummary
     ' Load summary data from Daily_Sales_Summary table
     Private Sub LoadSalesSummary()
         Try
-            Using conn As New SqlConnection(DBConnection.connStr)
+            Using conn As New MySqlConnection(connStr)
                 Dim sql As New Text.StringBuilder()
                 sql.AppendLine("SELECT")
-                sql.AppendLine("    SummaryID,")
-                sql.AppendLine("    Branch_Code,")
-                sql.AppendLine("    Cashier_ID,")
-                sql.AppendLine("    Cashier_Name,")
-                sql.AppendLine("    Transaction_Date,")
-                sql.AppendLine("    Total_Transactions,")
-                sql.AppendLine("    Total_Sales_Amount,")
-                sql.AppendLine("    Total_Cash,")
-                sql.AppendLine("    Total_Online,")
-                sql.AppendLine("    Date_Added")
-                sql.AppendLine("FROM dbo.Daily_Sales_Summary")
-                sql.AppendLine("WHERE Transaction_Date BETWEEN @DateFrom AND @DateTo")
+                sql.AppendLine("    `SummaryID`,")
+                sql.AppendLine("    `Branch_Code`,")
+                sql.AppendLine("    `Cashier_ID`,")
+                sql.AppendLine("    `Cashier_Name`,")
+                sql.AppendLine("    `Transaction_Date`,")
+                sql.AppendLine("    `Total_Transactions`,")
+                sql.AppendLine("    `Total_Sales_Amount`,")
+                sql.AppendLine("    `Total_Cash`,")
+                sql.AppendLine("    `Total_Online`,")
+                sql.AppendLine("    `Date_Added`")
+                sql.AppendLine("FROM `Daily_Sales_Summary`")
+                sql.AppendLine("WHERE `Transaction_Date` BETWEEN @DateFrom AND @DateTo")
 
                 ' Add branch filter if selected
                 If Not String.IsNullOrEmpty(cboBranch.SelectedValue?.ToString()) Then
-                    sql.AppendLine("AND Branch_Code = @BranchCode")
+                    sql.AppendLine("AND `Branch_Code` = @BranchCode")
                 End If
 
-                sql.AppendLine("ORDER BY Transaction_Date DESC, Branch_Code, Cashier_Name")
+                sql.AppendLine("ORDER BY `Transaction_Date` DESC, `Branch_Code`, `Cashier_Name`")
 
-                Using cmd As New SqlCommand(sql.ToString(), conn)
+                Using cmd As New MySqlCommand(sql.ToString(), conn)
                     cmd.Parameters.AddWithValue("@DateFrom", dtpFrom.Value.Date)
                     cmd.Parameters.AddWithValue("@DateTo", dtpTo.Value.Date)
 
@@ -73,7 +76,7 @@ Public Class frmDailySalesSummary
                         cmd.Parameters.AddWithValue("@BranchCode", cboBranch.SelectedValue.ToString())
                     End If
 
-                    Dim da As New SqlDataAdapter(cmd)
+                    Dim da As New MySqlDataAdapter(cmd)
                     Dim dt As New DataTable()
                     da.Fill(dt)
 
@@ -169,7 +172,7 @@ Public Class frmDailySalesSummary
         frmTrans.dtpFrom.Value = selectedDate.Date
         frmTrans.dtpTo.Value = selectedDate.Date.AddDays(1).AddSeconds(-1)
 
-        ' ✅ Fixed: Filter branch using correct column name BRANCH_ID
+        ' ✅ Filter branch using correct column name BRANCH_ID
         If frmTrans.cboBranch.DataSource IsNot Nothing Then
             Dim branchView As DataView = CType(frmTrans.cboBranch.DataSource, DataTable).DefaultView
             branchView.RowFilter = $"BRANCH_ID = '{selectedBranch.Replace("'", "''")}'"
@@ -199,7 +202,7 @@ Public Class frmDailySalesSummary
         ' Set form title
         frmTrans.Text = $"Transactions: {selectedDate:MMM dd, yyyy} | {selectedBranch} | {selectedCashierName}"
 
-        ' ✅ Fixed: Embed frmTrans inside Dashboard Panel2 correctly
+        ' ✅ Embed frmTrans inside Dashboard Panel2 correctly
         DashBoard.Panel2.Controls.Clear()
         frmTrans.TopLevel = False
         frmTrans.FormBorderStyle = FormBorderStyle.None
