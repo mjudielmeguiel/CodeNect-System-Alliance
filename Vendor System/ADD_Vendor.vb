@@ -86,8 +86,39 @@ Public Class ADD_Vendor
         End Try
     End Sub
 
-    ' Save new vendor record
-    Private Sub btnSave_Click(sender As Object, e As EventArgs) Handles btnSave.Click
+    ' Reset all input fields
+    Private Sub ClearAll()
+        txtVendor.Clear()
+        txtTIN.Clear()
+        txtContact.Clear()
+        txtEmail.Clear()
+        txtSalesPerson.Clear()
+        cboBusinessType.SelectedIndex = -1
+        txtAddress.Clear()
+        txtDTI.Clear()
+        cboVatStatus.SelectedIndex = 0
+        cboModeOfPayment.SelectedIndex = -1
+        cboBank.SelectedIndex = -1
+        txtBankAccount.Clear()
+        cboPaymentTerms.SelectedIndex = -1
+        picLogo.Image = Nothing
+    End Sub
+
+    Private Sub btnCancel_Click_1(sender As Object, e As EventArgs) Handles btnCancel.Click
+        If MessageBox.Show("Do you want to clear all entries?", "Confirm", MessageBoxButtons.YesNo, MessageBoxIcon.Question) = DialogResult.Yes Then
+            ClearAll()
+            GenerateVendorCode()
+        End If
+    End Sub
+
+    Private Sub Button1_Click(sender As Object, e As EventArgs) Handles btnclose2.Click
+        If MessageBox.Show("Do you want to clear all entries?", "Confirm", MessageBoxButtons.YesNo, MessageBoxIcon.Question) = DialogResult.Yes Then
+            ClearAll()
+            GenerateVendorCode()
+        End If
+    End Sub
+
+    Private Sub btnSave_Click_1(sender As Object, e As EventArgs) Handles btnSave.Click
         ' Basic validation
         If String.IsNullOrWhiteSpace(txtVendor.Text) OrElse String.IsNullOrWhiteSpace(txtTIN.Text) Then
             MessageBox.Show("Please enter Vendor Name and TIN Number!", "Required Fields", MessageBoxButtons.OK, MessageBoxIcon.Warning)
@@ -140,40 +171,13 @@ Public Class ADD_Vendor
                 End Using
             End Using
 
-            MessageBox.Show("✅ Vendor added successfully!", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information)
+            MessageBox.Show("Vendor added successfully!", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information)
             ClearAll()
             GenerateVendorCode()
             Me.Close()
 
         Catch ex As Exception
-            MessageBox.Show("❌ Error saving vendor: " & ex.Message, "Database Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
+            MessageBox.Show("Error saving vendor: " & ex.Message, "Database Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
         End Try
     End Sub
-
-    ' Cancel button - clear or close
-    Private Sub btnCancel_Click(sender As Object, e As EventArgs) Handles btnCancel.Click
-        If MessageBox.Show("Do you want to clear all entries?", "Confirm", MessageBoxButtons.YesNo, MessageBoxIcon.Question) = DialogResult.Yes Then
-            ClearAll()
-            GenerateVendorCode()
-        End If
-    End Sub
-
-    ' Reset all input fields
-    Private Sub ClearAll()
-        txtVendor.Clear()
-        txtTIN.Clear()
-        txtContact.Clear()
-        txtEmail.Clear()
-        txtSalesPerson.Clear()
-        cboBusinessType.SelectedIndex = -1
-        txtAddress.Clear()
-        txtDTI.Clear()
-        cboVatStatus.SelectedIndex = 0
-        cboModeOfPayment.SelectedIndex = -1
-        cboBank.SelectedIndex = -1
-        txtBankAccount.Clear()
-        cboPaymentTerms.SelectedIndex = -1
-        picLogo.Image = Nothing
-    End Sub
-
 End Class

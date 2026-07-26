@@ -4,6 +4,7 @@ Imports MySqlConnector
 Public Class Add_User
 
     Private NewProfilePhoto As Byte() = Nothing
+    Private CurrentAccountName As String = ""
 
     Private Sub Add_User_Load(sender As Object, e As EventArgs) Handles MyBase.Load
         ' USER TYPE LIST
@@ -18,7 +19,7 @@ Public Class Add_User
 
         LoadBranches()
 
-        ' Default password placeholder
+        ' DEFAULT PASSWORD
         txtPassword.Text = "Password1*"
         txtConfirmPassword.Text = "Password1*"
         txtPassword.PasswordChar = "*"c
@@ -29,8 +30,8 @@ Public Class Add_User
         Try
             cboBranch.Items.Clear()
             txtBranchID.Clear()
+            CurrentAccountName = ""
 
-            ' ✅ MySQL syntax: backticks, MySqlConnection
             Using Conn As New MySqlConnection(DBConnection.connStr)
                 Dim sql As String = "SELECT `BRANCH` FROM `Branches` WHERE `ACCOUNT_ID` = @AccID ORDER BY `BRANCH`"
                 Using cmd As New MySqlCommand(sql, Conn)
@@ -43,7 +44,6 @@ Public Class Add_User
                     End Using
                 End Using
             End Using
-
         Catch ex As Exception
             MessageBox.Show("Error loading branches: " & ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
         End Try
@@ -51,18 +51,42 @@ Public Class Add_User
 
     Private Sub cboBranch_SelectedIndexChanged(sender As Object, e As EventArgs) Handles cboBranch.SelectedIndexChanged
         If cboBranch.SelectedIndex <> -1 Then
-            Dim selectedBranch As String = cboBranch.SelectedItem.ToString()
-            txtBranchID.Text = GetBranchID(selectedBranch)
+            txtBranchID.Text = GetBranchDetails(cboBranch.SelectedItem.ToString())
         Else
             txtBranchID.Clear()
+            CurrentAccountName = ""
         End If
     End Sub
+
+    Private Function GetBranchDetails(branchName As String) As String
+        Dim brID As String = "0"
+        Try
+            Using Conn As New MySqlConnection(DBConnection.connStr)
+                Dim sql As String = "SELECT `BRANCH_ID`, `ACCOUNT` FROM `Branches` WHERE `BRANCH` = @Name AND `ACCOUNT_ID` = @Acc"
+                Using cmd As New MySqlCommand(sql, Conn)
+                    cmd.Parameters.AddWithValue("@Name", branchName.Trim())
+                    cmd.Parameters.AddWithValue("@Acc", Login.LoggedInAccountID)
+                    Conn.Open()
+                    Using dr As MySqlDataReader = cmd.ExecuteReader()
+                        If dr.Read() Then
+                            brID = dr("BRANCH_ID").ToString().Trim()
+                            CurrentAccountName = dr("ACCOUNT").ToString().Trim()
+                        End If
+                    End Using
+                End Using
+            End Using
+        Catch ex As Exception
+            MessageBox.Show("Error getting details: " & ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
+            brID = "0"
+            CurrentAccountName = ""
+        End Try
+        Return brID
+    End Function
 
     Private Sub picProfile_DoubleClick(sender As Object, e As EventArgs) Handles picProfile.DoubleClick
         Using open As New OpenFileDialog()
             open.Filter = "Image Files|*.jpg;*.jpeg;*.png;*.bmp"
             open.Title = "Select Profile Picture"
-
             If open.ShowDialog() = DialogResult.OK Then
                 Try
                     picProfile.Image = Image.FromFile(open.FileName)
@@ -74,123 +98,106 @@ Public Class Add_User
         End Using
     End Sub
 
-    Private Function GetBranchID(branchName As String) As String
-        Dim id As String = ""
-        Try
-            Using Conn As New MySqlConnection(DBConnection.connStr)
-                Dim sql As String = "SELECT `BRANCH_ID` FROM `Branches` WHERE `BRANCH` = @Name AND `ACCOUNT_ID` = @Acc"
-                Using cmd As New MySqlCommand(sql, Conn)
-                    cmd.Parameters.AddWithValue("@Name", branchName.Trim())
-                    cmd.Parameters.AddWithValue("@Acc", Login.LoggedInAccountID)
-                    Conn.Open()
-                    Dim result = cmd.ExecuteScalar()
-                    id = If(result IsNot Nothing, result.ToString().Trim(), "0")
-                End Using
-            End Using
-        Catch ex As Exception
-            MessageBox.Show("Error getting Branch ID: " & ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
-            id = "0"
-        End Try
-        Return id
-    End Function
-
-#Region "SAVE BUTTON"
+#Region "SAVE USER"
     Private Sub btnSave_Click(sender As Object, e As EventArgs) Handles btnSave.Click
 
-        ' --- VALIDATION ---
+        ' VALIDATION
         If String.IsNullOrWhiteSpace(txtFullName.Text) Then
-            MessageBox.Show("Please enter Full Name!", "Required Field", MessageBoxButtons.OK, MessageBoxIcon.Warning)
+            MessageBox.Show("Enter Full Name!", "Required", MessageBoxButtons.OK, MessageBoxIcon.Warning)
             txtFullName.Focus()
             Return
         End If
         If String.IsNullOrWhiteSpace(txtUsername.Text) Then
-            MessageBox.Show("Please enter Username!", "Required Field", MessageBoxButtons.OK, MessageBoxIcon.Warning)
+            MessageBox.Show("Enter Username!", "Required", MessageBoxButtons.OK, MessageBoxIcon.Warning)
             txtUsername.Focus()
             Return
         End If
         If txtPassword.Text <> txtConfirmPassword.Text Then
-            MessageBox.Show("Passwords do not match!", "Validation Error", MessageBoxButtons.OK, MessageBoxIcon.Warning)
+            MessageBox.Show("Passwords do not match!", "Error", MessageBoxButtons.OK, MessageBoxIcon.Warning)
             txtPassword.Focus()
             Return
         End If
         If cboUserType.SelectedIndex = -1 Then
-            MessageBox.Show("Please select User Type!", "Required Field", MessageBoxButtons.OK, MessageBoxIcon.Warning)
+            MessageBox.Show("Select User Type!", "Required", MessageBoxButtons.OK, MessageBoxIcon.Warning)
             cboUserType.Focus()
             Return
         End If
         If cboBranch.SelectedIndex = -1 Then
-            MessageBox.Show("Please select Branch!", "Required Field", MessageBoxButtons.OK, MessageBoxIcon.Warning)
+            MessageBox.Show("Select Branch!", "Required", MessageBoxButtons.OK, MessageBoxIcon.Warning)
             cboBranch.Focus()
             Return
         End If
-        If String.IsNullOrWhiteSpace(txtBranchID.Text) OrElse txtBranchID.Text = "0" Then
-            MessageBox.Show("Valid Branch ID not found. Please select a valid branch.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
+        If String.IsNullOrWhiteSpace(txtBranchID.Text) Or txtBranchID.Text = "0" Then
+            MessageBox.Show("Invalid Branch!", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
             Return
         End If
-        If String.IsNullOrWhiteSpace(txtEmail.Text) OrElse Not txtEmail.Text.Contains("@") Then
-            MessageBox.Show("Please enter a valid Email address!", "Validation Error", MessageBoxButtons.OK, MessageBoxIcon.Warning)
+        If String.IsNullOrWhiteSpace(CurrentAccountName) Then
+            MessageBox.Show("Account details not found!", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
+            Return
+        End If
+        If String.IsNullOrWhiteSpace(txtEmail.Text) Or Not txtEmail.Text.Contains("@") Then
+            MessageBox.Show("Enter valid Email!", "Error", MessageBoxButtons.OK, MessageBoxIcon.Warning)
             txtEmail.Focus()
             Return
         End If
         If String.IsNullOrWhiteSpace(txtContact.Text) Then
-            MessageBox.Show("Please enter a valid Contact Number!", "Required Field", MessageBoxButtons.OK, MessageBoxIcon.Warning)
+            MessageBox.Show("Enter Contact Number!", "Required", MessageBoxButtons.OK, MessageBoxIcon.Warning)
             txtContact.Focus()
             Return
         End If
 
         Try
-            Dim branchName As String = cboBranch.SelectedItem.ToString().Trim()
-            Dim branchID As String = txtBranchID.Text.Trim()
-            Dim accountID As String = Login.LoggedInAccountID
+            Dim autoAccID As String = Login.LoggedInAccountID
+            Dim autoAccName As String = CurrentAccountName
+            Dim brName As String = cboBranch.SelectedItem.ToString().Trim()
+            Dim brID As String = txtBranchID.Text.Trim()
 
-            ' --- CHECK IF USERNAME ALREADY EXISTS ---
-            Dim checkQuery As String = "SELECT COUNT(*) FROM `User_Accounts` WHERE `USERNAME` = @Username"
+            ' CHECK DUPLICATE USERNAME
             Using Conn As New MySqlConnection(DBConnection.connStr)
-                Using cmdCheck As New MySqlCommand(checkQuery, Conn)
-                    cmdCheck.Parameters.AddWithValue("@Username", txtUsername.Text.Trim())
+                Dim checkSQL As String = "SELECT COUNT(*) FROM `User_Accounts` WHERE `USERNAME` = @User"
+                Using cmdCheck As New MySqlCommand(checkSQL, Conn)
+                    cmdCheck.Parameters.AddWithValue("@User", txtUsername.Text.Trim())
                     Conn.Open()
-                    Dim count As Integer = CInt(cmdCheck.ExecuteScalar())
-                    If count > 0 Then
-                        MessageBox.Show("Username already exists! Please choose another.", "Duplicate Entry", MessageBoxButtons.OK, MessageBoxIcon.Warning)
+                    If CInt(cmdCheck.ExecuteScalar()) > 0 Then
+                        MessageBox.Show("Username already exists!", "Duplicate", MessageBoxButtons.OK, MessageBoxIcon.Warning)
                         Return
                     End If
                 End Using
             End Using
 
-            ' --- INSERT NEW USER ---
-            ' ✅ GETDATE() → NOW() | ✅ All identifiers wrapped in backticks | ✅ No dbo. prefix
-            Dim sqlSave As String = "
+            ' SAVE TO DATABASE
+            Dim saveSQL As String = "
                 INSERT INTO `User_Accounts` 
-                (`ACCOUNT_ID`, `BRANCH_ID`, `BRANCH`, `PROFILE`, `USERNAME`, `PASSWORD`, `FULL_NAME`, `USER_TYPE`, `CONTACT`, `EMAIL`, `STATUS`, `DATE_CREATED`) 
+                (`ACCOUNT_ID`, `ACCOUNT`, `BRANCH_ID`, `BRANCH`, `PROFILE`, `USERNAME`, `PASSWORD`, `FULL_NAME`, `USER_TYPE`, `CONTACT`, `EMAIL`, `STATUS`, `DATE_CREATED`) 
                 VALUES 
-                (@Acc, @BrID, @BrName, @Pro, @User, @Pass, @Full, @Type, @Contact, @Email, 'OFFLINE', NOW())"
+                (@AccID, @Acc, @BrID, @BrName, @Prof, @Usr, @Pass, @Full, @Type, @Cont, @Mail, 'Active', NOW())"
 
             Using Conn As New MySqlConnection(DBConnection.connStr)
-                Using cmd As New MySqlCommand(sqlSave, Conn)
-                    cmd.Parameters.AddWithValue("@Acc", accountID)
-                    cmd.Parameters.AddWithValue("@BrID", branchID)
-                    cmd.Parameters.AddWithValue("@BrName", branchName)
-                    cmd.Parameters.AddWithValue("@Pro", If(NewProfilePhoto IsNot Nothing, NewProfilePhoto, DBNull.Value))
-                    cmd.Parameters.AddWithValue("@User", txtUsername.Text.Trim())
-                    cmd.Parameters.AddWithValue("@Pass", txtPassword.Text)
-                    cmd.Parameters.AddWithValue("@Full", txtFullName.Text.Trim())
-                    cmd.Parameters.AddWithValue("@Type", cboUserType.Text.Trim())
-                    cmd.Parameters.AddWithValue("@Contact", txtContact.Text.Trim())
-                    cmd.Parameters.AddWithValue("@Email", txtEmail.Text.Trim())
+                Using cmdSave As New MySqlCommand(saveSQL, Conn)
+                    cmdSave.Parameters.AddWithValue("@AccID", autoAccID)
+                    cmdSave.Parameters.AddWithValue("@Acc", autoAccName)
+                    cmdSave.Parameters.AddWithValue("@BrID", brID)
+                    cmdSave.Parameters.AddWithValue("@BrName", brName)
+                    cmdSave.Parameters.AddWithValue("@Prof", If(NewProfilePhoto IsNot Nothing, NewProfilePhoto, DBNull.Value))
+                    cmdSave.Parameters.AddWithValue("@Usr", txtUsername.Text.Trim())
+                    cmdSave.Parameters.AddWithValue("@Pass", txtPassword.Text)
+                    cmdSave.Parameters.AddWithValue("@Full", txtFullName.Text.Trim())
+                    cmdSave.Parameters.AddWithValue("@Type", cboUserType.Text.Trim())
+                    cmdSave.Parameters.AddWithValue("@Cont", txtContact.Text.Trim())
+                    cmdSave.Parameters.AddWithValue("@Mail", txtEmail.Text.Trim())
 
                     Conn.Open()
-                    cmd.ExecuteNonQuery()
+                    cmdSave.ExecuteNonQuery()
                 End Using
             End Using
 
-            MessageBox.Show("✅ User added successfully!", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information)
+            MessageBox.Show("User added successfully!", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information)
             Me.Close()
 
         Catch ex As Exception
-            MessageBox.Show("❌ Error saving user: " & ex.Message, "Database Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
+            MessageBox.Show("Save Error: " & ex.Message, "Database Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
         End Try
     End Sub
-
 #End Region
 
     Private Sub btnCancel_Click(sender As Object, e As EventArgs) Handles btnCancel.Click

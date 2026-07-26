@@ -475,10 +475,10 @@
     <Compile Include="Users\Edit_User.vb">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Vendor\ADD_Vendor.Designer.vb">
+    <Compile Include="Vendor System\ADD_Vendor.Designer.vb">
       <DependentUpon>ADD_Vendor.vb</DependentUpon>
     </Compile>
-    <Compile Include="Vendor\ADD_Vendor.vb">
+    <Compile Include="Vendor System\ADD_Vendor.vb">
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="Branch\Branch Manage.Designer.vb">
@@ -539,22 +539,34 @@
     <Compile Include="Users\User Account Manage.vb">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Vendor\ADD_Vendor_Product.Designer.vb">
+    <Compile Include="Vendor System\ADD_Vendor_Product.Designer.vb">
       <DependentUpon>ADD_Vendor_Product.vb</DependentUpon>
     </Compile>
-    <Compile Include="Vendor\ADD_Vendor_Product.vb">
+    <Compile Include="Vendor System\ADD_Vendor_Product.vb">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Vendor\Vendor Manage.Designer.vb">
+    <Compile Include="Vendor System\Dashboard Panel Forms\frmDashboard_Summary.Designer.vb">
+      <DependentUpon>frmDashboard_Summary.vb</DependentUpon>
+    </Compile>
+    <Compile Include="Vendor System\Dashboard Panel Forms\frmDashboard_Summary.vb">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Vendor System\frmVendor_Management_Dashboard.Designer.vb">
+      <DependentUpon>frmVendor_Management_Dashboard.vb</DependentUpon>
+    </Compile>
+    <Compile Include="Vendor System\frmVendor_Management_Dashboard.vb">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Vendor System\Vendor Manage.Designer.vb">
       <DependentUpon>Vendor Manage.vb</DependentUpon>
     </Compile>
-    <Compile Include="Vendor\Vendor Manage.vb">
+    <Compile Include="Vendor System\Vendor Manage.vb">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Vendor\Vendor_Info.Designer.vb">
+    <Compile Include="Vendor System\Vendor_Info.Designer.vb">
       <DependentUpon>Vendor_Info.vb</DependentUpon>
     </Compile>
-    <Compile Include="Vendor\Vendor_Info.vb">
+    <Compile Include="Vendor System\Vendor_Info.vb">
       <SubType>Form</SubType>
     </Compile>
   </ItemGroup>
@@ -658,7 +670,7 @@
     <EmbeddedResource Include="Users\Edit_User.resx">
       <DependentUpon>Edit_User.vb</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Vendor\ADD_Vendor.resx">
+    <EmbeddedResource Include="Vendor System\ADD_Vendor.resx">
       <DependentUpon>ADD_Vendor.vb</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Branch\Branch Manage.resx">
@@ -688,13 +700,22 @@
     <EmbeddedResource Include="Users\User Account Manage.resx">
       <DependentUpon>User Account Manage.vb</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Vendor\ADD_Vendor_Product.resx">
+    <EmbeddedResource Include="Vendor System\ADD_Vendor_Product.resx">
       <DependentUpon>ADD_Vendor_Product.vb</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Vendor\Vendor Manage.resx">
+    <EmbeddedResource Include="Vendor System\Dashboard Panel Forms\frmDashboard_Summary.aa.resx">
+      <DependentUpon>frmDashboard_Summary.vb</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Vendor System\Dashboard Panel Forms\frmDashboard_Summary.resx">
+      <DependentUpon>frmDashboard_Summary.vb</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Vendor System\frmVendor_Management_Dashboard.resx">
+      <DependentUpon>frmVendor_Management_Dashboard.vb</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Vendor System\Vendor Manage.resx">
       <DependentUpon>Vendor Manage.vb</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Vendor\Vendor_Info.resx">
+    <EmbeddedResource Include="Vendor System\Vendor_Info.resx">
       <DependentUpon>Vendor_Info.vb</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
