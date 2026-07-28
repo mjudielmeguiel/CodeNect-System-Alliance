@@ -12,11 +12,11 @@ Public Class Register_account
         txtPassword.PasswordChar = "*"c
         txtConfirmPassword.PasswordChar = "*"c
 
-        ' ✅ LOAD BUSINESS TYPE LANG
+        ' ✅ LOAD BUSINESS TYPE OPTIONS
         LoadBusinessTypeOptions()
     End Sub
 
-    ' ==================== BUSINESS TYPE ====================
+    ' ==================== BUSINESS TYPE DROPDOWN ====================
     Private Sub LoadBusinessTypeOptions()
         cboBusinessType.DropDownStyle = ComboBoxStyle.DropDownList
         cboBusinessType.Items.Clear()
@@ -44,11 +44,11 @@ Public Class Register_account
         Return Regex.IsMatch(password, pattern)
     End Function
 
-    ' ==================== SAVE BUTTON ====================
+    ' ==================== SAVE BUTTON (FIXED COLUMN NAMES) ====================
     Private Sub btnSave_Click(sender As Object, e As EventArgs) Handles btnSave.Click
         If Not DBConnection.TestConnection() Then Exit Sub
 
-        ' ✅ VALIDATION – TINANGGAL NA ANG ADDRESS FIELDS
+        ' ✅ REQUIRED FIELDS VALIDATION
         If String.IsNullOrWhiteSpace(txtAccountID.Text) OrElse
            String.IsNullOrWhiteSpace(txtAccount.Text) OrElse
            String.IsNullOrWhiteSpace(txtOwnerFullName.Text) OrElse
@@ -63,7 +63,7 @@ Public Class Register_account
             Exit Sub
         End If
 
-        ' ✅ PASSWORD CHECK
+        ' ✅ PASSWORD STRENGTH CHECK
         If Not IsPasswordStrong(txtPassword.Text.Trim()) Then
             MessageBox.Show("Weak Password!" & vbCrLf &
                           "Must contain:" & vbCrLf &
@@ -83,17 +83,20 @@ Public Class Register_account
             Exit Sub
         End If
 
-        ' ✅ CHECK DUPLICATES
+        ' ✅ CHECK FOR DUPLICATE USERNAME & EMAIL
         Try
             Using connCheck As New MySqlConnection(DBConnection.connStr)
                 connCheck.Open()
-                Dim cmdUser As New MySqlCommand("SELECT COUNT(*) FROM `account` WHERE `USER_NAME`=@VAL", connCheck)
+
+                ' Check duplicate Username
+                Dim cmdUser As New MySqlCommand("SELECT COUNT(*) FROM `account` WHERE `USERNAME`=@VAL", connCheck)
                 cmdUser.Parameters.AddWithValue("@VAL", txtUsername.Text.Trim().ToUpper())
                 If CInt(cmdUser.ExecuteScalar()) > 0 Then
                     MessageBox.Show("Username already exists.", "DUPLICATE", MessageBoxButtons.OK, MessageBoxIcon.Error)
                     Exit Sub
                 End If
 
+                ' Check duplicate Email
                 Dim cmdEmail As New MySqlCommand("SELECT COUNT(*) FROM `account` WHERE `EMAIL`=@VAL", connCheck)
                 cmdEmail.Parameters.AddWithValue("@VAL", txtEmail.Text.Trim().ToLower())
                 If CInt(cmdEmail.ExecuteScalar()) > 0 Then
@@ -107,14 +110,15 @@ Public Class Register_account
             Exit Sub
         End Try
 
-        ' ✅ SAVE – TINANGGAL NA ANG ADDRESS COLUMNS
+        ' ✅ INSERT RECORD – FIXED COLUMN MISMATCHES
         Try
             Dim CurrentNow As DateTime = Date.Now
             Dim newAccountID As String = txtAccountID.Text
 
+            ' ⚠️ UPDATE COLUMN NAMES HERE IF YOUR TABLE USES DIFFERENT ONES
             Dim cmdInsert As String = "INSERT INTO `account` 
-            (`ACCOUNT_ID`, `ACCOUNT`, `OWNER_FULLNAME`, `BUSINESS_TYPE`, `CONTACT`, `EMAIL`, `USER_NAME`, `PASSWORD`, `STATUS`, `Verified_Account`, `CREATE_AT`) 
-            VALUES (@AID, @ACC, @OWNER, @BTYPE, @CONT, @EMAIL, @USER, @PASS, 'PENDING', 0, @CRT)"
+            (`ACCOUNT_ID`, `BUSINESS_NAME`, `OWNER_FULLNAME`, `BUSINESS_TYPE`, `CONTACT`, `EMAIL`, `USERNAME`, `PASSWORD`, `STATUS`, `CREATED_AT`) 
+            VALUES (@AID, @ACC, @OWNER, @BTYPE, @CONT, @EMAIL, @USER, @PASS, 'PENDING', @CRT)"
 
             Using conn As New MySqlConnection(DBConnection.connStr)
                 Using cmd As New MySqlCommand(cmdInsert, conn)
@@ -145,7 +149,7 @@ Public Class Register_account
         End Try
     End Sub
 
-    ' ==================== CLEAR FIELDS ====================
+    ' ==================== CLEAR ALL INPUT FIELDS ====================
     Private Sub ClearFields()
         txtAccount.Clear()
         txtOwnerFullName.Clear()
@@ -157,6 +161,7 @@ Public Class Register_account
         txtConfirmPassword.Clear()
     End Sub
 
+    ' ==================== CANCEL BUTTON ====================
     Private Sub btnCancel_Click(sender As Object, e As EventArgs) Handles btnCancel.Click
         Me.Close()
     End Sub

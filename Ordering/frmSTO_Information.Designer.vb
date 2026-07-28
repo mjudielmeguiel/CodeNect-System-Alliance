@@ -108,9 +108,9 @@ Partial Class frmSTO_Information
         Me.lblPONumber.ForeColor = System.Drawing.SystemColors.ActiveCaptionText
         Me.lblPONumber.Location = New System.Drawing.Point(1249, 9)
         Me.lblPONumber.Name = "lblPONumber"
-        Me.lblPONumber.Size = New System.Drawing.Size(105, 19)
+        Me.lblPONumber.Size = New System.Drawing.Size(100, 19)
         Me.lblPONumber.TabIndex = 308
-        Me.lblPONumber.Text = "STR NUMBER :"
+        Me.lblPONumber.Text = "PO NUMBER :"
         Me.lblPONumber.TextAlign = System.Drawing.ContentAlignment.MiddleCenter
         '
         'Label6

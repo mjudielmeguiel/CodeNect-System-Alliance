@@ -25,7 +25,6 @@ Partial Class Login
         Me.components = New System.ComponentModel.Container()
         Dim resources As System.ComponentModel.ComponentResourceManager = New System.ComponentModel.ComponentResourceManager(GetType(Login))
         Me.LinkLabel1 = New System.Windows.Forms.LinkLabel()
-        Me.txtUsername = New System.Windows.Forms.TextBox()
         Me.btnlogin = New System.Windows.Forms.Button()
         Me.txtPassword = New System.Windows.Forms.TextBox()
         Me.PictureBox2 = New System.Windows.Forms.PictureBox()
@@ -37,6 +36,7 @@ Partial Class Login
         Me.Label3 = New System.Windows.Forms.Label()
         Me.btnShowPass = New System.Windows.Forms.Button()
         Me.PictureBox1 = New System.Windows.Forms.PictureBox()
+        Me.txtUsername = New System.Windows.Forms.TextBox()
         CType(Me.PictureBox2, System.ComponentModel.ISupportInitialize).BeginInit()
         CType(Me.PictureBox1, System.ComponentModel.ISupportInitialize).BeginInit()
         Me.SuspendLayout()
@@ -52,16 +52,6 @@ Partial Class Login
         Me.LinkLabel1.TabIndex = 33
         Me.LinkLabel1.TabStop = True
         Me.LinkLabel1.Text = "Forgot Password?"
-        '
-        'txtUsername
-        '
-        Me.txtUsername.BackColor = System.Drawing.SystemColors.ControlLight
-        Me.txtUsername.Font = New System.Drawing.Font("Microsoft YaHei UI", 15.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.txtUsername.Location = New System.Drawing.Point(310, 122)
-        Me.txtUsername.Name = "txtUsername"
-        Me.txtUsername.ScrollBars = System.Windows.Forms.ScrollBars.Horizontal
-        Me.txtUsername.Size = New System.Drawing.Size(342, 34)
-        Me.txtUsername.TabIndex = 28
         '
         'btnlogin
         '
@@ -188,6 +178,16 @@ Partial Class Login
         Me.PictureBox1.TabIndex = 134
         Me.PictureBox1.TabStop = False
         '
+        'txtUsername
+        '
+        Me.txtUsername.BackColor = System.Drawing.SystemColors.ControlLight
+        Me.txtUsername.Font = New System.Drawing.Font("Microsoft YaHei UI", 15.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.txtUsername.Location = New System.Drawing.Point(310, 122)
+        Me.txtUsername.Name = "txtUsername"
+        Me.txtUsername.ScrollBars = System.Windows.Forms.ScrollBars.Horizontal
+        Me.txtUsername.Size = New System.Drawing.Size(342, 34)
+        Me.txtUsername.TabIndex = 28
+        '
         'Login
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(6.0!, 13.0!)
@@ -218,7 +218,6 @@ Partial Class Login
 
     End Sub
     Friend WithEvents LinkLabel1 As LinkLabel
-    Friend WithEvents txtUsername As TextBox
     Friend WithEvents btnlogin As Button
     Friend WithEvents txtPassword As TextBox
     Friend WithEvents PictureBox2 As PictureBox
@@ -230,4 +229,5 @@ Partial Class Login
     Friend WithEvents Label3 As Label
     Friend WithEvents btnShowPass As Button
     Friend WithEvents PictureBox1 As PictureBox
+    Friend WithEvents txtUsername As TextBox
 End Class
