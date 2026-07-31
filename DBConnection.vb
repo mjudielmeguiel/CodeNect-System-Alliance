@@ -1,7 +1,7 @@
 ﻿Imports MySqlConnector
 
 Module DBConnection
-    Public ReadOnly connStr As String = "server=localhost;user=root;password=;database=codenectdb;SslMode=None;"
+    Public ReadOnly connStr As String = "server=192.168.100.16;user=root;password=;database=codenectdb;SslMode=None;"
     Public Function TestConnection() As Boolean
         Try
             Using testConn As New MySqlConnection(connStr)
