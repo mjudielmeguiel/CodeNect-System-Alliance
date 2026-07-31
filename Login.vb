@@ -4,49 +4,73 @@ Imports MySqlConnector
 
 Public Class Login
 
-    ' ==================== SESSION VARIABLES ====================
     Public Shared LoggedInBranchID As String = ""
     Public Shared LoggedInAccountID As String = ""
     Public Shared LoggedInUserID As String = ""
     Public Shared LoggedInUsername As String = ""
     Public Shared LoggedInUserType As String = ""
 
-    ' ==================== LOGIN SETTINGS ====================
-    Dim attemptCount As Integer = 0
     Const maxAttempts As Integer = 3
+    Private Const PLACEHOLDER_USER As String = "Enter Username"
+    Private Const PLACEHOLDER_PASS As String = "Enter Password"
 
-    ' ==================== PLACEHOLDER: ON FOCUS ====================
+    ' --- AUTO SET STATUS TO OFFLINE WHEN LOGIN FORM CLOSES ---
+    Private Sub Login_FormClosing(sender As Object, e As FormClosingEventArgs) Handles MyBase.FormClosing
+        ' Only run if user successfully logged in
+        If Not String.IsNullOrEmpty(LoggedInUserID) OrElse Not String.IsNullOrEmpty(LoggedInAccountID) Then
+            Try
+                Using conn As New MySqlConnection(DBConnection.connStr)
+                    conn.Open()
+                    ' For normal users
+                    If Not String.IsNullOrEmpty(LoggedInUserID) Then
+                        Using cmd As New MySqlCommand("UPDATE `user_accounts` SET `STATUS`='OFFLINE' WHERE `ID`=@id", conn)
+                            cmd.Parameters.AddWithValue("@id", LoggedInUserID)
+                            cmd.ExecuteNonQuery()
+                        End Using
+                    End If
+                    ' For Business Admin
+                    If Not String.IsNullOrEmpty(LoggedInAccountID) AndAlso LoggedInUserType = "BUSINESS ADMIN" Then
+                        Using cmd As New MySqlCommand("UPDATE `account` SET `STATUS`='OFFLINE' WHERE `ACCOUNT_ID`=@aid", conn)
+                            cmd.Parameters.AddWithValue("@aid", LoggedInAccountID)
+                            cmd.ExecuteNonQuery()
+                        End Using
+                    End If
+                End Using
+            Catch ex As Exception
+                ' Ignore error if connection fails
+            End Try
+        End If
+    End Sub
+
     Private Sub txt_GotFocus(sender As Object, e As EventArgs) Handles txtUsername.GotFocus, txtPassword.GotFocus
         Dim txt As TextBox = CType(sender, TextBox)
-        If txt.Text = "Enter Username" OrElse txt.Text = "Enter Password" Then
+        lblError.Text = ""
+        If txt.Text = PLACEHOLDER_USER OrElse txt.Text = PLACEHOLDER_PASS Then
             txt.Text = ""
             txt.ForeColor = Color.Black
             If txt.Name = "txtPassword" Then txt.PasswordChar = "●"c
         End If
     End Sub
 
-    ' ==================== PLACEHOLDER: LOST FOCUS ====================
     Private Sub txt_LostFocus(sender As Object, e As EventArgs) Handles txtUsername.LostFocus, txtPassword.LostFocus
         Dim txt As TextBox = CType(sender, TextBox)
         If String.IsNullOrWhiteSpace(txt.Text) Then
             If txt.Name = "txtUsername" Then
-                txt.Text = "Enter Username"
+                txt.Text = PLACEHOLDER_USER
                 txt.ForeColor = Color.Gray
             Else
-                txt.Text = "Enter Password"
+                txt.Text = PLACEHOLDER_PASS
                 txt.ForeColor = Color.Gray
                 txt.PasswordChar = Nothing
             End If
         End If
     End Sub
 
-    ' ==================== GO TO REGISTER ====================
     Private Sub LinkLabel2_LinkClicked(sender As Object, e As LinkLabelLinkClickedEventArgs) Handles LinkLabel2.LinkClicked
         Register_account.Show()
         Me.Hide()
     End Sub
 
-    ' ==================== EXIT BUTTON ====================
     Private Sub btnClose_Click(sender As Object, e As EventArgs) Handles btnClose.Click
         If MessageBox.Show("Are you sure you want to exit?", "Confirm",
                            MessageBoxButtons.YesNo, MessageBoxIcon.Question) = DialogResult.Yes Then
@@ -54,34 +78,31 @@ Public Class Login
         End If
     End Sub
 
-    ' ==================== LOGIN BUTTON (FIXED CONNECTION ERROR) ====================
     Private Sub btnlogin_Click(sender As Object, e As EventArgs) Handles btnlogin.Click
-        Dim username As String = txtUsername.Text.Trim()
-        Dim password As String = txtPassword.Text.Trim()
+        lblError.Text = ""
+        Dim username As String = If(txtUsername.Text = PLACEHOLDER_USER, "", txtUsername.Text.Trim())
+        Dim password As String = If(txtPassword.Text = PLACEHOLDER_PASS, "", txtPassword.Text.Trim())
 
-        ' ✅ BASIC VALIDATION
-        If username = "" OrElse username.Equals("Enter Username", StringComparison.OrdinalIgnoreCase) Then
-            MessageBox.Show("Please enter your Username", "Notice", MessageBoxButtons.OK, MessageBoxIcon.Warning)
+        If String.IsNullOrWhiteSpace(username) Then
+            lblError.Text = "Please enter your Username"
+            lblError.ForeColor = Color.OrangeRed
             txtUsername.Focus()
             Return
         End If
-        If password = "" OrElse password.Equals("Enter Password", StringComparison.OrdinalIgnoreCase) Then
-            MessageBox.Show("Please enter your Password", "Notice", MessageBoxButtons.OK, MessageBoxIcon.Warning)
+        If String.IsNullOrWhiteSpace(password) Then
+            lblError.Text = "Please enter your Password"
+            lblError.ForeColor = Color.OrangeRed
             txtPassword.Focus()
             Return
         End If
 
-        ' ==============================================
-        ' 1. CHECK IN user_accounts (Cashier/Branch Users)
-        ' ✅ Separate connection scope — NO REUSE
-        ' ==============================================
         Try
             Dim userFound As Boolean = False
             Dim loginSuccess As Boolean = False
 
             Using connUser As New MySqlConnection(DBConnection.connStr)
                 connUser.Open()
-                Dim qUser As String = "SELECT `ID`, `ACCOUNT_ID`, `BRANCH_ID`, `USER_TYPE`, `STATUS`, `USERNAME`, `PASSWORD` 
+                Dim qUser As String = "SELECT `ID`, `ACCOUNT_ID`, `BRANCH_ID`, `USER_TYPE`, `STATUS`, `USERNAME`, `PASSWORD`, `login_attempts` 
                                        FROM `user_accounts` 
                                        WHERE TRIM(`USERNAME`) = TRIM(@u) 
                                        OR TRIM(LOWER(`USERNAME`)) = TRIM(LOWER(@u)) 
@@ -99,19 +120,22 @@ Public Class Login
                             Dim stat = drUser("STATUS").ToString().ToUpper()
                             Dim uname = drUser("USERNAME").ToString()
                             Dim pass = drUser("PASSWORD").ToString()
-                            drUser.Close() ' ✅ Close reader BEFORE running UPDATE
+                            Dim attempts = Convert.ToInt32(drUser("login_attempts"))
+                            drUser.Close()
 
                             If stat = "ACTIVE" Then
-                                MessageBox.Show("Already logged in.", "Notice", MessageBoxButtons.OK, MessageBoxIcon.Exclamation)
+                                lblError.Text = "Already logged in."
+                                lblError.ForeColor = Color.Orange
                                 Return
                             End If
                             If stat = "LOCKED" Then
-                                MessageBox.Show("Account is LOCKED.", "Notice", MessageBoxButtons.OK, MessageBoxIcon.Stop)
+                                lblError.Text = "Account is LOCKED."
+                                lblError.ForeColor = Color.Red
                                 Return
                             End If
 
                             If pass = password Then
-                                Using upd = New MySqlCommand("UPDATE `user_accounts` SET `STATUS`='ACTIVE' WHERE `ID`=@id", connUser)
+                                Using upd = New MySqlCommand("UPDATE `user_accounts` SET `STATUS`='ACTIVE', `login_attempts`=0 WHERE `ID`=@id", connUser)
                                     upd.Parameters.AddWithValue("@id", uid)
                                     upd.ExecuteNonQuery()
                                 End Using
@@ -122,33 +146,28 @@ Public Class Login
                                 LoggedInUserType = utype
                                 LoggedInUsername = uname
 
-                                If utype.ToUpper() = "CASHIER" OrElse utype.ToUpper() = "POS" Then
-                                    frmPOS_System.tsname.Text = uname
-                                    frmPOS_System.tsbranch.Text = "BRANCH ID: " & bid
-                                    frmPOS_System.ToolStripStatusLabel3.Text = utype.ToUpper
-                                    frmPOS_System.Show()
-                                Else
-                                    DashBoard.UserToolStripMenuItem.Text = uname
-                                    DashBoard.ToolStripStatusLabel1.Text = uname
-                                    DashBoard.ToolStripStatusLabel4.Text = "BRANCH ID: " & bid
-                                    DashBoard.Label1.Text = utype.ToUpper() & " DASHBOARD"
-                                    DashBoard.UserManageToolStripMenuItem.Visible = (utype.ToUpper() = "BRANCH ADMINISTRATOR" OrElse utype.ToUpper() = "IT SUPPORT")
-                                    DashBoard.Btn_Manage.Visible = (utype.ToUpper() = "BRANCH ADMINISTRATOR" OrElse utype.ToUpper() = "IT SUPPORT")
-                                    DashBoard.Show()
-                                End If
+                                frmDashboard.Show()
+
                                 Me.Hide()
                                 loginSuccess = True
                             Else
-                                attemptCount += 1
-                                If attemptCount >= maxAttempts Then
-                                    Using lck = New MySqlCommand("UPDATE `user_accounts` SET `STATUS`='LOCKED' WHERE `ID`=@id", connUser)
+                                attempts += 1
+                                If attempts >= maxAttempts Then
+                                    Using lck = New MySqlCommand("UPDATE `user_accounts` SET `STATUS`='LOCKED', `login_attempts`=@att WHERE `ID`=@id", connUser)
+                                        lck.Parameters.AddWithValue("@att", attempts)
                                         lck.Parameters.AddWithValue("@id", uid)
                                         lck.ExecuteNonQuery()
                                     End Using
-                                    MessageBox.Show("ACCOUNT LOCKED! Too many failed attempts.", "Locked", MessageBoxButtons.OK, MessageBoxIcon.Stop)
-                                    attemptCount = 0
+                                    lblError.Text = "ACCOUNT LOCKED! Too many failed attempts."
+                                    lblError.ForeColor = Color.Red
                                 Else
-                                    MessageBox.Show("Wrong Password. Attempts left: " & (maxAttempts - attemptCount), "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
+                                    Using updAtt = New MySqlCommand("UPDATE `user_accounts` SET `login_attempts`=@att WHERE `ID`=@id", connUser)
+                                        updAtt.Parameters.AddWithValue("@att", attempts)
+                                        updAtt.Parameters.AddWithValue("@id", uid)
+                                        updAtt.ExecuteNonQuery()
+                                    End Using
+                                    lblError.Text = "Wrong Password. Attempts left: " & (maxAttempts - attempts)
+                                    lblError.ForeColor = Color.OrangeRed
                                 End If
                                 Return
                             End If
@@ -159,13 +178,9 @@ Public Class Login
 
             If loginSuccess Then Return
 
-            ' ==============================================
-            ' 2. CHECK IN account (Business Admin)
-            ' ✅ Separate connection — NO BRANCH NEEDED
-            ' ==============================================
             Using connAdmin As New MySqlConnection(DBConnection.connStr)
                 connAdmin.Open()
-                Dim qAdmin As String = "SELECT `ACCOUNT_ID`, `STATUS`, `OWNER_FULLNAME`, `USERNAME`, `PASSWORD` 
+                Dim qAdmin As String = "SELECT `ACCOUNT_ID`, `STATUS`, `OWNER_FULLNAME`, `USERNAME`, `PASSWORD`, `login_attempts` 
                                         FROM `account` 
                                         WHERE TRIM(`USERNAME`) = TRIM(@u) 
                                         OR TRIM(LOWER(`USERNAME`)) = TRIM(LOWER(@u)) 
@@ -180,23 +195,27 @@ Public Class Login
                             Dim stat = drAdmin("STATUS").ToString().ToUpper()
                             Dim name = drAdmin("OWNER_FULLNAME").ToString()
                             Dim pass = drAdmin("PASSWORD").ToString()
+                            Dim attempts = Convert.ToInt32(drAdmin("login_attempts"))
                             drAdmin.Close()
 
                             If stat = "ACTIVE" Then
-                                MessageBox.Show("Already logged in.", "Notice", MessageBoxButtons.OK, MessageBoxIcon.Exclamation)
+                                lblError.Text = "Already logged in."
+                                lblError.ForeColor = Color.Orange
                                 Return
                             End If
                             If stat = "LOCKED" Then
-                                MessageBox.Show("Account is LOCKED.", "Notice", MessageBoxButtons.OK, MessageBoxIcon.Stop)
+                                lblError.Text = "Account is LOCKED."
+                                lblError.ForeColor = Color.Red
                                 Return
                             End If
                             If stat = "PENDING" Then
-                                MessageBox.Show("Account is still PENDING for approval.", "Notice", MessageBoxButtons.OK, MessageBoxIcon.Warning)
+                                lblError.Text = "Account is still PENDING for approval."
+                                lblError.ForeColor = Color.Orange
                                 Return
                             End If
                             If stat = "OFFLINE" Then
                                 If pass = password Then
-                                    Using upd = New MySqlCommand("UPDATE `account` SET `STATUS`='ACTIVE' WHERE `ACCOUNT_ID`=@id", connAdmin)
+                                    Using upd = New MySqlCommand("UPDATE `account` SET `STATUS`='ACTIVE', `login_attempts`=0 WHERE `ACCOUNT_ID`=@id", connAdmin)
                                         upd.Parameters.AddWithValue("@id", aid)
                                         upd.ExecuteNonQuery()
                                     End Using
@@ -205,18 +224,30 @@ Public Class Login
                                     LoggedInAccountID = aid
                                     LoggedInUserType = "BUSINESS ADMIN"
                                     LoggedInUsername = name
-                                    LoggedInBranchID = String.Empty ' ✅ NO BRANCH FOR ADMIN
+                                    LoggedInBranchID = String.Empty
 
-                                    DashBoard.ToolStripStatusLabel1.Text = name
-                                    DashBoard.ToolStripStatusLabel4.Text = "MAIN OFFICE"
-                                    DashBoard.Label1.Text = "BUSINESS ADMIN PANEL"
-                                    DashBoard.Btn_Manage.Visible = False
-                                    DashBoard.UserManageToolStripMenuItem.Visible = False
-                                    DashBoard.Show()
+                                    frmDashboard.Show()
                                     Me.Hide()
                                     Return
                                 Else
-                                    MessageBox.Show("Wrong Password.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
+                                    attempts += 1
+                                    If attempts >= maxAttempts Then
+                                        Using lck = New MySqlCommand("UPDATE `account` SET `STATUS`='LOCKED', `login_attempts`=@att WHERE `ACCOUNT_ID`=@id", connAdmin)
+                                            lck.Parameters.AddWithValue("@att", attempts)
+                                            lck.Parameters.AddWithValue("@id", aid)
+                                            lck.ExecuteNonQuery()
+                                        End Using
+                                        lblError.Text = "ACCOUNT LOCKED! Too many failed attempts."
+                                        lblError.ForeColor = Color.Red
+                                    Else
+                                        Using updAtt = New MySqlCommand("UPDATE `account` SET `login_attempts`=@att WHERE `ACCOUNT_ID`=@id", connAdmin)
+                                            updAtt.Parameters.AddWithValue("@att", attempts)
+                                            updAtt.Parameters.AddWithValue("@id", aid)
+                                            updAtt.ExecuteNonQuery()
+                                        End Using
+                                        lblError.Text = "Wrong Password. Attempts left: " & (maxAttempts - attempts)
+                                        lblError.ForeColor = Color.OrangeRed
+                                    End If
                                     Return
                                 End If
                             End If
@@ -226,23 +257,28 @@ Public Class Login
             End Using
 
             If Not userFound Then
-                MessageBox.Show("Username does not exist in our records.", "Account Not Found", MessageBoxButtons.OK, MessageBoxIcon.Error)
+                lblError.Text = "Username does not exist in our records."
+                lblError.ForeColor = Color.OrangeRed
             End If
 
         Catch ex As Exception
-            MessageBox.Show("System Error: " & ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
+            lblError.Text = "System Error: " & ex.Message
+            lblError.ForeColor = Color.Red
         End Try
     End Sub
 
-    ' ==================== FORM LOAD ====================
     Private Sub Login_Load(sender As Object, e As EventArgs) Handles MyBase.Load
-        txtUsername.Text = "Enter Username"
+        txtUsername.Text = PLACEHOLDER_USER
         txtUsername.ForeColor = Color.Gray
-        txtPassword.Text = "Enter Password"
+        txtPassword.Text = PLACEHOLDER_PASS
         txtPassword.ForeColor = Color.Gray
         txtPassword.PasswordChar = Nothing
-        attemptCount = 0
+        lblError.Text = ""
         btnlogin.Enabled = True
+    End Sub
+
+    Private Sub btnShowPass_Click(sender As Object, e As EventArgs) Handles btnShowPass.Click
+        txtPassword.PasswordChar = If(txtPassword.PasswordChar = "●"c, Char.MinValue, "●"c)
     End Sub
 
 End Class

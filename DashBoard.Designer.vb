@@ -408,21 +408,21 @@ Partial Class DashBoard
         '
         Me.StockOrderingToolStripMenuItem.Image = CType(resources.GetObject("StockOrderingToolStripMenuItem.Image"), System.Drawing.Image)
         Me.StockOrderingToolStripMenuItem.Name = "StockOrderingToolStripMenuItem"
-        Me.StockOrderingToolStripMenuItem.Size = New System.Drawing.Size(196, 38)
+        Me.StockOrderingToolStripMenuItem.Size = New System.Drawing.Size(166, 22)
         Me.StockOrderingToolStripMenuItem.Text = "Stock Ordering"
         '
         'StockTransferToolStripMenuItem
         '
         Me.StockTransferToolStripMenuItem.Image = CType(resources.GetObject("StockTransferToolStripMenuItem.Image"), System.Drawing.Image)
         Me.StockTransferToolStripMenuItem.Name = "StockTransferToolStripMenuItem"
-        Me.StockTransferToolStripMenuItem.Size = New System.Drawing.Size(196, 38)
+        Me.StockTransferToolStripMenuItem.Size = New System.Drawing.Size(166, 22)
         Me.StockTransferToolStripMenuItem.Text = "Stock Transfering"
         '
         'ReturnToVendorToolStripMenuItem
         '
         Me.ReturnToVendorToolStripMenuItem.Image = CType(resources.GetObject("ReturnToVendorToolStripMenuItem.Image"), System.Drawing.Image)
         Me.ReturnToVendorToolStripMenuItem.Name = "ReturnToVendorToolStripMenuItem"
-        Me.ReturnToVendorToolStripMenuItem.Size = New System.Drawing.Size(196, 38)
+        Me.ReturnToVendorToolStripMenuItem.Size = New System.Drawing.Size(166, 22)
         Me.ReturnToVendorToolStripMenuItem.Text = "Return to Vendor"
         '
         'ToolStripButton7
@@ -438,21 +438,21 @@ Partial Class DashBoard
         '
         Me.Inventory.Image = CType(resources.GetObject("Inventory.Image"), System.Drawing.Image)
         Me.Inventory.Name = "Inventory"
-        Me.Inventory.Size = New System.Drawing.Size(214, 38)
+        Me.Inventory.Size = New System.Drawing.Size(198, 22)
         Me.Inventory.Text = "Inventory Management"
         '
         'Sotex
         '
         Me.Sotex.Image = CType(resources.GetObject("Sotex.Image"), System.Drawing.Image)
         Me.Sotex.Name = "Sotex"
-        Me.Sotex.Size = New System.Drawing.Size(214, 38)
+        Me.Sotex.Size = New System.Drawing.Size(198, 22)
         Me.Sotex.Text = "Soon to Expire"
         '
         'Bo
         '
         Me.Bo.Image = CType(resources.GetObject("Bo.Image"), System.Drawing.Image)
         Me.Bo.Name = "Bo"
-        Me.Bo.Size = New System.Drawing.Size(214, 38)
+        Me.Bo.Size = New System.Drawing.Size(198, 22)
         Me.Bo.Text = "Bad Order"
         '
         'Btn_Manage

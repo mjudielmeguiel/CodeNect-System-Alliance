@@ -143,17 +143,6 @@ Public Class DashBoard
         frmConnectionSettings.Show()
     End Sub
 
-    ' User / PC Management
-    Private Sub Manage_PC_Click(sender As Object, e As EventArgs) Handles Manage_PC.Click
-        Panel2.Controls.Clear()
-        Dim frmUserMgr As New User_Account_Manage
-        frmUserMgr.TopLevel = False
-        frmUserMgr.FormBorderStyle = FormBorderStyle.None
-        frmUserMgr.Dock = DockStyle.Fill
-        Panel2.Controls.Add(frmUserMgr)
-        frmUserMgr.Show()
-    End Sub
-
     ' Stock Ordering Reports
     Private Sub tsStockOrdering_Click(sender As Object, e As EventArgs) Handles tsStockOrdering.Click
         Panel2.Controls.Clear()
@@ -261,7 +250,7 @@ Public Class DashBoard
     ' Description Manager
     Private Sub Btn_Manage_Click(sender As Object, e As EventArgs) Handles Btn_Manage.Click
         Panel2.Controls.Clear()
-        Dim frmDescMgr As New Description_Manager
+        Dim frmDescMgr As New frmUser_Description_Manager
         frmDescMgr.TopLevel = False
         frmDescMgr.FormBorderStyle = FormBorderStyle.None
         frmDescMgr.Dock = DockStyle.Fill

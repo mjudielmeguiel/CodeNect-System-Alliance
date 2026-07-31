@@ -11,7 +11,7 @@
     <AssemblyName>CodeNect System Alliance</AssemblyName>
     <FileAlignment>512</FileAlignment>
     <MyType>WindowsForms</MyType>
-    <TargetFrameworkVersion>v4.8.1</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
     <Deterministic>true</Deterministic>
     <TargetFrameworkProfile />
@@ -173,8 +173,8 @@
     <Reference Include="ExcelNumberFormat, Version=1.1.0.0, Culture=neutral, PublicKeyToken=23c6f5d73be07eca, processorArchitecture=MSIL">
       <HintPath>packages\ExcelNumberFormat.1.1.0\lib\net20\ExcelNumberFormat.dll</HintPath>
     </Reference>
-    <Reference Include="Google.Protobuf, Version=3.32.0.0, Culture=neutral, PublicKeyToken=a7d26565bac4d604, processorArchitecture=MSIL">
-      <HintPath>packages\Google.Protobuf.3.32.0\lib\net45\Google.Protobuf.dll</HintPath>
+    <Reference Include="Google.Protobuf, Version=3.35.0.0, Culture=neutral, PublicKeyToken=a7d26565bac4d604, processorArchitecture=MSIL">
+      <HintPath>packages\Google.Protobuf.3.35.0\lib\net45\Google.Protobuf.dll</HintPath>
     </Reference>
     <Reference Include="K4os.Compression.LZ4, Version=1.3.8.0, Culture=neutral, PublicKeyToken=2186fa9121ef231d, processorArchitecture=MSIL">
       <HintPath>packages\K4os.Compression.LZ4.1.3.8\lib\net462\K4os.Compression.LZ4.dll</HintPath>
@@ -209,8 +209,8 @@
     <Reference Include="Microsoft.Extensions.Logging.Abstractions, Version=8.0.0.2, Culture=neutral, PublicKeyToken=adb9793829ddae60, processorArchitecture=MSIL">
       <HintPath>packages\Microsoft.Extensions.Logging.Abstractions.8.0.2\lib\net462\Microsoft.Extensions.Logging.Abstractions.dll</HintPath>
     </Reference>
-    <Reference Include="MySql.Data, Version=9.7.0.0, Culture=neutral, PublicKeyToken=c5687fc88969c44d, processorArchitecture=MSIL">
-      <HintPath>packages\MySql.Data.9.7.0\lib\net48\MySql.Data.dll</HintPath>
+    <Reference Include="MySql.Data, Version=26.7.0.0, Culture=neutral, PublicKeyToken=c5687fc88969c44d, processorArchitecture=MSIL">
+      <HintPath>packages\MySql.Data.26.7.0\lib\net48\MySql.Data.dll</HintPath>
     </Reference>
     <Reference Include="MySqlConnector, Version=2.0.0.0, Culture=neutral, PublicKeyToken=d33d3e53aa5f8c92, processorArchitecture=MSIL">
       <HintPath>packages\MySqlConnector.2.6.1\lib\net48\MySqlConnector.dll</HintPath>
@@ -239,15 +239,15 @@
     <Reference Include="System">
       <HintPath>..\..\..\..\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.8.1\System.dll</HintPath>
     </Reference>
-    <Reference Include="System.Buffers, Version=4.0.3.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
-      <HintPath>packages\System.Buffers.4.5.1\lib\net461\System.Buffers.dll</HintPath>
+    <Reference Include="System.Buffers, Version=4.0.4.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>packages\System.Buffers.4.6.0\lib\net462\System.Buffers.dll</HintPath>
     </Reference>
     <Reference Include="System.Collections.Immutable, Version=7.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
       <HintPath>packages\System.Collections.Immutable.7.0.0\lib\net462\System.Collections.Immutable.dll</HintPath>
     </Reference>
     <Reference Include="System.Configuration" />
-    <Reference Include="System.Configuration.ConfigurationManager, Version=8.0.0.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
-      <HintPath>packages\System.Configuration.ConfigurationManager.8.0.0\lib\net462\System.Configuration.ConfigurationManager.dll</HintPath>
+    <Reference Include="System.Configuration.ConfigurationManager, Version=10.0.0.8, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>packages\System.Configuration.ConfigurationManager.10.0.8\lib\net462\System.Configuration.ConfigurationManager.dll</HintPath>
     </Reference>
     <Reference Include="System.Data" />
     <Reference Include="System.Deployment" />
@@ -259,13 +259,13 @@
       <HintPath>packages\System.IO.Pipelines.5.0.2\lib\net461\System.IO.Pipelines.dll</HintPath>
     </Reference>
     <Reference Include="System.Management" />
-    <Reference Include="System.Memory, Version=4.0.1.2, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
-      <HintPath>packages\System.Memory.4.5.5\lib\net461\System.Memory.dll</HintPath>
+    <Reference Include="System.Memory, Version=4.0.2.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>packages\System.Memory.4.6.0\lib\net462\System.Memory.dll</HintPath>
     </Reference>
     <Reference Include="System.Messaging" />
     <Reference Include="System.Numerics" />
-    <Reference Include="System.Numerics.Vectors, Version=4.1.4.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
-      <HintPath>packages\System.Numerics.Vectors.4.5.0\lib\net46\System.Numerics.Vectors.dll</HintPath>
+    <Reference Include="System.Numerics.Vectors, Version=4.1.5.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>packages\System.Numerics.Vectors.4.6.0\lib\net462\System.Numerics.Vectors.dll</HintPath>
     </Reference>
     <Reference Include="System.Reflection.Metadata, Version=7.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
       <HintPath>packages\System.Reflection.Metadata.7.0.0\lib\net462\System.Reflection.Metadata.dll</HintPath>
@@ -287,8 +287,8 @@
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="System.Net.Http" />
     <Reference Include="WindowsBase" />
-    <Reference Include="ZstdSharp, Version=0.8.6.0, Culture=neutral, PublicKeyToken=8d151af33a4ad5cf, processorArchitecture=MSIL">
-      <HintPath>packages\ZstdSharp.Port.0.8.6\lib\net462\ZstdSharp.dll</HintPath>
+    <Reference Include="ZstdSharp, Version=0.8.8.0, Culture=neutral, PublicKeyToken=8d151af33a4ad5cf, processorArchitecture=MSIL">
+      <HintPath>packages\ZstdSharp.Port.0.8.8\lib\net462\ZstdSharp.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
@@ -317,10 +317,10 @@
     <Compile Include="Branch\ADD Branch.vb">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Branch\frmBranch_Info.Designer.vb">
-      <DependentUpon>frmBranch_Info.vb</DependentUpon>
+    <Compile Include="Dashboard Forms\frmHome.Designer.vb">
+      <DependentUpon>frmHome.vb</DependentUpon>
     </Compile>
-    <Compile Include="Branch\frmBranch_Info.vb">
+    <Compile Include="Dashboard Forms\frmHome.vb">
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="DBConnection.vb" />
@@ -334,6 +334,24 @@
       <DependentUpon>frmConnectionSettings.vb</DependentUpon>
     </Compile>
     <Compile Include="frmConnectionSettings.vb">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="frmDashboard.Designer.vb">
+      <DependentUpon>frmDashboard.vb</DependentUpon>
+    </Compile>
+    <Compile Include="frmDashboard.vb">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Products ADMIN\frmCategory.Designer.vb">
+      <DependentUpon>frmCategory.vb</DependentUpon>
+    </Compile>
+    <Compile Include="Products ADMIN\frmCategory.vb">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Products ADMIN\frmScanADDProduct.Designer.vb">
+      <DependentUpon>frmScanADDProduct.vb</DependentUpon>
+    </Compile>
+    <Compile Include="Products ADMIN\frmScanADDProduct.vb">
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="Reports\frmBad_Order.Designer.vb">
@@ -426,16 +444,16 @@
     <Compile Include="Price\Price_Adjustment.vb">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Products\frmADDProduct_Manual.Designer.vb">
+    <Compile Include="Products ADMIN\frmADDProduct_Manual.Designer.vb">
       <DependentUpon>frmADDProduct_Manual.vb</DependentUpon>
     </Compile>
-    <Compile Include="Products\frmADDProduct_Manual.vb">
+    <Compile Include="Products ADMIN\frmADDProduct_Manual.vb">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Products\frmADDProduct_Scan.Designer.vb">
+    <Compile Include="Products ADMIN\frmADDProduct_Scan.Designer.vb">
       <DependentUpon>frmADDProduct_Scan.vb</DependentUpon>
     </Compile>
-    <Compile Include="Products\frmADDProduct_Scan.vb">
+    <Compile Include="Products ADMIN\frmADDProduct_Scan.vb">
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="RTV\frmReturntoVendor_Reports.Designer.vb">
@@ -492,16 +510,22 @@
     <Compile Include="STR\Transfer_Reports.vb">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Users\ADD User.Designer.vb">
+    <Compile Include="User Management\ADD User.Designer.vb">
       <DependentUpon>ADD User.vb</DependentUpon>
     </Compile>
-    <Compile Include="Users\ADD User.vb">
+    <Compile Include="User Management\ADD User.vb">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Users\Edit_User.Designer.vb">
+    <Compile Include="User Management\Edit_User.Designer.vb">
       <DependentUpon>Edit_User.vb</DependentUpon>
     </Compile>
-    <Compile Include="Users\Edit_User.vb">
+    <Compile Include="User Management\Edit_User.vb">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Dashboard Forms\frmUsermanager.Designer.vb">
+      <DependentUpon>frmUsermanager.vb</DependentUpon>
+    </Compile>
+    <Compile Include="Dashboard Forms\frmUsermanager.vb">
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="Vendor System\ADD_Vendor.Designer.vb">
@@ -522,10 +546,10 @@
     <Compile Include="DashBoard.vb">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Products\Description_Manager.Designer.vb">
+    <Compile Include="Products ADMIN\Description_Manager.Designer.vb">
       <DependentUpon>Description_Manager.vb</DependentUpon>
     </Compile>
-    <Compile Include="Products\Description_Manager.vb">
+    <Compile Include="Products ADMIN\Description_Manager.vb">
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="Login.Designer.vb">
@@ -550,22 +574,16 @@
       <DependentUpon>Settings.settings</DependentUpon>
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
     </Compile>
-    <Compile Include="Products\frmProduct_Information.Designer.vb">
+    <Compile Include="Products ADMIN\frmProduct_Information.Designer.vb">
       <DependentUpon>frmProduct_Information.vb</DependentUpon>
     </Compile>
-    <Compile Include="Products\frmProduct_Information.vb">
+    <Compile Include="Products ADMIN\frmProduct_Information.vb">
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="Account\Register account.Designer.vb">
       <DependentUpon>Register account.vb</DependentUpon>
     </Compile>
     <Compile Include="Account\Register account.vb">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="Users\User Account Manage.Designer.vb">
-      <DependentUpon>User Account Manage.vb</DependentUpon>
-    </Compile>
-    <Compile Include="Users\User Account Manage.vb">
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="Vendor System\ADD_Vendor_Product.Designer.vb">
@@ -606,14 +624,23 @@
     <EmbeddedResource Include="Branch\ADD Branch.resx">
       <DependentUpon>ADD Branch.vb</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Branch\frmBranch_Info.resx">
-      <DependentUpon>frmBranch_Info.vb</DependentUpon>
+    <EmbeddedResource Include="Dashboard Forms\frmHome.resx">
+      <DependentUpon>frmHome.vb</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Discounts\frmDiscountRecords.resx">
       <DependentUpon>frmDiscountRecords.vb</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="frmConnectionSettings.resx">
       <DependentUpon>frmConnectionSettings.vb</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="frmDashboard.resx">
+      <DependentUpon>frmDashboard.vb</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Products ADMIN\frmCategory.resx">
+      <DependentUpon>frmCategory.vb</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Products ADMIN\frmScanADDProduct.resx">
+      <DependentUpon>frmScanADDProduct.vb</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Reports\frmBad_Order.resx">
       <DependentUpon>frmBad_Order.vb</DependentUpon>
@@ -660,10 +687,10 @@
     <EmbeddedResource Include="Price\Price_Adjustment.resx">
       <DependentUpon>Price_Adjustment.vb</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Products\frmADDProduct_Manual.resx">
+    <EmbeddedResource Include="Products ADMIN\frmADDProduct_Manual.resx">
       <DependentUpon>frmADDProduct_Manual.vb</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Products\frmADDProduct_Scan.resx">
+    <EmbeddedResource Include="Products ADMIN\frmADDProduct_Scan.resx">
       <DependentUpon>frmADDProduct_Scan.vb</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="RTV\frmReturntoVendor_Reports.resx">
@@ -693,11 +720,14 @@
     <EmbeddedResource Include="STR\Transfer_Reports.resx">
       <DependentUpon>Transfer_Reports.vb</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Users\ADD User.resx">
+    <EmbeddedResource Include="User Management\ADD User.resx">
       <DependentUpon>ADD User.vb</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Users\Edit_User.resx">
+    <EmbeddedResource Include="User Management\Edit_User.resx">
       <DependentUpon>Edit_User.vb</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Dashboard Forms\frmUsermanager.resx">
+      <DependentUpon>frmUsermanager.vb</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Vendor System\ADD_Vendor.resx">
       <DependentUpon>ADD_Vendor.vb</DependentUpon>
@@ -708,7 +738,7 @@
     <EmbeddedResource Include="DashBoard.resx">
       <DependentUpon>DashBoard.vb</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Products\Description_Manager.resx">
+    <EmbeddedResource Include="Products ADMIN\Description_Manager.resx">
       <DependentUpon>Description_Manager.vb</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Login.resx">
@@ -720,14 +750,11 @@
       <CustomToolNamespace>My.Resources</CustomToolNamespace>
       <SubType>Designer</SubType>
     </EmbeddedResource>
-    <EmbeddedResource Include="Products\frmProduct_Information.resx">
+    <EmbeddedResource Include="Products ADMIN\frmProduct_Information.resx">
       <DependentUpon>frmProduct_Information.vb</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Account\Register account.resx">
       <DependentUpon>Register account.vb</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Users\User Account Manage.resx">
-      <DependentUpon>User Account Manage.vb</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Vendor System\ADD_Vendor_Product.resx">
       <DependentUpon>ADD_Vendor_Product.vb</DependentUpon>
@@ -811,6 +838,7 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Badorder\" />
+    <Folder Include="Products user\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.VisualBasic.targets" />
 </Project>

@@ -11,7 +11,6 @@ Public Class ADD_Branch
         GetAccountDetails()
         GenerateBranchID()
         SetupBusinessTypeCombo()
-
         Me.TopMost = True
     End Sub
 
@@ -53,14 +52,13 @@ Public Class ADD_Branch
     Private Sub GetAccountDetails()
         Try
             If String.IsNullOrEmpty(Login.LoggedInAccountID) Then
-                MessageBox.Show("Walang natukoy na user na naka-log in. Mag-log in muna.", "Paalala", MessageBoxButtons.OK, MessageBoxIcon.Warning)
+                MessageBox.Show("No logged-in account found. Please log in first.", "Notice", MessageBoxButtons.OK, MessageBoxIcon.Warning)
                 Me.Close()
                 Return
             End If
 
             Using conn As New MySqlConnection(DBConnection.connStr)
                 conn.Open()
-                ' ✅ Tinanggal na ang "adm." schema, tugma sa `account` table mo
                 Dim cmd As New MySqlCommand("SELECT `ACCOUNT_ID`, `ACCOUNT` FROM `account` WHERE `ACCOUNT_ID` = @AID", conn)
                 cmd.Parameters.AddWithValue("@AID", Login.LoggedInAccountID)
 
@@ -69,13 +67,13 @@ Public Class ADD_Branch
                         currentAccountID = reader("ACCOUNT_ID").ToString().Trim()
                         currentAccountName = reader("ACCOUNT").ToString().Trim()
                     Else
-                        MessageBox.Show("Hindi mahanap ang impormasyon ng account.", "Paalala", MessageBoxButtons.OK, MessageBoxIcon.Warning)
+                        MessageBox.Show("Account information not found.", "Notice", MessageBoxButtons.OK, MessageBoxIcon.Warning)
                         Me.Close()
                     End If
                 End Using
             End Using
         Catch ex As Exception
-            MessageBox.Show("Error sa pagkuha ng account: " & ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
+            MessageBox.Show("Error loading account details: " & ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
             Me.Close()
         End Try
     End Sub
@@ -89,8 +87,8 @@ Public Class ADD_Branch
 
     Private Sub picBusinessLogo_DoubleClick(sender As Object, e As EventArgs) Handles picBusinessLogo.DoubleClick
         Using ofd As New OpenFileDialog()
-            ofd.Title = "Pumili ng Logo ng Negosyo"
-            ofd.Filter = "Mga Larawan|*.jpg;*.jpeg;*.png;*.bmp"
+            ofd.Title = "Select Business Logo"
+            ofd.Filter = "Image Files|*.jpg;*.jpeg;*.png;*.bmp"
 
             If ofd.ShowDialog() = DialogResult.OK Then
                 Try
@@ -102,7 +100,7 @@ Public Class ADD_Branch
                         logoImageData = ms.ToArray()
                     End Using
                 Catch ex As Exception
-                    MessageBox.Show("Hindi maikarga ang larawan: " & ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
+                    MessageBox.Show("Failed to load image: " & ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
                 End Try
             End If
         End Using
@@ -126,7 +124,6 @@ Public Class ADD_Branch
     End Sub
 
     Private Sub btnSave_Click_1(sender As Object, e As EventArgs) Handles btnSave.Click
-        ' Check kung kumpleto ang lahat ng field
         If String.IsNullOrWhiteSpace(txtBranch.Text) Or
            String.IsNullOrWhiteSpace(txtTIN.Text) Or
            String.IsNullOrWhiteSpace(txtAddress.Text) Or
@@ -135,22 +132,21 @@ Public Class ADD_Branch
            String.IsNullOrWhiteSpace(txtManager.Text) Or
            cmbBusinessType.SelectedIndex = -1 Then
 
-            MessageBox.Show("Pakipunan ang lahat ng kinakailangang impormasyon.", "Paalala", MessageBoxButtons.OK, MessageBoxIcon.Warning)
+            MessageBox.Show("Please fill in all required fields.", "Notice", MessageBoxButtons.OK, MessageBoxIcon.Warning)
             Return
         End If
 
         If String.IsNullOrEmpty(currentAccountID) Then
-            MessageBox.Show("Walang makuhang datos ng account. Isara at buksan muli ang pormularyo.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
+            MessageBox.Show("Account data not found. Close and reopen the form.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
             Return
         End If
 
         Try
             Using conn As New MySqlConnection(DBConnection.connStr)
                 conn.Open()
-                ' ✅ Tugma sa eksaktong columns ng `branches` table mo
                 Dim cmd As New MySqlCommand(
-                    "INSERT INTO `branches` (`ACCOUNT_ID`, `ACCOUNT`, `BRANCH_ID`, `BRANCH`, `TIN`, `BUSINESS_TYPE`, `BUSINESS_LO`, `ADDRESS`, `EMAIL`, `CONTACT`, `MANAGER`, `REGISTRATION_DATE`, `STATUS`) " &
-                    "VALUES (@AID, @ACC, @BID, @BRN, @TIN, @BT, @LOGO, @ADDR, @EML, @CONT, @MGR, CURDATE(), 'ACTIVE')", conn)
+                    "INSERT INTO `branches` (`ACCOUNT_ID`, `ACCOUNT`, `BRANCH_ID`, `BRANCH`, `TIN`, `TIN_REGISTERED`, `BUSINESS_TYPE`, `BRANCH_PHOTO`, `ADDRESS`, `EMAIL`, `CONTACT`, `MANAGER`, `REGISTRATION_DATE`, `STATUS`) " &
+                    "VALUES (@AID, @ACC, @BID, @BRN, @TIN, 'REGISTERED', @BT, @LOGO, @ADDR, @EML, @CONT, @MGR, CURDATE(), 'ACTIVE')", conn)
 
                 cmd.Parameters.AddWithValue("@AID", currentAccountID)
                 cmd.Parameters.AddWithValue("@ACC", currentAccountName)
@@ -167,12 +163,12 @@ Public Class ADD_Branch
                 cmd.ExecuteNonQuery()
             End Using
 
-            MessageBox.Show("Matagumpay na naisave ang sangay.", "Tagumpay", MessageBoxButtons.OK, MessageBoxIcon.Information)
+            MessageBox.Show("Branch saved successfully.", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information)
             ClearInputs()
             GenerateBranchID()
             SetupBusinessTypeCombo()
         Catch ex As Exception
-            MessageBox.Show("May naganap na error: " & ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
+            MessageBox.Show("An error occurred: " & ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
         End Try
     End Sub
 

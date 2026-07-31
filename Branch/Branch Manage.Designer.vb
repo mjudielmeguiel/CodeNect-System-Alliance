@@ -32,14 +32,13 @@ Partial Class Branch_Manage
         Me.ADDRESS = New System.Windows.Forms.DataGridViewTextBoxColumn()
         Me.DataGridViewTextBoxColumn6 = New System.Windows.Forms.DataGridViewTextBoxColumn()
         Me.DataGridViewTextBoxColumn7 = New System.Windows.Forms.DataGridViewTextBoxColumn()
-        Me.Panel1 = New System.Windows.Forms.Panel()
-        Me.btnSaveExcel = New System.Windows.Forms.Button()
         Me.txtSearch = New System.Windows.Forms.TextBox()
-        Me.btnRefresh = New System.Windows.Forms.Button()
-        Me.ButtonAdd = New System.Windows.Forms.Button()
-        Me.lblTotalAmount = New System.Windows.Forms.TextBox()
         Me.dgvBranches = New System.Windows.Forms.DataGridView()
-        Me.Panel1.SuspendLayout()
+        Me.Panel2 = New System.Windows.Forms.Panel()
+        Me.Label4 = New System.Windows.Forms.Label()
+        Me.cboRole = New System.Windows.Forms.ComboBox()
+        Me.btnSubmit = New System.Windows.Forms.Button()
+        Me.Panel3 = New System.Windows.Forms.Panel()
         CType(Me.dgvBranches, System.ComponentModel.ISupportInitialize).BeginInit()
         Me.SuspendLayout()
         '
@@ -109,96 +108,16 @@ Partial Class Branch_Manage
         Me.DataGridViewTextBoxColumn7.Name = "DataGridViewTextBoxColumn7"
         Me.DataGridViewTextBoxColumn7.Width = 97
         '
-        'Panel1
-        '
-        Me.Panel1.Anchor = CType(((System.Windows.Forms.AnchorStyles.Bottom Or System.Windows.Forms.AnchorStyles.Left) _
-            Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
-        Me.Panel1.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle
-        Me.Panel1.Controls.Add(Me.btnSaveExcel)
-        Me.Panel1.Controls.Add(Me.txtSearch)
-        Me.Panel1.Controls.Add(Me.btnRefresh)
-        Me.Panel1.Controls.Add(Me.ButtonAdd)
-        Me.Panel1.Controls.Add(Me.lblTotalAmount)
-        Me.Panel1.Location = New System.Drawing.Point(13, 708)
-        Me.Panel1.Name = "Panel1"
-        Me.Panel1.Size = New System.Drawing.Size(1342, 48)
-        Me.Panel1.TabIndex = 221
-        '
-        'btnSaveExcel
-        '
-        Me.btnSaveExcel.Anchor = CType((System.Windows.Forms.AnchorStyles.Top Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
-        Me.btnSaveExcel.BackColor = System.Drawing.Color.Maroon
-        Me.btnSaveExcel.BackgroundImageLayout = System.Windows.Forms.ImageLayout.None
-        Me.btnSaveExcel.FlatStyle = System.Windows.Forms.FlatStyle.Flat
-        Me.btnSaveExcel.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.btnSaveExcel.ForeColor = System.Drawing.SystemColors.ButtonHighlight
-        Me.btnSaveExcel.Image = CType(resources.GetObject("btnSaveExcel.Image"), System.Drawing.Image)
-        Me.btnSaveExcel.Location = New System.Drawing.Point(1200, 5)
-        Me.btnSaveExcel.Name = "btnSaveExcel"
-        Me.btnSaveExcel.Size = New System.Drawing.Size(135, 37)
-        Me.btnSaveExcel.TabIndex = 214
-        Me.btnSaveExcel.Text = " Save to Excel"
-        Me.btnSaveExcel.TextAlign = System.Drawing.ContentAlignment.MiddleRight
-        Me.btnSaveExcel.TextImageRelation = System.Windows.Forms.TextImageRelation.ImageBeforeText
-        Me.btnSaveExcel.UseVisualStyleBackColor = False
-        '
         'txtSearch
         '
-        Me.txtSearch.Anchor = CType((System.Windows.Forms.AnchorStyles.Left Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
+        Me.txtSearch.Anchor = CType((System.Windows.Forms.AnchorStyles.Top Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
         Me.txtSearch.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle
-        Me.txtSearch.Font = New System.Drawing.Font("Microsoft Sans Serif", 12.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.txtSearch.Location = New System.Drawing.Point(10, 10)
+        Me.txtSearch.Font = New System.Drawing.Font("Microsoft YaHei UI", 12.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.txtSearch.Location = New System.Drawing.Point(531, 59)
         Me.txtSearch.Margin = New System.Windows.Forms.Padding(2)
         Me.txtSearch.Name = "txtSearch"
-        Me.txtSearch.Size = New System.Drawing.Size(789, 26)
+        Me.txtSearch.Size = New System.Drawing.Size(382, 28)
         Me.txtSearch.TabIndex = 212
-        '
-        'btnRefresh
-        '
-        Me.btnRefresh.Anchor = CType((System.Windows.Forms.AnchorStyles.Top Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
-        Me.btnRefresh.BackColor = System.Drawing.Color.Maroon
-        Me.btnRefresh.BackgroundImageLayout = System.Windows.Forms.ImageLayout.None
-        Me.btnRefresh.FlatStyle = System.Windows.Forms.FlatStyle.Flat
-        Me.btnRefresh.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.btnRefresh.ForeColor = System.Drawing.SystemColors.ButtonHighlight
-        Me.btnRefresh.Image = CType(resources.GetObject("btnRefresh.Image"), System.Drawing.Image)
-        Me.btnRefresh.Location = New System.Drawing.Point(1059, 5)
-        Me.btnRefresh.Name = "btnRefresh"
-        Me.btnRefresh.Size = New System.Drawing.Size(135, 37)
-        Me.btnRefresh.TabIndex = 211
-        Me.btnRefresh.Text = " Refresh"
-        Me.btnRefresh.TextAlign = System.Drawing.ContentAlignment.MiddleRight
-        Me.btnRefresh.TextImageRelation = System.Windows.Forms.TextImageRelation.ImageBeforeText
-        Me.btnRefresh.UseVisualStyleBackColor = False
-        '
-        'ButtonAdd
-        '
-        Me.ButtonAdd.Anchor = CType((System.Windows.Forms.AnchorStyles.Top Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
-        Me.ButtonAdd.BackColor = System.Drawing.Color.Maroon
-        Me.ButtonAdd.BackgroundImageLayout = System.Windows.Forms.ImageLayout.None
-        Me.ButtonAdd.FlatStyle = System.Windows.Forms.FlatStyle.Flat
-        Me.ButtonAdd.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.ButtonAdd.ForeColor = System.Drawing.SystemColors.ButtonHighlight
-        Me.ButtonAdd.Image = CType(resources.GetObject("ButtonAdd.Image"), System.Drawing.Image)
-        Me.ButtonAdd.Location = New System.Drawing.Point(918, 5)
-        Me.ButtonAdd.Name = "ButtonAdd"
-        Me.ButtonAdd.Size = New System.Drawing.Size(135, 37)
-        Me.ButtonAdd.TabIndex = 210
-        Me.ButtonAdd.Text = " ADD"
-        Me.ButtonAdd.TextAlign = System.Drawing.ContentAlignment.MiddleRight
-        Me.ButtonAdd.TextImageRelation = System.Windows.Forms.TextImageRelation.ImageBeforeText
-        Me.ButtonAdd.UseVisualStyleBackColor = False
-        '
-        'lblTotalAmount
-        '
-        Me.lblTotalAmount.Anchor = CType((System.Windows.Forms.AnchorStyles.Top Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
-        Me.lblTotalAmount.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle
-        Me.lblTotalAmount.Font = New System.Drawing.Font("Microsoft Sans Serif", 12.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.lblTotalAmount.Location = New System.Drawing.Point(803, 10)
-        Me.lblTotalAmount.Margin = New System.Windows.Forms.Padding(2)
-        Me.lblTotalAmount.Name = "lblTotalAmount"
-        Me.lblTotalAmount.Size = New System.Drawing.Size(110, 26)
-        Me.lblTotalAmount.TabIndex = 218
         '
         'dgvBranches
         '
@@ -206,31 +125,95 @@ Partial Class Branch_Manage
         Me.dgvBranches.Anchor = CType((((System.Windows.Forms.AnchorStyles.Top Or System.Windows.Forms.AnchorStyles.Bottom) _
             Or System.Windows.Forms.AnchorStyles.Left) _
             Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
-        Me.dgvBranches.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.AllCells
+        Me.dgvBranches.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.Fill
+        Me.dgvBranches.BackgroundColor = System.Drawing.SystemColors.Control
+        Me.dgvBranches.BorderStyle = System.Windows.Forms.BorderStyle.None
+        Me.dgvBranches.CellBorderStyle = System.Windows.Forms.DataGridViewCellBorderStyle.None
         Me.dgvBranches.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize
-        Me.dgvBranches.Location = New System.Drawing.Point(13, 12)
+        Me.dgvBranches.Location = New System.Drawing.Point(12, 149)
         Me.dgvBranches.Name = "dgvBranches"
         Me.dgvBranches.ReadOnly = True
         Me.dgvBranches.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect
-        Me.dgvBranches.Size = New System.Drawing.Size(1341, 690)
+        Me.dgvBranches.Size = New System.Drawing.Size(1342, 607)
         Me.dgvBranches.TabIndex = 222
+        '
+        'Panel2
+        '
+        Me.Panel2.Dock = System.Windows.Forms.DockStyle.Top
+        Me.Panel2.Location = New System.Drawing.Point(0, 0)
+        Me.Panel2.Name = "Panel2"
+        Me.Panel2.Size = New System.Drawing.Size(1366, 48)
+        Me.Panel2.TabIndex = 319
+        '
+        'Label4
+        '
+        Me.Label4.AutoSize = True
+        Me.Label4.Font = New System.Drawing.Font("Microsoft YaHei UI", 15.75!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.Label4.Location = New System.Drawing.Point(12, 59)
+        Me.Label4.Name = "Label4"
+        Me.Label4.Size = New System.Drawing.Size(128, 28)
+        Me.Label4.TabIndex = 317
+        Me.Label4.Text = "Branch List"
+        '
+        'cboRole
+        '
+        Me.cboRole.Anchor = CType((System.Windows.Forms.AnchorStyles.Top Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
+        Me.cboRole.FlatStyle = System.Windows.Forms.FlatStyle.System
+        Me.cboRole.Font = New System.Drawing.Font("Microsoft YaHei UI", 11.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.cboRole.FormattingEnabled = True
+        Me.cboRole.Location = New System.Drawing.Point(918, 59)
+        Me.cboRole.Name = "cboRole"
+        Me.cboRole.Size = New System.Drawing.Size(296, 28)
+        Me.cboRole.TabIndex = 323
+        '
+        'btnSubmit
+        '
+        Me.btnSubmit.Anchor = CType((System.Windows.Forms.AnchorStyles.Top Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
+        Me.btnSubmit.BackColor = System.Drawing.Color.DarkRed
+        Me.btnSubmit.BackgroundImageLayout = System.Windows.Forms.ImageLayout.None
+        Me.btnSubmit.FlatAppearance.BorderSize = 0
+        Me.btnSubmit.FlatStyle = System.Windows.Forms.FlatStyle.Flat
+        Me.btnSubmit.Font = New System.Drawing.Font("Microsoft YaHei UI", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.btnSubmit.ForeColor = System.Drawing.SystemColors.ButtonHighlight
+        Me.btnSubmit.ImageAlign = System.Drawing.ContentAlignment.MiddleRight
+        Me.btnSubmit.Location = New System.Drawing.Point(1220, 54)
+        Me.btnSubmit.Name = "btnSubmit"
+        Me.btnSubmit.Size = New System.Drawing.Size(134, 37)
+        Me.btnSubmit.TabIndex = 321
+        Me.btnSubmit.Text = "Create Branch"
+        Me.btnSubmit.TextImageRelation = System.Windows.Forms.TextImageRelation.ImageBeforeText
+        Me.btnSubmit.UseVisualStyleBackColor = False
+        '
+        'Panel3
+        '
+        Me.Panel3.Anchor = CType(((System.Windows.Forms.AnchorStyles.Top Or System.Windows.Forms.AnchorStyles.Left) _
+            Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
+        Me.Panel3.Location = New System.Drawing.Point(12, 97)
+        Me.Panel3.Name = "Panel3"
+        Me.Panel3.Size = New System.Drawing.Size(1342, 46)
+        Me.Panel3.TabIndex = 324
         '
         'Branch_Manage
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(6.0!, 13.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
+        Me.BackColor = System.Drawing.SystemColors.ControlLight
         Me.ClientSize = New System.Drawing.Size(1366, 768)
+        Me.Controls.Add(Me.txtSearch)
+        Me.Controls.Add(Me.Panel3)
+        Me.Controls.Add(Me.cboRole)
+        Me.Controls.Add(Me.btnSubmit)
+        Me.Controls.Add(Me.Label4)
+        Me.Controls.Add(Me.Panel2)
         Me.Controls.Add(Me.dgvBranches)
-        Me.Controls.Add(Me.Panel1)
         Me.FormBorderStyle = System.Windows.Forms.FormBorderStyle.None
         Me.Icon = CType(resources.GetObject("$this.Icon"), System.Drawing.Icon)
         Me.Name = "Branch_Manage"
         Me.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen
         Me.Text = "Branch Manage"
-        Me.Panel1.ResumeLayout(False)
-        Me.Panel1.PerformLayout()
         CType(Me.dgvBranches, System.ComponentModel.ISupportInitialize).EndInit()
         Me.ResumeLayout(False)
+        Me.PerformLayout()
 
     End Sub
     Friend WithEvents DataGridViewTextBoxColumn2 As DataGridViewTextBoxColumn
@@ -242,11 +225,11 @@ Partial Class Branch_Manage
     Friend WithEvents ADDRESS As DataGridViewTextBoxColumn
     Friend WithEvents DataGridViewTextBoxColumn6 As DataGridViewTextBoxColumn
     Friend WithEvents DataGridViewTextBoxColumn7 As DataGridViewTextBoxColumn
-    Friend WithEvents Panel1 As Panel
-    Friend WithEvents btnSaveExcel As Button
     Friend WithEvents txtSearch As TextBox
-    Friend WithEvents btnRefresh As Button
-    Friend WithEvents ButtonAdd As Button
-    Friend WithEvents lblTotalAmount As TextBox
     Friend WithEvents dgvBranches As DataGridView
+    Friend WithEvents Panel2 As Panel
+    Friend WithEvents Label4 As Label
+    Friend WithEvents cboRole As ComboBox
+    Friend WithEvents btnSubmit As Button
+    Friend WithEvents Panel3 As Panel
 End Class
