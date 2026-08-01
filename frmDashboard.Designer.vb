@@ -27,20 +27,20 @@ Partial Class frmDashboard
         Me.Button10 = New System.Windows.Forms.Button()
         Me.Label1 = New System.Windows.Forms.Label()
         Me.menupanel = New System.Windows.Forms.Panel()
-        Me.btnuselist = New System.Windows.Forms.Button()
         Me.Button9 = New System.Windows.Forms.Button()
         Me.Button8 = New System.Windows.Forms.Button()
         Me.Button7 = New System.Windows.Forms.Button()
         Me.Button4 = New System.Windows.Forms.Button()
         Me.Button12 = New System.Windows.Forms.Button()
-        Me.Button11 = New System.Windows.Forms.Button()
-        Me.Button1 = New System.Windows.Forms.Button()
         Me.Button2 = New System.Windows.Forms.Button()
         Me.Button6 = New System.Windows.Forms.Button()
         Me.btnClose = New System.Windows.Forms.Button()
+        Me.Button11 = New System.Windows.Forms.Button()
+        Me.btnuselist = New System.Windows.Forms.Button()
+        Me.Button1 = New System.Windows.Forms.Button()
+        Me.Button3 = New System.Windows.Forms.Button()
         Me.Panel4 = New System.Windows.Forms.Panel()
         Me.Panelmenu = New System.Windows.Forms.Panel()
-        Me.Button3 = New System.Windows.Forms.Button()
         Me.Panel1.SuspendLayout()
         Me.menupanel.SuspendLayout()
         Me.SuspendLayout()
@@ -106,25 +106,6 @@ Partial Class frmDashboard
         Me.menupanel.Name = "menupanel"
         Me.menupanel.Size = New System.Drawing.Size(279, 720)
         Me.menupanel.TabIndex = 3
-        '
-        'btnuselist
-        '
-        Me.btnuselist.BackColor = System.Drawing.SystemColors.ControlLight
-        Me.btnuselist.BackgroundImageLayout = System.Windows.Forms.ImageLayout.None
-        Me.btnuselist.Dock = System.Windows.Forms.DockStyle.Top
-        Me.btnuselist.FlatAppearance.BorderSize = 0
-        Me.btnuselist.FlatStyle = System.Windows.Forms.FlatStyle.Flat
-        Me.btnuselist.Font = New System.Drawing.Font("Microsoft YaHei UI Light", 12.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.btnuselist.ForeColor = System.Drawing.SystemColors.ControlText
-        Me.btnuselist.Image = CType(resources.GetObject("btnuselist.Image"), System.Drawing.Image)
-        Me.btnuselist.ImageAlign = System.Drawing.ContentAlignment.MiddleRight
-        Me.btnuselist.Location = New System.Drawing.Point(0, 199)
-        Me.btnuselist.Name = "btnuselist"
-        Me.btnuselist.Size = New System.Drawing.Size(279, 47)
-        Me.btnuselist.TabIndex = 320
-        Me.btnuselist.Text = "User List"
-        Me.btnuselist.TextAlign = System.Drawing.ContentAlignment.MiddleLeft
-        Me.btnuselist.UseVisualStyleBackColor = False
         '
         'Button9
         '
@@ -220,44 +201,6 @@ Partial Class frmDashboard
         Me.Button12.TextAlign = System.Drawing.ContentAlignment.MiddleLeft
         Me.Button12.UseVisualStyleBackColor = False
         '
-        'Button11
-        '
-        Me.Button11.BackColor = System.Drawing.SystemColors.ControlLight
-        Me.Button11.BackgroundImageLayout = System.Windows.Forms.ImageLayout.None
-        Me.Button11.Dock = System.Windows.Forms.DockStyle.Top
-        Me.Button11.FlatAppearance.BorderSize = 0
-        Me.Button11.FlatStyle = System.Windows.Forms.FlatStyle.Flat
-        Me.Button11.Font = New System.Drawing.Font("Microsoft YaHei UI Light", 12.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.Button11.ForeColor = System.Drawing.SystemColors.ControlText
-        Me.Button11.Image = CType(resources.GetObject("Button11.Image"), System.Drawing.Image)
-        Me.Button11.ImageAlign = System.Drawing.ContentAlignment.MiddleRight
-        Me.Button11.Location = New System.Drawing.Point(0, 246)
-        Me.Button11.Name = "Button11"
-        Me.Button11.Size = New System.Drawing.Size(279, 47)
-        Me.Button11.TabIndex = 319
-        Me.Button11.Text = "Dashboard"
-        Me.Button11.TextAlign = System.Drawing.ContentAlignment.MiddleLeft
-        Me.Button11.UseVisualStyleBackColor = False
-        '
-        'Button1
-        '
-        Me.Button1.BackColor = System.Drawing.SystemColors.ControlLight
-        Me.Button1.BackgroundImageLayout = System.Windows.Forms.ImageLayout.None
-        Me.Button1.Dock = System.Windows.Forms.DockStyle.Top
-        Me.Button1.FlatAppearance.BorderSize = 0
-        Me.Button1.FlatStyle = System.Windows.Forms.FlatStyle.Flat
-        Me.Button1.Font = New System.Drawing.Font("Microsoft YaHei UI Light", 12.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.Button1.ForeColor = System.Drawing.SystemColors.ControlText
-        Me.Button1.Image = CType(resources.GetObject("Button1.Image"), System.Drawing.Image)
-        Me.Button1.ImageAlign = System.Drawing.ContentAlignment.MiddleRight
-        Me.Button1.Location = New System.Drawing.Point(0, 152)
-        Me.Button1.Name = "Button1"
-        Me.Button1.Size = New System.Drawing.Size(279, 47)
-        Me.Button1.TabIndex = 310
-        Me.Button1.Text = "ADMIN Product Descriptions"
-        Me.Button1.TextAlign = System.Drawing.ContentAlignment.MiddleLeft
-        Me.Button1.UseVisualStyleBackColor = False
-        '
         'Button2
         '
         Me.Button2.BackColor = System.Drawing.SystemColors.ControlLight
@@ -317,24 +260,62 @@ Partial Class frmDashboard
         Me.btnClose.TextImageRelation = System.Windows.Forms.TextImageRelation.TextBeforeImage
         Me.btnClose.UseVisualStyleBackColor = False
         '
-        'Panel4
+        'Button11
         '
-        Me.Panel4.BackgroundImage = CType(resources.GetObject("Panel4.BackgroundImage"), System.Drawing.Image)
-        Me.Panel4.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Zoom
-        Me.Panel4.Dock = System.Windows.Forms.DockStyle.Top
-        Me.Panel4.Location = New System.Drawing.Point(0, 0)
-        Me.Panel4.Name = "Panel4"
-        Me.Panel4.Size = New System.Drawing.Size(279, 105)
-        Me.Panel4.TabIndex = 312
+        Me.Button11.BackColor = System.Drawing.SystemColors.ControlLight
+        Me.Button11.BackgroundImageLayout = System.Windows.Forms.ImageLayout.None
+        Me.Button11.Dock = System.Windows.Forms.DockStyle.Top
+        Me.Button11.FlatAppearance.BorderSize = 0
+        Me.Button11.FlatStyle = System.Windows.Forms.FlatStyle.Flat
+        Me.Button11.Font = New System.Drawing.Font("Microsoft YaHei UI Light", 12.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.Button11.ForeColor = System.Drawing.SystemColors.ControlText
+        Me.Button11.Image = CType(resources.GetObject("Button11.Image"), System.Drawing.Image)
+        Me.Button11.ImageAlign = System.Drawing.ContentAlignment.MiddleRight
+        Me.Button11.Location = New System.Drawing.Point(0, 246)
+        Me.Button11.Name = "Button11"
+        Me.Button11.Size = New System.Drawing.Size(279, 47)
+        Me.Button11.TabIndex = 319
+        Me.Button11.Text = "Dashboard"
+        Me.Button11.TextAlign = System.Drawing.ContentAlignment.MiddleLeft
+        Me.Button11.UseVisualStyleBackColor = False
         '
-        'Panelmenu
+        'btnuselist
         '
-        Me.Panelmenu.BackColor = System.Drawing.SystemColors.ControlLight
-        Me.Panelmenu.Dock = System.Windows.Forms.DockStyle.Fill
-        Me.Panelmenu.Location = New System.Drawing.Point(279, 48)
-        Me.Panelmenu.Name = "Panelmenu"
-        Me.Panelmenu.Size = New System.Drawing.Size(1087, 720)
-        Me.Panelmenu.TabIndex = 312
+        Me.btnuselist.BackColor = System.Drawing.SystemColors.ControlLight
+        Me.btnuselist.BackgroundImageLayout = System.Windows.Forms.ImageLayout.None
+        Me.btnuselist.Dock = System.Windows.Forms.DockStyle.Top
+        Me.btnuselist.FlatAppearance.BorderSize = 0
+        Me.btnuselist.FlatStyle = System.Windows.Forms.FlatStyle.Flat
+        Me.btnuselist.Font = New System.Drawing.Font("Microsoft YaHei UI Light", 12.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.btnuselist.ForeColor = System.Drawing.SystemColors.ControlText
+        Me.btnuselist.Image = CType(resources.GetObject("btnuselist.Image"), System.Drawing.Image)
+        Me.btnuselist.ImageAlign = System.Drawing.ContentAlignment.MiddleRight
+        Me.btnuselist.Location = New System.Drawing.Point(0, 199)
+        Me.btnuselist.Name = "btnuselist"
+        Me.btnuselist.Size = New System.Drawing.Size(279, 47)
+        Me.btnuselist.TabIndex = 320
+        Me.btnuselist.Text = "User List"
+        Me.btnuselist.TextAlign = System.Drawing.ContentAlignment.MiddleLeft
+        Me.btnuselist.UseVisualStyleBackColor = False
+        '
+        'Button1
+        '
+        Me.Button1.BackColor = System.Drawing.SystemColors.ControlLight
+        Me.Button1.BackgroundImageLayout = System.Windows.Forms.ImageLayout.None
+        Me.Button1.Dock = System.Windows.Forms.DockStyle.Top
+        Me.Button1.FlatAppearance.BorderSize = 0
+        Me.Button1.FlatStyle = System.Windows.Forms.FlatStyle.Flat
+        Me.Button1.Font = New System.Drawing.Font("Microsoft YaHei UI Light", 12.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.Button1.ForeColor = System.Drawing.SystemColors.ControlText
+        Me.Button1.Image = CType(resources.GetObject("Button1.Image"), System.Drawing.Image)
+        Me.Button1.ImageAlign = System.Drawing.ContentAlignment.MiddleRight
+        Me.Button1.Location = New System.Drawing.Point(0, 152)
+        Me.Button1.Name = "Button1"
+        Me.Button1.Size = New System.Drawing.Size(279, 47)
+        Me.Button1.TabIndex = 310
+        Me.Button1.Text = "ADMIN Product Descriptions"
+        Me.Button1.TextAlign = System.Drawing.ContentAlignment.MiddleLeft
+        Me.Button1.UseVisualStyleBackColor = False
         '
         'Button3
         '
@@ -354,6 +335,25 @@ Partial Class frmDashboard
         Me.Button3.Text = "USER Product Descriptions"
         Me.Button3.TextAlign = System.Drawing.ContentAlignment.MiddleLeft
         Me.Button3.UseVisualStyleBackColor = False
+        '
+        'Panel4
+        '
+        Me.Panel4.BackgroundImage = CType(resources.GetObject("Panel4.BackgroundImage"), System.Drawing.Image)
+        Me.Panel4.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Zoom
+        Me.Panel4.Dock = System.Windows.Forms.DockStyle.Top
+        Me.Panel4.Location = New System.Drawing.Point(0, 0)
+        Me.Panel4.Name = "Panel4"
+        Me.Panel4.Size = New System.Drawing.Size(279, 105)
+        Me.Panel4.TabIndex = 312
+        '
+        'Panelmenu
+        '
+        Me.Panelmenu.BackColor = System.Drawing.SystemColors.ControlLight
+        Me.Panelmenu.Dock = System.Windows.Forms.DockStyle.Fill
+        Me.Panelmenu.Location = New System.Drawing.Point(279, 48)
+        Me.Panelmenu.Name = "Panelmenu"
+        Me.Panelmenu.Size = New System.Drawing.Size(1087, 720)
+        Me.Panelmenu.TabIndex = 312
         '
         'frmDashboard
         '

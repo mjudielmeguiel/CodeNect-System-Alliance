@@ -24,6 +24,8 @@ Public Class frmOnlinePayment
         rtbremarks.Clear()
         txtAmountPaid.Focus()
         Me.TopMost = True
+
+        AuditLogger.LogAction("OPEN", "Payments", $"Opened Online Payment form | TransID: {TransID} | Balance: {RemainingBalance:N2}")
     End Sub
 
     Private Sub txtAmountPaid_Leave(sender As Object, e As EventArgs) Handles txtAmountPaid.Leave
@@ -32,6 +34,7 @@ Public Class frmOnlinePayment
             If inputAmt > RemainingBalance Then
                 MessageBox.Show($"Maaaring magbayad hanggang ₱{RemainingBalance:N2} lang.", "Paalala", MessageBoxButtons.OK, MessageBoxIcon.Information)
                 inputAmt = RemainingBalance
+                AuditLogger.LogAction("VALIDATION", "Payments", $"Payment amount capped to balance | TransID: {TransID}")
             End If
             txtAmountPaid.Text = inputAmt.ToString("N2")
         Else
@@ -53,6 +56,7 @@ Public Class frmOnlinePayment
 
         If String.IsNullOrWhiteSpace(cboPaymentMethod.Text) Then
             MessageBox.Show("Pumili muna ng paraan ng pagbabayad.", "Paalala", MessageBoxButtons.OK, MessageBoxIcon.Warning)
+            AuditLogger.LogAction("SAVE_FAILED", "Payments", $"No payment method selected | TransID: {TransID}")
             Return
         End If
 
@@ -60,6 +64,7 @@ Public Class frmOnlinePayment
         If Not Decimal.TryParse(txtAmountPaid.Text.Trim(), inputAmt) OrElse inputAmt <= 0 Then
             MessageBox.Show("Maglagay ng tamang halaga na mas mataas sa 0.", "Maling Input", MessageBoxButtons.OK, MessageBoxIcon.Warning)
             txtAmountPaid.SelectAll()
+            AuditLogger.LogAction("SAVE_FAILED", "Payments", $"Invalid/zero amount entered | TransID: {TransID}")
             Return
         End If
 
@@ -70,12 +75,14 @@ Public Class frmOnlinePayment
         Remarks = rtbremarks.Text.Trim()
 
         If SavePaymentToDatabase() Then
+            AuditLogger.LogAction("INSERT", "Payments", $"Payment saved | TransID: {TransID} | Method: {PaymentMethod} | Amount: {PaidAmount:N2} | Ref: {ReferenceNo}")
             Me.DialogResult = DialogResult.OK
             Me.Close()
         End If
     End Sub
 
     Private Sub btnExit_Click(sender As Object, e As EventArgs) Handles btnExit.Click
+        AuditLogger.LogAction("CANCEL", "Payments", $"Payment cancelled | TransID: {TransID}")
         Me.DialogResult = DialogResult.Cancel
         Me.Close()
         Me.TopMost = False
@@ -106,6 +113,7 @@ Public Class frmOnlinePayment
             Return True
         Catch ex As Exception
             MessageBox.Show("Error saving payment: " & ex.Message, "Database Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
+            AuditLogger.LogAction("ERROR", "Payments", $"Save failed | TransID: {TransID} | Error: {ex.Message}")
             Return False
         End Try
     End Function

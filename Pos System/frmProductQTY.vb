@@ -13,6 +13,7 @@ Public Class frmProductQTY
         txtQty.Focus()
 
         LoadStock()
+        AuditLogger.LogAction("OPEN_QTY", "ProductQty", $"Opened quantity editor | Barcode: {Barcode} | Current Qty: {CurrentQty}")
     End Sub
 
     Private Sub LoadStock()
@@ -29,6 +30,7 @@ Public Class frmProductQTY
             End Using
         Catch ex As Exception
             lblMaxStock.Text = "Error loading stock"
+            AuditLogger.LogAction("ERROR", "ProductQty", $"Load stock failed | Barcode: {Barcode} | Error: {ex.Message}")
         End Try
     End Sub
 
@@ -49,6 +51,7 @@ Public Class frmProductQTY
         Dim newQty As Integer = 0
         If Not Integer.TryParse(txtQty.Text.Trim(), newQty) OrElse newQty <= 0 Then
             MessageBox.Show("Please enter a valid quantity greater than zero.", "Invalid Quantity", MessageBoxButtons.OK, MessageBoxIcon.Warning)
+            AuditLogger.LogAction("QTY_INVALID", "ProductQty", $"Invalid quantity entered | Barcode: {Barcode} | Input: {txtQty.Text.Trim()}")
             txtQty.SelectAll()
             txtQty.Focus()
             Return
@@ -66,23 +69,27 @@ Public Class frmProductQTY
             End Using
         Catch ex As Exception
             MessageBox.Show("Error checking stock: " & ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
+            AuditLogger.LogAction("ERROR", "ProductQty", $"Check stock failed | Barcode: {Barcode} | Error: {ex.Message}")
             Return
         End Try
 
         If newQty > availableStock Then
             MessageBox.Show($"Quantity exceeds available stock!{vbCrLf}Only {availableStock} item(s) in stock.", "Insufficient Stock", MessageBoxButtons.OK, MessageBoxIcon.Stop)
+            AuditLogger.LogAction("QTY_EXCEED", "ProductQty", $"Quantity exceeds stock | Barcode: {Barcode} | Requested: {newQty} | Available: {availableStock}")
             txtQty.SelectAll()
             txtQty.Focus()
             Return
         End If
 
         CurrentQty = newQty
+        AuditLogger.LogAction("QTY_CONFIRM", "ProductQty", $"Quantity updated | Barcode: {Barcode} | Old: {CurrentQty} → New: {newQty}")
         Me.DialogResult = DialogResult.OK
         Me.TopMost = False
         Me.Close()
     End Sub
 
     Private Sub btnCancel_Click(sender As Object, e As EventArgs) Handles btnCancel.Click
+        AuditLogger.LogAction("QTY_CANCEL", "ProductQty", $"Quantity edit cancelled | Barcode: {Barcode}")
         Me.DialogResult = DialogResult.Cancel
         Me.TopMost = False
         Me.Close()

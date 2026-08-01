@@ -12,6 +12,7 @@ Public Class Account_Recovery
         txtReason.ScrollBars = ScrollBars.Vertical
         txtNewPassword.PasswordChar = "●"c
         txtConfirmPassword.PasswordChar = "●"c
+        AuditLogger.LogAction("OPEN", "Account Recovery", "Opened password recovery form")
     End Sub
 
     Private Sub GenerateRecoveryID()
@@ -35,7 +36,6 @@ Public Class Account_Recovery
         Try
             Using conn As New MySqlConnection(connStr)
                 conn.Open()
-                ' TAMA: Table = user_accounts | Column = USERNAME, EMAIL
                 Dim cmd As New MySqlCommand("SELECT USERNAME FROM user_accounts WHERE EMAIL = @EMAIL LIMIT 1", conn)
                 cmd.Parameters.AddWithValue("@EMAIL", email)
 
@@ -46,6 +46,7 @@ Public Class Account_Recovery
                 Else
                     txtUsername.Text = "Not found"
                     txtUsername.ReadOnly = False
+                    AuditLogger.LogAction("RECOVERY_FAILED", "Account Recovery", $"Email not found: {email}")
                 End If
             End Using
         Catch ex As Exception
@@ -83,7 +84,7 @@ Public Class Account_Recovery
         End If
     End Sub
 
-    Private Sub btnSave_Click(sender As Object, e As EventArgs) Handles btnSave.Click
+    Private Sub btnSave_Click(sender As Object, e As EventArgs)
         If String.IsNullOrWhiteSpace(txtRecoveryID.Text) OrElse
            String.IsNullOrWhiteSpace(txtEmail.Text) OrElse
            String.IsNullOrWhiteSpace(txtUsername.Text) OrElse
@@ -97,19 +98,20 @@ Public Class Account_Recovery
 
         If txtNewPassword.Text <> txtConfirmPassword.Text Then
             MessageBox.Show("Passwords do not match!", "Validation Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
+            AuditLogger.LogAction("RECOVERY_FAILED", "Account Recovery", $"Password mismatch for user: {txtUsername.Text.Trim()}")
             Return
         End If
 
         Dim pass As String = txtNewPassword.Text
         If pass.Length < 8 OrElse Not Regex.IsMatch(pass, "[A-Z]") OrElse Not Regex.IsMatch(pass, "[a-z]") Then
             MessageBox.Show("Password must be at least 8 characters long, with both uppercase and lowercase letters.", "Invalid Password", MessageBoxButtons.OK, MessageBoxIcon.Stop)
+            AuditLogger.LogAction("RECOVERY_FAILED", "Account Recovery", $"Weak password attempt for user: {txtUsername.Text.Trim()}")
             Return
         End If
 
         Try
             Using conn As New MySqlConnection(connStr)
                 conn.Open()
-                ' Kung may table na Recovery:
                 Dim cmd As New MySqlCommand("INSERT INTO Recovery (RECOVERY_ID, EMAIL, USER_NAME, PASSWORD, REASON)
                                            VALUES (@RID, @EMAIL, @USER, @PASS, @REASON)", conn)
 
@@ -124,6 +126,7 @@ Public Class Account_Recovery
             End Using
 
             MessageBox.Show("Recovery request submitted successfully!", "Complete", MessageBoxButtons.OK, MessageBoxIcon.Information)
+            AuditLogger.LogAction("RECOVERY_SUBMIT", "Account Recovery", $"Recovery request submitted | ID: {txtRecoveryID.Text} | User: {txtUsername.Text.Trim()}")
             Me.Close()
 
         Catch ex As Exception
@@ -131,7 +134,8 @@ Public Class Account_Recovery
         End Try
     End Sub
 
-    Private Sub btnCancel_Click(sender As Object, e As EventArgs) Handles btnCancel.Click
+    Private Sub btnCancel_Click(sender As Object, e As EventArgs)
+        AuditLogger.LogAction("CANCEL", "Account Recovery", "User cancelled recovery request")
         Me.Close()
     End Sub
 

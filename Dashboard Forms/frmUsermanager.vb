@@ -10,6 +10,7 @@ Public Class frmUsermanager
         SetupColumns()
         SetupRoleFilter()
         LoadData()
+        AuditLogger.LogAction("OPEN", "User Management", "Opened User Manager / User List")
     End Sub
 
     Private Sub SetupColumns()
@@ -119,6 +120,7 @@ Public Class frmUsermanager
 
         Catch ex As Exception
             MessageBox.Show("Error loading user data: " & ex.Message, "System Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
+            AuditLogger.LogAction("ERROR", "User Management", $"Failed to load user list: {ex.Message}")
         End Try
     End Sub
 
@@ -131,6 +133,7 @@ Public Class frmUsermanager
             editForm.LoadUserDetails(selectedTag)
             editForm.ShowDialog()
             LoadData()
+            AuditLogger.LogAction("OPEN", "User Management", $"Opened Edit User form for: {selectedTag.FULL_NAME}")
         End If
     End Sub
 
@@ -140,6 +143,7 @@ Public Class frmUsermanager
 
     Private Sub btnSubmit_Click(sender As Object, e As EventArgs) Handles btnSubmit.Click
         Add_User.Show()
+        AuditLogger.LogAction("OPEN", "User Management", "Opened Add New User form")
     End Sub
 
     Private Sub cboRole_SelectedIndexChanged(sender As Object, e As EventArgs) Handles cboRole.SelectedIndexChanged

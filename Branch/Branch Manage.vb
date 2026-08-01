@@ -5,6 +5,7 @@ Public Class Branch_Manage
 
     Private Sub Branch_Manage_Load(sender As Object, e As EventArgs) Handles MyBase.Load
         LoadBranches()
+        AuditLogger.LogAction("OPEN", "Branch Management", "Opened Branch List / Manager")
     End Sub
 
     Private Sub LoadBranches(Optional ByVal SearchText As String = "")
@@ -59,5 +60,7 @@ Public Class Branch_Manage
 
     Private Sub btnSubmit_Click(sender As Object, e As EventArgs) Handles btnSubmit.Click
         ADD_Branch.Show()
+        AuditLogger.LogAction("OPEN", "Branch Management", "Opened Add New Branch form from list")
     End Sub
+
 End Class

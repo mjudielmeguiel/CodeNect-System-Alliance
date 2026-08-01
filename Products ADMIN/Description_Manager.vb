@@ -6,8 +6,16 @@ Public Class frmUser_Description_Manager
     Private connStr As String = DBConnection.connStr
 
     Private Sub Description_Manager_Load(sender As Object, e As EventArgs) Handles MyBase.Load
+        If String.IsNullOrEmpty(Login.LoggedInAccountID) Then
+            MessageBox.Show("No active account found! Please log in again.", "Access Denied", MessageBoxButtons.OK, MessageBoxIcon.Warning)
+            AuditLogger.LogAction("ACCESS_DENIED", "DescManager", "No active account on form open")
+            Me.Close()
+            Exit Sub
+        End If
+
         CurrentAccountID = Login.LoggedInAccountID
         Me.Text = "Description Manager - Account: " & CurrentAccountID
+        AuditLogger.LogAction("OPEN_DESC_MGR", "DescManager", $"Opened Description Manager | Account: {CurrentAccountID}")
 
         dgvProducts.AutoGenerateColumns = True
         dgvProducts.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill
@@ -25,19 +33,11 @@ Public Class frmUser_Description_Manager
                     `ID`, `ACCOUNT_ID`, `BARCODE`, `BRAND`, 
                     `CATEGORY`, `DATE_ADDED`, `DESCRIPTIONS`, `PRICE`, 
                     `PRODUCT_IMAGE`, `SIZE`, `SKU`, `UNIT`, `VENDOR`, `VENDOR_CODE`
-                FROM `admin_inventory_file` "
-
-            Dim hasFilter As Boolean = False
-
-            If Not String.IsNullOrEmpty(CurrentAccountID) Then
-                SqlQuery &= " WHERE `ACCOUNT_ID` = @AccountID "
-                hasFilter = True
-            Else
-                MessageBox.Show("No Account ID retrieved from login! Showing all products for now.", "Warning", MessageBoxButtons.OK, MessageBoxIcon.Warning)
-            End If
+                FROM `admin_inventory_file`
+                WHERE `ACCOUNT_ID` = @AccountID "
 
             If Not String.IsNullOrWhiteSpace(SearchText) Then
-                SqlQuery &= If(hasFilter, " AND ", " WHERE ") & " 
+                SqlQuery &= " AND 
                    (`BARCODE` LIKE CONCAT('%', @Search, '%') 
                     OR `SKU` LIKE CONCAT('%', @Search, '%') 
                     OR `BRAND` LIKE CONCAT('%', @Search, '%') 
@@ -50,9 +50,7 @@ Public Class frmUser_Description_Manager
             Dim dt As New DataTable()
             Using connection As New MySqlConnection(connStr)
                 Using cmd As New MySqlCommand(SqlQuery, connection)
-                    If Not String.IsNullOrEmpty(CurrentAccountID) Then
-                        cmd.Parameters.AddWithValue("@AccountID", CurrentAccountID.Trim())
-                    End If
+                    cmd.Parameters.AddWithValue("@AccountID", CurrentAccountID.Trim())
                     If Not String.IsNullOrWhiteSpace(SearchText) Then
                         cmd.Parameters.AddWithValue("@Search", SearchText.Trim())
                     End If
@@ -66,9 +64,8 @@ Public Class frmUser_Description_Manager
 
             If dt.Rows.Count = 0 Then
                 dgvProducts.DataSource = Nothing
-                If Not String.IsNullOrEmpty(CurrentAccountID) Then
-                    MessageBox.Show("No products registered for this Account.", "No Records Found", MessageBoxButtons.OK, MessageBoxIcon.Information)
-                End If
+                MessageBox.Show("No products registered for your account yet.", "No Records Found", MessageBoxButtons.OK, MessageBoxIcon.Information)
+                AuditLogger.LogAction("NO_RECORDS", "DescManager", $"No products found | Search: '{SearchText}'")
                 Exit Sub
             End If
 
@@ -98,24 +95,17 @@ Public Class frmUser_Description_Manager
                 If .Columns.Contains("PRODUCT_IMAGE") Then .Columns("PRODUCT_IMAGE").Visible = False
             End With
 
+            AuditLogger.LogAction("PRODS_LOADED", "DescManager", $"Loaded {dt.Rows.Count} products | Search: '{SearchText}'")
         Catch ex As Exception
             MessageBox.Show("System Error: " & ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
+            AuditLogger.LogAction("ERROR", "DescManager", $"Load failed | Error: {ex.Message}")
         End Try
-    End Sub
-
-    Private Sub dgvProducts_CellDoubleClick(sender As Object, e As DataGridViewCellEventArgs) Handles dgvProducts.CellDoubleClick
-        If e.RowIndex >= 0 Then
-            Dim selectedRow As DataGridViewRow = dgvProducts.Rows(e.RowIndex)
-            Dim frmDetails As New frmProduct_Information
-            frmDetails.LoadDataFromGrid(selectedRow)
-            frmDetails.ShowDialog()
-            LoadAllProducts(txtSearch.Text.Trim())
-        End If
     End Sub
 
     Private Sub btnRefresh_Click(sender As Object, e As EventArgs) Handles btnRefresh.Click
         txtSearch.Clear()
         LoadAllProducts()
+        AuditLogger.LogAction("REFRESH_LIST", "DescManager", "Product list refreshed")
     End Sub
 
     Private Sub txtSearch_TextChanged(sender As Object, e As EventArgs) Handles txtSearch.TextChanged
@@ -123,12 +113,7 @@ Public Class frmUser_Description_Manager
     End Sub
 
     Private Sub btnaddproduct_Click(sender As Object, e As EventArgs) Handles btnaddproduct.Click
-        frmDashboard.Panelmenu.Controls.Clear()
-        Dim Scan As New frmADDProduct_Scan
-        Scan.TopLevel = False
-        Scan.FormBorderStyle = FormBorderStyle.None
-        Scan.Dock = DockStyle.Fill
-        frmDashboard.Panelmenu.Controls.Add(Scan)
-        Scan.Show()
+        AuditLogger.LogAction("OPEN_ADD_PROD", "DescManager", "Opened add product scan form")
+        frmADDProduct_Scan.Show()
     End Sub
 End Class

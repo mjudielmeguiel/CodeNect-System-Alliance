@@ -9,14 +9,17 @@ Public Class frmDashboard
     Private Sub frmDashboard_Load(sender As Object, e As EventArgs) Handles MyBase.Load
         menupanel.Visible = False
         LoadHomeForm()
+        AuditLogger.LogAction("OPEN", "Dashboard", "Opened main dashboard")
     End Sub
 
     Private Sub Button9_Click(sender As Object, e As EventArgs) Handles Button9.Click
+        AuditLogger.LogAction("EXIT", "System", "User closed the entire application")
         Application.Exit()
     End Sub
 
     Private Sub Button11_Click(sender As Object, e As EventArgs) Handles Button11.Click
         LoadHomeForm()
+        AuditLogger.LogAction("NAVIGATE", "Dashboard", "Navigated to Home / Overview")
     End Sub
 
     Private Sub btnClose_Click(sender As Object, e As EventArgs) Handles btnClose.Click
@@ -27,6 +30,7 @@ Public Class frmDashboard
         STO.Dock = DockStyle.Fill
         Panelmenu.Controls.Add(STO)
         STO.Show()
+        AuditLogger.LogAction("OPEN", "Inventory", "Opened Stock Ordering module")
     End Sub
 
     Private Sub LoadHomeForm()
@@ -52,6 +56,7 @@ Public Class frmDashboard
         User.Dock = DockStyle.Fill
         Panelmenu.Controls.Add(User)
         User.Show()
+        AuditLogger.LogAction("OPEN", "User Management", "Opened User Account Manager")
     End Sub
 
     Private Sub Button12_Click(sender As Object, e As EventArgs) Handles Button12.Click
@@ -62,6 +67,7 @@ Public Class frmDashboard
         branch.Dock = DockStyle.Fill
         Panelmenu.Controls.Add(branch)
         branch.Show()
+        AuditLogger.LogAction("OPEN", "Branch Management", "Opened Branch Manager")
     End Sub
 
     Private Sub Button1_Click(sender As Object, e As EventArgs) Handles Button1.Click
@@ -72,5 +78,17 @@ Public Class frmDashboard
         Description.Dock = DockStyle.Fill
         Panelmenu.Controls.Add(Description)
         Description.Show()
+        AuditLogger.LogAction("OPEN", "Settings", "Opened User Description Manager")
+    End Sub
+
+    Private Sub Button3_Click(sender As Object, e As EventArgs) Handles Button3.Click
+        Panelmenu.Controls.Clear()
+        Dim list As New frmProductlist
+        list.TopLevel = False
+        list.FormBorderStyle = FormBorderStyle.None
+        list.Dock = DockStyle.Fill
+        Panelmenu.Controls.Add(list)
+        list.Show()
+        AuditLogger.LogAction("OPEN", "Inventory", "Opened Product List / Inventory")
     End Sub
 End Class

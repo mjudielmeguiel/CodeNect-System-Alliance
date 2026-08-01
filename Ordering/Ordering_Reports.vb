@@ -5,21 +5,19 @@ Public Class Ordering_Reports
     Private connStr As String = DBConnection.connStr
 
     Private Sub Ordering_Reports_Load(sender As Object, e As EventArgs) Handles MyBase.Load
-        ' Set date range for the whole day
         dtpFrom.Value = New DateTime(DateTime.Today.Year, DateTime.Today.Month, DateTime.Today.Day, 0, 0, 0)
         dtpTo.Value = New DateTime(DateTime.Today.Year, DateTime.Today.Month, DateTime.Today.Day, 23, 59, 59)
 
-        ' Make grid fully view-only
         dgvHistory.ReadOnly = True
         dgvHistory.AllowUserToAddRows = False
         dgvHistory.AllowUserToDeleteRows = False
         dgvHistory.AllowUserToResizeRows = False
         dgvHistory.SelectionMode = DataGridViewSelectionMode.FullRowSelect
 
-        ' Enable double-click to open details
         AddHandler dgvHistory.CellDoubleClick, AddressOf dgvHistory_CellDoubleClick
 
         LoadData()
+        AuditLogger.LogAction("OPEN", "Reports", "Opened Ordering Reports / History")
     End Sub
 
     Sub LoadData()
@@ -27,7 +25,6 @@ Public Class Ordering_Reports
             Using conn As New MySqlConnection(connStr)
                 conn.Open()
 
-                ' ✅ Tama na ang paggamit ng backticks sa reserved words tulad ng `FROM` at `TO`
                 Dim sqlQuery As String = "SELECT 
                             `PO_NUMBER` AS `Document No`,
                             `DR` AS `DR Number`,
@@ -60,6 +57,7 @@ Public Class Ordering_Reports
 
         Catch ex As Exception
             MessageBox.Show("Error loading records: " & ex.Message, "System Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
+            AuditLogger.LogAction("ERROR", "Reports", $"Failed to load ordering reports: {ex.Message}")
         End Try
     End Sub
 
@@ -67,13 +65,11 @@ Public Class Ordering_Reports
         For Each col As DataGridViewColumn In dgvHistory.Columns
             col.ReadOnly = True
 
-            ' Format amount as currency
             If col.Name.Equals("Amount", StringComparison.OrdinalIgnoreCase) Then
                 col.DefaultCellStyle.Format = "N2"
                 col.DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleRight
             End If
 
-            ' Format dates – pareho pa rin ang itsura sa display
             If col.Name.Contains("Date") Then
                 col.DefaultCellStyle.Format = "MM/dd/yyyy hh:mm tt"
                 col.DefaultCellStyle.NullValue = ""
@@ -83,7 +79,6 @@ Public Class Ordering_Reports
         dgvHistory.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.AllCells
     End Sub
 
-    ' Double Click to Open Details
     Private Sub dgvHistory_CellDoubleClick(sender As Object, e As DataGridViewCellEventArgs)
         If e.RowIndex < 0 Then Exit Sub
 
@@ -92,6 +87,7 @@ Public Class Ordering_Reports
 
         Dim frmOrder As New frmSTO_Information()
         frmOrder.LoadOrderDetails(docNo)
+        AuditLogger.LogAction("OPEN", "Reports", $"Opened Order Details from Reports | PO: {docNo}")
         frmOrder.ShowDialog()
     End Sub
 

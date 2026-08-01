@@ -1,6 +1,4 @@
-﻿' Tinanggal na ang Imports System.Data.SqlClient dahil hindi ito ginagamit dito
-
-Public Class frmCash_Declaration
+﻿Public Class frmCash_Declaration
 
     Private Sub txtDenomination_TextChanged(sender As Object, e As EventArgs) Handles _
         txt1000.TextChanged,
@@ -87,6 +85,7 @@ Public Class frmCash_Declaration
 
         If totalAmount <= 0 Then
             MessageBox.Show("Please enter at least one denomination before declaring.", "Notice", MessageBoxButtons.OK, MessageBoxIcon.Warning)
+            AuditLogger.LogAction("DECLARE_FAILED", "Cash Declaration", "Attempted declaration with zero total amount")
             Return
         End If
 
@@ -94,13 +93,17 @@ Public Class frmCash_Declaration
                            "Confirm", MessageBoxButtons.YesNo, MessageBoxIcon.Question) = DialogResult.Yes Then
 
             MessageBox.Show("Cash Declaration saved successfully!", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information)
+            AuditLogger.LogAction("DECLARE", "Cash Declaration", $"Declared total amount: ₱{totalAmount:N2}")
             ClearAll()
+        Else
+            AuditLogger.LogAction("CANCEL", "Cash Declaration", "User cancelled declaration confirmation")
         End If
     End Sub
 
     Private Sub btnClose_Click(sender As Object, e As EventArgs) Handles btnClose.Click
         If MessageBox.Show("Are you sure you want to close? Unsaved data will be lost.",
                            "Confirm", MessageBoxButtons.YesNo, MessageBoxIcon.Question) = DialogResult.Yes Then
+            AuditLogger.LogAction("CLOSE", "Cash Declaration", "Closed form - unsaved data discarded")
             Me.Close()
         End If
     End Sub
@@ -137,6 +140,7 @@ Public Class frmCash_Declaration
 
     Private Sub frmCash_Declaration_Load(sender As Object, e As EventArgs) Handles MyBase.Load
         ClearAll()
+        AuditLogger.LogAction("OPEN", "Cash Declaration", "Opened Cash Declaration form")
     End Sub
 
     Private Sub txt_KeyPress(sender As Object, e As KeyPressEventArgs) Handles _

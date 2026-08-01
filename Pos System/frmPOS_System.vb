@@ -26,6 +26,7 @@ Public Class frmPOS_System
 
     Private Sub frmPOS_System_FormClosing(sender As Object, e As FormClosingEventArgs) Handles MyBase.FormClosing
         SetUserStatus("OFFLINE")
+        AuditLogger.LogAction("LOGOUT", "POS", $"User logged out | User: {LoggedInUser} | Branch: {UserBranchCode}")
     End Sub
 
     Private Sub SetUserStatus(status As String)
@@ -46,6 +47,7 @@ Public Class frmPOS_System
             End Using
         Catch ex As Exception
             MessageBox.Show("Status Update Error: " & ex.Message, "Notice", MessageBoxButtons.OK, MessageBoxIcon.Warning)
+            AuditLogger.LogAction("ERROR", "POS", $"Failed to update user status | User: {LoggedInUser} | Error: {ex.Message}")
         End Try
     End Sub
 
@@ -95,6 +97,7 @@ Public Class frmPOS_System
         lblRemainingBalance.Visible = False
 
         SetUserStatus("ONLINE")
+        AuditLogger.LogAction("LOGIN", "POS", $"User logged in | User: {LoggedInUser} | Branch: {UserBranchCode}")
     End Sub
 
     Private Sub GetUserBranch()
@@ -118,6 +121,7 @@ Public Class frmPOS_System
         Catch ex As Exception
             MessageBox.Show("Error getting user branch: " & ex.Message, "Database Error", MessageBoxButtons.OK, MessageBoxIcon.Warning)
             UserBranchCode = "MAIN"
+            AuditLogger.LogAction("ERROR", "POS", $"Failed to load user branch | User: {LoggedInUser} | Error: {ex.Message}")
         End Try
     End Sub
 
@@ -146,6 +150,7 @@ Public Class frmPOS_System
             BranchName = UserBranchCode & " BRANCH"
             BranchAddress = "Muntinlupa City, Metro Manila"
             BranchTIN = "138-647-329-002"
+            AuditLogger.LogAction("WARNING", "POS", $"Using default branch details | Branch: {UserBranchCode}")
         End Try
     End Sub
 
@@ -209,15 +214,18 @@ Public Class frmPOS_System
 
                                 If newQty > stockAvailable Then
                                     MessageBox.Show($"Cannot add more!{vbCrLf}Remaining stock: {stockAvailable} piece(s)", "Insufficient Stock", MessageBoxButtons.OK, MessageBoxIcon.Warning)
+                                    AuditLogger.LogAction("STOCK_ERROR", "POS", $"Add failed - insufficient stock | Barcode: {barcode} | Requested: {newQty} | Available: {stockAvailable}")
                                     Return
                                 End If
 
                                 existingRow.Cells("Qty").Value = newQty
                                 existingRow.Cells("SubTotal").Value = Math.Round(CDec(existingRow.Cells("Price").Value) * newQty, 2)
+                                AuditLogger.LogAction("UPDATE_CART", "POS", $"Item qty updated | Barcode: {barcode} | New Qty: {newQty} | TransID: {currentOrderID}")
 
                             Else
                                 If stockAvailable <= 0 Then
                                     MessageBox.Show($"OUT OF STOCK!{vbCrLf}Product: {dr("DESCRIPTIONS").ToString()}", "No Stock Available", MessageBoxButtons.OK, MessageBoxIcon.Stop)
+                                    AuditLogger.LogAction("OUT_OF_STOCK", "POS", $"Item out of stock | Barcode: {barcode}")
                                     Return
                                 ElseIf stockAvailable = 1 Then
                                     MessageBox.Show($"NOTICE: Only 1 piece left in stock for this product.", "Low Stock Alert", MessageBoxButtons.OK, MessageBoxIcon.Information)
@@ -227,6 +235,7 @@ Public Class frmPOS_System
 
                                 Dim price As Decimal = CDec(dr("PRICE"))
                                 dgvCart.Rows.Add(dr("BARCODE"), dr("DESCRIPTIONS"), dr("SIZE"), price, 1, price)
+                                AuditLogger.LogAction("ADD_TO_CART", "POS", $"Item added | Barcode: {barcode} | Name: {dr("DESCRIPTIONS")} | Price: {price:N2} | TransID: {currentOrderID}")
                             End If
 
                             ComputeTotal()
@@ -234,13 +243,16 @@ Public Class frmPOS_System
                             If dgvCart.Rows.Count = 1 Then
                                 currentOrderID = New Random().Next(10000000, 99999999).ToString()
                                 txtAmountInput.Enabled = True
+                                AuditLogger.LogAction("NEW_TRANS", "POS", $"New transaction started | TransID: {currentOrderID} | Cashier: {LoggedInUser}")
                             End If
 
                         Else
                             If ProductExistsInAnyBranch(barcode) Then
                                 MessageBox.Show("This product is not carried by your branch.", "Product Not Available", MessageBoxButtons.OK, MessageBoxIcon.Warning)
+                                AuditLogger.LogAction("PRODUCT_NOT_BRANCH", "POS", $"Product exists but not at branch | Barcode: {barcode} | Branch: {UserBranchCode}")
                             Else
                                 MessageBox.Show("Product not found in inventory.", "Invalid Barcode", MessageBoxButtons.OK, MessageBoxIcon.Error)
+                                AuditLogger.LogAction("INVALID_BARCODE", "POS", $"Barcode not found | Barcode: {barcode}")
                             End If
                         End If
                     End Using
@@ -248,6 +260,7 @@ Public Class frmPOS_System
             End Using
         Catch ex As Exception
             MessageBox.Show("Error: " & ex.Message, "System Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
+            AuditLogger.LogAction("ERROR", "POS", $"Add product error | Barcode: {barcode} | Error: {ex.Message}")
         End Try
     End Sub
 
@@ -267,9 +280,10 @@ Public Class frmPOS_System
             e.SuppressKeyPress = True
 
             Dim row As DataGridViewRow = dgvCart.SelectedRows(0)
+            Dim barcode As String = row.Cells("Barcode").Value.ToString().Trim()
 
             Using frmQty As New frmProductQTY()
-                frmQty.Barcode = row.Cells("Barcode").Value.ToString().Trim()
+                frmQty.Barcode = barcode
                 frmQty.CurrentQty = CInt(row.Cells("Qty").Value)
 
                 If frmQty.ShowDialog() = DialogResult.OK Then
@@ -280,6 +294,7 @@ Public Class frmPOS_System
                     row.Cells("SubTotal").Value = Math.Round(price * newQuantity, 2)
 
                     ComputeTotal()
+                    AuditLogger.LogAction("EDIT_QTY", "POS", $"Item qty edited | Barcode: {barcode} | New Qty: {newQuantity} | TransID: {currentOrderID}")
                 End If
             End Using
         End If
@@ -289,6 +304,7 @@ Public Class frmPOS_System
         discountPercent = discountPercentValue
         isVATExempt = vatExemptStatus
         ComputeTotal()
+        AuditLogger.LogAction("DISCOUNT_APPLY", "POS", $"Discount applied | TransID: {currentOrderID} | Percent: {discountPercentValue}% | VAT Exempt: {vatExemptStatus}")
     End Sub
 
     Private Function GetVatableSales() As Decimal
@@ -429,6 +445,7 @@ Public Class frmPOS_System
         Dim inputAmt As Decimal = 0
         If Not Decimal.TryParse(txtAmountInput.Text.Trim(), inputAmt) OrElse inputAmt <= 0 Then
             MessageBox.Show("Please enter a valid amount greater than zero.", "Invalid Input", MessageBoxButtons.OK, MessageBoxIcon.Warning)
+            AuditLogger.LogAction("PAY_FAILED", "POS", $"Invalid cash amount | TransID: {currentOrderID}")
             Return
         End If
 
@@ -443,6 +460,7 @@ Public Class frmPOS_System
         paymentDetails.Add($"Cash: ₱{applyAmt:N2}")
 
         SaveCashPaymentToDB(applyAmt)
+        AuditLogger.LogAction("CASH_PAY", "POS", $"Cash payment added | TransID: {currentOrderID} | Amount: {applyAmt:N2}")
 
         txtAmountInput.Clear()
         RefreshDisplay()
@@ -467,6 +485,7 @@ Public Class frmPOS_System
             End Using
         Catch ex As Exception
             MessageBox.Show("Error saving cash payment: " & ex.Message, "Database Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
+            AuditLogger.LogAction("ERROR", "POS", $"Save cash pay error | TransID: {currentOrderID} | Error: {ex.Message}")
         End Try
     End Sub
 
@@ -531,8 +550,10 @@ Public Class frmPOS_System
 
                 End Using
             End Using
+            AuditLogger.LogAction("SAVE_SALE", "POS", $"Transaction saved | TransID: {currentOrderID} | Total: {finalTotal:N2} | PayMethod: {paymentMethod}")
         Catch ex As Exception
             MessageBox.Show("Failed to save sales record: " & ex.Message, "Database Error", MessageBoxButtons.OK, MessageBoxIcon.Warning)
+            AuditLogger.LogAction("ERROR", "POS", $"Save sale failed | TransID: {currentOrderID} | Error: {ex.Message}")
         End Try
     End Sub
 
@@ -593,6 +614,7 @@ Public Class frmPOS_System
             End Using
         Catch ex As Exception
             MessageBox.Show("Error updating daily sales summary: " & ex.Message, "Database Error", MessageBoxButtons.OK, MessageBoxIcon.Warning)
+            AuditLogger.LogAction("ERROR", "POS", $"Daily summary error | TransID: {currentOrderID} | Error: {ex.Message}")
         End Try
     End Sub
 
@@ -669,12 +691,14 @@ Public Class frmPOS_System
             End Using
         Catch ex As Exception
             MessageBox.Show("Error saving to Daily Sales Log: " & ex.Message, "Database Error", MessageBoxButtons.OK, MessageBoxIcon.Warning)
+            AuditLogger.LogAction("ERROR", "POS", $"Daily log error | TransID: {currentOrderID} | Error: {ex.Message}")
         End Try
     End Sub
 
     Private Sub btnCheckOut_Click(sender As Object, e As EventArgs) Handles btnCheckOut.Click
         If dgvCart.Rows.Count = 0 Then
             MessageBox.Show("No items in the cart.", "Empty Transaction", MessageBoxButtons.OK, MessageBoxIcon.Warning)
+            AuditLogger.LogAction("CHECKOUT_FAIL", "POS", $"Checkout failed - empty cart | Cashier: {LoggedInUser}")
             Return
         End If
 
@@ -685,6 +709,7 @@ Public Class frmPOS_System
         If totalNowPaid < finalTotal Then
             Dim remaining As Decimal = Math.Round(finalTotal - totalNowPaid, 2)
             MessageBox.Show($"INSUFFICIENT PAYMENT{vbCrLf}{vbCrLf}Total Amount Due: ₱{finalTotal:N2}{vbCrLf}Amount Paid: ₱{totalNowPaid:N2}{vbCrLf}Remaining Balance: ₱{remaining:N2}{vbCrLf}{vbCrLf}Please enter the correct amount.", "Payment Not Complete", MessageBoxButtons.OK, MessageBoxIcon.Warning)
+            AuditLogger.LogAction("CHECKOUT_FAIL", "POS", $"Insufficient payment | TransID: {currentOrderID} | Due: {finalTotal:N2} | Paid: {totalNowPaid:N2}")
             Return
         End If
 
@@ -707,6 +732,7 @@ Public Class frmPOS_System
         SaveToDailySalesLog()
         MessageBox.Show(rtbReceipt.Text, "Official Receipt", MessageBoxButtons.OK, MessageBoxIcon.Information)
 
+        AuditLogger.LogAction("TRANS_COMPLETE", "POS", $"Transaction completed | TransID: {currentOrderID} | Total: {finalTotal:N2} | Change: {changeAmount:N2}")
         ResetAll()
     End Sub
 
@@ -724,10 +750,12 @@ Public Class frmPOS_System
                         cmd.Parameters.AddWithValue("@branchId", UserBranchCode.Trim())
                         cmd.ExecuteNonQuery()
                     End Using
+                    AuditLogger.LogAction("STOCK_DEDUCT", "POS", $"Stock deducted | Barcode: {barcode} | Qty: {qtySold} | TransID: {currentOrderID}")
                 Next
             End Using
         Catch ex As Exception
             MessageBox.Show("Inventory Error: " & ex.Message, "Database Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
+            AuditLogger.LogAction("ERROR", "POS", $"Stock deduct error | TransID: {currentOrderID} | Error: {ex.Message}")
         End Try
     End Sub
 
@@ -743,6 +771,7 @@ Public Class frmPOS_System
             Return
         End If
 
+        AuditLogger.LogAction("OPEN_ONLINE_PAY", "POS", $"Opened online payment | TransID: {currentOrderID} | Remaining: {remainingToPay:N2}")
         Using frmOnline As New frmOnlinePayment()
             frmOnline.TransID = currentOrderID
             frmOnline.RemainingBalance = remainingToPay
@@ -750,6 +779,7 @@ Public Class frmPOS_System
                 Dim payAmount As Decimal = Math.Min(Math.Round(frmOnline.PaidAmount, 2), remainingToPay)
                 totalPaid = Math.Round(totalPaid + payAmount, 2)
                 paymentDetails.Add($"{frmOnline.PaymentMethod}: ₱{payAmount:N2} | Ref: {If(String.IsNullOrEmpty(frmOnline.ReferenceNo), "None", frmOnline.ReferenceNo)}")
+                AuditLogger.LogAction("ONLINE_PAY", "POS", $"Online payment added | TransID: {currentOrderID} | Method: {frmOnline.PaymentMethod} | Amount: {payAmount:N2} | Ref: {frmOnline.ReferenceNo}")
                 RefreshDisplay()
             End If
         End Using
@@ -760,7 +790,7 @@ Public Class frmPOS_System
             MessageBox.Show("No items in the cart to apply discount.", "Empty Transaction", MessageBoxButtons.OK, MessageBoxIcon.Warning)
             Return
         End If
-
+        AuditLogger.LogAction("OPEN_DISC", "POS", $"Opened discount form | TransID: {currentOrderID}")
         Dim frmDisc As New frmPWDDiscount()
         frmDisc.TransactionTotal = totalAmount
         frmDisc.ORNumber = currentOrderID
@@ -773,13 +803,17 @@ Public Class frmPOS_System
             Return
         End If
         If MessageBox.Show("Remove selected item from cart?", "CodeNect System Alliance", MessageBoxButtons.YesNo, MessageBoxIcon.Question) = DialogResult.Yes Then
+            Dim barcode As String = dgvCart.SelectedRows(0).Cells("Barcode").Value.ToString().Trim()
+            Dim qty As Integer = CInt(dgvCart.SelectedRows(0).Cells("Qty").Value)
             dgvCart.Rows.Remove(dgvCart.SelectedRows(0))
             ComputeTotal()
+            AuditLogger.LogAction("REMOVE_ITEM", "POS", $"Item removed from cart | Barcode: {barcode} | Qty: {qty} | TransID: {currentOrderID}")
         End If
     End Sub
 
     Private Sub btnCancelTransaction_Click(sender As Object, e As EventArgs) Handles btnCancelTransaction.Click
         If MessageBox.Show("Cancel the entire transaction?", "CodeNect System Alliance", MessageBoxButtons.YesNo, MessageBoxIcon.Question) = DialogResult.Yes Then
+            AuditLogger.LogAction("CANCEL_TRANS", "POS", $"Transaction cancelled | TransID: {currentOrderID} | Total: {finalTotal:N2}")
             ResetAll()
         End If
     End Sub
@@ -819,10 +853,12 @@ Public Class frmPOS_System
     End Sub
 
     Private Sub Button1_Click(sender As Object, e As EventArgs) Handles Button1.Click
+        AuditLogger.LogAction("OPEN_CASH_DECL", "POS", "Opened Cash Declaration form")
         frmCash_Declaration.Show()
     End Sub
 
     Private Sub Button2_Click(sender As Object, e As EventArgs) Handles Button2.Click
+        AuditLogger.LogAction("OPEN_HOLD", "POS", $"Opened Hold Transaction | TransID: {currentOrderID}")
         frmHold_Transaction.Show()
         Me.Enabled = False
         frmHold_Transaction.TopMost = True

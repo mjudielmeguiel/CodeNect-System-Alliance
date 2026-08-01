@@ -153,7 +153,7 @@ Partial Class frmUser_Description_Manager
         Me.btnRefresh.TextImageRelation = System.Windows.Forms.TextImageRelation.ImageBeforeText
         Me.btnRefresh.UseVisualStyleBackColor = False
         '
-        'Description_Manager
+        'frmUser_Description_Manager
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(6.0!, 13.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
@@ -168,7 +168,7 @@ Partial Class frmUser_Description_Manager
         Me.Controls.Add(Me.dgvProducts)
         Me.FormBorderStyle = System.Windows.Forms.FormBorderStyle.None
         Me.Icon = CType(resources.GetObject("$this.Icon"), System.Drawing.Icon)
-        Me.Name = "Description_Manager"
+        Me.Name = "frmUser_Description_Manager"
         Me.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen
         Me.Text = "Description_Manager"
         CType(Me.dgvProducts, System.ComponentModel.ISupportInitialize).EndInit()

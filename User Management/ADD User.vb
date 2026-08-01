@@ -6,28 +6,22 @@ Public Class Add_User
     Private rnd As New Random()
 
     Private Sub Add_User_Load(sender As Object, e As EventArgs) Handles MyBase.Load
-        cboUserType.Items.Add("Branch Administrator")
-        cboUserType.Items.Add("IT Support")
-        cboUserType.Items.Add("Branch Manager")
-        cboUserType.Items.Add("Supervisor")
-        cboUserType.Items.Add("Cashier")
-        cboUserType.Items.Add("Receiving Department Unit")
-        cboUserType.Items.Add("Inventory Clerk")
-        cboUserType.Items.Add("Sales Staff")
-
+        cboUserType.Items.AddRange({
+            "Branch Administrator", "IT Support", "Branch Manager", "Supervisor",
+            "Cashier", "Receiving Department Unit", "Inventory Clerk", "Sales Staff"
+        })
         LoadBranches()
         lblUserID.Text = GenerateUniqueUserID().ToString()
-
         txtPassword.Text = "Password1*"
         txtConfirmPassword.Text = "Password1*"
         txtPassword.PasswordChar = "*"c
         txtConfirmPassword.PasswordChar = "*"c
+        AuditLogger.LogAction("OPEN_ADD_USER", "AddUser", "Opened Add New User form")
     End Sub
 
     Private Sub LoadBranches()
         Try
             cboBranch.Items.Clear()
-
             Using Conn As New MySqlConnection(DBConnection.connStr)
                 Dim sql As String = "SELECT `BRANCH` FROM `Branches` WHERE `ACCOUNT_ID` = @AccID ORDER BY `BRANCH`"
                 Using cmd As New MySqlCommand(sql, Conn)
@@ -40,8 +34,10 @@ Public Class Add_User
                     End Using
                 End Using
             End Using
+            AuditLogger.LogAction("BRANCHES_LOADED", "AddUser", "Branch list loaded for user assignment")
         Catch ex As Exception
             MessageBox.Show("Error loading branches: " & ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
+            AuditLogger.LogAction("ERROR", "AddUser", $"Load branches failed | Error: {ex.Message}")
         End Try
     End Sub
 
@@ -55,14 +51,13 @@ Public Class Add_User
                     cmd.Parameters.AddWithValue("@Acc", Login.LoggedInAccountID)
                     Conn.Open()
                     Using dr As MySqlDataReader = cmd.ExecuteReader()
-                        If dr.Read() Then
-                            brID = dr("BRANCH_ID").ToString().Trim()
-                        End If
+                        If dr.Read() Then brID = dr("BRANCH_ID").ToString().Trim()
                     End Using
                 End Using
             End Using
         Catch ex As Exception
             MessageBox.Show("Error getting details: " & ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
+            AuditLogger.LogAction("ERROR", "AddUser", $"Get branch ID failed | Branch: {branchName} | Error: {ex.Message}")
             brID = "0"
         End Try
         Return brID
@@ -83,6 +78,7 @@ Public Class Add_User
                 End Using
             End Using
         Loop While exists
+        AuditLogger.LogAction("USERID_GEN", "AddUser", $"Generated unique User ID: {newID}")
         Return newID
     End Function
 
@@ -100,6 +96,7 @@ Public Class Add_User
                     Conn.Open()
                     If CInt(cmdCheck.ExecuteScalar()) > 0 Then
                         MessageBox.Show("Username already exists!", "Duplicate", MessageBoxButtons.OK, MessageBoxIcon.Warning)
+                        AuditLogger.LogAction("SAVE_DUPLICATE", "AddUser", $"Save cancelled - duplicate username: {txtUsername.Text.Trim()}")
                         Return
                     End If
                 End Using
@@ -123,21 +120,23 @@ Public Class Add_User
                     cmdSave.Parameters.AddWithValue("@Type", If(cboUserType.SelectedItem IsNot Nothing, cboUserType.Text.Trim(), ""))
                     cmdSave.Parameters.AddWithValue("@Cont", txtContact.Text.Trim())
                     cmdSave.Parameters.AddWithValue("@Mail", txtEmail.Text.Trim())
-
                     Conn.Open()
                     cmdSave.ExecuteNonQuery()
                 End Using
             End Using
 
             MessageBox.Show("User added successfully! User ID: " & newUserID, "Success", MessageBoxButtons.OK, MessageBoxIcon.Information)
+            AuditLogger.LogAction("USER_ADDED", "AddUser", $"New user created | ID: {newUserID} | Username: {txtUsername.Text.Trim()} | Type: {cboUserType.Text.Trim()} | Branch: {brName}")
             Me.Close()
 
         Catch ex As Exception
             MessageBox.Show("Save Error: " & ex.Message, "Database Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
+            AuditLogger.LogAction("SAVE_ERROR", "AddUser", $"Create user failed | Error: {ex.Message}")
         End Try
     End Sub
 
     Private Sub btnCancel_Click(sender As Object, e As EventArgs) Handles btnCancel.Click
+        AuditLogger.LogAction("CANCEL_ADD_USER", "AddUser", "Add User cancelled by user")
         Me.Close()
     End Sub
 

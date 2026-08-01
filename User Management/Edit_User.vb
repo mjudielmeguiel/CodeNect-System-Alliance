@@ -7,18 +7,16 @@ Public Class Edit_User
 
     Private currentUserID As Integer
     Private userImageData As Byte() = Nothing
-    Private connStr As String = DBConnection.connStr ' Ensure connection string is set
+    Private connStr As String = DBConnection.connStr
 
     Public Sub LoadUserDetails(userInfo As Object)
         Try
-            ' Load basic data
             currentUserID = CInt(userInfo.ID)
             txtBranchID.Text = userInfo.BRANCH_ID?.ToString()
             txtFullName.Text = userInfo.FULL_NAME?.ToString()
             txtEmail.Text = userInfo.EMAIL?.ToString()
             txtContact.Text = userInfo.CONTACT?.ToString()
 
-            ' Fill User Type combo
             cbousertype.Items.Clear()
             cbousertype.Items.AddRange({
                 "Branch Administrator", "IT Support", "Branch Manager",
@@ -30,7 +28,6 @@ Public Class Edit_User
                 cbousertype.SelectedIndex = 0
             End If
 
-            ' Fill Status combo
             cboStatus.Items.Clear()
             cboStatus.Items.AddRange({"ACTIVE", "OFFLINE", "LOCKED"})
             If Not String.IsNullOrWhiteSpace(userInfo.STATUS?.ToString()) Then
@@ -39,30 +36,27 @@ Public Class Edit_User
                 cboStatus.SelectedIndex = 0
             End If
 
-            ' Load branches and select current user's branch
             LoadBranchCombo()
             If Not String.IsNullOrWhiteSpace(userInfo.BRANCH_ID?.ToString()) Then
                 cboBranch.SelectedValue = userInfo.BRANCH_ID.ToString()
             End If
 
-            ' Load existing profile picture
             LoadImageFromDB()
-
+            AuditLogger.LogAction("LOAD_USER_EDIT", "EditUser", $"Loaded user for edit | ID: {currentUserID} | Name: {txtFullName.Text}")
         Catch ex As Exception
             MessageBox.Show("Error loading user data: " & ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
+            AuditLogger.LogAction("ERROR", "EditUser", $"Load user failed | Error: {ex.Message}")
         End Try
     End Sub
 
     Private Sub LoadImageFromDB()
         Try
             Using conn As New MySqlConnection(connStr)
-                ' ✅ Backticks added for table/column names
                 Dim sql As String = "SELECT `PROFILE` FROM `User_Accounts` WHERE `ID` = @UID"
                 Using cmd As New MySqlCommand(sql, conn)
                     cmd.Parameters.AddWithValue("@UID", currentUserID)
                     conn.Open()
                     Dim result = cmd.ExecuteScalar()
-
                     If result IsNot Nothing AndAlso Not IsDBNull(result) Then
                         userImageData = CType(result, Byte())
                         Using ms As New MemoryStream(userImageData)
@@ -91,19 +85,19 @@ Public Class Edit_User
                     userImageData = File.ReadAllBytes(openDlg.FileName)
                     PictureBox1.Image = Image.FromFile(openDlg.FileName)
                     PictureBox1.SizeMode = PictureBoxSizeMode.StretchImage
+                    AuditLogger.LogAction("PROFILE_PIC_UPD", "EditUser", $"Profile picture changed | User ID: {currentUserID}")
                 End If
             End Using
         Catch ex As Exception
             MessageBox.Show("Error selecting image: " & ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
+            AuditLogger.LogAction("ERROR", "EditUser", $"Change profile pic failed | Error: {ex.Message}")
         End Try
     End Sub
 
     Private Sub LoadBranchCombo()
         Try
             Dim dt As New DataTable()
-            ' ✅ Backticks added, no dbo. prefix
             Dim sql As String = "SELECT `BRANCH_ID`, `BRANCH` FROM `Branches` ORDER BY `BRANCH` ASC"
-
             Using conn As New MySqlConnection(connStr)
                 Using cmd As New MySqlCommand(sql, conn)
                     Using da As New MySqlDataAdapter(cmd)
@@ -111,19 +105,17 @@ Public Class Edit_User
                     End Using
                 End Using
             End Using
-
             cboBranch.DataSource = Nothing
             cboBranch.DataSource = dt
-            cboBranch.DisplayMember = "BRANCH"    ' Shows branch name
-            cboBranch.ValueMember = "BRANCH_ID"  ' Stores branch ID
-
+            cboBranch.DisplayMember = "BRANCH"
+            cboBranch.ValueMember = "BRANCH_ID"
         Catch ex As Exception
             MessageBox.Show("Error loading branches: " & ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
+            AuditLogger.LogAction("ERROR", "EditUser", $"Load branches failed | Error: {ex.Message}")
         End Try
     End Sub
 
     Private Sub btnUpdate_Click(sender As Object, e As EventArgs) Handles btnUpdate.Click
-        ' Validation
         If String.IsNullOrWhiteSpace(txtFullName.Text) Then
             MessageBox.Show("Full Name cannot be empty!", "Warning", MessageBoxButtons.OK, MessageBoxIcon.Warning)
             txtFullName.Focus()
@@ -135,7 +127,6 @@ Public Class Edit_User
         End If
 
         Try
-            ' ✅ All identifiers wrapped in backticks
             Dim sql As String = "
                 UPDATE `User_Accounts` 
                 SET 
@@ -147,12 +138,9 @@ Public Class Edit_User
                     `CONTACT` = @CT,
                     `STATUS` = @ST,
                     `PROFILE` = @PROFILE"
-
-            ' Only update password if a new one is provided
             If Not String.IsNullOrWhiteSpace(txtNewPass.Text) Then
                 sql &= ", `PASSWORD` = @PASS"
             End If
-
             sql &= " WHERE `ID` = @UID"
 
             Using conn As New MySqlConnection(connStr)
@@ -166,27 +154,26 @@ Public Class Edit_User
                     cmd.Parameters.AddWithValue("@CT", If(String.IsNullOrWhiteSpace(txtContact.Text), DBNull.Value, txtContact.Text.Trim()))
                     cmd.Parameters.AddWithValue("@ST", If(cboStatus.SelectedItem IsNot Nothing, cboStatus.SelectedItem.ToString().Trim(), DBNull.Value))
                     cmd.Parameters.AddWithValue("@PROFILE", If(userImageData IsNot Nothing, userImageData, DBNull.Value))
-
                     If Not String.IsNullOrWhiteSpace(txtNewPass.Text) Then
-                        ' Note: For production, use hashing instead of plain text
                         cmd.Parameters.AddWithValue("@PASS", txtNewPass.Text.Trim())
+                        AuditLogger.LogAction("PASS_CHANGE", "EditUser", $"Password updated | User ID: {currentUserID}")
                     End If
-
                     conn.Open()
                     Dim rowsAffected As Integer = cmd.ExecuteNonQuery()
-
                     If rowsAffected > 0 Then
                         MessageBox.Show("✅ User updated successfully!", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information)
+                        AuditLogger.LogAction("USER_UPDATED", "EditUser", $"User updated | ID: {currentUserID} | Name: {txtFullName.Text} | Type: {cbousertype.Text} | Status: {cboStatus.Text}")
                         Me.DialogResult = DialogResult.OK
                         Me.Close()
                     Else
                         MessageBox.Show("⚠️ No changes were saved.", "Notice", MessageBoxButtons.OK, MessageBoxIcon.Warning)
+                        AuditLogger.LogAction("NO_CHANGES", "EditUser", $"No changes saved | User ID: {currentUserID}")
                     End If
                 End Using
             End Using
-
         Catch ex As Exception
             MessageBox.Show("❌ Error updating user: " & ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
+            AuditLogger.LogAction("UPDATE_ERROR", "EditUser", $"Update failed | ID: {currentUserID} | Error: {ex.Message}")
         End Try
     End Sub
 
@@ -195,12 +182,14 @@ Public Class Edit_User
             "Are you sure you want to delete this user? This action cannot be undone.",
             "Confirm Delete", MessageBoxButtons.YesNo, MessageBoxIcon.Warning
         )
-        If confirm = DialogResult.No Then Return
+        If confirm = DialogResult.No Then
+            AuditLogger.LogAction("DELETE_CANCEL", "EditUser", $"User delete cancelled | ID: {currentUserID}")
+            Return
+        End If
 
         Try
             Using conn As New MySqlConnection(connStr)
                 conn.Open()
-                ' ✅ SqlTransaction → MySqlTransaction
                 Using trans = conn.BeginTransaction()
                     Try
                         Dim delSql As String = "DELETE FROM `User_Accounts` WHERE `ID` = @UID"
@@ -208,24 +197,31 @@ Public Class Edit_User
                             cmd.Parameters.AddWithValue("@UID", currentUserID)
                             cmd.ExecuteNonQuery()
                         End Using
-
                         trans.Commit()
                         MessageBox.Show("✅ User deleted successfully!", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information)
+                        AuditLogger.LogAction("USER_DELETED", "EditUser", $"User deleted | ID: {currentUserID} | Name: {txtFullName.Text}")
                         Me.DialogResult = DialogResult.OK
                         Me.Close()
                     Catch exTrans As Exception
                         trans.Rollback()
                         MessageBox.Show("❌ Failed to delete user: " & exTrans.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
+                        AuditLogger.LogAction("DELETE_ROLLBACK", "EditUser", $"Delete rolled back | ID: {currentUserID} | Error: {exTrans.Message}")
                     End Try
                 End Using
             End Using
         Catch ex As Exception
             MessageBox.Show("❌ Error: " & ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
+            AuditLogger.LogAction("DELETE_ERROR", "EditUser", $"Delete failed | ID: {currentUserID} | Error: {ex.Message}")
         End Try
     End Sub
 
     Private Sub btnCancel_Click(sender As Object, e As EventArgs) Handles btnCancel.Click
+        AuditLogger.LogAction("CANCEL_EDIT_USER", "EditUser", "Edit User cancelled by user")
         Me.Close()
+    End Sub
+
+    Private Sub Edit_User_Load(sender As Object, e As EventArgs) Handles MyBase.Load
+        AuditLogger.LogAction("OPEN_EDIT_USER", "EditUser", "Opened Edit User form")
     End Sub
 
 End Class

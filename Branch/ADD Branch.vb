@@ -12,6 +12,7 @@ Public Class ADD_Branch
         GenerateBranchID()
         SetupBusinessTypeCombo()
         Me.TopMost = True
+        AuditLogger.LogAction("OPEN", "Branch Management", "Opened Add New Branch form")
     End Sub
 
     Private Sub SetupBusinessTypeCombo()
@@ -99,8 +100,10 @@ Public Class ADD_Branch
                         picBusinessLogo.Image.Save(ms, picBusinessLogo.Image.RawFormat)
                         logoImageData = ms.ToArray()
                     End Using
+                    AuditLogger.LogAction("UPLOAD", "Branch Management", $"Uploaded logo for branch: {txtBranch.Text.Trim()}")
                 Catch ex As Exception
                     MessageBox.Show("Failed to load image: " & ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
+                    AuditLogger.LogAction("UPLOAD_FAILED", "Branch Management", $"Failed to upload logo: {ex.Message}")
                 End Try
             End If
         End Using
@@ -119,6 +122,7 @@ Public Class ADD_Branch
     End Sub
 
     Private Sub btnCancel_Click_1(sender As Object, e As EventArgs) Handles btnCancel.Click
+        AuditLogger.LogAction("CANCEL", "Branch Management", "Cancelled Add New Branch form")
         Me.TopMost = True
         Me.Close()
     End Sub
@@ -133,11 +137,13 @@ Public Class ADD_Branch
            cmbBusinessType.SelectedIndex = -1 Then
 
             MessageBox.Show("Please fill in all required fields.", "Notice", MessageBoxButtons.OK, MessageBoxIcon.Warning)
+            AuditLogger.LogAction("SAVE_FAILED", "Branch Management", $"Incomplete fields when adding branch: {txtBranch.Text.Trim()}")
             Return
         End If
 
         If String.IsNullOrEmpty(currentAccountID) Then
             MessageBox.Show("Account data not found. Close and reopen the form.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
+            AuditLogger.LogAction("SAVE_FAILED", "Branch Management", "No active account found when saving branch")
             Return
         End If
 
@@ -164,11 +170,14 @@ Public Class ADD_Branch
             End Using
 
             MessageBox.Show("Branch saved successfully.", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information)
+            AuditLogger.LogAction("INSERT", "Branch Management", $"Added new branch | ID: {txtBranchID.Text.Trim()} | Name: {txtBranch.Text.Trim()} | Type: {cmbBusinessType.Text}")
+
             ClearInputs()
             GenerateBranchID()
             SetupBusinessTypeCombo()
         Catch ex As Exception
             MessageBox.Show("An error occurred: " & ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
+            AuditLogger.LogAction("SAVE_FAILED", "Branch Management", $"Error saving branch: {ex.Message}")
         End Try
     End Sub
 

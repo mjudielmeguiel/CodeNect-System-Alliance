@@ -138,11 +138,6 @@ Public Class DashBoard
         frmSTR.Show()
     End Sub
 
-    ' Connection Settings
-    Private Sub ConnectionSettingsToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles ConnectionSettingsToolStripMenuItem.Click
-        frmConnectionSettings.Show()
-    End Sub
-
     ' Stock Ordering Reports
     Private Sub tsStockOrdering_Click(sender As Object, e As EventArgs) Handles tsStockOrdering.Click
         Panel2.Controls.Clear()
@@ -239,12 +234,6 @@ Public Class DashBoard
     Private Sub ScanToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles ScanToolStripMenuItem.Click
         Dim frmScan As New frmADDProduct_Scan
         frmScan.ShowDialog()
-    End Sub
-
-    ' Add Product - Manual
-    Private Sub ManualToolStripMenuItem1_Click(sender As Object, e As EventArgs) Handles ManualToolStripMenuItem1.Click
-        Dim frmManual As New frmADDProduct_Manual
-        frmManual.Show()
     End Sub
 
     ' Description Manager

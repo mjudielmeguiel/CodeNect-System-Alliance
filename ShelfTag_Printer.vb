@@ -8,40 +8,36 @@ Imports System.Text
 
 Public Class ShelfTag_Printer
 
-    ' ===== USE SHARED CONNECTION STRING FROM MODULE =====
     Private connStr As String = DBConnection.connStr
 
-    ' ===== TAG SIZES =====
     Private ReadOnly tagWidth_Normal As Single = 92.0F
     Private ReadOnly tagHeight_Normal As Single = 29.0F
     Private ReadOnly tagWidth_Promo As Single = 46.0F
     Private ReadOnly tagHeight_Promo As Single = 14.5F
-
     Private ReadOnly safeMargin As Single = 2.5F
     Private ReadOnly rightSpace As Single = 3.0F
 
-    ' ===== PRINT SETTINGS =====
     Private WithEvents printDoc As New PrintDocument()
     Private tempPrintList As New DataTable()
     Private currentItemIndex As Integer = 0
     Private columnsPerRow As Integer = 2
     Private rowsPerPage As Integer = 8
-    Private selectedPrintType As String = "NORMAL" ' Default
+    Private selectedPrintType As String = "NORMAL"
 
-    ' ===== FORM LOAD =====
     Private Sub ShelfTag_Printer_Load(sender As Object, e As EventArgs) Handles MyBase.Load
         SetupGrid()
         ClearInputFields()
         rdoShelfTag.Checked = True
         selectedPrintType = "NORMAL"
+        AuditLogger.LogAction("OPEN_SHELF_TAG", "ShelfTagPrinter", "Opened Shelf Tag Printer")
     End Sub
 
-    ' ===== RADIO BUTTON HANDLERS =====
     Private Sub rdoShelfTag_CheckedChanged(sender As Object, e As EventArgs) Handles rdoShelfTag.CheckedChanged
         If rdoShelfTag.Checked Then
             selectedPrintType = "NORMAL"
             columnsPerRow = 2
             rowsPerPage = 8
+            AuditLogger.LogAction("PRINT_TYPE", "ShelfTagPrinter", "Print type set to NORMAL")
         End If
     End Sub
 
@@ -50,6 +46,7 @@ Public Class ShelfTag_Printer
             selectedPrintType = "BUY1TAKE1"
             columnsPerRow = 4
             rowsPerPage = 16
+            AuditLogger.LogAction("PRINT_TYPE", "ShelfTagPrinter", "Print type set to BUY1TAKE1")
         End If
     End Sub
 
@@ -58,6 +55,7 @@ Public Class ShelfTag_Printer
             selectedPrintType = "PRICEUPDATE"
             columnsPerRow = 2
             rowsPerPage = 8
+            AuditLogger.LogAction("PRINT_TYPE", "ShelfTagPrinter", "Print type set to PRICEUPDATE")
         End If
     End Sub
 
@@ -67,10 +65,10 @@ Public Class ShelfTag_Printer
             selectedPrintType = rdo.Text
             columnsPerRow = 4
             rowsPerPage = 16
+            AuditLogger.LogAction("PRINT_TYPE", "ShelfTagPrinter", $"Print type set to {selectedPrintType}")
         End If
     End Sub
 
-    'GRID SETUP
     Private Sub SetupGrid()
         dgvItems.AutoGenerateColumns = False
         dgvItems.AllowUserToAddRows = False
@@ -96,7 +94,6 @@ Public Class ShelfTag_Printer
         tempPrintList.Columns.Add("PRODUCT_IMAGE", GetType(Byte()))
     End Sub
 
-    'HELPER METHODS
     Private Sub ClearInputFields()
         txtBarcode.Clear()
         txtQuantity.Text = "1"
@@ -108,9 +105,9 @@ Public Class ShelfTag_Printer
         tempPrintList.Clear()
         ClearInputFields()
         currentItemIndex = 0
+        AuditLogger.LogAction("LIST_CLEARED", "ShelfTagPrinter", "Item list cleared")
     End Sub
 
-    'ADD ITEM
     Private Sub btnAdd_Click(sender As Object, e As EventArgs) Handles btnAdd.Click
         If String.IsNullOrWhiteSpace(txtBarcode.Text.Trim()) Then
             MessageBox.Show("Please enter Barcode or SKU!", "Notice", MessageBoxButtons.OK, MessageBoxIcon.Warning)
@@ -127,7 +124,6 @@ Public Class ShelfTag_Printer
         End If
 
         Try
-            ' ✅ SqlConnection → MySqlConnection; RTRIM+LTRIM → TRIM; inv. removed + backticks
             Using conn As New MySqlConnection(connStr)
                 conn.Open()
                 Dim cmd As New MySqlCommand("SELECT `BARCODE`, `SKU`, `BRAND`, `DESCRIPTIONS`, `SIZE`, `PRICE`, `PRODUCT_IMAGE` FROM `Inventory_Master_File` WHERE TRIM(`BARCODE`) = @Code OR TRIM(`SKU`) = @Code", conn)
@@ -144,9 +140,11 @@ Public Class ShelfTag_Printer
                             CDec(dr("PRICE")),
                             qtyToAdd
                         )
+                        AuditLogger.LogAction("ITEM_ADDED", "ShelfTagPrinter", $"Item added | Barcode: {dr("BARCODE")} | Qty: {qtyToAdd}")
                         ClearInputFields()
                     Else
                         MessageBox.Show("Product not found!", "No Result", MessageBoxButtons.OK, MessageBoxIcon.Exclamation)
+                        AuditLogger.LogAction("ITEM_NOTFOUND", "ShelfTagPrinter", $"Product not found | Input: {txtBarcode.Text.Trim()}")
                         txtBarcode.SelectAll()
                         txtBarcode.Focus()
                     End If
@@ -154,19 +152,20 @@ Public Class ShelfTag_Printer
             End Using
         Catch ex As Exception
             MessageBox.Show("Error: " & ex.Message, "System", MessageBoxButtons.OK, MessageBoxIcon.Error)
+            AuditLogger.LogAction("ERROR", "ShelfTagPrinter", $"Add item failed | Error: {ex.Message}")
         End Try
     End Sub
 
-    'REMOVE ITEM
     Private Sub btnRemove_Click_1(sender As Object, e As EventArgs) Handles btnRemove.Click
         If dgvItems.SelectedRows.Count > 0 Then
+            Dim removedCode = dgvItems.SelectedRows(0).Cells("BARCODE").Value.ToString()
             dgvItems.Rows.RemoveAt(dgvItems.SelectedRows(0).Index)
+            AuditLogger.LogAction("ITEM_REMOVED", "ShelfTagPrinter", $"Item removed | Barcode: {removedCode}")
         Else
             MessageBox.Show("Select an item to remove!", "Notice", MessageBoxButtons.OK, MessageBoxIcon.Information)
         End If
     End Sub
 
-    'CLEAR LIST
     Private Sub btnRefresh_Click(sender As Object, e As EventArgs) Handles btnRefresh.Click
         If MessageBox.Show("Clear the entire list?", "Confirm", MessageBoxButtons.YesNo, MessageBoxIcon.Question) = DialogResult.Yes Then
             ClearAll()
@@ -174,10 +173,10 @@ Public Class ShelfTag_Printer
     End Sub
 
     Private Sub btnClose_Click_1(sender As Object, e As EventArgs) Handles btnClose.Click
+        AuditLogger.LogAction("CLOSE_TAG_PRINT", "ShelfTagPrinter", "Shelf Tag Printer closed")
         Me.Close()
     End Sub
 
-    'PRINT START
     Private Sub btnPrint_Click(sender As Object, e As EventArgs) Handles btnPrint.Click
         If dgvItems.Rows.Count = 0 Then
             MessageBox.Show("No items added!", "Notice", MessageBoxButtons.OK, MessageBoxIcon.Warning)
@@ -188,26 +187,25 @@ Public Class ShelfTag_Printer
         currentItemIndex = 0
 
         Try
-            ' ✅ SqlConnection → MySqlConnection; inv. removed + backticks
             Using conn As New MySqlConnection(connStr)
                 conn.Open()
                 For Each row As DataGridViewRow In dgvItems.Rows
                     If row.IsNewRow Then Continue For
-
                     Dim bc = row.Cells("BARCODE").Value.ToString().Trim()
-                    Dim sku = row.Cells("SKU").Value.ToString().Trim()
-                    Dim br = row.Cells("BRAND").Value.ToString().Trim()
-                    Dim ds = row.Cells("DESCRIPTIONS").Value.ToString().Trim()
-                    Dim sz = row.Cells("SIZE").Value.ToString().Trim()
-                    Dim pr = CDec(row.Cells("PRICE").Value)
                     Dim qt = CInt(row.Cells("QTY").Value)
-
                     Dim imgCmd As New MySqlCommand("SELECT `PRODUCT_IMAGE` FROM `Inventory_Master_File` WHERE `BARCODE` = @BC", conn)
                     imgCmd.Parameters.AddWithValue("@BC", bc)
                     Dim imgBytes As Byte() = TryCast(imgCmd.ExecuteScalar(), Byte())
-
                     For i As Integer = 1 To qt
-                        tempPrintList.Rows.Add(bc, sku, br, ds, sz, pr, imgBytes)
+                        tempPrintList.Rows.Add(
+                            bc,
+                            row.Cells("SKU").Value.ToString().Trim(),
+                            row.Cells("BRAND").Value.ToString().Trim(),
+                            row.Cells("DESCRIPTIONS").Value.ToString().Trim(),
+                            row.Cells("SIZE").Value.ToString().Trim(),
+                            CDec(row.Cells("PRICE").Value),
+                            imgBytes
+                        )
                     Next
                 Next
             End Using
@@ -217,23 +215,19 @@ Public Class ShelfTag_Printer
             If pd.ShowDialog() = DialogResult.OK Then
                 printDoc.Print()
                 MessageBox.Show("Print job sent successfully!", "Complete", MessageBoxButtons.OK, MessageBoxIcon.Information)
+                AuditLogger.LogAction("PRINT_SENT", "ShelfTagPrinter", $"Print job sent | Type: {selectedPrintType} | Tags: {tempPrintList.Rows.Count}")
             End If
         Catch ex As Exception
             MessageBox.Show("Print Error: " & ex.Message, "System", MessageBoxButtons.OK, MessageBoxIcon.Error)
+            AuditLogger.LogAction("PRINT_ERROR", "ShelfTagPrinter", $"Print failed | Error: {ex.Message}")
         End Try
     End Sub
 
-    ' BARCODE GENERATOR — WALANG BINAGO
+    ' Barcode generation functions remain unchanged
     Private Function GetValidBarcodePattern(codeNum As String) As String
         Dim pureNum As String = New String(codeNum.Where(AddressOf Char.IsDigit).ToArray())
-
-        If pureNum.Length = 13 Then
-            Return GenerateEAN13(pureNum)
-        End If
-        If pureNum.Length = 8 Then
-            Return GenerateEAN8(pureNum)
-        End If
-
+        If pureNum.Length = 13 Then Return GenerateEAN13(pureNum)
+        If pureNum.Length = 8 Then Return GenerateEAN8(pureNum)
         pureNum = pureNum.PadRight(12, "0"c).Substring(0, 12)
         Dim checkDigit As Integer = CalculateCheckDigit(pureNum)
         Return GenerateEAN13(pureNum & checkDigit.ToString())
@@ -258,7 +252,6 @@ Public Class ShelfTag_Printer
         Dim firstDigit As Integer = CInt(ean(0).ToString())
         Dim parity As String = parityPattern(firstDigit)
         Dim pattern As New StringBuilder("101")
-
         For i As Integer = 1 To 6
             Dim d As Integer = CInt(ean(i).ToString())
             If parity(i - 1) = "0" Then pattern.Append(leftOdd(d)) Else pattern.Append(leftEven(d))
@@ -285,49 +278,35 @@ Public Class ShelfTag_Printer
         Return pattern.ToString()
     End Function
 
-    ' PRINT PAGE LOGIC — WALANG BINAGO SA LAYOUT O DESIGN
     Private Sub printDoc_PrintPage(sender As Object, e As PrintPageEventArgs) Handles printDoc.PrintPage
+        ' Layout logic remains unchanged
         Dim g As Graphics = e.Graphics
         g.PageUnit = GraphicsUnit.Millimeter
         g.Clear(Color.White)
         g.TextRenderingHint = Drawing.Text.TextRenderingHint.AntiAlias
-
         Dim penBorder As New Pen(Color.Black, 0.25F)
         Dim marginLeftPage As Single = 12.0F
         Dim marginTopPage As Single = 8.0F
         Dim printedThisPage As Integer = 0
         Dim tagsPerPage As Integer = columnsPerRow * rowsPerPage
-
         Dim textFormat As New StringFormat With {.FormatFlags = StringFormatFlags.LineLimit, .Trimming = StringTrimming.Word, .Alignment = StringAlignment.Near, .LineAlignment = StringAlignment.Near}
         Dim alignRight As New StringFormat With {.Alignment = StringAlignment.Far}
-
         Dim currentTagWidth As Single
         Dim currentTagHeight As Single
         Dim isPromoSize As Boolean = (selectedPrintType <> "NORMAL" AndAlso selectedPrintType <> "PRICEUPDATE")
-
-        If isPromoSize Then
-            currentTagWidth = tagWidth_Promo
-            currentTagHeight = tagHeight_Promo
-        Else
-            currentTagWidth = tagWidth_Normal
-            currentTagHeight = tagHeight_Normal
-        End If
+        If isPromoSize Then currentTagWidth = tagWidth_Promo : currentTagHeight = tagHeight_Promo Else currentTagWidth = tagWidth_Normal : currentTagHeight = tagHeight_Normal
 
         While currentItemIndex < tempPrintList.Rows.Count AndAlso printedThisPage < tagsPerPage
             Dim colPos As Integer = printedThisPage Mod columnsPerRow
             Dim rowPos As Integer = Math.Floor(printedThisPage / columnsPerRow)
-
             Dim xStart As Single = marginLeftPage + (colPos * currentTagWidth)
             Dim yStart As Single = marginTopPage + (rowPos * currentTagHeight)
             Dim rightLimit As Single = xStart + currentTagWidth - rightSpace
-
             g.DrawRectangle(penBorder, xStart, yStart, currentTagWidth, currentTagHeight)
             If currentItemIndex >= tempPrintList.Rows.Count Then printedThisPage += 1 : Continue While
-
             Dim p As DataRow = tempPrintList.Rows(currentItemIndex)
 
             If Not isPromoSize Then
-                ' NORMAL / PRICE UPDATE TAG
                 Dim fBrand As New Font("Arial", 10, FontStyle.Bold)
                 Dim fDesc As New Font("Arial", 8.5, FontStyle.Regular)
                 Dim fSize As New Font("Arial", 7, FontStyle.Regular)
@@ -336,7 +315,6 @@ Public Class ShelfTag_Printer
                 Dim fPc As New Font("Arial", 7, FontStyle.Regular)
                 Dim fBarcodeNum As New Font("Arial", 7, FontStyle.Regular)
                 Dim fSku As New Font("Arial", 6.5, FontStyle.Regular)
-
                 Dim imgSize As Single = 18
                 If p("PRODUCT_IMAGE") IsNot DBNull.Value Then
                     Try
@@ -348,26 +326,21 @@ Public Class ShelfTag_Printer
                     Catch
                     End Try
                 End If
-
                 Dim skuText As String = p("SKU").ToString().Trim()
                 g.DrawString(skuText, fSku, Brushes.Black, xStart + safeMargin, yStart + safeMargin + imgSize + 0.5F)
-
                 Dim textX As Single = xStart + safeMargin + imgSize + 2
                 g.DrawString(p("BRAND").ToString().ToUpper(), fBrand, Brushes.Black, textX, yStart + safeMargin, textFormat)
                 g.DrawString(p("DESCRIPTIONS").ToString().ToUpper(), fDesc, Brushes.Black, New RectangleF(textX, yStart + 10, 52, 11), textFormat)
                 g.DrawString(p("SIZE").ToString().ToUpper(), fSize, Brushes.Black, textX, yStart + 20, textFormat)
-
                 Dim val As Decimal = CDec(p("PRICE"))
                 Dim whole As Integer = CInt(Math.Truncate(val))
                 Dim cent As Integer = CInt((val - whole) * 100)
                 Dim centStr As String = cent.ToString("00")
-
                 Dim pesoW As SizeF = g.MeasureString("₱", fBrand)
                 Dim wholeW As SizeF = g.MeasureString(whole.ToString(), fPriceBig)
                 Dim centW As SizeF = g.MeasureString(centStr, fCent)
                 Dim totalPresyoW As Single = pesoW.Width + wholeW.Width + centW.Width
                 Dim presyoStartX As Single = rightLimit - totalPresyoW
-
                 Dim posX As Single = presyoStartX
                 g.DrawString("₱", fBrand, Brushes.Black, posX, yStart + 2)
                 posX += pesoW.Width
@@ -375,37 +348,26 @@ Public Class ShelfTag_Printer
                 posX += wholeW.Width
                 g.DrawString(centStr, fCent, Brushes.Black, posX, yStart + 3)
                 g.DrawString("/PC", fPc, Brushes.Black, rightLimit, yStart + 9, alignRight)
-
                 Dim bcTextRaw As String = p("BARCODE").ToString().Trim()
                 Dim bcPattern As String = GetValidBarcodePattern(bcTextRaw)
                 Dim barcodeHeight As Single = 4.5F
                 Dim barcodeY As Single = yStart + 15
-
                 Dim maxAvailableWidth As Single = rightLimit - presyoStartX
                 Dim barWidth As Single = Math.Min(0.22F, maxAvailableWidth / bcPattern.Length)
                 Dim penB As New Pen(Color.Black, barWidth)
                 Dim penW As New Pen(Color.White, barWidth)
                 Dim currentX As Single = presyoStartX
-
                 For Each bit As Char In bcPattern
-                    If bit = "1" Then
-                        g.DrawLine(penB, currentX, barcodeY, currentX, barcodeY + barcodeHeight)
-                    Else
-                        g.DrawLine(penW, currentX, barcodeY, currentX, barcodeY + barcodeHeight)
-                    End If
+                    If bit = "1" Then g.DrawLine(penB, currentX, barcodeY, currentX, barcodeY + barcodeHeight) Else g.DrawLine(penW, currentX, barcodeY, currentX, barcodeY + barcodeHeight)
                     currentX += barWidth
                 Next
-
                 Dim pureNumDisplay As String = New String(bcTextRaw.Where(AddressOf Char.IsDigit).ToArray())
                 If pureNumDisplay.Length = 12 Then pureNumDisplay &= CalculateCheckDigit(pureNumDisplay).ToString()
                 g.DrawString(pureNumDisplay, fBarcodeNum, Brushes.Black, presyoStartX, barcodeY + barcodeHeight + 0.5F)
-
             Else
-                ' PROMO / DISCOUNT TAG
                 Dim fBrandSmall As New Font("Arial", 7, FontStyle.Bold)
                 Dim fPriceSmall As New Font("Arial", 14, FontStyle.Bold)
                 Dim fPromoText As New Font("Arial", 6, FontStyle.Bold)
-
                 If selectedPrintType = "BUY1TAKE1" Then
                     g.FillRectangle(Brushes.Red, xStart, yStart, currentTagWidth, 3.5F)
                     g.DrawString("BUY 1 TAKE 1", fPromoText, Brushes.White, xStart + 1, yStart + 0.3F)
@@ -413,24 +375,22 @@ Public Class ShelfTag_Printer
                     g.FillRectangle(Brushes.DarkOrange, xStart, yStart, currentTagWidth, 3.5F)
                     g.DrawString(selectedPrintType, fPromoText, Brushes.White, xStart + 1, yStart + 0.3F)
                 End If
-
                 g.DrawString(p("BRAND").ToString().ToUpper(), fBrandSmall, Brushes.Black, xStart + safeMargin, yStart + 4, textFormat)
                 g.DrawString(p("DESCRIPTIONS").ToString().ToUpper(), New Font("Arial", 5.5F), Brushes.Black, New RectangleF(xStart + safeMargin, yStart + 7, currentTagWidth - 5, 5), textFormat)
-
                 Dim val As Decimal = CDec(p("PRICE"))
                 Dim whole As Integer = CInt(Math.Truncate(val))
                 Dim cent As Integer = CInt((val - whole) * 100)
                 Dim priceStr As String = "₱" & whole & "." & cent.ToString("00")
-
                 g.DrawString(priceStr, fPriceSmall, Brushes.Black, rightLimit, yStart + 3, alignRight)
                 g.DrawString("SKU: " & p("SKU").ToString(), New Font("Arial", 5), Brushes.Gray, xStart + safeMargin, yStart + 11)
             End If
-
             printedThisPage += 1
             currentItemIndex += 1
         End While
-
         e.HasMorePages = (currentItemIndex < tempPrintList.Rows.Count)
+    End Sub
+
+    Private Sub Panel1_Paint(sender As Object, e As PaintEventArgs) Handles Panel1.Paint
     End Sub
 
 End Class

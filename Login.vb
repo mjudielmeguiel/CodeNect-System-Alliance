@@ -16,19 +16,16 @@ Public Class Login
 
     ' --- AUTO SET STATUS TO OFFLINE WHEN LOGIN FORM CLOSES ---
     Private Sub Login_FormClosing(sender As Object, e As FormClosingEventArgs) Handles MyBase.FormClosing
-        ' Only run if user successfully logged in
         If Not String.IsNullOrEmpty(LoggedInUserID) OrElse Not String.IsNullOrEmpty(LoggedInAccountID) Then
             Try
                 Using conn As New MySqlConnection(DBConnection.connStr)
                     conn.Open()
-                    ' For normal users
                     If Not String.IsNullOrEmpty(LoggedInUserID) Then
                         Using cmd As New MySqlCommand("UPDATE `user_accounts` SET `STATUS`='OFFLINE' WHERE `ID`=@id", conn)
                             cmd.Parameters.AddWithValue("@id", LoggedInUserID)
                             cmd.ExecuteNonQuery()
                         End Using
                     End If
-                    ' For Business Admin
                     If Not String.IsNullOrEmpty(LoggedInAccountID) AndAlso LoggedInUserType = "BUSINESS ADMIN" Then
                         Using cmd As New MySqlCommand("UPDATE `account` SET `STATUS`='OFFLINE' WHERE `ACCOUNT_ID`=@aid", conn)
                             cmd.Parameters.AddWithValue("@aid", LoggedInAccountID)
@@ -37,7 +34,6 @@ Public Class Login
                     End If
                 End Using
             Catch ex As Exception
-                ' Ignore error if connection fails
             End Try
         End If
     End Sub
@@ -146,12 +142,17 @@ Public Class Login
                                 LoggedInUserType = utype
                                 LoggedInUsername = uname
 
-                                frmDashboard.Show()
+                                ' ===✅ ADDED: LOG USER LOGIN===
+                                AuditLogger.LogAction("LOGIN", "Authentication", $"User [{LoggedInUsername}] logged in successfully")
 
+                                frmDashboard.Show()
                                 Me.Hide()
                                 loginSuccess = True
                             Else
                                 attempts += 1
+                                ' ===✅ OPTIONAL: LOG FAILED ATTEMPT===
+                                AuditLogger.LogAction("LOGIN_FAILED", "Authentication", $"Failed attempt for [{username}] | Wrong Password | Attempt {attempts}/{maxAttempts}")
+
                                 If attempts >= maxAttempts Then
                                     Using lck = New MySqlCommand("UPDATE `user_accounts` SET `STATUS`='LOCKED', `login_attempts`=@att WHERE `ID`=@id", connUser)
                                         lck.Parameters.AddWithValue("@att", attempts)
@@ -226,11 +227,17 @@ Public Class Login
                                     LoggedInUsername = name
                                     LoggedInBranchID = String.Empty
 
+                                    ' ===✅ ADDED: LOG ADMIN LOGIN===
+                                    AuditLogger.LogAction("LOGIN", "Authentication", $"Business Admin [{LoggedInUsername}] logged in successfully")
+
                                     frmDashboard.Show()
                                     Me.Hide()
                                     Return
                                 Else
                                     attempts += 1
+                                    ' ===✅ OPTIONAL: LOG ADMIN FAILED ATTEMPT===
+                                    AuditLogger.LogAction("LOGIN_FAILED", "Authentication", $"Failed attempt for Admin [{username}] | Wrong Password")
+
                                     If attempts >= maxAttempts Then
                                         Using lck = New MySqlCommand("UPDATE `account` SET `STATUS`='LOCKED', `login_attempts`=@att WHERE `ACCOUNT_ID`=@id", connAdmin)
                                             lck.Parameters.AddWithValue("@att", attempts)
@@ -257,6 +264,8 @@ Public Class Login
             End Using
 
             If Not userFound Then
+                ' ===✅ OPTIONAL: LOG INVALID USERNAME===
+                AuditLogger.LogAction("LOGIN_FAILED", "Authentication", $"Attempt with non-existing username: [{username}]")
                 lblError.Text = "Username does not exist in our records."
                 lblError.ForeColor = Color.OrangeRed
             End If
@@ -280,5 +289,4 @@ Public Class Login
     Private Sub btnShowPass_Click(sender As Object, e As EventArgs) Handles btnShowPass.Click
         txtPassword.PasswordChar = If(txtPassword.PasswordChar = "●"c, Char.MinValue, "●"c)
     End Sub
-
 End Class

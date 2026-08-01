@@ -8,11 +8,11 @@ Public Class frmSTR_Information
     Public Sub LoadTransferDetails(strNumber As String)
         Try
             strNumber = strNumber.Trim().PadLeft(6, "0"c)
+            AuditLogger.LogAction("LOAD_STR", "STRInfo", $"Loading STR details | No: {strNumber}")
 
             Using conn As New MySqlConnection(connStr)
                 conn.Open()
 
-                ' ✅ Backticks added for table/column names
                 Dim sqlHeader As String = "SELECT * FROM `STR_DATA` WHERE `STR_NUMBER` = @DocNo"
                 Using cmdHeader As New MySqlCommand(sqlHeader, conn)
                     cmdHeader.Parameters.AddWithValue("@DocNo", strNumber)
@@ -27,12 +27,12 @@ Public Class frmSTR_Information
                             lbltotal.Text = Convert.ToDecimal(dr("TOTAL")).ToString("N2")
                         Else
                             MessageBox.Show("No record")
+                            AuditLogger.LogAction("STR_NOTFOUND", "STRInfo", $"No STR record found | No: {strNumber}")
                             Return
                         End If
                     End Using
                 End Using
 
-                ' ✅ Backticks added for table/column names
                 Dim sqlItems As String = "SELECT `BARCODE`, `SKU`, `BRAND`, `DESCRIPTIONS`, `SIZE`, `PRICE`, `ORDER_QTY`, `STOCK_IN`, `STOCK_OUT`, `VENDOR_CODE`, `VENDOR_NAME`, `REMARKS`, `TOTAL` 
                                           FROM `Stock_Transfer` WHERE `STR_NUMBER` = @DocNo"
                 Using cmdItems As New MySqlCommand(sqlItems, conn)
@@ -48,13 +48,16 @@ Public Class frmSTR_Information
 
                     If dtAllItems.Rows.Count > 0 Then
                         FormatGrid()
+                        AuditLogger.LogAction("STR_ITEMS_LOADED", "STRInfo", $"Loaded {dtAllItems.Rows.Count} items | STR No: {strNumber}")
                     Else
                         MessageBox.Show("Items: " & dtAllItems.Rows.Count.ToString())
+                        AuditLogger.LogAction("STR_NOITEMS", "STRInfo", $"STR has no line items | No: {strNumber}")
                     End If
                 End Using
             End Using
         Catch ex As Exception
             MessageBox.Show("Error: " & ex.Message)
+            AuditLogger.LogAction("ERROR", "STRInfo", $"Load failed | Error: {ex.Message}")
         End Try
     End Sub
 
@@ -64,7 +67,6 @@ Public Class frmSTR_Information
             .ReadOnly = True
             .AllowUserToAddRows = False
             .AllowUserToDeleteRows = False
-
             If .Columns.Contains("BARCODE") Then .Columns("BARCODE").HeaderText = "BARCODE"
             If .Columns.Contains("SKU") Then .Columns("SKU").HeaderText = "SKU"
             If .Columns.Contains("BRAND") Then .Columns("BRAND").HeaderText = "BRAND"
@@ -98,11 +100,13 @@ Public Class frmSTR_Information
     End Sub
 
     Private Sub btnClose_Click(sender As Object, e As EventArgs) Handles btnClose.Click
+        AuditLogger.LogAction("CLOSE_STR", "STRInfo", "STR Information form closed")
         Me.Close()
     End Sub
 
     Private Sub frmSTR_Information_Load(sender As Object, e As EventArgs) Handles MyBase.Load
         dgvItems.DataSource = Nothing
         dtAllItems.Clear()
+        AuditLogger.LogAction("OPEN_STR_INFO", "STRInfo", "Opened STR Information form")
     End Sub
 End Class

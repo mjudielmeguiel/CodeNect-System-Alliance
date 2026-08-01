@@ -20,6 +20,7 @@ Public Class frmPWDDiscount
         dtpDateOfBirth.CustomFormat = " "
 
         lblTotalBeforeDiscount.Text = $"Total Amount: ₱ {TransactionTotal:N2}"
+        AuditLogger.LogAction("OPEN_DISC_FORM", "PWD_Discount", $"Opened discount form | OR: {ORNumber} | Total: {TransactionTotal:N2}")
     End Sub
 
     Private Sub dtpDateOfBirth_ValueChanged(sender As Object, e As EventArgs) Handles dtpDateOfBirth.ValueChanged
@@ -32,7 +33,6 @@ Public Class frmPWDDiscount
 
         Try
             Using conn As New MySqlConnection(connStr)
-                ' ✅ TOP 1 → LIMIT 1 (MySQL syntax)
                 Dim query As String = "SELECT * FROM `PWD_Discount` WHERE `ID_Number` = @idnum ORDER BY `DateRecorded` DESC LIMIT 1"
                 Using cmd As New MySqlCommand(query, conn)
                     cmd.Parameters.AddWithValue("@idnum", idNum)
@@ -61,15 +61,18 @@ Public Class frmPWDDiscount
                             rdofemale.Checked = (gender = "Female")
 
                             MessageBox.Show("✅ Details loaded from previous record.", "Auto-Fill", MessageBoxButtons.OK, MessageBoxIcon.Information)
+                            AuditLogger.LogAction("LOAD_DISC_REC", "PWD_Discount", $"Loaded existing record | ID: {idNum}")
                         Else
                             ClearFields(keepID:=True)
                             MessageBox.Show("ℹ️ New ID — please fill in the details.", "New Record", MessageBoxButtons.OK, MessageBoxIcon.Information)
+                            AuditLogger.LogAction("NEW_DISC_REC", "PWD_Discount", $"New ID detected | ID: {idNum}")
                         End If
                     End Using
                 End Using
             End Using
         Catch ex As Exception
             MessageBox.Show("Error loading record: " & ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
+            AuditLogger.LogAction("ERROR", "PWD_Discount", $"Load record failed | ID: {idNum} | Error: {ex.Message}")
         End Try
     End Sub
 
@@ -77,26 +80,37 @@ Public Class frmPWDDiscount
         ' Validation
         If String.IsNullOrWhiteSpace(cboIDType.Text) Then
             MessageBox.Show("Select ID Type.", "Required", MessageBoxButtons.OK, MessageBoxIcon.Warning)
-            cboIDType.Focus() : Return
+            cboIDType.Focus()
+            AuditLogger.LogAction("DISC_VALID", "PWD_Discount", "Validation failed - no ID Type selected")
+            Return
         End If
         If String.IsNullOrWhiteSpace(txtIDNumber.Text) Then
             MessageBox.Show("Enter ID Number.", "Required", MessageBoxButtons.OK, MessageBoxIcon.Warning)
-            txtIDNumber.Focus() : Return
+            txtIDNumber.Focus()
+            AuditLogger.LogAction("DISC_VALID", "PWD_Discount", "Validation failed - no ID Number entered")
+            Return
         End If
         If String.IsNullOrWhiteSpace(txtSurname.Text) Then
             MessageBox.Show("Enter Surname.", "Required", MessageBoxButtons.OK, MessageBoxIcon.Warning)
-            txtSurname.Focus() : Return
+            txtSurname.Focus()
+            AuditLogger.LogAction("DISC_VALID", "PWD_Discount", "Validation failed - no Surname")
+            Return
         End If
         If String.IsNullOrWhiteSpace(txtFirstName.Text) Then
             MessageBox.Show("Enter First Name.", "Required", MessageBoxButtons.OK, MessageBoxIcon.Warning)
-            txtFirstName.Focus() : Return
+            txtFirstName.Focus()
+            AuditLogger.LogAction("DISC_VALID", "PWD_Discount", "Validation failed - no First Name")
+            Return
         End If
         If String.IsNullOrWhiteSpace(rchFullAddress.Text) Then
             MessageBox.Show("Enter Full Address.", "Required", MessageBoxButtons.OK, MessageBoxIcon.Warning)
-            rchFullAddress.Focus() : Return
+            rchFullAddress.Focus()
+            AuditLogger.LogAction("DISC_VALID", "PWD_Discount", "Validation failed - no Address")
+            Return
         End If
         If Not rdomale.Checked AndAlso Not rdofemale.Checked Then
             MessageBox.Show("Select Gender.", "Required", MessageBoxButtons.OK, MessageBoxIcon.Warning)
+            AuditLogger.LogAction("DISC_VALID", "PWD_Discount", "Validation failed - no Gender selected")
             Return
         End If
 
@@ -117,13 +131,13 @@ Public Class frmPWDDiscount
 
         SaveToDatabase()
         frmPOS_System.ApplyPWDDiscount(CInt(DISCOUNT_RATE), True)
+        AuditLogger.LogAction("DISC_APPLIED", "PWD_Discount", $"Discount applied | OR: {ORNumber} | ID: {txtIDNumber.Text.Trim()} | Disc: {DiscountAmount:N2} | Final: {FinalAmount:N2}")
         Me.Close()
     End Sub
 
     Private Sub SaveToDatabase()
         Try
             Using conn As New MySqlConnection(connStr)
-                ' ✅ GETDATE() → NOW()
                 Dim sql As String = "
                     INSERT INTO `PWD_Discount` (
                         `Account_ID`, `Branch_ID`, `ID_Type`, `ID_Number`, `Surname`, `FirstName`, `MiddleName`, `Suffix`, `Gender`,
@@ -162,12 +176,15 @@ Public Class frmPWDDiscount
                 End Using
             End Using
             MessageBox.Show("✅ Record saved successfully!", "Saved", MessageBoxButtons.OK, MessageBoxIcon.Information)
+            AuditLogger.LogAction("DISC_SAVED", "PWD_Discount", $"Discount record saved | ID: {txtIDNumber.Text.Trim()} | OR: {ORNumber}")
         Catch ex As Exception
             MessageBox.Show("❌ Error saving: " & ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
+            AuditLogger.LogAction("ERROR", "PWD_Discount", $"Save discount failed | ID: {txtIDNumber.Text.Trim()} | Error: {ex.Message}")
         End Try
     End Sub
 
     Private Sub btnClose_Click(sender As Object, e As EventArgs) Handles btnClose.Click
+        AuditLogger.LogAction("CLOSE_DISC", "PWD_Discount", $"Discount form closed | OR: {ORNumber}")
         Me.Close()
     End Sub
 

@@ -6,18 +6,16 @@ Public Class frmDiscountRecords
     Private _FilterBranchName As String = ""
 
     Public Sub SetUser(AccountID As String, BranchID As String)
-        ' Kunin ang pangalan ng branch mula sa status bar ng Dashboard
         _FilterBranchName = DashBoard.ToolStripStatusLabel4.Text.Trim()
         LoadIDTypes()
         LoadDiscountRecords()
+        AuditLogger.LogAction("OPEN", "Discount Records", $"Opened Discount History for branch: {_FilterBranchName}")
     End Sub
 
     Private Sub frmDiscountRecords_Load(sender As Object, e As EventArgs) Handles MyBase.Load
-        ' Sakop ng petsa mula simula hanggang ngayon
         dtpStart.Value = New DateTime(2020, 1, 1)
         dtpEnd.Value = DateTime.Now.Date.AddDays(1)
 
-        ' Ayos ng itsura ng listahan
         dgvRecords.AutoGenerateColumns = True
         dgvRecords.AllowUserToAddRows = False
         dgvRecords.ReadOnly = True
@@ -25,11 +23,9 @@ Public Class frmDiscountRecords
         dgvRecords.RowHeadersVisible = False
         dgvRecords.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.AllCells
 
-        ' Huwag papalitan ang laman ng combo box
         cboIDType.DropDownStyle = ComboBoxStyle.DropDownList
     End Sub
 
-    ' I-load ang listahan ng mga uri ng ID
     Private Sub LoadIDTypes()
         Try
             Using conn As New MySqlConnection(DBConnection.connStr)
@@ -40,7 +36,6 @@ Public Class frmDiscountRecords
                     Dim da As New MySqlDataAdapter(cmd)
                     da.Fill(dt)
 
-                    ' Maglagay ng pagpipilian na "All"
                     dt.Rows.InsertAt(dt.NewRow(), 0)
                     dt.Rows(0)("ID_Type") = "All"
 
@@ -50,17 +45,16 @@ Public Class frmDiscountRecords
                 End Using
             End Using
         Catch ex As Exception
-            MessageBox.Show("Error sa pagkuha ng listahan ng ID: " & ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
+            MessageBox.Show("Error loading ID types: " & ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
+            AuditLogger.LogAction("ERROR", "Discount Records", $"Failed to load ID types: {ex.Message}")
         End Try
     End Sub
 
-    ' Ipakita ang kasaysayan ng transaksyon nang walang doble
     Private Sub LoadDiscountRecords()
         Dim dt As New DataTable()
 
         Try
             Using conn As New MySqlConnection(DBConnection.connStr)
-                ' ✅ Pinalitan ang OUTER APPLY → LEFT JOIN (tugma sa MySQL)
                 Dim sql As String = "
                     SELECT
                         d.`PWD_ID` AS `PWD ID`,
@@ -97,12 +91,10 @@ Public Class frmDiscountRecords
                         AND d.`DateRecorded` < @EndDate
                 "
 
-                ' Maglagay ng filter ayon sa uri ng ID kung hindi "All" ang napili
                 If cboIDType.SelectedValue IsNot Nothing AndAlso cboIDType.SelectedValue.ToString() <> "All" Then
                     sql &= " AND d.`ID_Type` = @IDType"
                 End If
 
-                ' Ayusin ang pagkakasunod-sunod mula pinakabago hanggang luma
                 sql &= " ORDER BY d.`DateRecorded` DESC"
 
                 Using cmd As New MySqlCommand(sql, conn)
@@ -122,7 +114,6 @@ Public Class frmDiscountRecords
 
             dgvRecords.DataSource = dt
 
-            ' Ayos ng itsura ng mga numero
             If dt.Rows.Count > 0 Then
                 dgvRecords.Columns("Discount Amount").DefaultCellStyle.Format = "N2"
                 dgvRecords.Columns("Transaction Total").DefaultCellStyle.Format = "N2"
@@ -130,11 +121,11 @@ Public Class frmDiscountRecords
             End If
 
         Catch ex As Exception
-            MessageBox.Show("Error sa pagkuha ng talaan: " & ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
+            MessageBox.Show("Error loading records: " & ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
+            AuditLogger.LogAction("ERROR", "Discount Records", $"Failed to load discount records: {ex.Message}")
         End Try
     End Sub
 
-    ' Awtomatikong mag-refresh kapag binago ang petsa o uri ng ID
     Private Sub dtpStart_ValueChanged(sender As Object, e As EventArgs) Handles dtpStart.ValueChanged
         LoadDiscountRecords()
     End Sub
@@ -147,10 +138,10 @@ Public Class frmDiscountRecords
         LoadDiscountRecords()
     End Sub
 
-    ' Pag-save ng listahan bilang CSV file
     Private Sub btnExportExcel_Click(sender As Object, e As EventArgs) Handles btnExportExcel.Click
         If dgvRecords.Rows.Count = 0 Then
-            MessageBox.Show("Walang talaan na maii-export.", "Paalala", MessageBoxButtons.OK, MessageBoxIcon.Information)
+            MessageBox.Show("No records to export.", "Notice", MessageBoxButtons.OK, MessageBoxIcon.Information)
+            AuditLogger.LogAction("EXPORT_FAILED", "Discount Records", "Export attempted with empty record list")
             Return
         End If
 
@@ -162,20 +153,20 @@ Public Class frmDiscountRecords
 
             If sfd.ShowDialog() = DialogResult.OK Then
                 Using sw As New StreamWriter(sfd.FileName, False, System.Text.Encoding.UTF8)
-                    ' Mga pamagat ng kolumna
                     Dim headers = dgvRecords.Columns.Cast(Of DataGridViewColumn).Select(Function(c) c.HeaderText)
                     sw.WriteLine(String.Join(",", headers))
 
-                    ' Mga laman ng bawat transaksyon
                     For Each row As DataGridViewRow In dgvRecords.Rows
                         Dim cells = row.Cells.Cast(Of DataGridViewCell).Select(Function(c) """" & c.Value.ToString().Replace("""", """""") & """")
                         sw.WriteLine(String.Join(",", cells))
                     Next
                 End Using
-                MessageBox.Show("Ang kasaysayan ay matagumpay na naisave!", "Tagumpay", MessageBoxButtons.OK, MessageBoxIcon.Information)
+                MessageBox.Show("History saved successfully!", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information)
+                AuditLogger.LogAction("EXPORT", "Discount Records", $"Exported discount records to file: {sfd.FileName}")
             End If
         Catch ex As Exception
-            MessageBox.Show("Error sa pag-save: " & ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
+            MessageBox.Show("Error saving file: " & ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
+            AuditLogger.LogAction("EXPORT_FAILED", "Discount Records", $"Export failed: {ex.Message}")
         End Try
     End Sub
 

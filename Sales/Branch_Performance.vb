@@ -6,6 +6,7 @@ Public Class Branch_Performance
     Private connStr As String = DBConnection.connStr
 
     Private Sub Branch_Performance_Load(sender As Object, e As EventArgs) Handles MyBase.Load
+        AuditLogger.LogAction("OPEN_BRANCH_PERF", "BranchPerf", "Opened Branch Performance Report — ADMIN ONLY ACCESS")
         LoadAllData()
     End Sub
 
@@ -13,7 +14,6 @@ Public Class Branch_Performance
         Try
             Dim dt As New DataTable()
 
-            ' ✅ dbo. removed, backticks added for reserved/column names
             Dim sql As String = "
                 SELECT
                     `ACCOUNT_ID`,
@@ -42,12 +42,16 @@ Public Class Branch_Performance
             dgvBranchList.AutoGenerateColumns = True
             dgvBranchList.DataSource = dt
 
+            AuditLogger.LogAction("BRANCH_DATA_LOADED", "BranchPerf", $"Loaded {dt.Rows.Count} sales records — ADMIN VIEW")
+
         Catch ex As Exception
             MessageBox.Show("Error: " & ex.Message)
+            AuditLogger.LogAction("ERROR", "BranchPerf", $"Load failed — ADMIN ONLY — Error: {ex.Message}")
         End Try
     End Sub
 
     Private Sub btnRefresh_Click(sender As Object, e As EventArgs) Handles btnRefresh.Click
+        AuditLogger.LogAction("REFRESH_BRANCH_PERF", "BranchPerf", "Admin refreshed performance report")
         LoadAllData()
     End Sub
 

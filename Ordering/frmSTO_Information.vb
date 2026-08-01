@@ -9,7 +9,6 @@ Public Class frmSTO_Information
             Using conn As New MySqlConnection(connStr)
                 conn.Open()
 
-                ' --- Load Header Information from STO_DATA ---
                 Dim sqlHeader As String = "SELECT * FROM `STO_DATA` WHERE `PO_NUMBER` = @DocNo"
                 Using cmdHeader As New MySqlCommand(sqlHeader, conn)
                     cmdHeader.Parameters.AddWithValue("@DocNo", poNumber)
@@ -24,13 +23,11 @@ Public Class frmSTO_Information
                             lblstatus.Text = dr("STATUS").ToString().Trim()
                             lbltotal.Text = Convert.ToDecimal(dr("TOTAL")).ToString("N2")
 
-                            ' Check status and disable controls if already DELIVERED
                             SetControlsEnabled(lblstatus.Text <> "DELIVERED")
                         End If
                     End Using
                 End Using
 
-                ' --- Load Stock Ordering Items into DataGridView ---
                 Dim sqlItems As String = "SELECT 
                     `BARCODE`, `SKU`, `BRAND`, `DESCRIPTIONS`, `SIZE`, 
                     `PRICE`, `ORDER_QTY`, `TOTAL`, `VENDOR_NAME`, `REMARKS` 
@@ -49,14 +46,16 @@ Public Class frmSTO_Information
                     FormatGridColumns()
                 End Using
 
+                AuditLogger.LogAction("OPEN", "Stock Ordering", $"Loaded Order Details | PO: {poNumber} | Status: {lblstatus.Text}")
+
             End Using
 
         Catch ex As Exception
             MessageBox.Show("Error loading Order: " & ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
+            AuditLogger.LogAction("ERROR", "Stock Ordering", $"Failed to load order {poNumber}: {ex.Message}")
         End Try
     End Sub
 
-    ' Enable/disable all controls based on status
     Private Sub SetControlsEnabled(enabled As Boolean)
         txtDR.Enabled = enabled
         btnSubmit.Enabled = enabled
@@ -86,13 +85,14 @@ Public Class frmSTO_Information
     End Sub
 
     Private Sub btnClose_Click(sender As Object, e As EventArgs) Handles btnClose.Click
+        AuditLogger.LogAction("CLOSE", "Stock Ordering", $"Closed Order Info | PO: {lblPONumber.Text}")
         Me.Close()
     End Sub
 
-    ' Double Click to Receive Item
     Private Sub dgvItems_CellDoubleClick(sender As Object, e As DataGridViewCellEventArgs) Handles dgvItems.CellDoubleClick
         If lblstatus.Text.Trim() = "DELIVERED" Then
             MessageBox.Show("This order is already DELIVERED. Editing is disabled.", "Access Denied", MessageBoxButtons.OK, MessageBoxIcon.Information)
+            AuditLogger.LogAction("ACCESS_DENIED", "Stock Ordering", $"Attempted to receive item on already delivered PO: {lblPONumber.Text}")
             Return
         End If
 
@@ -113,41 +113,45 @@ Public Class frmSTO_Information
                 .PONumber = lblPONumber.Text
             End With
 
+            AuditLogger.LogAction("OPEN", "Stock Ordering", $"Opened Receive Item form | PO: {lblPONumber.Text} | SKU: {frmAddStock.SKU}")
             frmAddStock.ShowDialog()
 
-            ' Refresh after receiving
             LoadOrderDetails(lblPONumber.Text)
         End If
     End Sub
 
-    ' Submit Button – Mark as DELIVERED
     Private Sub btnSubmit_Click(sender As Object, e As EventArgs) Handles btnSubmit.Click
         Try
             If lblstatus.Text.Trim() = "DELIVERED" Then
                 MessageBox.Show("This order is already DELIVERED.", "Info", MessageBoxButtons.OK, MessageBoxIcon.Information)
+                AuditLogger.LogAction("SUBMIT_FAILED", "Stock Ordering", $"Attempted to re-submit delivered PO: {lblPONumber.Text}")
                 Return
             End If
 
             If String.IsNullOrWhiteSpace(lblPONumber.Text) Then
                 MessageBox.Show("No Order selected.", "Warning", MessageBoxButtons.OK, MessageBoxIcon.Warning)
+                AuditLogger.LogAction("SUBMIT_FAILED", "Stock Ordering", "Submit attempted with no PO selected")
                 Return
             End If
 
             If String.IsNullOrWhiteSpace(txtDR.Text.Trim()) Then
-                MessageBox.Show("⚠️ Please enter a DR Number first before submitting!", "Missing DR Number", MessageBoxButtons.OK, MessageBoxIcon.Exclamation)
+                MessageBox.Show("Please enter a DR Number first before submitting!", "Missing DR Number", MessageBoxButtons.OK, MessageBoxIcon.Exclamation)
                 txtDR.Focus()
+                AuditLogger.LogAction("SUBMIT_FAILED", "Stock Ordering", $"Missing DR Number for PO: {lblPONumber.Text}")
                 Return
             End If
 
             Dim result = MessageBox.Show("Are you sure you want to mark this Order as DELIVERED? This cannot be undone.",
                                          "Confirm Submit", MessageBoxButtons.YesNo, MessageBoxIcon.Question)
 
-            If result <> DialogResult.Yes Then Return
+            If result <> DialogResult.Yes Then
+                AuditLogger.LogAction("CANCEL", "Stock Ordering", $"Cancelled mark-as-delivered for PO: {lblPONumber.Text}")
+                Return
+            End If
 
             Using conn As New MySqlConnection(connStr)
                 conn.Open()
 
-                ' Update status, DR, and receive date
                 Dim sqlUpdate As String = "
                     UPDATE `STO_DATA`
                     SET 
@@ -163,18 +167,16 @@ Public Class frmSTO_Information
                     cmd.ExecuteNonQuery()
                 End Using
 
-                MessageBox.Show("✅ Order successfully submitted and marked as DELIVERED.", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information)
+                MessageBox.Show("Order successfully submitted and marked as DELIVERED.", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information)
+                AuditLogger.LogAction("UPDATE", "Stock Ordering", $"Marked PO as DELIVERED | PO: {lblPONumber.Text} | DR: {txtDR.Text.Trim()}")
 
                 LoadOrderDetails(lblPONumber.Text)
             End Using
 
         Catch ex As Exception
             MessageBox.Show("Error submitting Order: " & ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
+            AuditLogger.LogAction("ERROR", "Stock Ordering", $"Error marking PO {lblPONumber.Text} as delivered: {ex.Message}")
         End Try
-    End Sub
-
-    Private Sub frmSTO_Information_Load(sender As Object, e As EventArgs) Handles MyBase.Load
-
     End Sub
 
 End Class

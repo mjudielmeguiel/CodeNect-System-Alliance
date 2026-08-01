@@ -23,6 +23,7 @@ Public Class frmADDProduct_Scan
         LoadCategoryList()
         SetFieldsSettings()
         GenerateRandom6DigitSKU()
+        AuditLogger.LogAction("OPEN_ADD_DESC", "AddProductScan", $"Opened Add Product Form | Account: {Current_AccountID}")
     End Sub
 
     Private Sub LoadCategoryList()
@@ -31,7 +32,6 @@ Public Class frmADDProduct_Scan
             If String.IsNullOrEmpty(Current_AccountID) Then Exit Sub
 
             Using conn As New MySqlConnection(connStr)
-                ' ✅ MAY KABIT NA SA ACCOUNT_ID
                 Dim qry As String = "SELECT `category_name` FROM `product_categories` WHERE `ACCOUNT_ID` = @Acc ORDER BY `category_name`"
                 Using cmd As New MySqlCommand(qry, conn)
                     cmd.Parameters.AddWithValue("@Acc", Current_AccountID)
@@ -44,8 +44,10 @@ Public Class frmADDProduct_Scan
                 End Using
             End Using
             cboCategory.Text = ""
+            AuditLogger.LogAction("CATS_LOADED", "AddProductScan", $"Category list loaded | Account: {Current_AccountID}")
         Catch ex As Exception
             MessageBox.Show("Load Category: " & ex.Message, "Notice", MessageBoxButtons.OK, MessageBoxIcon.Information)
+            AuditLogger.LogAction("ERROR", "AddProductScan", $"Load categories failed | Error: {ex.Message}")
         End Try
     End Sub
 
@@ -65,8 +67,10 @@ Public Class frmADDProduct_Scan
                 End Using
             Loop While exists
             lblSKU.Text = newSKU
+            AuditLogger.LogAction("SKU_GENERATED", "AddProductScan", $"New SKU generated: {newSKU}")
         Catch
             lblSKU.Text = New Random().Next(100000, 999999).ToString("D6")
+            AuditLogger.LogAction("SKU_FALLBACK", "AddProductScan", "Used fallback SKU generation")
         End Try
     End Sub
 
@@ -122,14 +126,17 @@ Public Class frmADDProduct_Scan
                         txtPrice.Text = CDec(dr("PRICE")).ToString("0.00")
                         txtPrice.ForeColor = Color.Black
                         _productImagePath = If(dr.IsDBNull(dr.GetOrdinal("PRODUCT_IMAGE")), "", dr("PRODUCT_IMAGE").ToString().Trim())
+                        AuditLogger.LogAction("VENDOR_FOUND", "AddProductScan", $"Vendor details loaded | Barcode: {barcode}")
                     Else
                         ClearAll()
+                        AuditLogger.LogAction("VENDOR_NOTFOUND", "AddProductScan", $"No vendor record | Barcode: {barcode}")
                     End If
                     dr.Close()
                 End Using
             End Using
         Catch ex As Exception
             MessageBox.Show(ex.Message, "Notice", MessageBoxButtons.OK, MessageBoxIcon.Information)
+            AuditLogger.LogAction("ERROR", "AddProductScan", $"Load vendor failed | Barcode: {barcode} | Error: {ex.Message}")
         End Try
     End Sub
 
@@ -170,20 +177,24 @@ Public Class frmADDProduct_Scan
         If bc = phBarcode OrElse String.IsNullOrWhiteSpace(bc) Then
             MessageBox.Show("Enter or Scan Barcode.", "Required", MessageBoxButtons.OK, MessageBoxIcon.Warning)
             txtBarcode.Focus()
+            AuditLogger.LogAction("VALID_FAIL", "AddProductScan", "Save cancelled - no barcode")
             Return
         End If
         If String.IsNullOrWhiteSpace(txtDescription.Text) Then
             MessageBox.Show("No product found.", "Check", MessageBoxButtons.OK, MessageBoxIcon.Warning)
+            AuditLogger.LogAction("VALID_FAIL", "AddProductScan", "Save cancelled - no description")
             Return
         End If
         If String.IsNullOrWhiteSpace(cboCategory.Text) Then
             MessageBox.Show("Select or enter Category.", "Required", MessageBoxButtons.OK, MessageBoxIcon.Warning)
             cboCategory.Focus()
+            AuditLogger.LogAction("VALID_FAIL", "AddProductScan", "Save cancelled - no category")
             Return
         End If
         If Not Decimal.TryParse(txtPrice.Text.Trim(), Nothing) Then
             MessageBox.Show("Enter valid Price.", "Required", MessageBoxButtons.OK, MessageBoxIcon.Warning)
             txtPrice.Focus()
+            AuditLogger.LogAction("VALID_FAIL", "AddProductScan", "Save cancelled - invalid price")
             Return
         End If
 
@@ -198,12 +209,14 @@ Public Class frmADDProduct_Scan
                     conn.Open()
                     If CInt(cmd.ExecuteScalar()) > 0 Then
                         MessageBox.Show("Product already exists.", "Duplicate", MessageBoxButtons.OK, MessageBoxIcon.Warning)
+                        AuditLogger.LogAction("DUPLICATE", "AddProductScan", $"Duplicate detected | Barcode: {bc} | SKU: {lblSKU.Text.Trim()}")
                         Return
                     End If
                 End Using
             End Using
         Catch ex As Exception
             MessageBox.Show("Check Error: " & ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
+            AuditLogger.LogAction("ERROR", "AddProductScan", $"Duplicate check failed | Error: {ex.Message}")
             Return
         End Try
 
@@ -232,14 +245,25 @@ Public Class frmADDProduct_Scan
                     End Using
                 End Using
                 MessageBox.Show("Saved successfully.", "Done", MessageBoxButtons.OK, MessageBoxIcon.Information)
+                AuditLogger.LogAction("PROD_SAVED", "AddProductScan", $"Product added | Barcode: {bc} | SKU: {lblSKU.Text.Trim()} | Desc: {txtDescription.Text.Trim()}")
                 ClearAll()
             Catch ex As Exception
                 MessageBox.Show("Save failed: " & ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
+                AuditLogger.LogAction("SAVE_FAIL", "AddProductScan", $"Insert failed | Barcode: {bc} | Error: {ex.Message}")
             End Try
+        Else
+            AuditLogger.LogAction("SAVE_CANCEL", "AddProductScan", $"Save cancelled by user | Barcode: {bc}")
         End If
     End Sub
 
     Private Sub Button1_Click(sender As Object, e As EventArgs) Handles Button1.Click
+        AuditLogger.LogAction("OPEN_CAT", "AddProductScan", "Opened Category Manager")
         frmCategory.Show()
+    End Sub
+
+    Private Sub btnCancel_Click(sender As Object, e As EventArgs) Handles btnCancel.Click
+        AuditLogger.LogAction("CLOSE_ADD", "AddProductScan", "Form closed without saving")
+        ClearAll()
+        Me.Close()
     End Sub
 End Class

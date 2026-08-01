@@ -311,6 +311,7 @@
     <Compile Include="Account\Account_Recovery.vb">
       <SubType>Form</SubType>
     </Compile>
+    <Compile Include="AuditLogger.vb" />
     <Compile Include="Branch\ADD Branch.Designer.vb">
       <DependentUpon>ADD Branch.vb</DependentUpon>
     </Compile>
@@ -330,28 +331,28 @@
     <Compile Include="Discounts\frmDiscountRecords.vb">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="frmConnectionSettings.Designer.vb">
-      <DependentUpon>frmConnectionSettings.vb</DependentUpon>
-    </Compile>
-    <Compile Include="frmConnectionSettings.vb">
-      <SubType>Form</SubType>
-    </Compile>
     <Compile Include="frmDashboard.Designer.vb">
       <DependentUpon>frmDashboard.vb</DependentUpon>
     </Compile>
     <Compile Include="frmDashboard.vb">
       <SubType>Form</SubType>
     </Compile>
+    <Compile Include="Product Manager user\frmProductlist.Designer.vb">
+      <DependentUpon>frmProductlist.vb</DependentUpon>
+    </Compile>
+    <Compile Include="Product Manager user\frmProductlist.vb">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Product Manager user\frmProductScanAdd.Designer.vb">
+      <DependentUpon>frmProductScanAdd.vb</DependentUpon>
+    </Compile>
+    <Compile Include="Product Manager user\frmProductScanAdd.vb">
+      <SubType>Form</SubType>
+    </Compile>
     <Compile Include="Products ADMIN\frmCategory.Designer.vb">
       <DependentUpon>frmCategory.vb</DependentUpon>
     </Compile>
     <Compile Include="Products ADMIN\frmCategory.vb">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="Products ADMIN\frmScanADDProduct.Designer.vb">
-      <DependentUpon>frmScanADDProduct.vb</DependentUpon>
-    </Compile>
-    <Compile Include="Products ADMIN\frmScanADDProduct.vb">
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="Reports\frmBad_Order.Designer.vb">
@@ -442,12 +443,6 @@
       <DependentUpon>Price_Adjustment.vb</DependentUpon>
     </Compile>
     <Compile Include="Price\Price_Adjustment.vb">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="Products ADMIN\frmADDProduct_Manual.Designer.vb">
-      <DependentUpon>frmADDProduct_Manual.vb</DependentUpon>
-    </Compile>
-    <Compile Include="Products ADMIN\frmADDProduct_Manual.vb">
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="Products ADMIN\frmADDProduct_Scan.Designer.vb">
@@ -574,12 +569,6 @@
       <DependentUpon>Settings.settings</DependentUpon>
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
     </Compile>
-    <Compile Include="Products ADMIN\frmProduct_Information.Designer.vb">
-      <DependentUpon>frmProduct_Information.vb</DependentUpon>
-    </Compile>
-    <Compile Include="Products ADMIN\frmProduct_Information.vb">
-      <SubType>Form</SubType>
-    </Compile>
     <Compile Include="Account\Register account.Designer.vb">
       <DependentUpon>Register account.vb</DependentUpon>
     </Compile>
@@ -630,17 +619,17 @@
     <EmbeddedResource Include="Discounts\frmDiscountRecords.resx">
       <DependentUpon>frmDiscountRecords.vb</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="frmConnectionSettings.resx">
-      <DependentUpon>frmConnectionSettings.vb</DependentUpon>
-    </EmbeddedResource>
     <EmbeddedResource Include="frmDashboard.resx">
       <DependentUpon>frmDashboard.vb</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="Product Manager user\frmProductlist.resx">
+      <DependentUpon>frmProductlist.vb</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Product Manager user\frmProductScanAdd.resx">
+      <DependentUpon>frmProductScanAdd.vb</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Products ADMIN\frmCategory.resx">
       <DependentUpon>frmCategory.vb</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Products ADMIN\frmScanADDProduct.resx">
-      <DependentUpon>frmScanADDProduct.vb</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Reports\frmBad_Order.resx">
       <DependentUpon>frmBad_Order.vb</DependentUpon>
@@ -686,9 +675,6 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Price\Price_Adjustment.resx">
       <DependentUpon>Price_Adjustment.vb</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Products ADMIN\frmADDProduct_Manual.resx">
-      <DependentUpon>frmADDProduct_Manual.vb</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Products ADMIN\frmADDProduct_Scan.resx">
       <DependentUpon>frmADDProduct_Scan.vb</DependentUpon>
@@ -749,9 +735,6 @@
       <LastGenOutput>Resources.Designer.vb</LastGenOutput>
       <CustomToolNamespace>My.Resources</CustomToolNamespace>
       <SubType>Designer</SubType>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Products ADMIN\frmProduct_Information.resx">
-      <DependentUpon>frmProduct_Information.vb</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Account\Register account.resx">
       <DependentUpon>Register account.vb</DependentUpon>
@@ -838,7 +821,6 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Badorder\" />
-    <Folder Include="Products user\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.VisualBasic.targets" />
 </Project>

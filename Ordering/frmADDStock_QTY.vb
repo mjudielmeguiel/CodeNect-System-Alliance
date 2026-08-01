@@ -2,7 +2,6 @@
 
 Public Class frmADDStock_QTY
 
-    ' Properties to receive data from main form
     Public Property Barcode As String = ""
     Public Property SKU As String = ""
     Public Property Brand As String = ""
@@ -16,7 +15,6 @@ Public Class frmADDStock_QTY
     Private connStr As String = DBConnection.connStr
 
     Private Sub frmADDStock_QTY_Load(sender As Object, e As EventArgs) Handles MyBase.Load
-        ' Fill display labels
         lblBarcode.Text = Barcode
         lblSKU.Text = SKU
         lblBrand.Text = Brand
@@ -26,11 +24,11 @@ Public Class frmADDStock_QTY
         lblVendor.Text = VendorName
         lblMaxOrderQty.Text = OrderQty.ToString()
 
-        ' Default values
         txtReceivedQty.Text = "0"
         txtReturnQty.Text = "0"
 
         btnSubmit.Enabled = True
+        AuditLogger.LogAction("OPEN", "Inventory", $"Opened Add Stock form | SKU: {SKU} | Item: {Brand} - {Description}")
     End Sub
 
     Private Sub btnSubmit_Click(sender As Object, e As EventArgs) Handles btnSubmit.Click
@@ -40,9 +38,9 @@ Public Class frmADDStock_QTY
             Dim receivedQty As Integer = 0
             Dim returnQty As Integer = 0
 
-            ' --- VALIDATION ---
             If Not Integer.TryParse(txtReceivedQty.Text.Trim(), receivedQty) OrElse receivedQty < 0 Then
                 MessageBox.Show("Enter valid Received Quantity.", "Invalid Input", MessageBoxButtons.OK, MessageBoxIcon.Warning)
+                AuditLogger.LogAction("SAVE_FAILED", "Inventory", $"Invalid received quantity input for SKU: {SKU}")
                 txtReceivedQty.Focus()
                 btnSubmit.Enabled = True
                 Return
@@ -50,6 +48,7 @@ Public Class frmADDStock_QTY
 
             If Not Integer.TryParse(txtReturnQty.Text.Trim(), returnQty) OrElse returnQty < 0 Then
                 MessageBox.Show("Enter valid Return Quantity.", "Invalid Input", MessageBoxButtons.OK, MessageBoxIcon.Warning)
+                AuditLogger.LogAction("SAVE_FAILED", "Inventory", $"Invalid return quantity input for SKU: {SKU}")
                 txtReturnQty.Focus()
                 btnSubmit.Enabled = True
                 Return
@@ -57,6 +56,7 @@ Public Class frmADDStock_QTY
 
             If receivedQty > OrderQty Then
                 MessageBox.Show($"Cannot receive more than ordered ({OrderQty}).", "Limit", MessageBoxButtons.OK, MessageBoxIcon.Warning)
+                AuditLogger.LogAction("SAVE_FAILED", "Inventory", $"Received qty exceeds ordered qty for SKU: {SKU}")
                 txtReceivedQty.Focus()
                 btnSubmit.Enabled = True
                 Return
@@ -64,6 +64,7 @@ Public Class frmADDStock_QTY
 
             If returnQty > receivedQty Then
                 MessageBox.Show("Return quantity cannot be more than received.", "Invalid Input", MessageBoxButtons.OK, MessageBoxIcon.Warning)
+                AuditLogger.LogAction("SAVE_FAILED", "Inventory", $"Return qty exceeds received qty for SKU: {SKU}")
                 btnSubmit.Enabled = True
                 Return
             End If
@@ -71,16 +72,15 @@ Public Class frmADDStock_QTY
             Dim addQty As Integer = receivedQty - returnQty
             If addQty <= 0 Then
                 MessageBox.Show("No stock to add.", "Info", MessageBoxButtons.OK, MessageBoxIcon.Information)
+                AuditLogger.LogAction("SAVE_FAILED", "Inventory", $"Net quantity zero/negative for SKU: {SKU}")
                 btnSubmit.Enabled = True
                 Return
             End If
 
-            ' --- DATABASE OPERATION WITH TRANSACTION ---
             Using conn As New MySqlConnection(connStr)
                 conn.Open()
                 Using tran As MySqlTransaction = conn.BeginTransaction()
                     Try
-                        ' 1. SUBUKAN MUNA I-UPDATE ANG EXISTING PRODUCT
                         Dim sqlUpdate As String = "
                             UPDATE `Inventory_Master_file`
                             SET 
@@ -98,7 +98,6 @@ Public Class frmADDStock_QTY
                             rowsAffected = cmdUpd.ExecuteNonQuery()
                         End Using
 
-                        ' 2. KUNG WALANG NA-UPDATE → MAG-INSERT NG BAGO
                         If rowsAffected = 0 Then
                             Dim sqlInsert As String = "
                                 INSERT INTO `Inventory_Master_file` 
@@ -117,9 +116,11 @@ Public Class frmADDStock_QTY
                                 cmdIns.Parameters.AddWithValue("@Vendor", VendorName)
                                 cmdIns.ExecuteNonQuery()
                             End Using
+                            AuditLogger.LogAction("INSERT", "Inventory", $"Added new product stock | SKU: {SKU} | Qty: {addQty}")
+                        Else
+                            AuditLogger.LogAction("UPDATE", "Inventory", $"Updated existing stock | SKU: {SKU} | Added Qty: {addQty}")
                         End If
 
-                        ' 3. I-UPDATE ANG STATUS NG PO/STO
                         Dim sqlStatus As String = "
                             UPDATE `STO_DATA`
                             SET 
@@ -132,32 +133,35 @@ Public Class frmADDStock_QTY
                             cmdStat.ExecuteNonQuery()
                         End Using
 
-                        ' KUNG WALANG ERROR → I-COMMIT LAHAT
                         tran.Commit()
 
-                        MessageBox.Show($"✅ Transaction completed!
+                        MessageBox.Show($"Transaction completed!
 Received: {receivedQty}
 Returned: {returnQty}
 Added to Inventory: {addQty}
 Order Status: PENDING", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information)
 
+                        AuditLogger.LogAction("STOCK_RECEIVE", "Inventory", $"Stock received | PO: {PONumber} | SKU: {SKU} | Received: {receivedQty} | Returned: {returnQty} | Net Added: {addQty}")
+
                         Me.Close()
 
                     Catch exTran As Exception
-                        ' KUNG MAY ERROR → IBALIK LAHAT SA DATI
                         tran.Rollback()
+                        AuditLogger.LogAction("ERROR", "Inventory", $"Transaction rolled back for PO {PONumber}: {exTran.Message}")
                         Throw exTran
                     End Try
                 End Using
             End Using
 
         Catch ex As Exception
-            MessageBox.Show("❌ Error: " & ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
+            MessageBox.Show("Error: " & ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
+            AuditLogger.LogAction("ERROR", "Inventory", $"Error adding stock for SKU {SKU}: {ex.Message}")
             btnSubmit.Enabled = True
         End Try
     End Sub
 
     Private Sub btnClose_Click(sender As Object, e As EventArgs) Handles btnClose.Click
+        AuditLogger.LogAction("CANCEL", "Inventory", $"Cancelled Add Stock form | SKU: {SKU}")
         Me.Close()
     End Sub
 

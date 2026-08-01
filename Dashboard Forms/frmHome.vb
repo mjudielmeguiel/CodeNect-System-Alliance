@@ -4,6 +4,7 @@ Public Class frmHome
 
     Private Sub frmHome_Load(sender As Object, e As EventArgs) Handles MyBase.Load
         LoadDashboardCounts()
+        AuditLogger.LogAction("OPEN", "Dashboard", "Loaded Home Dashboard overview")
     End Sub
 
     Private Sub LoadDashboardCounts()
@@ -30,7 +31,6 @@ Public Class frmHome
 
                 Using cmd As New MySqlCommand("SELECT COUNT(*) FROM `user_accounts` WHERE `account_id` = @AID AND `login_attempts` >= 3", conn)
                     cmd.Parameters.AddWithValue("@AID", accID)
-                    lblLockedUsers.Text = cmd.ExecuteScalar().ToString()
                 End Using
 
                 Using cmd As New MySqlCommand("SELECT COUNT(*) FROM `branches` WHERE `account_id` = @AID", conn)
@@ -40,6 +40,7 @@ Public Class frmHome
             End Using
         Catch ex As Exception
             MessageBox.Show("Error loading dashboard data: " & ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
+            AuditLogger.LogAction("ERROR", "Dashboard", $"Failed to load dashboard counts: {ex.Message}")
         End Try
     End Sub
 
