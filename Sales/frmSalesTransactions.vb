@@ -17,16 +17,17 @@ Public Class frmSalesTransactions
     Private Sub LoadBranches()
         Try
             Using conn As New MySqlConnection(connStr)
-                Dim sql As String = "SELECT DISTINCT `BRANCH_ID`, `BRANCH` FROM `Branches` ORDER BY `BRANCH`"
+                Dim sql As String = "SELECT DISTINCT `branch_id`, `branch` FROM `branches` ORDER BY `branch`"
                 Using cmd As New MySqlCommand(sql, conn)
                     Dim da As New MySqlDataAdapter(cmd)
                     Dim dt As New DataTable()
                     da.Fill(dt)
-                    dt.Rows.InsertAt(dt.NewRow(), 0)
-                    dt.Rows(0)("BRANCH_ID") = ""
-                    dt.Rows(0)("BRANCH") = "-- All Branches --"
-                    cboBranch.DisplayMember = "BRANCH"
-                    cboBranch.ValueMember = "BRANCH_ID"
+                    Dim drAll = dt.NewRow()
+                    drAll("branch_id") = DBNull.Value
+                    drAll("branch") = "-- All Branches --"
+                    dt.Rows.InsertAt(drAll, 0)
+                    cboBranch.DisplayMember = "branch"
+                    cboBranch.ValueMember = "branch_id"
                     cboBranch.DataSource = dt
                 End Using
             End Using
@@ -40,16 +41,17 @@ Public Class frmSalesTransactions
     Private Sub LoadCashiers()
         Try
             Using conn As New MySqlConnection(connStr)
-                Dim sql As String = "SELECT DISTINCT `Cashier_ID`, `Cashier_Name` FROM `Sales_Transactions` ORDER BY `Cashier_Name`"
+                Dim sql As String = "SELECT DISTINCT `user_id`, `user_name` FROM `sales_transactions` ORDER BY `user_name`"
                 Using cmd As New MySqlCommand(sql, conn)
                     Dim da As New MySqlDataAdapter(cmd)
                     Dim dt As New DataTable()
                     da.Fill(dt)
-                    dt.Rows.InsertAt(dt.NewRow(), 0)
-                    dt.Rows(0)("Cashier_ID") = ""
-                    dt.Rows(0)("Cashier_Name") = "-- All Cashiers --"
-                    cboCashier.DisplayMember = "Cashier_Name"
-                    cboCashier.ValueMember = "Cashier_ID"
+                    Dim drAll = dt.NewRow()
+                    drAll("user_id") = DBNull.Value
+                    drAll("user_name") = "-- All Cashiers --"
+                    dt.Rows.InsertAt(drAll, 0)
+                    cboCashier.DisplayMember = "user_name"
+                    cboCashier.ValueMember = "user_id"
                     cboCashier.DataSource = dt
                 End Using
             End Using
@@ -65,44 +67,53 @@ Public Class frmSalesTransactions
             Using conn As New MySqlConnection(connStr)
                 Dim sql As New Text.StringBuilder()
                 sql.AppendLine("SELECT")
-                sql.AppendLine("    `Transaction_ID`,")
-                sql.AppendLine("    `Branch_Code`,")
-                sql.AppendLine("    `Cashier_ID`,")
-                sql.AppendLine("    `Cashier_Name`,")
-                sql.AppendLine("    `Transaction_Date`,")
-                sql.AppendLine("    `Transaction_Time`,")
-                sql.AppendLine("    `Item_Count`,")
-                sql.AppendLine("    `Subtotal_Amount`,")
-                sql.AppendLine("    `VATable_Amount`,")
-                sql.AppendLine("    `VAT_Amount`,")
-                sql.AppendLine("    `Discount_Type`,")
-                sql.AppendLine("    `Discount_Percent`,")
-                sql.AppendLine("    `Discount_Amount`,")
-                sql.AppendLine("    `Amount_Due`,")
-                sql.AppendLine("    `Amount_Paid`,")
-                sql.AppendLine("    `Cash_Amount`,")
-                sql.AppendLine("    `Online_Amount`,")
-                sql.AppendLine("    `Change_Amount`,")
-                sql.AppendLine("    `Payment_Method`,")
-                sql.AppendLine("    `Status`")
-                sql.AppendLine("FROM `Sales_Transactions`")
-                sql.AppendLine("WHERE `Transaction_Date` BETWEEN @DateFrom AND @DateTo")
-                If Not String.IsNullOrEmpty(cboBranch.SelectedValue?.ToString()) Then
-                    sql.AppendLine("AND `Branch_Code` = @BranchCode")
+                sql.AppendLine("    `id`,")
+                sql.AppendLine("    `transaction_id`,")
+                sql.AppendLine("    `branch_id`,")
+                sql.AppendLine("    `user_id`,")
+                sql.AppendLine("    `user_name`,")
+                sql.AppendLine("    `transaction_date`,")
+                sql.AppendLine("    `transaction_time`,")
+                sql.AppendLine("    `item_count`,")
+                sql.AppendLine("    `subtotal_amount`,")
+                sql.AppendLine("    `vatable_amount`,")
+                sql.AppendLine("    `vat_amount`,")
+                sql.AppendLine("    `discount_type`,")
+                sql.AppendLine("    `discount_percent`,")
+                sql.AppendLine("    `discount_amount`,")
+                sql.AppendLine("    `amount_due`,")
+                sql.AppendLine("    `amount_paid`,")
+                sql.AppendLine("    `cash_amount`,")
+                sql.AppendLine("    `online_amount`,")
+                sql.AppendLine("    `change_amount`,")
+                sql.AppendLine("    `payment_method`,")
+                sql.AppendLine("    `status`,")
+                sql.AppendLine("    `remarks`")
+                sql.AppendLine("FROM `sales_transactions`")
+                sql.AppendLine("WHERE `transaction_date` BETWEEN @DateFrom AND @DateTo")
+
+                If cboBranch.SelectedValue IsNot Nothing AndAlso Not IsDBNull(cboBranch.SelectedValue) Then
+                    Dim br = cboBranch.SelectedValue.ToString().Trim()
+                    If Not String.IsNullOrEmpty(br) Then sql.AppendLine("AND `branch_id` = @BranchId")
                 End If
-                If Not String.IsNullOrEmpty(cboCashier.SelectedValue?.ToString()) Then
-                    sql.AppendLine("AND `Cashier_ID` = @CashierID")
+                If cboCashier.SelectedValue IsNot Nothing AndAlso Not IsDBNull(cboCashier.SelectedValue) Then
+                    Dim ca = cboCashier.SelectedValue.ToString().Trim()
+                    If Not String.IsNullOrEmpty(ca) Then sql.AppendLine("AND `user_id` = @UserId")
                 End If
-                sql.AppendLine("ORDER BY `Transaction_Date` DESC, `Transaction_Time` DESC")
+
+                sql.AppendLine("ORDER BY `transaction_date` DESC, `transaction_time` DESC")
 
                 Using cmd As New MySqlCommand(sql.ToString(), conn)
                     cmd.Parameters.AddWithValue("@DateFrom", dtpFrom.Value.Date)
                     cmd.Parameters.AddWithValue("@DateTo", dtpTo.Value.Date.AddDays(1).AddSeconds(-1))
-                    If Not String.IsNullOrEmpty(cboBranch.SelectedValue?.ToString()) Then
-                        cmd.Parameters.AddWithValue("@BranchCode", cboBranch.SelectedValue.ToString())
+
+                    If cboBranch.SelectedValue IsNot Nothing AndAlso Not IsDBNull(cboBranch.SelectedValue) Then
+                        Dim br = cboBranch.SelectedValue.ToString().Trim()
+                        If Not String.IsNullOrEmpty(br) Then cmd.Parameters.AddWithValue("@BranchId", br)
                     End If
-                    If Not String.IsNullOrEmpty(cboCashier.SelectedValue?.ToString()) Then
-                        cmd.Parameters.AddWithValue("@CashierID", cboCashier.SelectedValue.ToString())
+                    If cboCashier.SelectedValue IsNot Nothing AndAlso Not IsDBNull(cboCashier.SelectedValue) Then
+                        Dim ca = cboCashier.SelectedValue.ToString().Trim()
+                        If Not String.IsNullOrEmpty(ca) Then cmd.Parameters.AddWithValue("@UserId", ca)
                     End If
 
                     Dim da As New MySqlDataAdapter(cmd)
@@ -111,12 +122,12 @@ Public Class frmSalesTransactions
                     dgvTransactions.DataSource = dt
                     FormatGrid()
                     CalculateTotalSales(dt)
-                    AuditLogger.LogAction("TRANS_LOADED", "SalesTrans", $"Loaded {dt.Rows.Count} transactions | From: {dtpFrom.Value:yyyy-MM-dd} To: {dtpTo.Value:yyyy-MM-dd}")
+                    AuditLogger.LogAction("TRANS_LOADED", "SalesTrans", $"Loaded {dt.Rows.Count} records")
                 End Using
             End Using
         Catch ex As Exception
-            MessageBox.Show("Error loading transactions: " & ex.Message, "Database Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
-            AuditLogger.LogAction("ERROR", "SalesTrans", $"Load transactions failed | Error: {ex.Message}")
+            MessageBox.Show("Error: " & ex.Message, "Database Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
+            AuditLogger.LogAction("ERROR", "SalesTrans", ex.Message)
         End Try
     End Sub
 
@@ -126,57 +137,55 @@ Public Class frmSalesTransactions
             .RowHeadersVisible = False
             .ReadOnly = True
             .AllowUserToAddRows = False
-            .Columns("Branch_Code").Visible = False
-            .Columns("Cashier_ID").Visible = False
-            For Each col As DataGridViewColumn In .Columns
-                If col.Name.EndsWith("_Amount") OrElse col.Name = "Amount_Due" OrElse col.Name = "Amount_Paid" Then
-                    col.DefaultCellStyle.Format = "N2"
-                    col.DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleRight
+            .AllowUserToDeleteRows = False
+
+            If .Columns.Contains("id") Then .Columns("id").Visible = False
+            If .Columns.Contains("branch_id") Then .Columns("branch_id").Visible = False
+            If .Columns.Contains("user_id") Then .Columns("user_id").Visible = False
+
+            For Each colName In {"subtotal_amount", "vatable_amount", "vat_amount", "discount_amount",
+                                 "amount_due", "amount_paid", "cash_amount", "online_amount", "change_amount"}
+                If .Columns.Contains(colName) Then
+                    .Columns(colName).DefaultCellStyle.Format = "N2"
+                    .Columns(colName).DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleRight
                 End If
             Next
-            .Columns("Transaction_ID").HeaderText = "OR / Trans No."
-            .Columns("Cashier_Name").HeaderText = "Cashier"
-            .Columns("Transaction_Date").HeaderText = "Date"
-            .Columns("Transaction_Time").HeaderText = "Time"
-            .Columns("Item_Count").HeaderText = "Items"
-            .Columns("Subtotal_Amount").HeaderText = "Subtotal"
-            .Columns("VATable_Amount").HeaderText = "VATable"
-            .Columns("VAT_Amount").HeaderText = "VAT"
-            .Columns("Discount_Type").HeaderText = "Discount Type"
-            .Columns("Discount_Percent").HeaderText = "Discount %"
-            .Columns("Discount_Amount").HeaderText = "Discount Amount"
-            .Columns("Amount_Due").HeaderText = "Total Due"
-            .Columns("Amount_Paid").HeaderText = "Amount Paid"
-            .Columns("Cash_Amount").HeaderText = "Cash"
-            .Columns("Online_Amount").HeaderText = "Online"
-            .Columns("Change_Amount").HeaderText = "Change"
-            .Columns("Payment_Method").HeaderText = "Payment Method"
-            .Columns("Status").HeaderText = "Status"
+
+            If .Columns.Contains("transaction_id") Then .Columns("transaction_id").HeaderText = "OR / Trans No."
+            If .Columns.Contains("user_name") Then .Columns("user_name").HeaderText = "Cashier"
+            If .Columns.Contains("transaction_date") Then .Columns("transaction_date").HeaderText = "Date"
+            If .Columns.Contains("transaction_time") Then .Columns("transaction_time").HeaderText = "Time"
+            If .Columns.Contains("item_count") Then .Columns("item_count").HeaderText = "Items"
+            If .Columns.Contains("discount_percent") Then .Columns("discount_percent").HeaderText = "Discount %"
+            If .Columns.Contains("payment_method") Then .Columns("payment_method").HeaderText = "Payment Method"
         End With
     End Sub
 
     Private Sub CalculateTotalSales(dt As DataTable)
-        If dt.Rows.Count = 0 Then
+        If dt Is Nothing OrElse dt.Rows.Count = 0 Then
             lblTotalSales.Text = "Total Sales: ₱0.00"
             Return
         End If
-        Dim total As Decimal = dt.AsEnumerable().Sum(Function(r) r.Field(Of Decimal)("Amount_Due"))
-        Dim totalCash As Decimal = dt.AsEnumerable().Sum(Function(r) r.Field(Of Decimal)("Cash_Amount"))
-        Dim totalOnline As Decimal = dt.AsEnumerable().Sum(Function(r) r.Field(Of Decimal)("Online_Amount"))
+        Dim total As Decimal = 0
+        Dim totalCash As Decimal = 0
+        Dim totalOnline As Decimal = 0
+        For Each row As DataRow In dt.Rows
+            total += Convert.ToDecimal(row("amount_due"))
+            totalCash += Convert.ToDecimal(row("cash_amount"))
+            totalOnline += Convert.ToDecimal(row("online_amount"))
+        Next
         lblTotalSales.Text = $"Total Sales: ₱{total:N2} | Cash: ₱{totalCash:N2} | Online: ₱{totalOnline:N2}"
     End Sub
 
     Private Sub btnLoad_Click(sender As Object, e As EventArgs) Handles btnLoad.Click
-        AuditLogger.LogAction("REFRESH_TRANS", "SalesTrans", "User refreshed transaction list")
         LoadTransactions()
     End Sub
 
     Private Sub btnReset_Click(sender As Object, e As EventArgs) Handles btnReset.Click
         dtpFrom.Value = DateTime.Now.Date
         dtpTo.Value = DateTime.Now.Date.AddDays(1).AddSeconds(-1)
-        cboBranch.SelectedIndex = 0
-        cboCashier.SelectedIndex = 0
-        AuditLogger.LogAction("RESET_FILTER", "SalesTrans", "Filters reset to default")
+        If cboBranch.Items.Count > 0 Then cboBranch.SelectedIndex = 0
+        If cboCashier.Items.Count > 0 Then cboCashier.SelectedIndex = 0
         LoadTransactions()
     End Sub
 

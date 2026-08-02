@@ -155,6 +155,9 @@
     <SignManifests>true</SignManifests>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="BCrypt-Net-Next, Version=4.2.0.0, Culture=neutral, PublicKeyToken=1e11be04b6288443, processorArchitecture=MSIL">
+      <HintPath>packages\BCrypt.Net-Next.4.2.0\lib\net48\BCrypt-Net-Next.dll</HintPath>
+    </Reference>
     <Reference Include="BouncyCastle.Cryptography, Version=2.0.0.0, Culture=neutral, PublicKeyToken=072edcf4a5328938, processorArchitecture=MSIL">
       <HintPath>packages\BouncyCastle.Cryptography.2.6.2\lib\net461\BouncyCastle.Cryptography.dll</HintPath>
     </Reference>
@@ -239,8 +242,8 @@
     <Reference Include="System">
       <HintPath>..\..\..\..\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.8.1\System.dll</HintPath>
     </Reference>
-    <Reference Include="System.Buffers, Version=4.0.4.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
-      <HintPath>packages\System.Buffers.4.6.0\lib\net462\System.Buffers.dll</HintPath>
+    <Reference Include="System.Buffers, Version=4.0.5.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>packages\System.Buffers.4.6.1\lib\net462\System.Buffers.dll</HintPath>
     </Reference>
     <Reference Include="System.Collections.Immutable, Version=7.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
       <HintPath>packages\System.Collections.Immutable.7.0.0\lib\net462\System.Collections.Immutable.dll</HintPath>
@@ -259,13 +262,13 @@
       <HintPath>packages\System.IO.Pipelines.5.0.2\lib\net461\System.IO.Pipelines.dll</HintPath>
     </Reference>
     <Reference Include="System.Management" />
-    <Reference Include="System.Memory, Version=4.0.2.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
-      <HintPath>packages\System.Memory.4.6.0\lib\net462\System.Memory.dll</HintPath>
+    <Reference Include="System.Memory, Version=4.0.5.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>packages\System.Memory.4.6.3\lib\net462\System.Memory.dll</HintPath>
     </Reference>
     <Reference Include="System.Messaging" />
     <Reference Include="System.Numerics" />
-    <Reference Include="System.Numerics.Vectors, Version=4.1.5.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
-      <HintPath>packages\System.Numerics.Vectors.4.6.0\lib\net462\System.Numerics.Vectors.dll</HintPath>
+    <Reference Include="System.Numerics.Vectors, Version=4.1.6.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>packages\System.Numerics.Vectors.4.6.1\lib\net462\System.Numerics.Vectors.dll</HintPath>
     </Reference>
     <Reference Include="System.Reflection.Metadata, Version=7.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
       <HintPath>packages\System.Reflection.Metadata.7.0.0\lib\net462\System.Reflection.Metadata.dll</HintPath>
@@ -335,6 +338,12 @@
       <DependentUpon>frmDashboard.vb</DependentUpon>
     </Compile>
     <Compile Include="frmDashboard.vb">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="frmProductlistShelftag.Designer.vb">
+      <DependentUpon>frmProductlistShelftag.vb</DependentUpon>
+    </Compile>
+    <Compile Include="frmProductlistShelftag.vb">
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="Product Manager user\frmProductlist.Designer.vb">
@@ -517,10 +526,10 @@
     <Compile Include="User Management\Edit_User.vb">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Dashboard Forms\frmUsermanager.Designer.vb">
+    <Compile Include="User Management\frmUsermanager.Designer.vb">
       <DependentUpon>frmUsermanager.vb</DependentUpon>
     </Compile>
-    <Compile Include="Dashboard Forms\frmUsermanager.vb">
+    <Compile Include="User Management\frmUsermanager.vb">
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="Vendor System\ADD_Vendor.Designer.vb">
@@ -622,6 +631,9 @@
     <EmbeddedResource Include="frmDashboard.resx">
       <DependentUpon>frmDashboard.vb</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="frmProductlistShelftag.resx">
+      <DependentUpon>frmProductlistShelftag.vb</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Product Manager user\frmProductlist.resx">
       <DependentUpon>frmProductlist.vb</DependentUpon>
     </EmbeddedResource>
@@ -712,7 +724,7 @@
     <EmbeddedResource Include="User Management\Edit_User.resx">
       <DependentUpon>Edit_User.vb</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Dashboard Forms\frmUsermanager.resx">
+    <EmbeddedResource Include="User Management\frmUsermanager.resx">
       <DependentUpon>frmUsermanager.vb</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Vendor System\ADD_Vendor.resx">

@@ -22,102 +22,32 @@ Partial Class frmDailySalesSummary
     'Do not modify it using the code editor.
     <System.Diagnostics.DebuggerStepThrough()> _
     Private Sub InitializeComponent()
-        Dim Label2 As System.Windows.Forms.Label
-        Dim Label1 As System.Windows.Forms.Label
-        Dim DataGridViewCellStyle4 As System.Windows.Forms.DataGridViewCellStyle = New System.Windows.Forms.DataGridViewCellStyle()
-        Dim DataGridViewCellStyle5 As System.Windows.Forms.DataGridViewCellStyle = New System.Windows.Forms.DataGridViewCellStyle()
-        Dim DataGridViewCellStyle6 As System.Windows.Forms.DataGridViewCellStyle = New System.Windows.Forms.DataGridViewCellStyle()
         Dim resources As System.ComponentModel.ComponentResourceManager = New System.ComponentModel.ComponentResourceManager(GetType(frmDailySalesSummary))
-        Dim STOCK_AVAILABLELabel As System.Windows.Forms.Label
-        Me.dgvSummary = New System.Windows.Forms.DataGridView()
         Me.btnExport = New System.Windows.Forms.Button()
         Me.btnLoad = New System.Windows.Forms.Button()
-        Me.Panel1 = New System.Windows.Forms.Panel()
-        Me.cboBranch = New System.Windows.Forms.ComboBox()
+        Me.lblGrandTotal = New System.Windows.Forms.Label()
         Me.btnReset = New System.Windows.Forms.Button()
         Me.dtpTo = New System.Windows.Forms.DateTimePicker()
         Me.dtpFrom = New System.Windows.Forms.DateTimePicker()
-        Me.txtSearch = New System.Windows.Forms.TextBox()
-        Me.lblGrandTotal = New System.Windows.Forms.Label()
-        Me.cboCashier = New System.Windows.Forms.ComboBox()
-        Label2 = New System.Windows.Forms.Label()
-        Label1 = New System.Windows.Forms.Label()
-        STOCK_AVAILABLELabel = New System.Windows.Forms.Label()
+        Me.dgvSummary = New System.Windows.Forms.DataGridView()
+        Me.Panel3 = New System.Windows.Forms.Panel()
+        Me.Label4 = New System.Windows.Forms.Label()
+        Me.Panel2 = New System.Windows.Forms.Panel()
         CType(Me.dgvSummary, System.ComponentModel.ISupportInitialize).BeginInit()
-        Me.Panel1.SuspendLayout()
+        Me.Panel3.SuspendLayout()
         Me.SuspendLayout()
-        '
-        'Label2
-        '
-        Label2.Anchor = CType((System.Windows.Forms.AnchorStyles.Top Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
-        Label2.AutoSize = True
-        Label2.Location = New System.Drawing.Point(332, 50)
-        Label2.Name = "Label2"
-        Label2.Size = New System.Drawing.Size(29, 13)
-        Label2.TabIndex = 275
-        Label2.Text = "End:"
-        '
-        'Label1
-        '
-        Label1.Anchor = CType((System.Windows.Forms.AnchorStyles.Top Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
-        Label1.AutoSize = True
-        Label1.Location = New System.Drawing.Point(332, 23)
-        Label1.Name = "Label1"
-        Label1.Size = New System.Drawing.Size(32, 13)
-        Label1.TabIndex = 272
-        Label1.Text = "Start:"
-        '
-        'dgvSummary
-        '
-        Me.dgvSummary.AllowUserToAddRows = False
-        Me.dgvSummary.AllowUserToDeleteRows = False
-        Me.dgvSummary.Anchor = CType((((System.Windows.Forms.AnchorStyles.Top Or System.Windows.Forms.AnchorStyles.Bottom) _
-            Or System.Windows.Forms.AnchorStyles.Left) _
-            Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
-        Me.dgvSummary.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.Fill
-        Me.dgvSummary.AutoSizeRowsMode = System.Windows.Forms.DataGridViewAutoSizeRowsMode.AllCells
-        DataGridViewCellStyle4.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft
-        DataGridViewCellStyle4.BackColor = System.Drawing.SystemColors.Control
-        DataGridViewCellStyle4.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        DataGridViewCellStyle4.ForeColor = System.Drawing.SystemColors.WindowText
-        DataGridViewCellStyle4.SelectionBackColor = System.Drawing.SystemColors.Highlight
-        DataGridViewCellStyle4.SelectionForeColor = System.Drawing.SystemColors.HighlightText
-        DataGridViewCellStyle4.WrapMode = System.Windows.Forms.DataGridViewTriState.[True]
-        Me.dgvSummary.ColumnHeadersDefaultCellStyle = DataGridViewCellStyle4
-        Me.dgvSummary.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize
-        DataGridViewCellStyle5.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft
-        DataGridViewCellStyle5.BackColor = System.Drawing.SystemColors.Window
-        DataGridViewCellStyle5.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        DataGridViewCellStyle5.ForeColor = System.Drawing.SystemColors.ControlText
-        DataGridViewCellStyle5.SelectionBackColor = System.Drawing.SystemColors.Highlight
-        DataGridViewCellStyle5.SelectionForeColor = System.Drawing.SystemColors.HighlightText
-        DataGridViewCellStyle5.WrapMode = System.Windows.Forms.DataGridViewTriState.[False]
-        Me.dgvSummary.DefaultCellStyle = DataGridViewCellStyle5
-        Me.dgvSummary.Location = New System.Drawing.Point(12, 12)
-        Me.dgvSummary.Name = "dgvSummary"
-        Me.dgvSummary.ReadOnly = True
-        DataGridViewCellStyle6.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft
-        DataGridViewCellStyle6.BackColor = System.Drawing.SystemColors.Control
-        DataGridViewCellStyle6.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        DataGridViewCellStyle6.ForeColor = System.Drawing.SystemColors.WindowText
-        DataGridViewCellStyle6.SelectionBackColor = System.Drawing.SystemColors.Highlight
-        DataGridViewCellStyle6.SelectionForeColor = System.Drawing.SystemColors.HighlightText
-        DataGridViewCellStyle6.WrapMode = System.Windows.Forms.DataGridViewTriState.[True]
-        Me.dgvSummary.RowHeadersDefaultCellStyle = DataGridViewCellStyle6
-        Me.dgvSummary.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect
-        Me.dgvSummary.Size = New System.Drawing.Size(1342, 666)
-        Me.dgvSummary.TabIndex = 228
         '
         'btnExport
         '
         Me.btnExport.Anchor = CType((System.Windows.Forms.AnchorStyles.Top Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
         Me.btnExport.BackColor = System.Drawing.Color.Maroon
         Me.btnExport.BackgroundImageLayout = System.Windows.Forms.ImageLayout.None
+        Me.btnExport.FlatAppearance.BorderSize = 0
         Me.btnExport.FlatStyle = System.Windows.Forms.FlatStyle.Flat
         Me.btnExport.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.btnExport.ForeColor = System.Drawing.SystemColors.ButtonHighlight
         Me.btnExport.Image = CType(resources.GetObject("btnExport.Image"), System.Drawing.Image)
-        Me.btnExport.Location = New System.Drawing.Point(1192, 13)
+        Me.btnExport.Location = New System.Drawing.Point(1219, 54)
         Me.btnExport.Name = "btnExport"
         Me.btnExport.Size = New System.Drawing.Size(135, 37)
         Me.btnExport.TabIndex = 214
@@ -131,151 +61,142 @@ Partial Class frmDailySalesSummary
         Me.btnLoad.Anchor = CType((System.Windows.Forms.AnchorStyles.Top Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
         Me.btnLoad.BackColor = System.Drawing.Color.Maroon
         Me.btnLoad.BackgroundImageLayout = System.Windows.Forms.ImageLayout.None
+        Me.btnLoad.FlatAppearance.BorderSize = 0
         Me.btnLoad.FlatStyle = System.Windows.Forms.FlatStyle.Flat
-        Me.btnLoad.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.btnLoad.Font = New System.Drawing.Font("Microsoft YaHei UI", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.btnLoad.ForeColor = System.Drawing.SystemColors.ButtonHighlight
-        Me.btnLoad.Image = CType(resources.GetObject("btnLoad.Image"), System.Drawing.Image)
-        Me.btnLoad.Location = New System.Drawing.Point(1051, 13)
+        Me.btnLoad.Location = New System.Drawing.Point(937, 54)
         Me.btnLoad.Name = "btnLoad"
         Me.btnLoad.Size = New System.Drawing.Size(135, 37)
         Me.btnLoad.TabIndex = 211
         Me.btnLoad.Text = " Load"
-        Me.btnLoad.TextAlign = System.Drawing.ContentAlignment.MiddleRight
         Me.btnLoad.TextImageRelation = System.Windows.Forms.TextImageRelation.ImageBeforeText
         Me.btnLoad.UseVisualStyleBackColor = False
         '
-        'Panel1
+        'lblGrandTotal
         '
-        Me.Panel1.Anchor = CType(((System.Windows.Forms.AnchorStyles.Bottom Or System.Windows.Forms.AnchorStyles.Left) _
-            Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
-        Me.Panel1.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle
-        Me.Panel1.Controls.Add(Me.lblGrandTotal)
-        Me.Panel1.Controls.Add(Me.cboBranch)
-        Me.Panel1.Controls.Add(Me.cboCashier)
-        Me.Panel1.Controls.Add(Me.btnReset)
-        Me.Panel1.Controls.Add(Me.dtpTo)
-        Me.Panel1.Controls.Add(Label2)
-        Me.Panel1.Controls.Add(Me.dtpFrom)
-        Me.Panel1.Controls.Add(Label1)
-        Me.Panel1.Controls.Add(STOCK_AVAILABLELabel)
-        Me.Panel1.Controls.Add(Me.btnExport)
-        Me.Panel1.Controls.Add(Me.txtSearch)
-        Me.Panel1.Controls.Add(Me.btnLoad)
-        Me.Panel1.Location = New System.Drawing.Point(12, 684)
-        Me.Panel1.Name = "Panel1"
-        Me.Panel1.Size = New System.Drawing.Size(1342, 72)
-        Me.Panel1.TabIndex = 227
-        '
-        'cboBranch
-        '
-        Me.cboBranch.Font = New System.Drawing.Font("Microsoft Sans Serif", 12.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.cboBranch.FormattingEnabled = True
-        Me.cboBranch.Items.AddRange(New Object() {"Retail Grocery Store", "Supermarket (Retail Trade)", "Food and Grocery Retail Business", "Convenience Store / Mini-Mart"})
-        Me.cboBranch.Location = New System.Drawing.Point(602, 4)
-        Me.cboBranch.Name = "cboBranch"
-        Me.cboBranch.Size = New System.Drawing.Size(302, 28)
-        Me.cboBranch.TabIndex = 229
+        Me.lblGrandTotal.AutoSize = True
+        Me.lblGrandTotal.Font = New System.Drawing.Font("Microsoft YaHei UI", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.lblGrandTotal.Location = New System.Drawing.Point(18, 13)
+        Me.lblGrandTotal.Name = "lblGrandTotal"
+        Me.lblGrandTotal.Size = New System.Drawing.Size(49, 19)
+        Me.lblGrandTotal.TabIndex = 278
+        Me.lblGrandTotal.Text = "Label3"
         '
         'btnReset
         '
         Me.btnReset.Anchor = CType((System.Windows.Forms.AnchorStyles.Top Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
         Me.btnReset.BackColor = System.Drawing.Color.Maroon
         Me.btnReset.BackgroundImageLayout = System.Windows.Forms.ImageLayout.None
+        Me.btnReset.FlatAppearance.BorderSize = 0
         Me.btnReset.FlatStyle = System.Windows.Forms.FlatStyle.Flat
-        Me.btnReset.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.btnReset.Font = New System.Drawing.Font("Microsoft YaHei UI", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.btnReset.ForeColor = System.Drawing.SystemColors.ButtonHighlight
-        Me.btnReset.Image = CType(resources.GetObject("btnReset.Image"), System.Drawing.Image)
-        Me.btnReset.Location = New System.Drawing.Point(910, 14)
+        Me.btnReset.Location = New System.Drawing.Point(1078, 54)
         Me.btnReset.Name = "btnReset"
         Me.btnReset.Size = New System.Drawing.Size(135, 37)
         Me.btnReset.TabIndex = 277
         Me.btnReset.Text = " Reset"
-        Me.btnReset.TextAlign = System.Drawing.ContentAlignment.MiddleRight
         Me.btnReset.TextImageRelation = System.Windows.Forms.TextImageRelation.ImageBeforeText
         Me.btnReset.UseVisualStyleBackColor = False
         '
         'dtpTo
         '
         Me.dtpTo.Anchor = CType((System.Windows.Forms.AnchorStyles.Top Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
-        Me.dtpTo.Location = New System.Drawing.Point(370, 44)
+        Me.dtpTo.Font = New System.Drawing.Font("Microsoft YaHei UI", 12.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.dtpTo.Location = New System.Drawing.Point(635, 58)
         Me.dtpTo.Name = "dtpTo"
-        Me.dtpTo.Size = New System.Drawing.Size(226, 20)
+        Me.dtpTo.Size = New System.Drawing.Size(296, 28)
         Me.dtpTo.TabIndex = 276
         '
         'dtpFrom
         '
         Me.dtpFrom.Anchor = CType((System.Windows.Forms.AnchorStyles.Top Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
-        Me.dtpFrom.Location = New System.Drawing.Point(370, 17)
+        Me.dtpFrom.Font = New System.Drawing.Font("Microsoft YaHei UI", 12.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.dtpFrom.Location = New System.Drawing.Point(333, 59)
         Me.dtpFrom.Name = "dtpFrom"
-        Me.dtpFrom.Size = New System.Drawing.Size(226, 20)
+        Me.dtpFrom.Size = New System.Drawing.Size(296, 28)
         Me.dtpFrom.TabIndex = 274
         '
-        'txtSearch
+        'dgvSummary
         '
-        Me.txtSearch.Anchor = CType((System.Windows.Forms.AnchorStyles.Left Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
-        Me.txtSearch.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle
-        Me.txtSearch.Font = New System.Drawing.Font("Microsoft Sans Serif", 12.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.txtSearch.Location = New System.Drawing.Point(65, 28)
-        Me.txtSearch.Margin = New System.Windows.Forms.Padding(2)
-        Me.txtSearch.Name = "txtSearch"
-        Me.txtSearch.Size = New System.Drawing.Size(146, 26)
-        Me.txtSearch.TabIndex = 212
+        Me.dgvSummary.AllowUserToAddRows = False
+        Me.dgvSummary.AllowUserToDeleteRows = False
+        Me.dgvSummary.Anchor = CType((((System.Windows.Forms.AnchorStyles.Top Or System.Windows.Forms.AnchorStyles.Bottom) _
+            Or System.Windows.Forms.AnchorStyles.Left) _
+            Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
+        Me.dgvSummary.AutoSizeRowsMode = System.Windows.Forms.DataGridViewAutoSizeRowsMode.AllCells
+        Me.dgvSummary.BackgroundColor = System.Drawing.SystemColors.Control
+        Me.dgvSummary.BorderStyle = System.Windows.Forms.BorderStyle.None
+        Me.dgvSummary.CellBorderStyle = System.Windows.Forms.DataGridViewCellBorderStyle.None
+        Me.dgvSummary.Location = New System.Drawing.Point(12, 149)
+        Me.dgvSummary.Name = "dgvSummary"
+        Me.dgvSummary.ReadOnly = True
+        Me.dgvSummary.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect
+        Me.dgvSummary.Size = New System.Drawing.Size(1342, 607)
+        Me.dgvSummary.TabIndex = 229
         '
-        'STOCK_AVAILABLELabel
+        'Panel3
         '
-        STOCK_AVAILABLELabel.AutoSize = True
-        STOCK_AVAILABLELabel.Location = New System.Drawing.Point(16, 23)
-        STOCK_AVAILABLELabel.Name = "STOCK_AVAILABLELabel"
-        STOCK_AVAILABLELabel.Size = New System.Drawing.Size(44, 13)
-        STOCK_AVAILABLELabel.TabIndex = 271
-        STOCK_AVAILABLELabel.Text = "Search:"
+        Me.Panel3.Anchor = CType(((System.Windows.Forms.AnchorStyles.Top Or System.Windows.Forms.AnchorStyles.Left) _
+            Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
+        Me.Panel3.Controls.Add(Me.lblGrandTotal)
+        Me.Panel3.Location = New System.Drawing.Point(17, 97)
+        Me.Panel3.Name = "Panel3"
+        Me.Panel3.Size = New System.Drawing.Size(1337, 46)
+        Me.Panel3.TabIndex = 330
         '
-        'lblGrandTotal
+        'Label4
         '
-        Me.lblGrandTotal.AutoSize = True
-        Me.lblGrandTotal.Location = New System.Drawing.Point(216, 23)
-        Me.lblGrandTotal.Name = "lblGrandTotal"
-        Me.lblGrandTotal.Size = New System.Drawing.Size(39, 13)
-        Me.lblGrandTotal.TabIndex = 278
-        Me.lblGrandTotal.Text = "Label3"
+        Me.Label4.AutoSize = True
+        Me.Label4.Font = New System.Drawing.Font("Microsoft YaHei UI", 15.75!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.Label4.Location = New System.Drawing.Point(12, 59)
+        Me.Label4.Name = "Label4"
+        Me.Label4.Size = New System.Drawing.Size(232, 28)
+        Me.Label4.TabIndex = 326
+        Me.Label4.Text = "Daily Sales Summary"
         '
-        'cboCashier
+        'Panel2
         '
-        Me.cboCashier.Font = New System.Drawing.Font("Microsoft Sans Serif", 12.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.cboCashier.FormattingEnabled = True
-        Me.cboCashier.Items.AddRange(New Object() {"Retail Grocery Store", "Supermarket (Retail Trade)", "Food and Grocery Retail Business", "Convenience Store / Mini-Mart"})
-        Me.cboCashier.Location = New System.Drawing.Point(602, 38)
-        Me.cboCashier.Name = "cboCashier"
-        Me.cboCashier.Size = New System.Drawing.Size(302, 28)
-        Me.cboCashier.TabIndex = 230
+        Me.Panel2.Dock = System.Windows.Forms.DockStyle.Top
+        Me.Panel2.Location = New System.Drawing.Point(0, 0)
+        Me.Panel2.Name = "Panel2"
+        Me.Panel2.Size = New System.Drawing.Size(1366, 48)
+        Me.Panel2.TabIndex = 327
         '
         'frmDailySalesSummary
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(6.0!, 13.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
         Me.ClientSize = New System.Drawing.Size(1366, 768)
-        Me.Controls.Add(Me.Panel1)
+        Me.Controls.Add(Me.dtpFrom)
+        Me.Controls.Add(Me.dtpTo)
+        Me.Controls.Add(Me.btnReset)
+        Me.Controls.Add(Me.btnExport)
+        Me.Controls.Add(Me.btnLoad)
+        Me.Controls.Add(Me.Label4)
+        Me.Controls.Add(Me.Panel2)
         Me.Controls.Add(Me.dgvSummary)
+        Me.Controls.Add(Me.Panel3)
         Me.FormBorderStyle = System.Windows.Forms.FormBorderStyle.None
         Me.Name = "frmDailySalesSummary"
         Me.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen
         Me.Text = "frmDailySalesSummary"
         CType(Me.dgvSummary, System.ComponentModel.ISupportInitialize).EndInit()
-        Me.Panel1.ResumeLayout(False)
-        Me.Panel1.PerformLayout()
+        Me.Panel3.ResumeLayout(False)
+        Me.Panel3.PerformLayout()
         Me.ResumeLayout(False)
+        Me.PerformLayout()
 
     End Sub
-
-    Friend WithEvents dgvSummary As DataGridView
     Friend WithEvents btnExport As Button
     Friend WithEvents btnLoad As Button
-    Friend WithEvents Panel1 As Panel
     Friend WithEvents btnReset As Button
     Friend WithEvents dtpTo As DateTimePicker
     Friend WithEvents dtpFrom As DateTimePicker
-    Friend WithEvents cboBranch As ComboBox
     Friend WithEvents lblGrandTotal As Label
-    Friend WithEvents cboCashier As ComboBox
-    Friend WithEvents txtSearch As TextBox
+    Friend WithEvents dgvSummary As DataGridView
+    Friend WithEvents Panel3 As Panel
+    Friend WithEvents Label4 As Label
+    Friend WithEvents Panel2 As Panel
 End Class

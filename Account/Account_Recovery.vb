@@ -1,6 +1,7 @@
-﻿Imports System.Reflection.Emit
-Imports System.Text.RegularExpressions
+﻿Imports System.Text.RegularExpressions
+Imports BCrypt.Net.BCrypt
 Imports MySqlConnector
+Imports Org.BouncyCastle.Crypto.Generators
 
 Public Class Account_Recovery
 
@@ -36,7 +37,7 @@ Public Class Account_Recovery
         Try
             Using conn As New MySqlConnection(connStr)
                 conn.Open()
-                Dim cmd As New MySqlCommand("SELECT USERNAME FROM user_accounts WHERE EMAIL = @EMAIL LIMIT 1", conn)
+                Dim cmd As New MySqlCommand("SELECT `USERNAME` FROM `user_accounts` WHERE `EMAIL` = @EMAIL LIMIT 1", conn)
                 cmd.Parameters.AddWithValue("@EMAIL", email)
 
                 Dim result As Object = cmd.ExecuteScalar()
@@ -84,7 +85,9 @@ Public Class Account_Recovery
         End If
     End Sub
 
-    Private Sub btnSave_Click(sender As Object, e As EventArgs)
+    ' ✅ TANGGAL NA ANG DOBLE NA EVENT — ITO NA ANG TAMANG MAY "Handles btnSave.Click"
+    Private Sub btnSave_Click(sender As Object, e As EventArgs) Handles btnSave.Click
+        ' Validation muna
         If String.IsNullOrWhiteSpace(txtRecoveryID.Text) OrElse
            String.IsNullOrWhiteSpace(txtEmail.Text) OrElse
            String.IsNullOrWhiteSpace(txtUsername.Text) OrElse
@@ -112,17 +115,21 @@ Public Class Account_Recovery
         Try
             Using conn As New MySqlConnection(connStr)
                 conn.Open()
-                Dim cmd As New MySqlCommand("INSERT INTO Recovery (RECOVERY_ID, EMAIL, USER_NAME, PASSWORD, REASON)
-                                           VALUES (@RID, @EMAIL, @USER, @PASS, @REASON)", conn)
+                ' ✅ TUGMA NA SA PANGALAN NG KOLUM — GAMIT ANG "USERNAME" HINDI "USER_NAME"
+                Dim cmd As New MySqlCommand("
+                    INSERT INTO `Recovery` (
+                        `RECOVERY_ID`, `EMAIL`, `USERNAME`, `NEW_PASSWORD`, `REASON`, `DATEREQUESTED`
+                    ) VALUES (
+                        @RID, @EMAIL, @USER, @PASS, @REASON, NOW()
+                    )", conn)
 
                 cmd.Parameters.AddWithValue("@RID", txtRecoveryID.Text.Trim())
                 cmd.Parameters.AddWithValue("@EMAIL", txtEmail.Text.Trim())
                 cmd.Parameters.AddWithValue("@USER", txtUsername.Text.Trim())
-                cmd.Parameters.AddWithValue("@PASS", txtNewPassword.Text)
+                cmd.Parameters.AddWithValue("@PASS", BCrypt.Net.BCrypt.HashPassword(pass))
                 cmd.Parameters.AddWithValue("@REASON", txtReason.Text.Trim())
 
                 cmd.ExecuteNonQuery()
-
             End Using
 
             MessageBox.Show("Recovery request submitted successfully!", "Complete", MessageBoxButtons.OK, MessageBoxIcon.Information)
@@ -134,7 +141,7 @@ Public Class Account_Recovery
         End Try
     End Sub
 
-    Private Sub btnCancel_Click(sender As Object, e As EventArgs)
+    Private Sub btnCancel_Click(sender As Object, e As EventArgs) Handles btnCancel.Click
         AuditLogger.LogAction("CANCEL", "Account Recovery", "User cancelled recovery request")
         Me.Close()
     End Sub

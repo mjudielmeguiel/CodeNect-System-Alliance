@@ -29,19 +29,20 @@ Public Class frmDiscountRecords
     Private Sub LoadIDTypes()
         Try
             Using conn As New MySqlConnection(DBConnection.connStr)
-                Dim sql As String = "SELECT DISTINCT `ID_Type` FROM `PWD_Discount` ORDER BY `ID_Type`"
+                Dim sql As String = "SELECT DISTINCT `ID_TYPE` FROM `PWD_DISCOUNT` ORDER BY `ID_TYPE`"
                 Using cmd As New MySqlCommand(sql, conn)
                     conn.Open()
                     Dim dt As New DataTable()
                     Dim da As New MySqlDataAdapter(cmd)
                     da.Fill(dt)
 
-                    dt.Rows.InsertAt(dt.NewRow(), 0)
-                    dt.Rows(0)("ID_Type") = "All"
+                    Dim drAll = dt.NewRow()
+                    drAll("ID_TYPE") = "All"
+                    dt.Rows.InsertAt(drAll, 0)
 
                     cboIDType.DataSource = dt
-                    cboIDType.DisplayMember = "ID_Type"
-                    cboIDType.ValueMember = "ID_Type"
+                    cboIDType.DisplayMember = "ID_TYPE"
+                    cboIDType.ValueMember = "ID_TYPE"
                 End Using
             End Using
         Catch ex As Exception
@@ -55,47 +56,46 @@ Public Class frmDiscountRecords
 
         Try
             Using conn As New MySqlConnection(DBConnection.connStr)
+                ' ✅ TAMA NA ANG LAHAT NG PANGALAN NG KOLUM — TUGMA SA LARAWAN MO
                 Dim sql As String = "
                     SELECT
-                        d.`PWD_ID` AS `PWD ID`,
-                        d.`Account_ID` AS `Account ID`,
-                        d.`Branch_ID` AS `Branch ID`,
+                        d.`ID` AS `ID`,
+                        d.`ACCOUNT_ID` AS `Account ID`,
+                        d.`BRANCH_ID` AS `Branch ID`,
                         IFNULL(b.`BRANCH`, '') AS `Branch Name`,
-                        d.`ID_Type` AS `ID Type`,
-                        d.`ID_Number` AS `ID Number`,
-                        d.`Surname` AS `Surname`,
-                        d.`FirstName` AS `First Name`,
-                        d.`MiddleName` AS `Middle Name`,
-                        d.`Suffix` AS `Suffix`,
-                        d.`Gender` AS `Gender`,
-                        d.`FullAddress` AS `Full Address`,
-                        d.`ContactNumber` AS `Contact Number`,
-                        d.`Email` AS `Email`,
-                        d.`DateCreated` AS `Date Created`,
-                        d.`DateRecorded` AS `Date Recorded`,
-                        d.`DateOfBirth` AS `Date of Birth`,
-                        d.`Discount_Percent` AS `Discount %`,
-                        d.`Discount_Amount` AS `Discount Amount`,
-                        CASE WHEN d.`VAT_Exempt` = 1 THEN 'Yes' ELSE 'No' END AS `VAT Exempt`,
-                        d.`Transaction_Total` AS `Transaction Total`,
-                        d.`Amount_After_Discount` AS `Amount After Discount`,
-                        d.`OR_Number` AS `OR Number`
-                    FROM `PWD_Discount` d
+                        d.`ID_TYPE` AS `ID Type`,
+                        d.`ID_NUMBER` AS `ID Number`,
+                        d.`SUFFIX` AS `Suffix`,
+                        d.`FULL_NAME` AS `Full Name`,
+                        d.`GENDER` AS `Gender`,
+                        d.`ADDRESS` AS `Address`,
+                        d.`NATIONALITY` AS `Nationality`,
+                        d.`DATEOFBIRTH` AS `Date of Birth`,
+                        d.`DATECREATED` AS `Date Created`,
+                        d.`DATERECORDED` AS `Date Recorded`,
+                        d.`DISCOUNT_PERCENT` AS `Discount %`,
+                        d.`DISCOUNT_AMOUNT` AS `Discount Amount`,
+                        CASE WHEN d.`VAT_EXEMPT` = 1 THEN 'Yes' ELSE 'No' END AS `VAT Exempt`,
+                        d.`TRANSACTION_TOTAL` AS `Transaction Total`,
+                        d.`AMOUNT_AFTER_DISCOUNT` AS `Amount After Discount`,
+                        d.`OR_NUMBER` AS `OR Number`,
+                        d.`TRANSACTION_ID` AS `Transaction ID`
+                    FROM `PWD_DISCOUNT` d
                     LEFT JOIN (
                         SELECT DISTINCT `BRANCH`, `BRANCH_ID`
-                        FROM `User_Accounts`
-                    ) AS b ON b.`BRANCH_ID` = d.`Branch_ID`
+                        FROM `USER_ACCOUNTS`
+                    ) AS b ON b.`BRANCH_ID` = d.`BRANCH_ID`
                     WHERE 
                         (@BranchName = 'MAIN OFFICE' OR b.`BRANCH` = @BranchName)
-                        AND d.`DateRecorded` >= @StartDate 
-                        AND d.`DateRecorded` < @EndDate
+                        AND d.`DATERECORDED` >= @StartDate 
+                        AND d.`DATERECORDED` < @EndDate
                 "
 
                 If cboIDType.SelectedValue IsNot Nothing AndAlso cboIDType.SelectedValue.ToString() <> "All" Then
-                    sql &= " AND d.`ID_Type` = @IDType"
+                    sql &= " AND d.`ID_TYPE` = @IDType"
                 End If
 
-                sql &= " ORDER BY d.`DateRecorded` DESC"
+                sql &= " ORDER BY d.`DATERECORDED` DESC"
 
                 Using cmd As New MySqlCommand(sql, conn)
                     cmd.Parameters.AddWithValue("@BranchName", _FilterBranchName)
@@ -114,10 +114,14 @@ Public Class frmDiscountRecords
 
             dgvRecords.DataSource = dt
 
+            ' ✅ Tamang format ng pera
             If dt.Rows.Count > 0 Then
-                dgvRecords.Columns("Discount Amount").DefaultCellStyle.Format = "N2"
-                dgvRecords.Columns("Transaction Total").DefaultCellStyle.Format = "N2"
-                dgvRecords.Columns("Amount After Discount").DefaultCellStyle.Format = "N2"
+                For Each col In {"Discount Amount", "Transaction Total", "Amount After Discount"}
+                    If dgvRecords.Columns.Contains(col) Then
+                        dgvRecords.Columns(col).DefaultCellStyle.Format = "N2"
+                        dgvRecords.Columns(col).DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleRight
+                    End If
+                Next
             End If
 
         Catch ex As Exception
@@ -157,7 +161,7 @@ Public Class frmDiscountRecords
                     sw.WriteLine(String.Join(",", headers))
 
                     For Each row As DataGridViewRow In dgvRecords.Rows
-                        Dim cells = row.Cells.Cast(Of DataGridViewCell).Select(Function(c) """" & c.Value.ToString().Replace("""", """""") & """")
+                        Dim cells = row.Cells.Cast(Of DataGridViewCell).Select(Function(c) """" & c.Value?.ToString().Replace("""", "") & """")
                         sw.WriteLine(String.Join(",", cells))
                     Next
                 End Using

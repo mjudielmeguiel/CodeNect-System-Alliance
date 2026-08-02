@@ -216,7 +216,7 @@ Partial Class frmDashboard
         Me.Button2.Name = "Button2"
         Me.Button2.Size = New System.Drawing.Size(279, 47)
         Me.Button2.TabIndex = 310
-        Me.Button2.Text = "Log Reports"
+        Me.Button2.Text = "Sales Transaction Reports"
         Me.Button2.TextAlign = System.Drawing.ContentAlignment.MiddleLeft
         Me.Button2.TextImageRelation = System.Windows.Forms.TextImageRelation.TextBeforeImage
         Me.Button2.UseVisualStyleBackColor = False

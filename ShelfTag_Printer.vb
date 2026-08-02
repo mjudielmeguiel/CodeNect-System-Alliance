@@ -10,6 +10,9 @@ Public Class ShelfTag_Printer
 
     Private connStr As String = DBConnection.connStr
 
+    ' Branch ID ng kasalukuyang naka-login
+    Private userBranchID As String = ""
+
     Private ReadOnly tagWidth_Normal As Single = 92.0F
     Private ReadOnly tagHeight_Normal As Single = 29.0F
     Private ReadOnly tagWidth_Promo As Single = 46.0F
@@ -23,13 +26,68 @@ Public Class ShelfTag_Printer
     Private columnsPerRow As Integer = 2
     Private rowsPerPage As Integer = 8
     Private selectedPrintType As String = "NORMAL"
+    Private selectedInputMode As String = "MANUAL"
 
     Private Sub ShelfTag_Printer_Load(sender As Object, e As EventArgs) Handles MyBase.Load
+        userBranchID = Login.LoggedInBranchID.Trim()
+
         SetupGrid()
         ClearInputFields()
         rdoShelfTag.Checked = True
+        rdoManual.Checked = True
         selectedPrintType = "NORMAL"
-        AuditLogger.LogAction("OPEN_SHELF_TAG", "ShelfTagPrinter", "Opened Shelf Tag Printer")
+        selectedInputMode = "MANUAL"
+        AuditLogger.LogAction("OPEN_SHELF_TAG", "ShelfTagPrinter", $"Opened Shelf Tag Printer | Branch: {userBranchID}")
+    End Sub
+
+    Public Sub AddFromProductList(barcode As String, sku As String, brand As String, desc As String, size As String, price As Decimal)
+        Try
+            dgvItems.Rows.Add(
+                barcode,
+                sku,
+                brand,
+                desc,
+                size,
+                price,
+                1
+            )
+
+            txtBarcode.Text = barcode
+            txtQuantity.Text = "1"
+
+            AuditLogger.LogAction("ITEM_ADDED_FROM_LIST", "ShelfTagPrinter", $"From product list | Barcode: {barcode} | SKU: {sku}")
+        Catch ex As Exception
+            MessageBox.Show("Failed to add product: " & ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
+            AuditLogger.LogAction("ERROR", "ShelfTagPrinter", $"Add from list failed | Error: {ex.Message}")
+        End Try
+    End Sub
+
+    Private Sub rdoScan_CheckedChanged(sender As Object, e As EventArgs) Handles rdoScan.CheckedChanged
+        If rdoScan.Checked Then
+            selectedInputMode = "SCAN"
+            txtBarcode.Enabled = True
+            txtQuantity.Enabled = False
+            txtQuantity.Text = "1"
+            btnAdd.Enabled = False
+            AuditLogger.LogAction("INPUT_MODE", "ShelfTagPrinter", $"Mode set to SCAN | Branch: {userBranchID}")
+        End If
+    End Sub
+
+    Private Sub rdoManual_CheckedChanged(sender As Object, e As EventArgs) Handles rdoManual.CheckedChanged
+        If rdoManual.Checked Then
+            selectedInputMode = "MANUAL"
+            txtBarcode.Enabled = True
+            txtQuantity.Enabled = True
+            btnAdd.Enabled = True
+            AuditLogger.LogAction("INPUT_MODE", "ShelfTagPrinter", $"Mode set to MANUAL | Branch: {userBranchID}")
+        End If
+    End Sub
+
+    Private Sub txtBarcode_KeyPress(sender As Object, e As KeyPressEventArgs) Handles txtBarcode.KeyPress
+        If selectedInputMode = "SCAN" AndAlso e.KeyChar = ChrW(Keys.Enter) Then
+            e.Handled = True
+            ProcessItemAdd(txtBarcode.Text.Trim(), 1)
+        End If
     End Sub
 
     Private Sub rdoShelfTag_CheckedChanged(sender As Object, e As EventArgs) Handles rdoShelfTag.CheckedChanged
@@ -77,6 +135,7 @@ Public Class ShelfTag_Printer
         dgvItems.Columns.Clear()
         tempPrintList = New DataTable()
 
+        ' Mga column na lang na nasa DataGridView
         dgvItems.Columns.Add(New DataGridViewTextBoxColumn With {.Name = "BARCODE", .HeaderText = "BARCODE", .Width = 110, .ReadOnly = True})
         dgvItems.Columns.Add(New DataGridViewTextBoxColumn With {.Name = "SKU", .HeaderText = "SKU", .Width = 110, .ReadOnly = True})
         dgvItems.Columns.Add(New DataGridViewTextBoxColumn With {.Name = "BRAND", .HeaderText = "BRAND", .Width = 120, .ReadOnly = True})
@@ -91,7 +150,6 @@ Public Class ShelfTag_Printer
         tempPrintList.Columns.Add("DESCRIPTIONS", GetType(String))
         tempPrintList.Columns.Add("SIZE", GetType(String))
         tempPrintList.Columns.Add("PRICE", GetType(Decimal))
-        tempPrintList.Columns.Add("PRODUCT_IMAGE", GetType(Byte()))
     End Sub
 
     Private Sub ClearInputFields()
@@ -108,26 +166,34 @@ Public Class ShelfTag_Printer
         AuditLogger.LogAction("LIST_CLEARED", "ShelfTagPrinter", "Item list cleared")
     End Sub
 
-    Private Sub btnAdd_Click(sender As Object, e As EventArgs) Handles btnAdd.Click
-        If String.IsNullOrWhiteSpace(txtBarcode.Text.Trim()) Then
+    Private Sub ProcessItemAdd(codeInput As String, qtyToAdd As Integer)
+        If String.IsNullOrWhiteSpace(codeInput) Then
             MessageBox.Show("Please enter Barcode or SKU!", "Notice", MessageBoxButtons.OK, MessageBoxIcon.Warning)
             txtBarcode.Focus()
             Return
         End If
 
-        Dim qtyToAdd As Integer
-        If Not Integer.TryParse(txtQuantity.Text.Trim(), qtyToAdd) OrElse qtyToAdd < 1 Then
-            MessageBox.Show("Enter a valid quantity!", "Invalid Input", MessageBoxButtons.OK, MessageBoxIcon.Warning)
-            txtQuantity.Text = "1"
-            txtQuantity.Focus()
-            Return
-        End If
+        If qtyToAdd < 1 Then qtyToAdd = 1
 
         Try
             Using conn As New MySqlConnection(connStr)
                 conn.Open()
-                Dim cmd As New MySqlCommand("SELECT `BARCODE`, `SKU`, `BRAND`, `DESCRIPTIONS`, `SIZE`, `PRICE`, `PRODUCT_IMAGE` FROM `Inventory_Master_File` WHERE TRIM(`BARCODE`) = @Code OR TRIM(`SKU`) = @Code", conn)
-                cmd.Parameters.AddWithValue("@Code", txtBarcode.Text.Trim())
+
+                ' Tinanggal na ang PRODUCT_IMAGE sa query
+                Dim qry As String = "SELECT `BARCODE`, `SKU`, `BRAND`, `DESCRIPTIONS`, `SIZE`, `PRICE` 
+                                    FROM `inventory_information` 
+                                    WHERE (TRIM(`BARCODE`) = @Code OR TRIM(`SKU`) = @Code)"
+
+                ' Mag-filter lang kung may Branch ID
+                If Not String.IsNullOrEmpty(userBranchID) Then
+                    qry &= " AND TRIM(`BRANCH_ID`) = @BranchID"
+                End If
+
+                Dim cmd As New MySqlCommand(qry, conn)
+                cmd.Parameters.AddWithValue("@Code", codeInput)
+                If Not String.IsNullOrEmpty(userBranchID) Then
+                    cmd.Parameters.AddWithValue("@BranchID", userBranchID)
+                End If
 
                 Using dr As MySqlDataReader = cmd.ExecuteReader()
                     If dr.Read() Then
@@ -137,14 +203,14 @@ Public Class ShelfTag_Printer
                             dr("BRAND").ToString().Trim(),
                             dr("DESCRIPTIONS").ToString().Trim(),
                             dr("SIZE").ToString().Trim(),
-                            CDec(dr("PRICE")),
+                            Convert.ToDecimal(dr("PRICE")),
                             qtyToAdd
                         )
-                        AuditLogger.LogAction("ITEM_ADDED", "ShelfTagPrinter", $"Item added | Barcode: {dr("BARCODE")} | Qty: {qtyToAdd}")
+                        AuditLogger.LogAction("ITEM_ADDED", "ShelfTagPrinter", $"Item added | Barcode: {dr("BARCODE")} | Qty: {qtyToAdd} | Branch: {userBranchID}")
                         ClearInputFields()
                     Else
-                        MessageBox.Show("Product not found!", "No Result", MessageBoxButtons.OK, MessageBoxIcon.Exclamation)
-                        AuditLogger.LogAction("ITEM_NOTFOUND", "ShelfTagPrinter", $"Product not found | Input: {txtBarcode.Text.Trim()}")
+                        MessageBox.Show("Product not found or not available in your branch!", "No Result", MessageBoxButtons.OK, MessageBoxIcon.Exclamation)
+                        AuditLogger.LogAction("ITEM_NOTFOUND", "ShelfTagPrinter", $"Product not found | Input: {codeInput} | Branch: {userBranchID}")
                         txtBarcode.SelectAll()
                         txtBarcode.Focus()
                     End If
@@ -152,15 +218,29 @@ Public Class ShelfTag_Printer
             End Using
         Catch ex As Exception
             MessageBox.Show("Error: " & ex.Message, "System", MessageBoxButtons.OK, MessageBoxIcon.Error)
-            AuditLogger.LogAction("ERROR", "ShelfTagPrinter", $"Add item failed | Error: {ex.Message}")
+            AuditLogger.LogAction("ERROR", "ShelfTagPrinter", $"Add item failed | Error: {ex.Message} | Branch: {userBranchID}")
         End Try
+    End Sub
+
+    Private Sub btnAdd_Click(sender As Object, e As EventArgs) Handles btnAdd.Click
+        If selectedInputMode <> "MANUAL" Then Exit Sub
+
+        Dim qtyToAdd As Integer
+        If Not Integer.TryParse(txtQuantity.Text.Trim(), qtyToAdd) OrElse qtyToAdd < 1 Then
+            MessageBox.Show("Enter a valid quantity!", "Invalid Input", MessageBoxButtons.OK, MessageBoxIcon.Warning)
+            txtQuantity.Text = "1"
+            txtQuantity.Focus()
+            Return
+        End If
+
+        ProcessItemAdd(txtBarcode.Text.Trim(), qtyToAdd)
     End Sub
 
     Private Sub btnRemove_Click_1(sender As Object, e As EventArgs) Handles btnRemove.Click
         If dgvItems.SelectedRows.Count > 0 Then
             Dim removedCode = dgvItems.SelectedRows(0).Cells("BARCODE").Value.ToString()
             dgvItems.Rows.RemoveAt(dgvItems.SelectedRows(0).Index)
-            AuditLogger.LogAction("ITEM_REMOVED", "ShelfTagPrinter", $"Item removed | Barcode: {removedCode}")
+            AuditLogger.LogAction("ITEM_REMOVED", "ShelfTagPrinter", $"Item removed | Barcode: {removedCode} | Branch: {userBranchID}")
         Else
             MessageBox.Show("Select an item to remove!", "Notice", MessageBoxButtons.OK, MessageBoxIcon.Information)
         End If
@@ -173,7 +253,7 @@ Public Class ShelfTag_Printer
     End Sub
 
     Private Sub btnClose_Click_1(sender As Object, e As EventArgs) Handles btnClose.Click
-        AuditLogger.LogAction("CLOSE_TAG_PRINT", "ShelfTagPrinter", "Shelf Tag Printer closed")
+        AuditLogger.LogAction("CLOSE_TAG_PRINT", "ShelfTagPrinter", $"Shelf Tag Printer closed | Branch: {userBranchID}")
         Me.Close()
     End Sub
 
@@ -186,44 +266,32 @@ Public Class ShelfTag_Printer
         tempPrintList.Clear()
         currentItemIndex = 0
 
-        Try
-            Using conn As New MySqlConnection(connStr)
-                conn.Open()
-                For Each row As DataGridViewRow In dgvItems.Rows
-                    If row.IsNewRow Then Continue For
-                    Dim bc = row.Cells("BARCODE").Value.ToString().Trim()
-                    Dim qt = CInt(row.Cells("QTY").Value)
-                    Dim imgCmd As New MySqlCommand("SELECT `PRODUCT_IMAGE` FROM `Inventory_Master_File` WHERE `BARCODE` = @BC", conn)
-                    imgCmd.Parameters.AddWithValue("@BC", bc)
-                    Dim imgBytes As Byte() = TryCast(imgCmd.ExecuteScalar(), Byte())
-                    For i As Integer = 1 To qt
-                        tempPrintList.Rows.Add(
-                            bc,
-                            row.Cells("SKU").Value.ToString().Trim(),
-                            row.Cells("BRAND").Value.ToString().Trim(),
-                            row.Cells("DESCRIPTIONS").Value.ToString().Trim(),
-                            row.Cells("SIZE").Value.ToString().Trim(),
-                            CDec(row.Cells("PRICE").Value),
-                            imgBytes
-                        )
-                    Next
-                Next
-            End Using
+        For Each row As DataGridViewRow In dgvItems.Rows
+            If row.IsNewRow Then Continue For
 
-            Dim pd As New PrintDialog()
-            pd.Document = printDoc
-            If pd.ShowDialog() = DialogResult.OK Then
-                printDoc.Print()
-                MessageBox.Show("Print job sent successfully!", "Complete", MessageBoxButtons.OK, MessageBoxIcon.Information)
-                AuditLogger.LogAction("PRINT_SENT", "ShelfTagPrinter", $"Print job sent | Type: {selectedPrintType} | Tags: {tempPrintList.Rows.Count}")
-            End If
-        Catch ex As Exception
-            MessageBox.Show("Print Error: " & ex.Message, "System", MessageBoxButtons.OK, MessageBoxIcon.Error)
-            AuditLogger.LogAction("PRINT_ERROR", "ShelfTagPrinter", $"Print failed | Error: {ex.Message}")
-        End Try
+            Dim bc = row.Cells("BARCODE").Value.ToString().Trim()
+            Dim sku = row.Cells("SKU").Value.ToString().Trim()
+            Dim br = row.Cells("BRAND").Value.ToString().Trim()
+            Dim ds = row.Cells("DESCRIPTIONS").Value.ToString().Trim()
+            Dim sz = row.Cells("SIZE").Value.ToString().Trim()
+            Dim pr = Convert.ToDecimal(row.Cells("PRICE").Value)
+            Dim qty = CInt(row.Cells("QTY").Value)
+
+            For i As Integer = 1 To qty
+                tempPrintList.Rows.Add(bc, sku, br, ds, sz, pr)
+            Next
+        Next
+
+        Dim pd As New PrintDialog()
+        pd.Document = printDoc
+        If pd.ShowDialog() = DialogResult.OK Then
+            printDoc.Print()
+            MessageBox.Show($"Print job sent successfully! Total tags: {tempPrintList.Rows.Count}", "Complete", MessageBoxButtons.OK, MessageBoxIcon.Information)
+            AuditLogger.LogAction("PRINT_SENT", "ShelfTagPrinter", $"Print job sent | Type: {selectedPrintType} | Tags: {tempPrintList.Rows.Count} | Branch: {userBranchID}")
+        End If
     End Sub
 
-    ' Barcode generation functions remain unchanged
+    ' --- BARCODE & PRINTING FUNCTIONS (TINANGGAL NA ANG IMAGE PART) ---
     Private Function GetValidBarcodePattern(codeNum As String) As String
         Dim pureNum As String = New String(codeNum.Where(AddressOf Char.IsDigit).ToArray())
         If pureNum.Length = 13 Then Return GenerateEAN13(pureNum)
@@ -244,7 +312,7 @@ Public Class ShelfTag_Printer
     End Function
 
     Private ReadOnly leftOdd As String() = {"0001101", "0011001", "0010011", "0111101", "0100011", "0110001", "0101111", "0111011", "0110111", "0001011"}
-    Private ReadOnly leftEven As String() = {"0100111", "0110011", "0011011", "0100001", "0011101", "0111001", "0000101", "0010001", "0001001", "0010111"}
+    Private ReadOnly leftEven As String() = {"0100111", "0110011", "0011011", "0100001", "011101", "0111001", "0000101", "0010001", "0001001", "0010111"}
     Private ReadOnly rightCode As String() = {"1110010", "1100110", "1101100", "1000010", "1011100", "1001110", "1010000", "1000100", "1001000", "1110100"}
     Private ReadOnly parityPattern As String() = {"000000", "001011", "001101", "001110", "010011", "011001", "011100", "010101", "010110", "011010"}
 
@@ -279,7 +347,6 @@ Public Class ShelfTag_Printer
     End Function
 
     Private Sub printDoc_PrintPage(sender As Object, e As PrintPageEventArgs) Handles printDoc.PrintPage
-        ' Layout logic remains unchanged
         Dim g As Graphics = e.Graphics
         g.PageUnit = GraphicsUnit.Millimeter
         g.Clear(Color.White)
@@ -315,23 +382,14 @@ Public Class ShelfTag_Printer
                 Dim fPc As New Font("Arial", 7, FontStyle.Regular)
                 Dim fBarcodeNum As New Font("Arial", 7, FontStyle.Regular)
                 Dim fSku As New Font("Arial", 6.5, FontStyle.Regular)
-                Dim imgSize As Single = 18
-                If p("PRODUCT_IMAGE") IsNot DBNull.Value Then
-                    Try
-                        Using ms As New MemoryStream(CType(p("PRODUCT_IMAGE"), Byte()))
-                            Using img As Image = Image.FromStream(ms)
-                                g.DrawImage(img, xStart + safeMargin, yStart + safeMargin, imgSize, imgSize)
-                            End Using
-                        End Using
-                    Catch
-                    End Try
-                End If
+
+                ' Tinanggal na ang image part
                 Dim skuText As String = p("SKU").ToString().Trim()
-                g.DrawString(skuText, fSku, Brushes.Black, xStart + safeMargin, yStart + safeMargin + imgSize + 0.5F)
-                Dim textX As Single = xStart + safeMargin + imgSize + 2
-                g.DrawString(p("BRAND").ToString().ToUpper(), fBrand, Brushes.Black, textX, yStart + safeMargin, textFormat)
-                g.DrawString(p("DESCRIPTIONS").ToString().ToUpper(), fDesc, Brushes.Black, New RectangleF(textX, yStart + 10, 52, 11), textFormat)
-                g.DrawString(p("SIZE").ToString().ToUpper(), fSize, Brushes.Black, textX, yStart + 20, textFormat)
+                g.DrawString(skuText, fSku, Brushes.Black, xStart + safeMargin, yStart + safeMargin)
+                Dim textX As Single = xStart + safeMargin
+                g.DrawString(p("BRAND").ToString().ToUpper(), fBrand, Brushes.Black, textX, yStart + safeMargin + 2, textFormat)
+                g.DrawString(p("DESCRIPTIONS").ToString().ToUpper(), fDesc, Brushes.Black, New RectangleF(textX, yStart + 12, 52, 11), textFormat)
+                g.DrawString(p("SIZE").ToString().ToUpper(), fSize, Brushes.Black, textX, yStart + 22, textFormat)
                 Dim val As Decimal = CDec(p("PRICE"))
                 Dim whole As Integer = CInt(Math.Truncate(val))
                 Dim cent As Integer = CInt((val - whole) * 100)
@@ -390,7 +448,7 @@ Public Class ShelfTag_Printer
         e.HasMorePages = (currentItemIndex < tempPrintList.Rows.Count)
     End Sub
 
-    Private Sub Panel1_Paint(sender As Object, e As PaintEventArgs) Handles Panel1.Paint
+    Private Sub Button1_Click(sender As Object, e As EventArgs) Handles Button1.Click
+        frmProductlistShelftag.Show()
     End Sub
-
 End Class

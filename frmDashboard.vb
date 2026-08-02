@@ -91,4 +91,19 @@ Public Class frmDashboard
         list.Show()
         AuditLogger.LogAction("OPEN", "Inventory", "Opened Product List / Inventory")
     End Sub
+
+    Private Sub Button4_Click(sender As Object, e As EventArgs) Handles Button4.Click
+        ShelfTag_Printer.Show()
+    End Sub
+
+    Private Sub Button2_Click(sender As Object, e As EventArgs) Handles Button2.Click
+        Panelmenu.Controls.Clear()
+        Dim daily As New frmDailySalesSummary
+        daily.TopLevel = False
+        daily.FormBorderStyle = FormBorderStyle.None
+        daily.Dock = DockStyle.Fill
+        Panelmenu.Controls.Add(daily)
+        daily.Show()
+    End Sub
+
 End Class

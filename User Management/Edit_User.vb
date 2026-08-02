@@ -1,13 +1,12 @@
 ﻿Imports System.Data
 Imports MySqlConnector
 Imports System.Drawing
-Imports System.IO
 
 Public Class Edit_User
 
     Private currentUserID As Integer
-    Private userImageData As Byte() = Nothing
     Private connStr As String = DBConnection.connStr
+    Private isEditingAdmin As Boolean = False
 
     Public Sub LoadUserDetails(userInfo As Object)
         Try
@@ -17,9 +16,11 @@ Public Class Edit_User
             txtEmail.Text = userInfo.EMAIL?.ToString()
             txtContact.Text = userInfo.CONTACT?.ToString()
 
+            isEditingAdmin = userInfo.USER_TYPE?.ToString().Equals("BUSINESS ADMIN", StringComparison.OrdinalIgnoreCase)
+
             cbousertype.Items.Clear()
             cbousertype.Items.AddRange({
-                "Branch Administrator", "IT Support", "Branch Manager",
+                "BUSINESS ADMIN", "Branch Administrator", "IT Support", "Branch Manager",
                 "Supervisor", "Cashier", "Inventory Clerk", "Sales Staff", "Viewer"
             })
             If Not String.IsNullOrWhiteSpace(userInfo.USER_TYPE?.ToString()) Then
@@ -41,56 +42,21 @@ Public Class Edit_User
                 cboBranch.SelectedValue = userInfo.BRANCH_ID.ToString()
             End If
 
-            LoadImageFromDB()
-            AuditLogger.LogAction("LOAD_USER_EDIT", "EditUser", $"Loaded user for edit | ID: {currentUserID} | Name: {txtFullName.Text}")
+            If Not Login.LoggedInUserType.Equals("BUSINESS ADMIN", StringComparison.OrdinalIgnoreCase) AndAlso isEditingAdmin Then
+                MessageBox.Show("You are not authorized to edit BUSINESS ADMIN accounts!", "Access Denied", MessageBoxButtons.OK, MessageBoxIcon.Stop)
+                AuditLogger.LogAction("ACCESS_DENIED", "EditUser", $"Unauthorized attempt to edit Admin | User ID: {currentUserID}")
+                Me.Close()
+                Exit Sub
+            End If
+
+            If Not Login.LoggedInUserType.Equals("BUSINESS ADMIN", StringComparison.OrdinalIgnoreCase) Then
+                cbousertype.Items.Remove("BUSINESS ADMIN")
+            End If
+
+            AuditLogger.LogAction("LOAD_USER_EDIT", "EditUser", $"Loaded user for edit | ID: {currentUserID} | Name: {txtFullName.Text} | Type: {userInfo.USER_TYPE}")
         Catch ex As Exception
             MessageBox.Show("Error loading user data: " & ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
             AuditLogger.LogAction("ERROR", "EditUser", $"Load user failed | Error: {ex.Message}")
-        End Try
-    End Sub
-
-    Private Sub LoadImageFromDB()
-        Try
-            Using conn As New MySqlConnection(connStr)
-                Dim sql As String = "SELECT `PROFILE` FROM `User_Accounts` WHERE `ID` = @UID"
-                Using cmd As New MySqlCommand(sql, conn)
-                    cmd.Parameters.AddWithValue("@UID", currentUserID)
-                    conn.Open()
-                    Dim result = cmd.ExecuteScalar()
-                    If result IsNot Nothing AndAlso Not IsDBNull(result) Then
-                        userImageData = CType(result, Byte())
-                        Using ms As New MemoryStream(userImageData)
-                            PictureBox1.Image = Image.FromStream(ms)
-                            PictureBox1.SizeMode = PictureBoxSizeMode.StretchImage
-                        End Using
-                    Else
-                        PictureBox1.Image = Nothing
-                        userImageData = Nothing
-                    End If
-                End Using
-            End Using
-        Catch
-            PictureBox1.Image = Nothing
-            userImageData = Nothing
-        End Try
-    End Sub
-
-    Private Sub PictureBox1_DoubleClick(sender As Object, e As EventArgs) Handles PictureBox1.DoubleClick
-        Try
-            Using openDlg As New OpenFileDialog With {
-                .Filter = "Image Files (*.jpg;*.jpeg;*.png;*.bmp)|*.jpg;*.jpeg;*.png;*.bmp",
-                .Title = "Select Profile Picture"
-            }
-                If openDlg.ShowDialog() = DialogResult.OK Then
-                    userImageData = File.ReadAllBytes(openDlg.FileName)
-                    PictureBox1.Image = Image.FromFile(openDlg.FileName)
-                    PictureBox1.SizeMode = PictureBoxSizeMode.StretchImage
-                    AuditLogger.LogAction("PROFILE_PIC_UPD", "EditUser", $"Profile picture changed | User ID: {currentUserID}")
-                End If
-            End Using
-        Catch ex As Exception
-            MessageBox.Show("Error selecting image: " & ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
-            AuditLogger.LogAction("ERROR", "EditUser", $"Change profile pic failed | Error: {ex.Message}")
         End Try
     End Sub
 
@@ -126,18 +92,23 @@ Public Class Edit_User
             Return
         End If
 
+        Dim newRole As String = If(cbousertype.SelectedItem IsNot Nothing, cbousertype.SelectedItem.ToString(), "")
+        If Not Login.LoggedInUserType.Equals("BUSINESS ADMIN", StringComparison.OrdinalIgnoreCase) AndAlso newRole.Equals("BUSINESS ADMIN", StringComparison.OrdinalIgnoreCase) Then
+            MessageBox.Show("You are not authorized to assign BUSINESS ADMIN role!", "Access Denied", MessageBoxButtons.OK, MessageBoxIcon.Stop)
+            Return
+        End If
+
         Try
             Dim sql As String = "
-                UPDATE `User_Accounts` 
+                UPDATE `user_accounts` 
                 SET 
                     `FULL_NAME` = @FN,
                     `USER_TYPE` = @UT,
                     `BRANCH_ID` = @BID,
-                    `BRANCH` = @BName,
+                    `BRANCH_NAME` = @BName,
                     `EMAIL` = @EM,
                     `CONTACT` = @CT,
-                    `STATUS` = @ST,
-                    `PROFILE` = @PROFILE"
+                    `STATUS` = @ST"
             If Not String.IsNullOrWhiteSpace(txtNewPass.Text) Then
                 sql &= ", `PASSWORD` = @PASS"
             End If
@@ -153,7 +124,6 @@ Public Class Edit_User
                     cmd.Parameters.AddWithValue("@EM", If(String.IsNullOrWhiteSpace(txtEmail.Text), DBNull.Value, txtEmail.Text.Trim()))
                     cmd.Parameters.AddWithValue("@CT", If(String.IsNullOrWhiteSpace(txtContact.Text), DBNull.Value, txtContact.Text.Trim()))
                     cmd.Parameters.AddWithValue("@ST", If(cboStatus.SelectedItem IsNot Nothing, cboStatus.SelectedItem.ToString().Trim(), DBNull.Value))
-                    cmd.Parameters.AddWithValue("@PROFILE", If(userImageData IsNot Nothing, userImageData, DBNull.Value))
                     If Not String.IsNullOrWhiteSpace(txtNewPass.Text) Then
                         cmd.Parameters.AddWithValue("@PASS", txtNewPass.Text.Trim())
                         AuditLogger.LogAction("PASS_CHANGE", "EditUser", $"Password updated | User ID: {currentUserID}")
@@ -161,23 +131,29 @@ Public Class Edit_User
                     conn.Open()
                     Dim rowsAffected As Integer = cmd.ExecuteNonQuery()
                     If rowsAffected > 0 Then
-                        MessageBox.Show("✅ User updated successfully!", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information)
+                        MessageBox.Show("User updated successfully!", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information)
                         AuditLogger.LogAction("USER_UPDATED", "EditUser", $"User updated | ID: {currentUserID} | Name: {txtFullName.Text} | Type: {cbousertype.Text} | Status: {cboStatus.Text}")
                         Me.DialogResult = DialogResult.OK
                         Me.Close()
                     Else
-                        MessageBox.Show("⚠️ No changes were saved.", "Notice", MessageBoxButtons.OK, MessageBoxIcon.Warning)
+                        MessageBox.Show("No changes were saved.", "Notice", MessageBoxButtons.OK, MessageBoxIcon.Warning)
                         AuditLogger.LogAction("NO_CHANGES", "EditUser", $"No changes saved | User ID: {currentUserID}")
                     End If
                 End Using
             End Using
         Catch ex As Exception
-            MessageBox.Show("❌ Error updating user: " & ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
+            MessageBox.Show("Error updating user: " & ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
             AuditLogger.LogAction("UPDATE_ERROR", "EditUser", $"Update failed | ID: {currentUserID} | Error: {ex.Message}")
         End Try
     End Sub
 
     Private Sub btnDelete_Click(sender As Object, e As EventArgs) Handles btnDelete.Click
+        If isEditingAdmin Then
+            MessageBox.Show("You cannot delete a BUSINESS ADMIN account!", "Access Denied", MessageBoxButtons.OK, MessageBoxIcon.Stop)
+            AuditLogger.LogAction("DELETE_DENIED", "EditUser", $"Attempt to delete Admin | User ID: {currentUserID}")
+            Return
+        End If
+
         Dim confirm = MessageBox.Show(
             "Are you sure you want to delete this user? This action cannot be undone.",
             "Confirm Delete", MessageBoxButtons.YesNo, MessageBoxIcon.Warning
@@ -192,25 +168,25 @@ Public Class Edit_User
                 conn.Open()
                 Using trans = conn.BeginTransaction()
                     Try
-                        Dim delSql As String = "DELETE FROM `User_Accounts` WHERE `ID` = @UID"
+                        Dim delSql As String = "DELETE FROM `user_accounts` WHERE `ID` = @UID"
                         Using cmd As New MySqlCommand(delSql, conn, trans)
                             cmd.Parameters.AddWithValue("@UID", currentUserID)
                             cmd.ExecuteNonQuery()
                         End Using
                         trans.Commit()
-                        MessageBox.Show("✅ User deleted successfully!", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information)
+                        MessageBox.Show("User deleted successfully!", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information)
                         AuditLogger.LogAction("USER_DELETED", "EditUser", $"User deleted | ID: {currentUserID} | Name: {txtFullName.Text}")
                         Me.DialogResult = DialogResult.OK
                         Me.Close()
                     Catch exTrans As Exception
                         trans.Rollback()
-                        MessageBox.Show("❌ Failed to delete user: " & exTrans.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
+                        MessageBox.Show("Failed to delete user: " & exTrans.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
                         AuditLogger.LogAction("DELETE_ROLLBACK", "EditUser", $"Delete rolled back | ID: {currentUserID} | Error: {exTrans.Message}")
                     End Try
                 End Using
             End Using
         Catch ex As Exception
-            MessageBox.Show("❌ Error: " & ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
+            MessageBox.Show("Error: " & ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
             AuditLogger.LogAction("DELETE_ERROR", "EditUser", $"Delete failed | ID: {currentUserID} | Error: {ex.Message}")
         End Try
     End Sub

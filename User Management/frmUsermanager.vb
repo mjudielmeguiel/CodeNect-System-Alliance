@@ -28,7 +28,7 @@ Public Class frmUsermanager
     Private Sub SetupRoleFilter()
         cboRole.Items.Clear()
         cboRole.Items.Add("ALL")
-        cboRole.Items.Add("Branch Administrator")
+        cboRole.Items.Add("Admin")
         cboRole.Items.Add("IT Support")
         cboRole.Items.Add("Branch Manager")
         cboRole.Items.Add("Supervisor")
@@ -56,20 +56,25 @@ Public Class frmUsermanager
                 Using cmd As New MySqlCommand()
                     cmd.Connection = conn
 
+                    ' === PANUNTUNAN SA PAGKITA NG LISTAHAN ===
+                    ' KUNG BUSINESS ADMIN: MAKIKITA LAHAT SA ILALIM NG KANYANG ACCOUNT_ID
                     If Login.LoggedInUserType.Equals("BUSINESS ADMIN", StringComparison.OrdinalIgnoreCase) Then
                         cmd.Parameters.AddWithValue("@AccID", Login.LoggedInAccountID)
                         sql.AppendLine(" AND u.`account_id` = @AccID")
                     Else
+                        ' KUNG IBANG USER: MAKIKITA LANG ANG NASA KANYANG BRANCH + HINDI MAKIKITA ANG BUSINESS ADMIN
                         cmd.Parameters.AddWithValue("@BranchID", Login.LoggedInBranchID)
                         sql.AppendLine(" AND u.`branch_id` = @BranchID")
                         sql.AppendLine(" AND u.`user_type` <> 'BUSINESS ADMIN'")
                     End If
 
+                    ' FILTER NG ROLE
                     If selectedRole <> "ALL" Then
                         cmd.Parameters.AddWithValue("@Role", selectedRole)
                         sql.AppendLine(" AND u.`user_type` = @Role")
                     End If
 
+                    ' FILTER NG PAGHANAP
                     If Not String.IsNullOrWhiteSpace(searchText) Then
                         cmd.Parameters.AddWithValue("@Search", "%" & searchText & "%")
                         sql.AppendLine(" AND u.`full_name` LIKE @Search")

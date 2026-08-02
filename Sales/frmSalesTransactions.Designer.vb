@@ -1,9 +1,9 @@
-﻿<Global.Microsoft.VisualBasic.CompilerServices.DesignerGenerated()> _
+﻿<Global.Microsoft.VisualBasic.CompilerServices.DesignerGenerated()>
 Partial Class frmSalesTransactions
     Inherits System.Windows.Forms.Form
 
     'Form overrides dispose to clean up the component list.
-    <System.Diagnostics.DebuggerNonUserCode()> _
+    <System.Diagnostics.DebuggerNonUserCode()>
     Protected Overrides Sub Dispose(ByVal disposing As Boolean)
         Try
             If disposing AndAlso components IsNot Nothing Then
@@ -20,7 +20,7 @@ Partial Class frmSalesTransactions
     'NOTE: The following procedure is required by the Windows Form Designer
     'It can be modified using the Windows Form Designer.  
     'Do not modify it using the code editor.
-    <System.Diagnostics.DebuggerStepThrough()> _
+    <System.Diagnostics.DebuggerStepThrough()>
     Private Sub InitializeComponent()
         Dim Label2 As System.Windows.Forms.Label
         Dim Label1 As System.Windows.Forms.Label
@@ -33,13 +33,13 @@ Partial Class frmSalesTransactions
         Me.txtSearch = New System.Windows.Forms.TextBox()
         Me.btnLoad = New System.Windows.Forms.Button()
         Me.Panel1 = New System.Windows.Forms.Panel()
+        Me.cboBranch = New System.Windows.Forms.ComboBox()
+        Me.cboCashier = New System.Windows.Forms.ComboBox()
         Me.lblTotalSales = New System.Windows.Forms.Label()
         Me.btnReset = New System.Windows.Forms.Button()
         Me.dtpTo = New System.Windows.Forms.DateTimePicker()
         Me.dtpFrom = New System.Windows.Forms.DateTimePicker()
         Me.dgvTransactions = New System.Windows.Forms.DataGridView()
-        Me.cboBranch = New System.Windows.Forms.ComboBox()
-        Me.cboCashier = New System.Windows.Forms.ComboBox()
         Label2 = New System.Windows.Forms.Label()
         Label1 = New System.Windows.Forms.Label()
         STOCK_AVAILABLELabel = New System.Windows.Forms.Label()
@@ -145,6 +145,26 @@ Partial Class frmSalesTransactions
         Me.Panel1.Size = New System.Drawing.Size(1342, 48)
         Me.Panel1.TabIndex = 223
         '
+        'cboBranch
+        '
+        Me.cboBranch.Font = New System.Drawing.Font("Microsoft Sans Serif", 12.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.cboBranch.FormattingEnabled = True
+        Me.cboBranch.Items.AddRange(New Object() {"Retail Grocery Store", "Supermarket (Retail Trade)", "Food and Grocery Retail Business", "Convenience Store / Mini-Mart"})
+        Me.cboBranch.Location = New System.Drawing.Point(530, 9)
+        Me.cboBranch.Name = "cboBranch"
+        Me.cboBranch.Size = New System.Drawing.Size(168, 28)
+        Me.cboBranch.TabIndex = 225
+        '
+        'cboCashier
+        '
+        Me.cboCashier.Font = New System.Drawing.Font("Microsoft Sans Serif", 12.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.cboCashier.FormattingEnabled = True
+        Me.cboCashier.Items.AddRange(New Object() {"Retail Grocery Store", "Supermarket (Retail Trade)", "Food and Grocery Retail Business", "Convenience Store / Mini-Mart"})
+        Me.cboCashier.Location = New System.Drawing.Point(704, 8)
+        Me.cboCashier.Name = "cboCashier"
+        Me.cboCashier.Size = New System.Drawing.Size(208, 28)
+        Me.cboCashier.TabIndex = 226
+        '
         'lblTotalSales
         '
         Me.lblTotalSales.AutoSize = True
@@ -228,26 +248,6 @@ Partial Class frmSalesTransactions
         Me.dgvTransactions.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect
         Me.dgvTransactions.Size = New System.Drawing.Size(1342, 690)
         Me.dgvTransactions.TabIndex = 224
-        '
-        'cboBranch
-        '
-        Me.cboBranch.Font = New System.Drawing.Font("Microsoft Sans Serif", 12.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.cboBranch.FormattingEnabled = True
-        Me.cboBranch.Items.AddRange(New Object() {"Retail Grocery Store", "Supermarket (Retail Trade)", "Food and Grocery Retail Business", "Convenience Store / Mini-Mart"})
-        Me.cboBranch.Location = New System.Drawing.Point(530, 9)
-        Me.cboBranch.Name = "cboBranch"
-        Me.cboBranch.Size = New System.Drawing.Size(168, 28)
-        Me.cboBranch.TabIndex = 225
-        '
-        'cboCashier
-        '
-        Me.cboCashier.Font = New System.Drawing.Font("Microsoft Sans Serif", 12.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.cboCashier.FormattingEnabled = True
-        Me.cboCashier.Items.AddRange(New Object() {"Retail Grocery Store", "Supermarket (Retail Trade)", "Food and Grocery Retail Business", "Convenience Store / Mini-Mart"})
-        Me.cboCashier.Location = New System.Drawing.Point(704, 8)
-        Me.cboCashier.Name = "cboCashier"
-        Me.cboCashier.Size = New System.Drawing.Size(208, 28)
-        Me.cboCashier.TabIndex = 226
         '
         'frmSalesTransactions
         '

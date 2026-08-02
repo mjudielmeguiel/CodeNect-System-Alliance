@@ -51,10 +51,8 @@ Partial Class Edit_User
         Me.txtConfirmPassword = New System.Windows.Forms.TextBox()
         Me.Label10 = New System.Windows.Forms.Label()
         Me.txtBranchID = New System.Windows.Forms.TextBox()
-        Me.PictureBox1 = New System.Windows.Forms.PictureBox()
         Me.Panel1.SuspendLayout()
         CType(Me.adminpic, System.ComponentModel.ISupportInitialize).BeginInit()
-        CType(Me.PictureBox1, System.ComponentModel.ISupportInitialize).BeginInit()
         Me.SuspendLayout()
         '
         'btnCancel
@@ -351,20 +349,11 @@ Partial Class Edit_User
         Me.txtBranchID.Size = New System.Drawing.Size(198, 26)
         Me.txtBranchID.TabIndex = 287
         '
-        'PictureBox1
-        '
-        Me.PictureBox1.Location = New System.Drawing.Point(344, 74)
-        Me.PictureBox1.Name = "PictureBox1"
-        Me.PictureBox1.Size = New System.Drawing.Size(140, 122)
-        Me.PictureBox1.TabIndex = 288
-        Me.PictureBox1.TabStop = False
-        '
         'Edit_User
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(6.0!, 13.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
         Me.ClientSize = New System.Drawing.Size(497, 667)
-        Me.Controls.Add(Me.PictureBox1)
         Me.Controls.Add(Me.txtBranchID)
         Me.Controls.Add(Me.txtConfirmPassword)
         Me.Controls.Add(Me.Label10)
@@ -398,7 +387,6 @@ Partial Class Edit_User
         Me.Panel1.ResumeLayout(False)
         Me.Panel1.PerformLayout()
         CType(Me.adminpic, System.ComponentModel.ISupportInitialize).EndInit()
-        CType(Me.PictureBox1, System.ComponentModel.ISupportInitialize).EndInit()
         Me.ResumeLayout(False)
         Me.PerformLayout()
 
@@ -432,5 +420,4 @@ Partial Class Edit_User
     Friend WithEvents txtConfirmPassword As TextBox
     Friend WithEvents Label10 As Label
     Friend WithEvents txtBranchID As TextBox
-    Friend WithEvents PictureBox1 As PictureBox
 End Class

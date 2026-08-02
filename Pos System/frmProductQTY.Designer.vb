@@ -101,7 +101,7 @@ Partial Class frmProductQTY
         Me.Panel2.Dock = System.Windows.Forms.DockStyle.Top
         Me.Panel2.Location = New System.Drawing.Point(0, 0)
         Me.Panel2.Name = "Panel2"
-        Me.Panel2.Size = New System.Drawing.Size(232, 54)
+        Me.Panel2.Size = New System.Drawing.Size(327, 54)
         Me.Panel2.TabIndex = 335
         '
         'lbltransactiontype
@@ -141,14 +141,14 @@ Partial Class frmProductQTY
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(6.0!, 13.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
-        Me.ClientSize = New System.Drawing.Size(232, 250)
+        Me.ClientSize = New System.Drawing.Size(327, 257)
         Me.Controls.Add(Me.lblMaxStock)
         Me.Controls.Add(Me.btnCancel)
         Me.Controls.Add(Me.Panel2)
         Me.Controls.Add(Me.btnConfirm)
         Me.Controls.Add(Me.Label9)
         Me.Controls.Add(Me.txtQty)
-        Me.FormBorderStyle = System.Windows.Forms.FormBorderStyle.None
+        Me.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedToolWindow
         Me.Icon = CType(resources.GetObject("$this.Icon"), System.Drawing.Icon)
         Me.Name = "frmProductQTY"
         Me.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen

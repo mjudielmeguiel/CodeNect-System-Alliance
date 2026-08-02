@@ -4,6 +4,8 @@ Public Class frmProductQTY
 
     Public Property Barcode As String = ""
     Public Property CurrentQty As Integer = 0
+    ' ✅ Idinagdag para makuha ang branch ng cashier (galing sa frmPOS_System)
+    Public Property UserBranchCode As String = ""
 
     Private Sub frmProductQTY_Load(sender As Object, e As EventArgs) Handles MyBase.Load
         txtQty.Text = CurrentQty.ToString()
@@ -13,15 +15,17 @@ Public Class frmProductQTY
         txtQty.Focus()
 
         LoadStock()
-        AuditLogger.LogAction("OPEN_QTY", "ProductQty", $"Opened quantity editor | Barcode: {Barcode} | Current Qty: {CurrentQty}")
+        AuditLogger.LogAction("OPEN_QTY", "ProductQty", $"Opened quantity editor | Barcode: {Barcode} | Current Qty: {CurrentQty} | Branch: {UserBranchCode}")
     End Sub
 
     Private Sub LoadStock()
         Try
             Using conn As New MySqlConnection(DBConnection.connStr)
                 conn.Open()
-                Dim cmd As New MySqlCommand("SELECT IFNULL(`AVAILABLE`, 0) FROM `Inventory_Master_file` WHERE TRIM(`BARCODE`) = @Barcode", conn)
+                ' ✅ Pinalitan ng tamang table na `inventory_information` + may branch check na
+                Dim cmd As New MySqlCommand("SELECT IFNULL(`AVAILABLE`, 0) FROM `inventory_information` WHERE TRIM(`BARCODE`) = @Barcode AND TRIM(`BRANCH_ID`) = @BranchId", conn)
                 cmd.Parameters.AddWithValue("@Barcode", Barcode.Trim())
+                cmd.Parameters.AddWithValue("@BranchId", UserBranchCode.Trim())
 
                 Dim result As Object = cmd.ExecuteScalar()
                 Dim availableStock As Integer = If(result IsNot Nothing, CInt(result), 0)
@@ -30,7 +34,7 @@ Public Class frmProductQTY
             End Using
         Catch ex As Exception
             lblMaxStock.Text = "Error loading stock"
-            AuditLogger.LogAction("ERROR", "ProductQty", $"Load stock failed | Barcode: {Barcode} | Error: {ex.Message}")
+            AuditLogger.LogAction("ERROR", "ProductQty", $"Load stock failed | Barcode: {Barcode} | Branch: {UserBranchCode} | Error: {ex.Message}")
         End Try
     End Sub
 
@@ -61,21 +65,23 @@ Public Class frmProductQTY
         Try
             Using conn As New MySqlConnection(DBConnection.connStr)
                 conn.Open()
-                Dim cmd As New MySqlCommand("SELECT IFNULL(`AVAILABLE`, 0) FROM `Inventory_Master_file` WHERE TRIM(`BARCODE`) = @Barcode", conn)
+                ' ✅ Pinalitan din dito ng tamang table at may branch check
+                Dim cmd As New MySqlCommand("SELECT IFNULL(`AVAILABLE`, 0) FROM `inventory_information` WHERE TRIM(`BARCODE`) = @Barcode AND TRIM(`BRANCH_ID`) = @BranchId", conn)
                 cmd.Parameters.AddWithValue("@Barcode", Barcode.Trim())
+                cmd.Parameters.AddWithValue("@BranchId", UserBranchCode.Trim())
 
                 Dim result As Object = cmd.ExecuteScalar()
                 availableStock = If(result IsNot Nothing, CInt(result), 0)
             End Using
         Catch ex As Exception
             MessageBox.Show("Error checking stock: " & ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
-            AuditLogger.LogAction("ERROR", "ProductQty", $"Check stock failed | Barcode: {Barcode} | Error: {ex.Message}")
+            AuditLogger.LogAction("ERROR", "ProductQty", $"Check stock failed | Barcode: {Barcode} | Branch: {UserBranchCode} | Error: {ex.Message}")
             Return
         End Try
 
         If newQty > availableStock Then
             MessageBox.Show($"Quantity exceeds available stock!{vbCrLf}Only {availableStock} item(s) in stock.", "Insufficient Stock", MessageBoxButtons.OK, MessageBoxIcon.Stop)
-            AuditLogger.LogAction("QTY_EXCEED", "ProductQty", $"Quantity exceeds stock | Barcode: {Barcode} | Requested: {newQty} | Available: {availableStock}")
+            AuditLogger.LogAction("QTY_EXCEED", "ProductQty", $"Quantity exceeds stock | Barcode: {Barcode} | Requested: {newQty} | Available: {availableStock} | Branch: {UserBranchCode}")
             txtQty.SelectAll()
             txtQty.Focus()
             Return

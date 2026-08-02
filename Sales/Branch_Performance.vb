@@ -16,19 +16,19 @@ Public Class Branch_Performance
 
             Dim sql As String = "
                 SELECT
-                    `ACCOUNT_ID`,
-                    `BRANCH_ID`,
-                    `BRANCH_NAME`,
-                    `Transaction_Date`,
-                    `Total_Transactions`,
-                    `Cash_Sales`,
-                    `Online_Sales`,
-                    `Total_Discount`,
-                    `Total_VAT`,
-                    `Net_Sales`,
-                    `Recorded_At`
-                FROM `Daily_Sales_Log`
-                ORDER BY `Transaction_Date` DESC
+                    `account_id`,
+                    `branch_id`,
+                    `user_id`,
+                    `transaction_date`,
+                    `total_transactions`,
+                    `cash_sales`,
+                    `online_sales`,
+                    `total_discount`,
+                    `total_vat`,
+                    `net_sales`,
+                    `recorded_at`
+                FROM `daily_sales_log`
+                ORDER BY `transaction_date` DESC, `branch_id` ASC
             "
 
             Using conn As New MySqlConnection(connStr)
@@ -41,11 +41,12 @@ Public Class Branch_Performance
 
             dgvBranchList.AutoGenerateColumns = True
             dgvBranchList.DataSource = dt
+            dgvBranchList.AutoResizeColumns()
 
             AuditLogger.LogAction("BRANCH_DATA_LOADED", "BranchPerf", $"Loaded {dt.Rows.Count} sales records — ADMIN VIEW")
 
         Catch ex As Exception
-            MessageBox.Show("Error: " & ex.Message)
+            MessageBox.Show("Error loading report: " & ex.Message, "Database Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
             AuditLogger.LogAction("ERROR", "BranchPerf", $"Load failed — ADMIN ONLY — Error: {ex.Message}")
         End Try
     End Sub

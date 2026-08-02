@@ -92,17 +92,24 @@ Public Class frmOnlinePayment
         Try
             Using conn As New MySqlConnection(DBConnection.connStr)
                 Dim sql As String = "
-                    INSERT INTO `Payments` (
-                        `OrderID`, `PaymentMethod`, `ReferenceNumber`, `AmountPaid`, `Sender`, `Remarks`, `PaymentDate`, `Status`
+                    INSERT INTO `payments` (
+                        `ACCOUNT_ID`, `BRANCH_ID`, `TRANSACTION_ID`, `User_ID`,
+                        `AmountPaid`, `PaymentMethod`, `ReferenceNumber`, `Sender`,
+                        `Remarks`, `PaymentDate`, `Status`
                     ) VALUES (
-                        @OrderID, @Method, @RefNo, @Amount, @Sender, @Remarks, NOW(), 'Completed'
+                        @AccountID, @BranchID, @TransID, @UserID,
+                        @Amount, @Method, @RefNo, @Sender,
+                        @Remarks, NOW(), 'Completed'
                     )"
 
                 Using cmd As New MySqlCommand(sql, conn)
-                    cmd.Parameters.AddWithValue("@OrderID", TransID)
+                    cmd.Parameters.AddWithValue("@AccountID", Login.LoggedInAccountID)
+                    cmd.Parameters.AddWithValue("@BranchID", Login.LoggedInBranchID)
+                    cmd.Parameters.AddWithValue("@TransID", TransID)
+                    cmd.Parameters.AddWithValue("@UserID", Login.LoggedInUserID)
+                    cmd.Parameters.AddWithValue("@Amount", PaidAmount)
                     cmd.Parameters.AddWithValue("@Method", PaymentMethod)
                     cmd.Parameters.AddWithValue("@RefNo", If(String.IsNullOrWhiteSpace(ReferenceNo), DBNull.Value, ReferenceNo))
-                    cmd.Parameters.AddWithValue("@Amount", PaidAmount)
                     cmd.Parameters.AddWithValue("@Sender", If(String.IsNullOrWhiteSpace(SenderName), DBNull.Value, SenderName))
                     cmd.Parameters.AddWithValue("@Remarks", If(String.IsNullOrWhiteSpace(Remarks), DBNull.Value, Remarks))
 

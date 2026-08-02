@@ -14,7 +14,6 @@ Public Class Login
     Private Const PLACEHOLDER_USER As String = "Enter Username"
     Private Const PLACEHOLDER_PASS As String = "Enter Password"
 
-    ' --- AUTO SET STATUS TO OFFLINE WHEN LOGIN FORM CLOSES ---
     Private Sub Login_FormClosing(sender As Object, e As FormClosingEventArgs) Handles MyBase.FormClosing
         If Not String.IsNullOrEmpty(LoggedInUserID) OrElse Not String.IsNullOrEmpty(LoggedInAccountID) Then
             Try
@@ -33,7 +32,9 @@ Public Class Login
                         End Using
                     End If
                 End Using
+                AuditLogger.LogAction("LOGOUT", "Authentication", $"User [{LoggedInUsername}] logged out")
             Catch ex As Exception
+                AuditLogger.LogAction("ERROR", "Authentication", $"Logout status update failed: {ex.Message}")
             End Try
         End If
     End Sub
@@ -63,15 +64,9 @@ Public Class Login
     End Sub
 
     Private Sub LinkLabel2_LinkClicked(sender As Object, e As LinkLabelLinkClickedEventArgs) Handles LinkLabel2.LinkClicked
+        AuditLogger.LogAction("OPEN", "Authentication", "Opened Register Account form")
         Register_account.Show()
         Me.Hide()
-    End Sub
-
-    Private Sub btnClose_Click(sender As Object, e As EventArgs) Handles btnClose.Click
-        If MessageBox.Show("Are you sure you want to exit?", "Confirm",
-                           MessageBoxButtons.YesNo, MessageBoxIcon.Question) = DialogResult.Yes Then
-            Application.Exit()
-        End If
     End Sub
 
     Private Sub btnlogin_Click(sender As Object, e As EventArgs) Handles btnlogin.Click
@@ -83,12 +78,14 @@ Public Class Login
             lblError.Text = "Please enter your Username"
             lblError.ForeColor = Color.OrangeRed
             txtUsername.Focus()
+            AuditLogger.LogAction("LOGIN_VALIDATION", "Authentication", "Login attempt with empty username")
             Return
         End If
         If String.IsNullOrWhiteSpace(password) Then
             lblError.Text = "Please enter your Password"
             lblError.ForeColor = Color.OrangeRed
             txtPassword.Focus()
+            AuditLogger.LogAction("LOGIN_VALIDATION", "Authentication", $"Login attempt with empty password for username: [{username}]")
             Return
         End If
 
@@ -122,11 +119,13 @@ Public Class Login
                             If stat = "ACTIVE" Then
                                 lblError.Text = "Already logged in."
                                 lblError.ForeColor = Color.Orange
+                                AuditLogger.LogAction("LOGIN_DENIED", "Authentication", $"Login rejected for [{uname}] – already active")
                                 Return
                             End If
                             If stat = "LOCKED" Then
                                 lblError.Text = "Account is LOCKED."
                                 lblError.ForeColor = Color.Red
+                                AuditLogger.LogAction("LOGIN_DENIED", "Authentication", $"Login rejected for [{uname}] – account locked")
                                 Return
                             End If
 
@@ -142,16 +141,20 @@ Public Class Login
                                 LoggedInUserType = utype
                                 LoggedInUsername = uname
 
-                                ' ===✅ ADDED: LOG USER LOGIN===
-                                AuditLogger.LogAction("LOGIN", "Authentication", $"User [{LoggedInUsername}] logged in successfully")
+                                AuditLogger.LogAction("LOGIN_SUCCESS", "Authentication", $"User [{LoggedInUsername}] | Type: {LoggedInUserType} | Branch: {LoggedInBranchID} | Account: {LoggedInAccountID}")
 
-                                frmDashboard.Show()
+                                ' ✅ AYOS NA: TAMANG FORM BASE SA ROLE
+                                If utype.Trim.ToUpper = "CASHIER" Then
+                                    frmPOS_System.Show()
+                                Else
+                                    frmDashboard.Show()
+                                End If
+
                                 Me.Hide()
                                 loginSuccess = True
                             Else
                                 attempts += 1
-                                ' ===✅ OPTIONAL: LOG FAILED ATTEMPT===
-                                AuditLogger.LogAction("LOGIN_FAILED", "Authentication", $"Failed attempt for [{username}] | Wrong Password | Attempt {attempts}/{maxAttempts}")
+                                AuditLogger.LogAction("LOGIN_FAILED", "Authentication", $"User [{username}] | Wrong Password | Attempt {attempts}/{maxAttempts}")
 
                                 If attempts >= maxAttempts Then
                                     Using lck = New MySqlCommand("UPDATE `user_accounts` SET `STATUS`='LOCKED', `login_attempts`=@att WHERE `ID`=@id", connUser)
@@ -161,6 +164,7 @@ Public Class Login
                                     End Using
                                     lblError.Text = "ACCOUNT LOCKED! Too many failed attempts."
                                     lblError.ForeColor = Color.Red
+                                    AuditLogger.LogAction("ACCOUNT_LOCKED", "Authentication", $"User [{username}] locked after {attempts} failed attempts")
                                 Else
                                     Using updAtt = New MySqlCommand("UPDATE `user_accounts` SET `login_attempts`=@att WHERE `ID`=@id", connUser)
                                         updAtt.Parameters.AddWithValue("@att", attempts)
@@ -202,16 +206,19 @@ Public Class Login
                             If stat = "ACTIVE" Then
                                 lblError.Text = "Already logged in."
                                 lblError.ForeColor = Color.Orange
+                                AuditLogger.LogAction("LOGIN_DENIED", "Authentication", $"Admin [{name}] already active")
                                 Return
                             End If
                             If stat = "LOCKED" Then
                                 lblError.Text = "Account is LOCKED."
                                 lblError.ForeColor = Color.Red
+                                AuditLogger.LogAction("LOGIN_DENIED", "Authentication", $"Admin [{name}] login rejected – account locked")
                                 Return
                             End If
                             If stat = "PENDING" Then
                                 lblError.Text = "Account is still PENDING for approval."
                                 lblError.ForeColor = Color.Orange
+                                AuditLogger.LogAction("LOGIN_DENIED", "Authentication", $"Admin [{name}] login rejected – pending approval")
                                 Return
                             End If
                             If stat = "OFFLINE" Then
@@ -227,16 +234,14 @@ Public Class Login
                                     LoggedInUsername = name
                                     LoggedInBranchID = String.Empty
 
-                                    ' ===✅ ADDED: LOG ADMIN LOGIN===
-                                    AuditLogger.LogAction("LOGIN", "Authentication", $"Business Admin [{LoggedInUsername}] logged in successfully")
+                                    AuditLogger.LogAction("LOGIN_SUCCESS", "Authentication", $"Business Admin [{LoggedInUsername}] | Account ID: {LoggedInAccountID}")
 
                                     frmDashboard.Show()
                                     Me.Hide()
                                     Return
                                 Else
                                     attempts += 1
-                                    ' ===✅ OPTIONAL: LOG ADMIN FAILED ATTEMPT===
-                                    AuditLogger.LogAction("LOGIN_FAILED", "Authentication", $"Failed attempt for Admin [{username}] | Wrong Password")
+                                    AuditLogger.LogAction("LOGIN_FAILED", "Authentication", $"Admin [{username}] | Wrong Password | Attempt {attempts}/{maxAttempts}")
 
                                     If attempts >= maxAttempts Then
                                         Using lck = New MySqlCommand("UPDATE `account` SET `STATUS`='LOCKED', `login_attempts`=@att WHERE `ACCOUNT_ID`=@id", connAdmin)
@@ -246,6 +251,7 @@ Public Class Login
                                         End Using
                                         lblError.Text = "ACCOUNT LOCKED! Too many failed attempts."
                                         lblError.ForeColor = Color.Red
+                                        AuditLogger.LogAction("ACCOUNT_LOCKED", "Authentication", $"Admin [{username}] locked after {attempts} failed attempts")
                                     Else
                                         Using updAtt = New MySqlCommand("UPDATE `account` SET `login_attempts`=@att WHERE `ACCOUNT_ID`=@id", connAdmin)
                                             updAtt.Parameters.AddWithValue("@att", attempts)
@@ -264,8 +270,7 @@ Public Class Login
             End Using
 
             If Not userFound Then
-                ' ===✅ OPTIONAL: LOG INVALID USERNAME===
-                AuditLogger.LogAction("LOGIN_FAILED", "Authentication", $"Attempt with non-existing username: [{username}]")
+                AuditLogger.LogAction("LOGIN_FAILED", "Authentication", $"Username not found: [{username}]")
                 lblError.Text = "Username does not exist in our records."
                 lblError.ForeColor = Color.OrangeRed
             End If
@@ -273,6 +278,7 @@ Public Class Login
         Catch ex As Exception
             lblError.Text = "System Error: " & ex.Message
             lblError.ForeColor = Color.Red
+            AuditLogger.LogAction("SYSTEM_ERROR", "Authentication", $"Login error: {ex.Message}")
         End Try
     End Sub
 
@@ -284,9 +290,14 @@ Public Class Login
         txtPassword.PasswordChar = Nothing
         lblError.Text = ""
         btnlogin.Enabled = True
+        AuditLogger.LogAction("OPEN", "Authentication", "Opened Login form")
     End Sub
 
     Private Sub btnShowPass_Click(sender As Object, e As EventArgs) Handles btnShowPass.Click
         txtPassword.PasswordChar = If(txtPassword.PasswordChar = "●"c, Char.MinValue, "●"c)
+    End Sub
+
+    Private Sub LinkLabel1_LinkClicked(sender As Object, e As LinkLabelLinkClickedEventArgs) Handles LinkLabel1.LinkClicked
+        Account_Recovery.Show()
     End Sub
 End Class
