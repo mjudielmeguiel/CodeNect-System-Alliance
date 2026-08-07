@@ -86,7 +86,7 @@
     <Prefer32Bit>true</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup>
-    <ApplicationIcon>logocn_vYO_icon.ico</ApplicationIcon>
+    <ApplicationIcon>etolastna.ico</ApplicationIcon>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|ARM64'">
     <DebugSymbols>true</DebugSymbols>
@@ -284,6 +284,7 @@
     </Reference>
     <Reference Include="System.Transactions" />
     <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Windows.Forms.DataVisualization" />
     <Reference Include="System.Xml" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
@@ -308,17 +309,17 @@
     <Import Include="System.Threading.Tasks" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Account\Account_Recovery.Designer.vb">
+    <Compile Include="STARTUP FORMS\Account_Recovery.Designer.vb">
       <DependentUpon>Account_Recovery.vb</DependentUpon>
     </Compile>
-    <Compile Include="Account\Account_Recovery.vb">
+    <Compile Include="STARTUP FORMS\Account_Recovery.vb">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="AuditLogger.vb" />
-    <Compile Include="Branch\ADD Branch.Designer.vb">
+    <Compile Include="Modules\AuditLogger.vb" />
+    <Compile Include="ADMIN\Branch\ADD Branch.Designer.vb">
       <DependentUpon>ADD Branch.vb</DependentUpon>
     </Compile>
-    <Compile Include="Branch\ADD Branch.vb">
+    <Compile Include="ADMIN\Branch\ADD Branch.vb">
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="Dashboard Forms\frmHome.Designer.vb">
@@ -327,239 +328,215 @@
     <Compile Include="Dashboard Forms\frmHome.vb">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="DBConnection.vb" />
-    <Compile Include="Discounts\frmDiscountRecords.Designer.vb">
+    <Compile Include="Modules\DBConnection.vb" />
+    <Compile Include="STARTUP FORMS\frmRegisterVendor.Designer.vb">
+      <DependentUpon>frmRegisterVendor.vb</DependentUpon>
+    </Compile>
+    <Compile Include="STARTUP FORMS\frmRegisterVendor.vb">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="USERS\Discounts\frmDiscountRecords.Designer.vb">
       <DependentUpon>frmDiscountRecords.vb</DependentUpon>
     </Compile>
-    <Compile Include="Discounts\frmDiscountRecords.vb">
+    <Compile Include="USERS\Discounts\frmDiscountRecords.vb">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="frmDashboard.Designer.vb">
+    <Compile Include="Dashboard Forms\frmDashboard.Designer.vb">
       <DependentUpon>frmDashboard.vb</DependentUpon>
     </Compile>
-    <Compile Include="frmDashboard.vb">
+    <Compile Include="Dashboard Forms\frmDashboard.vb">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="frmProductlistShelftag.Designer.vb">
+    <Compile Include="Dashboard Forms\frmProductlistShelftag.Designer.vb">
       <DependentUpon>frmProductlistShelftag.vb</DependentUpon>
     </Compile>
-    <Compile Include="frmProductlistShelftag.vb">
+    <Compile Include="Dashboard Forms\frmProductlistShelftag.vb">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Product Manager user\frmProductlist.Designer.vb">
+    <Compile Include="USERS\INV\frmPcount.Designer.vb">
+      <DependentUpon>frmPcount.vb</DependentUpon>
+    </Compile>
+    <Compile Include="USERS\INV\frmPcount.vb">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="USERS\INV\frmPcount_Report.Designer.vb">
+      <DependentUpon>frmPcount_Report.vb</DependentUpon>
+    </Compile>
+    <Compile Include="USERS\INV\frmPcount_Report.vb">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="USERS\RTV\frmRetun_To_Vendor.Designer.vb">
+      <DependentUpon>frmRetun_To_Vendor.vb</DependentUpon>
+    </Compile>
+    <Compile Include="USERS\RTV\frmRetun_To_Vendor.vb">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="USERS\Stock IN OUT\PO\frmStock_Items.Designer.vb">
+      <DependentUpon>frmStock_Items.vb</DependentUpon>
+    </Compile>
+    <Compile Include="USERS\Stock IN OUT\PO\frmStock_Items.vb">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="USERS\Product Manager user\frmProductlist.Designer.vb">
       <DependentUpon>frmProductlist.vb</DependentUpon>
     </Compile>
-    <Compile Include="Product Manager user\frmProductlist.vb">
+    <Compile Include="USERS\Product Manager user\frmProductlist.vb">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Product Manager user\frmProductScanAdd.Designer.vb">
+    <Compile Include="USERS\Product Manager user\frmProductScanAdd.Designer.vb">
       <DependentUpon>frmProductScanAdd.vb</DependentUpon>
     </Compile>
-    <Compile Include="Product Manager user\frmProductScanAdd.vb">
+    <Compile Include="USERS\Product Manager user\frmProductScanAdd.vb">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Products ADMIN\frmCategory.Designer.vb">
+    <Compile Include="ADMIN\Product Management ADMIN\frmCategory.Designer.vb">
       <DependentUpon>frmCategory.vb</DependentUpon>
     </Compile>
-    <Compile Include="Products ADMIN\frmCategory.vb">
+    <Compile Include="ADMIN\Product Management ADMIN\frmCategory.vb">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Reports\frmBad_Order.Designer.vb">
-      <DependentUpon>frmBad_Order.vb</DependentUpon>
-    </Compile>
-    <Compile Include="Reports\frmBad_Order.vb">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="Reports\frmExpiry.Designer.vb">
-      <DependentUpon>frmExpiry.vb</DependentUpon>
-    </Compile>
-    <Compile Include="Reports\frmExpiry.vb">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="Reports\Inventory.Designer.vb">
-      <DependentUpon>Inventory.vb</DependentUpon>
-    </Compile>
-    <Compile Include="Reports\Inventory.vb">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="Ordering\frmADDStock_QTY.Designer.vb">
-      <DependentUpon>frmADDStock_QTY.vb</DependentUpon>
-    </Compile>
-    <Compile Include="Ordering\frmADDStock_QTY.vb">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="Ordering\Ordering_Reports.Designer.vb">
+    <Compile Include="USERS\Stock IN OUT\PO\Ordering_Reports.Designer.vb">
       <DependentUpon>Ordering_Reports.vb</DependentUpon>
     </Compile>
-    <Compile Include="Ordering\Ordering_Reports.vb">
+    <Compile Include="USERS\Stock IN OUT\PO\Ordering_Reports.vb">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Ordering\frmSTO_Information.Designer.vb">
-      <DependentUpon>frmSTO_Information.vb</DependentUpon>
+    <Compile Include="USERS\Stock IN OUT\PO\PO Logs\frmTransaction_Items.Designer.vb">
+      <DependentUpon>frmTransaction_Items.vb</DependentUpon>
     </Compile>
-    <Compile Include="Ordering\frmSTO_Information.vb">
+    <Compile Include="USERS\Stock IN OUT\PO\PO Logs\frmTransaction_Items.vb">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Ordering\Stock_Ordering.Designer.vb">
+    <Compile Include="USERS\Stock IN OUT\PO\PO Logs\Order_History.Designer.vb">
+      <DependentUpon>Order_History.vb</DependentUpon>
+    </Compile>
+    <Compile Include="USERS\Stock IN OUT\PO\PO Logs\Order_History.vb">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="USERS\Stock IN OUT\PO\Stock_Ordering.Designer.vb">
       <DependentUpon>Stock_Ordering.vb</DependentUpon>
     </Compile>
-    <Compile Include="Ordering\Stock_Ordering.vb">
+    <Compile Include="USERS\Stock IN OUT\PO\Stock_Ordering.vb">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Pos System\frmCash_Declaration.Designer.vb">
+    <Compile Include="CASHIER\frmCash_Declaration.Designer.vb">
       <DependentUpon>frmCash_Declaration.vb</DependentUpon>
     </Compile>
-    <Compile Include="Pos System\frmCash_Declaration.vb">
+    <Compile Include="CASHIER\frmCash_Declaration.vb">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Pos System\frmHold_Transaction.Designer.vb">
+    <Compile Include="CASHIER\frmHold_Transaction.Designer.vb">
       <DependentUpon>frmHold_Transaction.vb</DependentUpon>
     </Compile>
-    <Compile Include="Pos System\frmHold_Transaction.vb">
+    <Compile Include="CASHIER\frmHold_Transaction.vb">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Pos System\frmOnlinePayment.Designer.vb">
+    <Compile Include="CASHIER\frmOnlinePayment.Designer.vb">
       <DependentUpon>frmOnlinePayment.vb</DependentUpon>
     </Compile>
-    <Compile Include="Pos System\frmOnlinePayment.vb">
+    <Compile Include="CASHIER\frmOnlinePayment.vb">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Pos System\frmPOS_System.Designer.vb">
+    <Compile Include="CASHIER\frmPOS_System.Designer.vb">
       <DependentUpon>frmPOS_System.vb</DependentUpon>
     </Compile>
-    <Compile Include="Pos System\frmPOS_System.vb">
+    <Compile Include="CASHIER\frmPOS_System.vb">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Pos System\frmProductQTY.Designer.vb">
+    <Compile Include="CASHIER\frmProductQTY.Designer.vb">
       <DependentUpon>frmProductQTY.vb</DependentUpon>
     </Compile>
-    <Compile Include="Pos System\frmProductQTY.vb">
+    <Compile Include="CASHIER\frmProductQTY.vb">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Pos System\frmPWDDiscount.Designer.vb">
+    <Compile Include="CASHIER\frmPWDDiscount.Designer.vb">
       <DependentUpon>frmPWDDiscount.vb</DependentUpon>
     </Compile>
-    <Compile Include="Pos System\frmPWDDiscount.vb">
+    <Compile Include="CASHIER\frmPWDDiscount.vb">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Pos System\frmTransactionComplete.Designer.vb">
+    <Compile Include="CASHIER\frmTransactionComplete.Designer.vb">
       <DependentUpon>frmTransactionComplete.vb</DependentUpon>
     </Compile>
-    <Compile Include="Pos System\frmTransactionComplete.vb">
+    <Compile Include="CASHIER\frmTransactionComplete.vb">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Price\Price_Adjustment.Designer.vb">
+    <Compile Include="Dashboard Forms\Price_Adjustment.Designer.vb">
       <DependentUpon>Price_Adjustment.vb</DependentUpon>
     </Compile>
-    <Compile Include="Price\Price_Adjustment.vb">
+    <Compile Include="Dashboard Forms\Price_Adjustment.vb">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Products ADMIN\frmADDProduct_Scan.Designer.vb">
+    <Compile Include="ADMIN\Product Management ADMIN\frmADDProduct_Scan.Designer.vb">
       <DependentUpon>frmADDProduct_Scan.vb</DependentUpon>
     </Compile>
-    <Compile Include="Products ADMIN\frmADDProduct_Scan.vb">
+    <Compile Include="ADMIN\Product Management ADMIN\frmADDProduct_Scan.vb">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="RTV\frmReturntoVendor_Reports.Designer.vb">
-      <DependentUpon>frmReturntoVendor_Reports.vb</DependentUpon>
-    </Compile>
-    <Compile Include="RTV\frmReturntoVendor_Reports.vb">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="RTV\Return_To_Vendor.Designer.vb">
-      <DependentUpon>Return_To_Vendor.vb</DependentUpon>
-    </Compile>
-    <Compile Include="RTV\Return_To_Vendor.vb">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="Sales\Branch_Performance.Designer.vb">
-      <DependentUpon>Branch_Performance.vb</DependentUpon>
-    </Compile>
-    <Compile Include="Sales\Branch_Performance.vb">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="Sales\frmDailySalesSummary.Designer.vb">
+    <Compile Include="ADMIN\Sales Report\frmDailySalesSummary.Designer.vb">
       <DependentUpon>frmDailySalesSummary.vb</DependentUpon>
     </Compile>
-    <Compile Include="Sales\frmDailySalesSummary.vb">
+    <Compile Include="ADMIN\Sales Report\frmDailySalesSummary.vb">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Sales\frmSalesTransactions.Designer.vb">
+    <Compile Include="ADMIN\Sales Report\frmSalesTransactions.Designer.vb">
       <DependentUpon>frmSalesTransactions.vb</DependentUpon>
     </Compile>
-    <Compile Include="Sales\frmSalesTransactions.vb">
+    <Compile Include="ADMIN\Sales Report\frmSalesTransactions.vb">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="ShelfTag_Printer.Designer.vb">
+    <Compile Include="Dashboard Forms\ShelfTag_Printer.Designer.vb">
       <DependentUpon>ShelfTag_Printer.vb</DependentUpon>
     </Compile>
-    <Compile Include="ShelfTag_Printer.vb">
+    <Compile Include="Dashboard Forms\ShelfTag_Printer.vb">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="STR\frmSTR_Information.Designer.vb">
-      <DependentUpon>frmSTR_Information.vb</DependentUpon>
+    <Compile Include="USERS\Stock IN OUT\STR\frmStock_Transfer.Designer.vb">
+      <DependentUpon>frmStock_Transfer.vb</DependentUpon>
     </Compile>
-    <Compile Include="STR\frmSTR_Information.vb">
+    <Compile Include="USERS\Stock IN OUT\STR\frmStock_Transfer.vb">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="STR\Stock_Transfer.Designer.vb">
-      <DependentUpon>Stock_Transfer.vb</DependentUpon>
-    </Compile>
-    <Compile Include="STR\Stock_Transfer.vb">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="STR\Transfer_Reports.Designer.vb">
+    <Compile Include="USERS\Stock IN OUT\STR\Transfer_Reports.Designer.vb">
       <DependentUpon>Transfer_Reports.vb</DependentUpon>
     </Compile>
-    <Compile Include="STR\Transfer_Reports.vb">
+    <Compile Include="USERS\Stock IN OUT\STR\Transfer_Reports.vb">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="User Management\ADD User.Designer.vb">
+    <Compile Include="ADMIN\User Management\ADD User.Designer.vb">
       <DependentUpon>ADD User.vb</DependentUpon>
     </Compile>
-    <Compile Include="User Management\ADD User.vb">
+    <Compile Include="ADMIN\User Management\ADD User.vb">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="User Management\Edit_User.Designer.vb">
+    <Compile Include="ADMIN\User Management\Edit_User.Designer.vb">
       <DependentUpon>Edit_User.vb</DependentUpon>
     </Compile>
-    <Compile Include="User Management\Edit_User.vb">
+    <Compile Include="ADMIN\User Management\Edit_User.vb">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="User Management\frmUsermanager.Designer.vb">
+    <Compile Include="ADMIN\User Management\frmUsermanager.Designer.vb">
       <DependentUpon>frmUsermanager.vb</DependentUpon>
     </Compile>
-    <Compile Include="User Management\frmUsermanager.vb">
+    <Compile Include="ADMIN\User Management\frmUsermanager.vb">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Vendor System\ADD_Vendor.Designer.vb">
-      <DependentUpon>ADD_Vendor.vb</DependentUpon>
-    </Compile>
-    <Compile Include="Vendor System\ADD_Vendor.vb">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="Branch\Branch Manage.Designer.vb">
+    <Compile Include="ADMIN\Branch\Branch Manage.Designer.vb">
       <DependentUpon>Branch Manage.vb</DependentUpon>
     </Compile>
-    <Compile Include="Branch\Branch Manage.vb">
+    <Compile Include="ADMIN\Branch\Branch Manage.vb">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="DashBoard.Designer.vb">
-      <DependentUpon>DashBoard.vb</DependentUpon>
-    </Compile>
-    <Compile Include="DashBoard.vb">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="Products ADMIN\Description_Manager.Designer.vb">
+    <Compile Include="ADMIN\Product Management ADMIN\Description_Manager.Designer.vb">
       <DependentUpon>Description_Manager.vb</DependentUpon>
     </Compile>
-    <Compile Include="Products ADMIN\Description_Manager.vb">
+    <Compile Include="ADMIN\Product Management ADMIN\Description_Manager.vb">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Login.Designer.vb">
+    <Compile Include="STARTUP FORMS\Login.Designer.vb">
       <DependentUpon>Login.vb</DependentUpon>
     </Compile>
-    <Compile Include="Login.vb">
+    <Compile Include="STARTUP FORMS\Login.vb">
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="My Project\AssemblyInfo.vb" />
@@ -578,168 +555,168 @@
       <DependentUpon>Settings.settings</DependentUpon>
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
     </Compile>
-    <Compile Include="Account\Register account.Designer.vb">
+    <Compile Include="STARTUP FORMS\Register account.Designer.vb">
       <DependentUpon>Register account.vb</DependentUpon>
     </Compile>
-    <Compile Include="Account\Register account.vb">
+    <Compile Include="STARTUP FORMS\Register account.vb">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Vendor System\ADD_Vendor_Product.Designer.vb">
+    <Compile Include="VENDOR\ADD_Vendor_Product.Designer.vb">
       <DependentUpon>ADD_Vendor_Product.vb</DependentUpon>
     </Compile>
-    <Compile Include="Vendor System\ADD_Vendor_Product.vb">
+    <Compile Include="VENDOR\ADD_Vendor_Product.vb">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Vendor System\Dashboard Panel Forms\frmDashboard_Summary.Designer.vb">
-      <DependentUpon>frmDashboard_Summary.vb</DependentUpon>
+    <Compile Include="VENDOR\Dashboard Panel Forms\frmOrderDetails.Designer.vb">
+      <DependentUpon>frmOrderDetails.vb</DependentUpon>
     </Compile>
-    <Compile Include="Vendor System\Dashboard Panel Forms\frmDashboard_Summary.vb">
+    <Compile Include="VENDOR\Dashboard Panel Forms\frmOrderDetails.vb">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Vendor System\frmVendor_Management_Dashboard.Designer.vb">
-      <DependentUpon>frmVendor_Management_Dashboard.vb</DependentUpon>
+    <Compile Include="VENDOR\Dashboard Panel Forms\frmVendorDashboard.Designer.vb">
+      <DependentUpon>frmVendorDashboard.vb</DependentUpon>
     </Compile>
-    <Compile Include="Vendor System\frmVendor_Management_Dashboard.vb">
+    <Compile Include="VENDOR\Dashboard Panel Forms\frmVendorDashboard.vb">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Vendor System\Vendor Manage.Designer.vb">
-      <DependentUpon>Vendor Manage.vb</DependentUpon>
+    <Compile Include="VENDOR\Dashboard Panel Forms\frmVendorHome.Designer.vb">
+      <DependentUpon>frmVendorHome.vb</DependentUpon>
     </Compile>
-    <Compile Include="Vendor System\Vendor Manage.vb">
+    <Compile Include="VENDOR\Dashboard Panel Forms\frmVendorHome.vb">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Vendor System\Vendor_Info.Designer.vb">
-      <DependentUpon>Vendor_Info.vb</DependentUpon>
+    <Compile Include="VENDOR\Dashboard Panel Forms\frmVendor_Products.Designer.vb">
+      <DependentUpon>frmVendor_Products.vb</DependentUpon>
     </Compile>
-    <Compile Include="Vendor System\Vendor_Info.vb">
+    <Compile Include="VENDOR\Dashboard Panel Forms\frmVendor_Products.vb">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="VENDOR\frmBranches.Designer.vb">
+      <DependentUpon>frmBranches.vb</DependentUpon>
+    </Compile>
+    <Compile Include="VENDOR\frmBranches.vb">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="VENDOR\frmOrders.Designer.vb">
+      <DependentUpon>frmOrders.vb</DependentUpon>
+    </Compile>
+    <Compile Include="VENDOR\frmOrders.vb">
       <SubType>Form</SubType>
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="Account\Account_Recovery.resx">
+    <EmbeddedResource Include="STARTUP FORMS\Account_Recovery.resx">
       <DependentUpon>Account_Recovery.vb</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Branch\ADD Branch.resx">
+    <EmbeddedResource Include="ADMIN\Branch\ADD Branch.resx">
       <DependentUpon>ADD Branch.vb</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Dashboard Forms\frmHome.resx">
       <DependentUpon>frmHome.vb</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Discounts\frmDiscountRecords.resx">
+    <EmbeddedResource Include="STARTUP FORMS\frmRegisterVendor.resx">
+      <DependentUpon>frmRegisterVendor.vb</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="USERS\Discounts\frmDiscountRecords.resx">
       <DependentUpon>frmDiscountRecords.vb</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="frmDashboard.resx">
+    <EmbeddedResource Include="Dashboard Forms\frmDashboard.resx">
       <DependentUpon>frmDashboard.vb</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="frmProductlistShelftag.resx">
+    <EmbeddedResource Include="Dashboard Forms\frmProductlistShelftag.resx">
       <DependentUpon>frmProductlistShelftag.vb</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Product Manager user\frmProductlist.resx">
+    <EmbeddedResource Include="USERS\INV\frmPcount.resx">
+      <DependentUpon>frmPcount.vb</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="USERS\INV\frmPcount_Report.resx">
+      <DependentUpon>frmPcount_Report.vb</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="USERS\RTV\frmRetun_To_Vendor.resx">
+      <DependentUpon>frmRetun_To_Vendor.vb</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="USERS\Stock IN OUT\PO\frmStock_Items.resx">
+      <DependentUpon>frmStock_Items.vb</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="USERS\Product Manager user\frmProductlist.resx">
       <DependentUpon>frmProductlist.vb</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Product Manager user\frmProductScanAdd.resx">
+    <EmbeddedResource Include="USERS\Product Manager user\frmProductScanAdd.resx">
       <DependentUpon>frmProductScanAdd.vb</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Products ADMIN\frmCategory.resx">
+    <EmbeddedResource Include="ADMIN\Product Management ADMIN\frmCategory.resx">
       <DependentUpon>frmCategory.vb</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Reports\frmBad_Order.resx">
-      <DependentUpon>frmBad_Order.vb</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Reports\frmExpiry.resx">
-      <DependentUpon>frmExpiry.vb</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Reports\Inventory.resx">
-      <DependentUpon>Inventory.vb</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Ordering\frmADDStock_QTY.resx">
-      <DependentUpon>frmADDStock_QTY.vb</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Ordering\frmSTO_Information.resx">
-      <DependentUpon>frmSTO_Information.vb</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Ordering\Ordering_Reports.resx">
+    <EmbeddedResource Include="USERS\Stock IN OUT\PO\Ordering_Reports.resx">
       <DependentUpon>Ordering_Reports.vb</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Ordering\Stock_Ordering.resx">
+    <EmbeddedResource Include="USERS\Stock IN OUT\PO\PO Logs\frmTransaction_Items.resx">
+      <DependentUpon>frmTransaction_Items.vb</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="USERS\Stock IN OUT\PO\PO Logs\Order_History.resx">
+      <DependentUpon>Order_History.vb</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="USERS\Stock IN OUT\PO\Stock_Ordering.resx">
       <DependentUpon>Stock_Ordering.vb</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Pos System\frmCash_Declaration.resx">
+    <EmbeddedResource Include="CASHIER\frmCash_Declaration.resx">
       <DependentUpon>frmCash_Declaration.vb</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Pos System\frmHold_Transaction.resx">
+    <EmbeddedResource Include="CASHIER\frmHold_Transaction.resx">
       <DependentUpon>frmHold_Transaction.vb</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Pos System\frmOnlinePayment.resx">
+    <EmbeddedResource Include="CASHIER\frmOnlinePayment.resx">
       <DependentUpon>frmOnlinePayment.vb</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Pos System\frmPOS_System.resx">
+    <EmbeddedResource Include="CASHIER\frmPOS_System.resx">
       <DependentUpon>frmPOS_System.vb</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Pos System\frmProductQTY.resx">
+    <EmbeddedResource Include="CASHIER\frmProductQTY.resx">
       <DependentUpon>frmProductQTY.vb</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Pos System\frmPWDDiscount.resx">
+    <EmbeddedResource Include="CASHIER\frmPWDDiscount.resx">
       <DependentUpon>frmPWDDiscount.vb</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Pos System\frmTransactionComplete.resx">
+    <EmbeddedResource Include="CASHIER\frmTransactionComplete.resx">
       <DependentUpon>frmTransactionComplete.vb</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Price\Price_Adjustment.resx">
+    <EmbeddedResource Include="Dashboard Forms\Price_Adjustment.resx">
       <DependentUpon>Price_Adjustment.vb</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Products ADMIN\frmADDProduct_Scan.resx">
+    <EmbeddedResource Include="ADMIN\Product Management ADMIN\frmADDProduct_Scan.resx">
       <DependentUpon>frmADDProduct_Scan.vb</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="RTV\frmReturntoVendor_Reports.resx">
-      <DependentUpon>frmReturntoVendor_Reports.vb</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="RTV\Return_To_Vendor.resx">
-      <DependentUpon>Return_To_Vendor.vb</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Sales\Branch_Performance.resx">
-      <DependentUpon>Branch_Performance.vb</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Sales\frmDailySalesSummary.resx">
+    <EmbeddedResource Include="ADMIN\Sales Report\frmDailySalesSummary.resx">
       <DependentUpon>frmDailySalesSummary.vb</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Sales\frmSalesTransactions.resx">
+    <EmbeddedResource Include="ADMIN\Sales Report\frmSalesTransactions.resx">
       <DependentUpon>frmSalesTransactions.vb</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="ShelfTag_Printer.resx">
+    <EmbeddedResource Include="Dashboard Forms\ShelfTag_Printer.resx">
       <DependentUpon>ShelfTag_Printer.vb</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="STR\frmSTR_Information.resx">
-      <DependentUpon>frmSTR_Information.vb</DependentUpon>
+    <EmbeddedResource Include="USERS\Stock IN OUT\STR\frmStock_Transfer.resx">
+      <DependentUpon>frmStock_Transfer.vb</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="STR\Stock_Transfer.resx">
-      <DependentUpon>Stock_Transfer.vb</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="STR\Transfer_Reports.resx">
+    <EmbeddedResource Include="USERS\Stock IN OUT\STR\Transfer_Reports.resx">
       <DependentUpon>Transfer_Reports.vb</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="User Management\ADD User.resx">
+    <EmbeddedResource Include="ADMIN\User Management\ADD User.resx">
       <DependentUpon>ADD User.vb</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="User Management\Edit_User.resx">
+    <EmbeddedResource Include="ADMIN\User Management\Edit_User.resx">
       <DependentUpon>Edit_User.vb</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="User Management\frmUsermanager.resx">
+    <EmbeddedResource Include="ADMIN\User Management\frmUsermanager.resx">
       <DependentUpon>frmUsermanager.vb</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Vendor System\ADD_Vendor.resx">
-      <DependentUpon>ADD_Vendor.vb</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Branch\Branch Manage.resx">
+    <EmbeddedResource Include="ADMIN\Branch\Branch Manage.resx">
       <DependentUpon>Branch Manage.vb</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="DashBoard.resx">
-      <DependentUpon>DashBoard.vb</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Products ADMIN\Description_Manager.resx">
+    <EmbeddedResource Include="ADMIN\Product Management ADMIN\Description_Manager.resx">
       <DependentUpon>Description_Manager.vb</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Login.resx">
+    <EmbeddedResource Include="STARTUP FORMS\Login.resx">
       <DependentUpon>Login.vb</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="My Project\Resources.resx">
@@ -748,26 +725,29 @@
       <CustomToolNamespace>My.Resources</CustomToolNamespace>
       <SubType>Designer</SubType>
     </EmbeddedResource>
-    <EmbeddedResource Include="Account\Register account.resx">
+    <EmbeddedResource Include="STARTUP FORMS\Register account.resx">
       <DependentUpon>Register account.vb</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Vendor System\ADD_Vendor_Product.resx">
+    <EmbeddedResource Include="VENDOR\ADD_Vendor_Product.resx">
       <DependentUpon>ADD_Vendor_Product.vb</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Vendor System\Dashboard Panel Forms\frmDashboard_Summary.aa.resx">
-      <DependentUpon>frmDashboard_Summary.vb</DependentUpon>
+    <EmbeddedResource Include="VENDOR\Dashboard Panel Forms\frmOrderDetails.resx">
+      <DependentUpon>frmOrderDetails.vb</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Vendor System\Dashboard Panel Forms\frmDashboard_Summary.resx">
-      <DependentUpon>frmDashboard_Summary.vb</DependentUpon>
+    <EmbeddedResource Include="VENDOR\Dashboard Panel Forms\frmVendorDashboard.resx">
+      <DependentUpon>frmVendorDashboard.vb</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Vendor System\frmVendor_Management_Dashboard.resx">
-      <DependentUpon>frmVendor_Management_Dashboard.vb</DependentUpon>
+    <EmbeddedResource Include="VENDOR\Dashboard Panel Forms\frmVendorHome.resx">
+      <DependentUpon>frmVendorHome.vb</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Vendor System\Vendor Manage.resx">
-      <DependentUpon>Vendor Manage.vb</DependentUpon>
+    <EmbeddedResource Include="VENDOR\Dashboard Panel Forms\frmVendor_Products.resx">
+      <DependentUpon>frmVendor_Products.vb</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Vendor System\Vendor_Info.resx">
-      <DependentUpon>Vendor_Info.vb</DependentUpon>
+    <EmbeddedResource Include="VENDOR\frmBranches.resx">
+      <DependentUpon>frmBranches.vb</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="VENDOR\frmOrders.resx">
+      <DependentUpon>frmOrders.vb</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
@@ -784,6 +764,7 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="etolastna.ico" />
     <Content Include="logocn_vYO_icon.ico" />
   </ItemGroup>
   <ItemGroup>
@@ -831,8 +812,6 @@
       <EmbedInteropTypes>True</EmbedInteropTypes>
     </COMReference>
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Badorder\" />
-  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.VisualBasic.targets" />
 </Project>
