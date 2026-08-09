@@ -24,8 +24,6 @@ Public Class frmOrderDetails
         dgvOrderDetails.AllowUserToAddRows = False
         dgvOrderDetails.RowTemplate.Height = 30
         dgvOrderDetails.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill
-
-        ' ✅ PINAKA-SIMPLE: F2 o Pag-type = PWEDE NA AGAD
         dgvOrderDetails.EditMode = DataGridViewEditMode.EditOnKeystrokeOrF2
 
         dgvOrderDetails.Columns.Add("colBarcode", "Barcode")
@@ -33,55 +31,74 @@ Public Class frmOrderDetails
         dgvOrderDetails.Columns.Add("colDescription", "Description")
         dgvOrderDetails.Columns.Add("colSize", "Size")
         dgvOrderDetails.Columns.Add("colPrice", "Unit Price")
-        dgvOrderDetails.Columns.Add("colQty", "Quantity ✏️")
+        dgvOrderDetails.Columns.Add("colQty", "Qty to Deliver ✏️")
         dgvOrderDetails.Columns.Add("colTotal", "Line Total")
 
-        ' ✅ LAHAT READ-ONLY — MALIBAN SA QUANTITY
+        ' ✅ LAHAT READ-ONLY — MALIBAN SA DAMI NG I-DE-DELIVER
         dgvOrderDetails.Columns("colBarcode").ReadOnly = True
         dgvOrderDetails.Columns("colBrand").ReadOnly = True
         dgvOrderDetails.Columns("colDescription").ReadOnly = True
         dgvOrderDetails.Columns("colSize").ReadOnly = True
-        dgvOrderDetails.Columns("colPrice").ReadOnly = True
-        dgvOrderDetails.Columns("colQty").ReadOnly = False ' ✅ DITO LANG PWEDE!
-        dgvOrderDetails.Columns("colTotal").ReadOnly = True
+        dgvOrderDetails.Columns("colPrice").ReadOnly = True ' ✅ Presyo hindi nagbabago
+        dgvOrderDetails.Columns("colQty").ReadOnly = False ' ✅ DITO LANG PWEDE BAGUHIN
+        dgvOrderDetails.Columns("colTotal").ReadOnly = True  ' ✅ KUSA KUKUWENTAHIN
 
-        ' Format lang — walang kulay, walang error!
+        ' ✅ FORMAT NG PERA
         dgvOrderDetails.Columns("colPrice").DefaultCellStyle.Format = "N2"
         dgvOrderDetails.Columns("colPrice").DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleRight
         dgvOrderDetails.Columns("colQty").DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter
         dgvOrderDetails.Columns("colTotal").DefaultCellStyle.Format = "N2"
         dgvOrderDetails.Columns("colTotal").DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleRight
 
-        ' ✅ HANDLERS
+        ' ✅ KAPAG BINAGO ANG DAMI → KUSANG MAG-COMPUTE NG TOTAL
         AddHandler dgvOrderDetails.CellEndEdit, AddressOf dgvOrderDetails_CellEndEdit
         AddHandler dgvOrderDetails.CellValidating, AddressOf dgvOrderDetails_CellValidating
     End Sub
 
-    ' ✅ NUMERO LANG ANG PWEDENG ILAGAY
+    ' ✅ NUMERO LANG ANG PWEDENG ILAGAY SA DAMI
     Private Sub dgvOrderDetails_CellValidating(sender As Object, e As DataGridViewCellValidatingEventArgs)
         If e.ColumnIndex = dgvOrderDetails.Columns("colQty").Index Then
             Dim input As String = e.FormattedValue.ToString().Trim()
             Dim qty As Integer
 
-            If Not Integer.TryParse(input, qty) OrElse qty < 1 Then
-                MessageBox.Show("Ilagay lang ang numero na 1 o mas mataas!", "Invalid Input", MessageBoxButtons.OK, MessageBoxIcon.Warning)
+            If Not Integer.TryParse(input, qty) OrElse qty < 0 Then
+                MessageBox.Show("Ilagay lang ang numero na 0 o mas mataas!", "Invalid Input", MessageBoxButtons.OK, MessageBoxIcon.Warning)
                 e.Cancel = True
                 Return
             End If
         End If
     End Sub
 
-    ' ✅ AWTOMATIK NAG-COMPUTE NG TOTAL KAPAG BINAGO ANG QTY
+    ' ✅ KAPAG BINAGO ANG DAMI → KUSANG KUKUWENTAHIN ANG HALAGA
     Private Sub dgvOrderDetails_CellEndEdit(sender As Object, e As DataGridViewCellEventArgs)
         If e.ColumnIndex = dgvOrderDetails.Columns("colQty").Index AndAlso e.RowIndex >= 0 Then
             Try
                 Dim qty As Integer = Convert.ToInt32(dgvOrderDetails.Rows(e.RowIndex).Cells("colQty").Value)
                 Dim price As Decimal = Convert.ToDecimal(dgvOrderDetails.Rows(e.RowIndex).Cells("colPrice").Value)
-                dgvOrderDetails.Rows(e.RowIndex).Cells("colTotal").Value = (qty * price).ToString("N2")
+
+                ' ✅ KUSA NAGBABAGO ANG TOTAL — Presyo × Dami = Bagong Halaga
+                Dim lineTotal As Decimal = qty * price
+                dgvOrderDetails.Rows(e.RowIndex).Cells("colTotal").Value = lineTotal.ToString("N2")
+
+                ' ✅ I-UPDATE ANG KABUUANG HALAGA SA IBABA (kung may label ka para dito)
+                CalculateGrandTotal()
+
             Catch ex As Exception
-                MessageBox.Show("Maling numero!", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
+                MessageBox.Show("Maling numero! Ilagay lamang ang dami.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
             End Try
         End If
+    End Sub
+
+    ' ✅ KUWENTAHIN ANG KABUUANG HALAGA NG LAHAT
+    Private Sub CalculateGrandTotal()
+        Dim grandTotal As Decimal = 0
+        For Each row As DataGridViewRow In dgvOrderDetails.Rows
+            If row.Cells("colTotal").Value IsNot Nothing AndAlso Not String.IsNullOrWhiteSpace(row.Cells("colTotal").Value.ToString()) Then
+                grandTotal += Convert.ToDecimal(row.Cells("colTotal").Value)
+            End If
+        Next
+        ' ✅ KUNG MAY LABEL KA PARA SA KABUUANG HALAGA — ILAGAY MO ANG PANGALAN DITO
+        ' lblGrandTotal.Text = $"Total Amount to Pay: {grandTotal:N2}"
     End Sub
 
     Private Sub LoadOrderItems()
@@ -116,6 +133,8 @@ Public Class frmOrderDetails
                 End Using
             End Using
 
+            CalculateGrandTotal()
+
             If dgvOrderDetails.Rows.Count = 0 Then
                 MessageBox.Show("No items found for this PO.", "Notice", MessageBoxButtons.OK, MessageBoxIcon.Information)
             End If
@@ -125,7 +144,7 @@ Public Class frmOrderDetails
         End Try
     End Sub
 
-    ' ✅ ORDER PLACED BUTTON
+    ' ✅ I-SAVE ANG MGA BINAGO — BAGONG DAMI AT BAGONG HALAGA
     Private Sub btnOrderPlaced_Click(sender As Object, e As EventArgs) Handles btnOrderPlaced.Click
         If MessageBox.Show("I-saave ang binago at markahan as ORDER PLACED?",
                            "Confirm", MessageBoxButtons.YesNo, MessageBoxIcon.Question) = DialogResult.No Then
@@ -133,15 +152,19 @@ Public Class frmOrderDetails
         End If
 
         Try
+            Dim grandTotalAll As Decimal = 0
+
             Using conn As New MySqlConnection(connStr)
                 conn.Open()
                 Using tran = conn.BeginTransaction()
 
-                    ' ✅ I-update ang bawat produkto
                     For Each row As DataGridViewRow In dgvOrderDetails.Rows
                         Dim barcode = row.Cells("colBarcode").Value.ToString()
                         Dim newQty = Convert.ToInt32(row.Cells("colQty").Value)
-                        Dim newTotal = Convert.ToDecimal(row.Cells("colTotal").Value)
+                        Dim price = Convert.ToDecimal(row.Cells("colPrice").Value)
+                        Dim newTotal = newQty * price
+
+                        grandTotalAll += newTotal
 
                         Dim cmdUpdateItem As New MySqlCommand("
                             UPDATE stock_ordering 
@@ -157,9 +180,10 @@ Public Class frmOrderDetails
 
                     Dim cmdUpdateStatus As New MySqlCommand("
                         UPDATE sto_data 
-                        SET STATUS = 'Order Placed' 
+                        SET STATUS = 'Order Placed', TOTAL = @GRAND_TOTAL
                         WHERE PO_NUMBER = @PO", conn, tran)
 
+                    cmdUpdateStatus.Parameters.AddWithValue("@GRAND_TOTAL", grandTotalAll)
                     cmdUpdateStatus.Parameters.AddWithValue("@PO", PO_NUMBER)
                     cmdUpdateStatus.ExecuteNonQuery()
 
@@ -167,7 +191,7 @@ Public Class frmOrderDetails
                 End Using
             End Using
 
-            MessageBox.Show("✅ NA-SAVE! Order marked as ORDER PLACED!", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information)
+            MessageBox.Show($"✅ NA-SAVE! Kabuuang babayaran: {grandTotalAll:N2}", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information)
             Me.Close()
 
         Catch ex As Exception

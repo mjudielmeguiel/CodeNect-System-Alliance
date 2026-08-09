@@ -2,6 +2,11 @@
 
 Public Class frmDashboard
 
+    ' ✅ ITATAGO NATIN ANG DETALYE PARA SIGURADO
+    Private Shared CurrentUserID As String = Nothing
+    Private Shared CurrentUsername As String = Nothing
+    Private Shared IsAdminUser As Boolean = False
+
     Private Sub Button10_Click(sender As Object, e As EventArgs) Handles Button10.Click
         menupanel.Visible = Not menupanel.Visible
     End Sub
@@ -11,6 +16,13 @@ Public Class frmDashboard
 
         SaveUserSessionToDBConnection()
 
+        ' ✅ I-SAVE LAHAT NG DETALYE PARA SIGURADO
+        CurrentUserID = If(Login.LoggedInAccountID, "").ToString().Trim()
+        CurrentUsername = If(Login.LoggedInUsername, "").ToString().Trim()
+
+        Dim branchID As String = If(Login.LoggedInBranchID, "").ToString().Trim()
+        IsAdminUser = (String.IsNullOrWhiteSpace(branchID) OrElse branchID = "MAIN OFFICE")
+
         LoadHomeForm()
     End Sub
 
@@ -19,12 +31,10 @@ Public Class frmDashboard
         Dim branchID As String = If(Login.LoggedInBranchID IsNot Nothing, Login.LoggedInBranchID.Trim(), "")
         Dim username As String = If(Login.LoggedInUsername IsNot Nothing, Login.LoggedInUsername.Trim(), "")
 
-        ' ✅ KUNG WALANG BRANCH ID = ADMIN (account table) → MAIN OFFICE AGAD
         If String.IsNullOrWhiteSpace(branchID) OrElse branchID = "MAIN OFFICE" Then
             DBConnection.CurrentUserBranchID = "MAIN OFFICE"
             DBConnection.CurrentUserType = "BUSINESS ADMIN"
         Else
-            ' ✅ KUNG MAY BRANCH ID = ORDINARY USER (user_accounts table)
             DBConnection.CurrentUserBranchID = branchID
             DBConnection.CurrentUserType = If(Login.LoggedInUserType IsNot Nothing, Login.LoggedInUserType.Trim(), "")
         End If
@@ -33,9 +43,76 @@ Public Class frmDashboard
         DBConnection.CurrentLoggedInUser = username
     End Sub
 
+    ' ✅ SIGURADONG MA-OFFLINE — SUSUBUKAN LAHAT NG PARAAN
+    Private Sub SetUserOffline()
+        Try
+            Dim uid As String = CurrentUserID?.Trim()
+            Dim uname As String = CurrentUsername?.Trim()
+
+            If String.IsNullOrWhiteSpace(uid) AndAlso String.IsNullOrWhiteSpace(uname) Then
+                Return ' WALA TALAGANG DETALYE
+            End If
+
+            Using conn As New MySqlConnection(DBConnection.connStr)
+                conn.Open()
+
+                Dim totalUpdated As Integer = 0
+
+                ' ==============================================
+                ' ✅ PARAAN 1: GAMIT ANG USERNAME — SIGURADONG TATAMA
+                ' ==============================================
+                If Not String.IsNullOrWhiteSpace(uname) Then
+                    ' Subukan sa user_accounts
+                    Using cmd1 As New MySqlCommand("UPDATE user_accounts SET STATUS='OFFLINE' WHERE USERNAME=@U", conn)
+                        cmd1.Parameters.AddWithValue("@U", uname)
+                        totalUpdated += cmd1.ExecuteNonQuery()
+                    End Using
+                    ' Subukan sa account (Admin)
+                    Using cmd2 As New MySqlCommand("UPDATE account SET STATUS='OFFLINE' WHERE USERNAME=@U", conn)
+                        cmd2.Parameters.AddWithValue("@U", uname)
+                        totalUpdated += cmd2.ExecuteNonQuery()
+                    End Using
+                End If
+
+                ' ==============================================
+                ' ✅ PARAAN 2: GAMIT ANG ID — KUNG MERONMAN
+                ' ==============================================
+                If Not String.IsNullOrWhiteSpace(uid) Then
+                    ' Subukan sa user_accounts
+                    Using cmd3 As New MySqlCommand("UPDATE user_accounts SET STATUS='OFFLINE' WHERE ID=@ID", conn)
+                        cmd3.Parameters.AddWithValue("@ID", uid)
+                        totalUpdated += cmd3.ExecuteNonQuery()
+                    End Using
+                    ' Subukan sa account (Admin)
+                    Using cmd4 As New MySqlCommand("UPDATE account SET STATUS='OFFLINE' WHERE ID=@ID", conn)
+                        cmd4.Parameters.AddWithValue("@ID", uid)
+                        totalUpdated += cmd4.ExecuteNonQuery()
+                    End Using
+                End If
+
+                ' ✅ IPAKITA KUNG ILAN ANG NA-UPDATE (PARA MAKITA MO SA MESSAGE)
+                MessageBox.Show($"Status Updated: {totalUpdated} record(s) set to OFFLINE", "Debug Info", MessageBoxButtons.OK, MessageBoxIcon.Information)
+            End Using
+        Catch ex As Exception
+            MessageBox.Show($"Error setting offline: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
+        End Try
+    End Sub
+
+    ' ✅ SIGN OUT BUTTON
     Private Sub Button9_Click(sender As Object, e As EventArgs) Handles Button9.Click
-        AuditLogger.LogAction("EXIT", "System", "User closed the entire application")
-        Application.Exit()
+        SetUserOffline()
+
+        Dim login As New Login()
+        login.Show()
+        Me.Close()
+    End Sub
+
+    ' ✅ KAHIT ISINARA LANG O NAG-CRASH
+    Protected Overrides Sub OnFormClosing(e As FormClosingEventArgs)
+        If e.CloseReason = CloseReason.UserClosing Then
+            SetUserOffline()
+        End If
+        MyBase.OnFormClosing(e)
     End Sub
 
     Private Sub Button11_Click(sender As Object, e As EventArgs) Handles Button11.Click
@@ -44,7 +121,6 @@ Public Class frmDashboard
 
     Private Sub btnClose_Click(sender As Object, e As EventArgs) Handles btnClose.Click
         SaveUserSessionToDBConnection()
-
         Panelmenu.Controls.Clear()
         Dim STO As New Stock_Ordering
         STO.TopLevel = False
@@ -56,11 +132,9 @@ Public Class frmDashboard
 
     Private Sub LoadHomeForm()
         Panelmenu.Controls.Clear()
-
         Dim branchDisplay As String
         Dim roleDisplay As String
 
-        ' ✅ WALANG BRANCH = ADMIN → MAIN OFFICE
         If DBConnection.CurrentUserType = "BUSINESS ADMIN" Then
             branchDisplay = "MAIN OFFICE"
             roleDisplay = "BUSINESS ADMIN PANEL"
@@ -73,7 +147,6 @@ Public Class frmDashboard
         Home.lblname.Text = DBConnection.CurrentLoggedInUser
         Home.lblbranchname.Text = branchDisplay
         Home.lblrole.Text = roleDisplay
-
         Home.TopLevel = False
         Home.FormBorderStyle = FormBorderStyle.None
         Home.Dock = DockStyle.Fill
@@ -191,7 +264,6 @@ Public Class frmDashboard
 
     Private Sub Button13_Click(sender As Object, e As EventArgs) Handles Button13.Click
         SaveUserSessionToDBConnection()
-
         Panelmenu.Controls.Clear()
         Dim RTV As New frmRetun_To_Vendor
         RTV.TopLevel = False
@@ -200,4 +272,5 @@ Public Class frmDashboard
         Panelmenu.Controls.Add(RTV)
         RTV.Show()
     End Sub
+
 End Class

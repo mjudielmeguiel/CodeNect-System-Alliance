@@ -22,7 +22,7 @@ Partial Class Transfer_Reports
     'Do not modify it using the code editor.
     <System.Diagnostics.DebuggerStepThrough()> _
     Private Sub InitializeComponent()
-        Dim DataGridViewCellStyle2 As System.Windows.Forms.DataGridViewCellStyle = New System.Windows.Forms.DataGridViewCellStyle()
+        Dim DataGridViewCellStyle1 As System.Windows.Forms.DataGridViewCellStyle = New System.Windows.Forms.DataGridViewCellStyle()
         Me.lblStatus = New System.Windows.Forms.Label()
         Me.lblVendorCode = New System.Windows.Forms.Label()
         Me.lblPONumber = New System.Windows.Forms.Label()
@@ -34,6 +34,7 @@ Partial Class Transfer_Reports
         Me.Label1 = New System.Windows.Forms.Label()
         Me.Panel2 = New System.Windows.Forms.Panel()
         Me.dgvReports = New System.Windows.Forms.DataGridView()
+        Me.btnHistory = New System.Windows.Forms.Button()
         CType(Me.dgvReports, System.ComponentModel.ISupportInitialize).BeginInit()
         Me.SuspendLayout()
         '
@@ -54,9 +55,9 @@ Partial Class Transfer_Reports
         Me.lblVendorCode.Font = New System.Drawing.Font("Microsoft YaHei UI", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.lblVendorCode.Location = New System.Drawing.Point(931, 113)
         Me.lblVendorCode.Name = "lblVendorCode"
-        Me.lblVendorCode.Size = New System.Drawing.Size(90, 19)
+        Me.lblVendorCode.Size = New System.Drawing.Size(44, 19)
         Me.lblVendorCode.TabIndex = 358
-        Me.lblVendorCode.Text = "Vendor Code"
+        Me.lblVendorCode.Text = "From:"
         '
         'lblPONumber
         '
@@ -74,11 +75,11 @@ Partial Class Transfer_Reports
         Me.lblVendor.Anchor = CType((System.Windows.Forms.AnchorStyles.Top Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
         Me.lblVendor.AutoSize = True
         Me.lblVendor.Font = New System.Drawing.Font("Microsoft YaHei UI", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.lblVendor.Location = New System.Drawing.Point(931, 132)
+        Me.lblVendor.Location = New System.Drawing.Point(931, 151)
         Me.lblVendor.Name = "lblVendor"
-        Me.lblVendor.Size = New System.Drawing.Size(54, 19)
+        Me.lblVendor.Size = New System.Drawing.Size(27, 19)
         Me.lblVendor.TabIndex = 357
-        Me.lblVendor.Text = "Vendor"
+        Me.lblVendor.Text = "To:"
         '
         'Label2
         '
@@ -153,18 +154,36 @@ Partial Class Transfer_Reports
         Me.dgvReports.Name = "dgvReports"
         Me.dgvReports.ReadOnly = True
         Me.dgvReports.RowHeadersBorderStyle = System.Windows.Forms.DataGridViewHeaderBorderStyle.None
-        DataGridViewCellStyle2.BackColor = System.Drawing.SystemColors.Control
-        DataGridViewCellStyle2.Font = New System.Drawing.Font("Microsoft YaHei UI", 12.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.dgvReports.RowsDefaultCellStyle = DataGridViewCellStyle2
+        DataGridViewCellStyle1.BackColor = System.Drawing.SystemColors.Control
+        DataGridViewCellStyle1.Font = New System.Drawing.Font("Microsoft YaHei UI", 12.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.dgvReports.RowsDefaultCellStyle = DataGridViewCellStyle1
         Me.dgvReports.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect
-        Me.dgvReports.Size = New System.Drawing.Size(1342, 586)
+        Me.dgvReports.Size = New System.Drawing.Size(1342, 580)
         Me.dgvReports.TabIndex = 351
+        '
+        'btnHistory
+        '
+        Me.btnHistory.Anchor = CType((System.Windows.Forms.AnchorStyles.Top Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
+        Me.btnHistory.BackColor = System.Drawing.Color.DarkRed
+        Me.btnHistory.BackgroundImageLayout = System.Windows.Forms.ImageLayout.None
+        Me.btnHistory.FlatStyle = System.Windows.Forms.FlatStyle.Flat
+        Me.btnHistory.Font = New System.Drawing.Font("Microsoft YaHei UI", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.btnHistory.ForeColor = System.Drawing.SystemColors.ButtonHighlight
+        Me.btnHistory.ImageAlign = System.Drawing.ContentAlignment.MiddleRight
+        Me.btnHistory.Location = New System.Drawing.Point(1220, 60)
+        Me.btnHistory.Name = "btnHistory"
+        Me.btnHistory.Size = New System.Drawing.Size(134, 37)
+        Me.btnHistory.TabIndex = 362
+        Me.btnHistory.Text = "View History"
+        Me.btnHistory.TextImageRelation = System.Windows.Forms.TextImageRelation.ImageBeforeText
+        Me.btnHistory.UseVisualStyleBackColor = False
         '
         'Transfer_Reports
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(6.0!, 13.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
         Me.ClientSize = New System.Drawing.Size(1366, 768)
+        Me.Controls.Add(Me.btnHistory)
         Me.Controls.Add(Me.lblStatus)
         Me.Controls.Add(Me.lblVendorCode)
         Me.Controls.Add(Me.lblPONumber)
@@ -197,4 +216,5 @@ Partial Class Transfer_Reports
     Friend WithEvents Label1 As Label
     Friend WithEvents Panel2 As Panel
     Friend WithEvents dgvReports As DataGridView
+    Friend WithEvents btnHistory As Button
 End Class

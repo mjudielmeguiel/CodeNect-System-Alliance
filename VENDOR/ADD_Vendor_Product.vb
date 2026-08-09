@@ -5,18 +5,15 @@ Imports System.IO
 
 Public Class ADD_Vendor_Product
 
-    ' ✅ AWTOMATIC MULA SA VENDOR ACCOUNT — HINDI NA IPAPAKITA SA FORM
     Private vendorCode As String = Nothing
     Private vendorName As String = Nothing
 
     Private connStr As String = DBConnection.connStr
 
     Private Sub ADD_Vendor_Product_Load(sender As Object, e As EventArgs) Handles MyBase.Load
-        ' ✅ KUNIN ANG VENDOR INFO MULA SA KANANG NAKA-LOGIN — HINDI NA TINATANONG
         vendorCode = If(DBConnection.CurrentVendorCode IsNot Nothing, DBConnection.CurrentVendorCode.Trim(), "")
         vendorName = If(DBConnection.CurrentVendorName IsNot Nothing, DBConnection.CurrentVendorName.Trim(), "")
 
-        ' ✅ WALANG VENDOR? HINDI PAPAYAGANG MAG-ADD
         If String.IsNullOrWhiteSpace(vendorCode) Then
             MessageBox.Show("Vendor account not found! Please log in first.", "Access Denied", MessageBoxButtons.OK, MessageBoxIcon.Stop)
             Me.Close()
@@ -229,6 +226,7 @@ Public Class ADD_Vendor_Product
         cboCategory.ForeColor = If(cboCategory.Text.StartsWith("---"), Color.Gray, Color.Black)
     End Sub
 
+
     Private Sub picProduct_DoubleClick(sender As Object, e As EventArgs) Handles picProduct.DoubleClick
         Using openFile As New OpenFileDialog()
             openFile.Filter = "Image Files|*.jpg;*.jpeg;*.png;*.bmp"
@@ -240,7 +238,19 @@ Public Class ADD_Vendor_Product
         End Using
     End Sub
 
-    Private Sub btnSaveProduct_Click(sender As Object, e As EventArgs) Handles btnSaveProduct.Click
+    Private Sub ClearForm()
+        SetPlaceholders()
+        cboCategory.Text = "Select Category"
+        cboCategory.ForeColor = Color.Gray
+        picProduct.Image = Nothing
+        txtBarcode.Focus()
+    End Sub
+
+    Private Sub btnClose_Click(sender As Object, e As EventArgs) Handles btnClose.Click
+        Me.Close()
+    End Sub
+
+    Private Sub btnSaveProduct_Click_1(sender As Object, e As EventArgs) Handles btnSaveProduct.Click
         ' ✅ VALIDATION
         If txtBarcode.Text = "" OrElse txtBarcode.Text = "BARCODE" Then
             MessageBox.Show("Please enter the product barcode.")
@@ -280,7 +290,6 @@ Public Class ADD_Vendor_Product
             Return
         End If
 
-        ' ✅ KUWENTAHIN ANG AVAILABILITY STATUS — AWTOMATIC
         Dim availableQty As Integer = CInt(txtAvailable.Text.Trim())
         Dim availabilityStatus As String
 
@@ -292,7 +301,6 @@ Public Class ADD_Vendor_Product
             availabilityStatus = "Critical"
         End If
 
-        ' ✅ PREPARE IMAGE
         Dim imageBytes() As Byte = Nothing
         If picProduct.Image IsNot Nothing Then
             Using ms As New MemoryStream()
@@ -302,7 +310,6 @@ Public Class ADD_Vendor_Product
         End If
 
         Try
-            ' ✅ AWTOMATIC ANG AVAILABILITY — HINDI GALING SA FORM, NAKA-REKORD SA DATABASE
             Dim sql As String = "
                 INSERT INTO `Vendor_Products` (
                     `BARCODE`, `DESCRIPTIONS`, `BRAND`, `CATEGORY`, `VENDOR_CODE`, `VENDOR`, 
@@ -319,7 +326,6 @@ Public Class ADD_Vendor_Product
                     cmd.Parameters.AddWithValue("@BRAND", txtBrand.Text.Trim())
                     cmd.Parameters.AddWithValue("@CATEGORY", cboCategory.Text.Trim())
 
-                    ' ✅ AWTOMATIC — HINDI NA TINATANONG SA USER
                     cmd.Parameters.AddWithValue("@VENDOR_CODE", vendorCode)
                     cmd.Parameters.AddWithValue("@VENDOR", vendorName)
 
@@ -327,7 +333,7 @@ Public Class ADD_Vendor_Product
                     cmd.Parameters.AddWithValue("@SIZE", If(txtSize.Text = "SIZE / WEIGHT", DBNull.Value, txtSize.Text.Trim()))
                     cmd.Parameters.AddWithValue("@PRICE", CDec(txtPrice.Text.Trim()))
                     cmd.Parameters.AddWithValue("@AVAILABLE", availableQty)
-                    cmd.Parameters.AddWithValue("@AVAILABILITY", availabilityStatus) ' ✅ AWTOMATIC!
+                    cmd.Parameters.AddWithValue("@AVAILABILITY", availabilityStatus)
                     cmd.Parameters.AddWithValue("@PRODUCT_IMAGE", If(imageBytes IsNot Nothing, imageBytes, DBNull.Value))
 
                     conn.Open()
@@ -344,17 +350,4 @@ Public Class ADD_Vendor_Product
             MessageBox.Show("Error saving product: " & ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
         End Try
     End Sub
-
-    Private Sub ClearForm()
-        SetPlaceholders()
-        cboCategory.Text = "Select Category"
-        cboCategory.ForeColor = Color.Gray
-        picProduct.Image = Nothing
-        txtBarcode.Focus()
-    End Sub
-
-    Private Sub btnClose_Click(sender As Object, e As EventArgs) Handles btnClose.Click
-        Me.Close()
-    End Sub
-
 End Class

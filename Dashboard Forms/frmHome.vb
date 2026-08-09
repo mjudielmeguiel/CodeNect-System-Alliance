@@ -1,10 +1,67 @@
-﻿Imports MySqlConnector
+﻿Imports System.Data.SqlTypes
+Imports MySqlConnector
 
 Public Class frmHome
 
     Private Sub frmHome_Load(sender As Object, e As EventArgs) Handles MyBase.Load
         LoadDashboardCounts()
         AuditLogger.LogAction("OPEN", "Dashboard", "Loaded Home Dashboard overview")
+
+        ' ✅ IPAKITA AGAD ANG DATE, TIME AT BRANCH NAME
+        UpdateDateTimeLabel()
+        UpdateBranchNameLabel()
+
+        ' ✅ MAG-UPDATE NG ORAS BAWAT 1 SEGUNDO
+        Timer1.Interval = 1000
+        Timer1.Start()
+    End Sub
+
+    ' ✅ I-UPDATE ANG PETSA AT ORAS
+    Private Sub UpdateDateTimeLabel()
+        lblDateTime.Text = DateTime.Now.ToString("yyyy-MM-dd   HH:mm:ss")
+    End Sub
+
+    ' ✅ I-UPDATE ANG BRANCH NAME HINDI BRANCH ID
+    Private Sub UpdateBranchNameLabel()
+        Dim accID As String = DBConnection.CurrentUserAccountID
+        Dim userBranchID As String = DBConnection.CurrentUserBranchID
+        Dim userType As String = DBConnection.CurrentUserType
+
+        If String.IsNullOrWhiteSpace(userBranchID) Then
+            lblbranchname.Text = "No Branch"
+            Return
+        End If
+
+        ' ✅ KUNG ADMIN / MAIN OFFICE — IPALIT "MAIN OFFICE"
+        If userType.Trim().ToUpper() = "BUSINESS ADMIN" OrElse userBranchID.Trim().ToUpper() = "MAIN OFFICE" Then
+            lblbranchname.Text = "MAIN OFFICE"
+            Return
+        End If
+
+        ' ✅ KUNG HINDI ADMIN — KUNIN ANG BRANCH NAME MULA SA TABLE
+        Try
+            Using conn As New MySqlConnection(DBConnection.connStr)
+                conn.Open()
+                Dim sql As String = "SELECT `BRANCH` FROM `branches` WHERE `ACCOUNT_ID` = @accid AND `BRANCH_ID` = @branchid LIMIT 1"
+                Using cmd As New MySqlCommand(sql, conn)
+                    cmd.Parameters.AddWithValue("@accid", accID)
+                    cmd.Parameters.AddWithValue("@branchid", userBranchID)
+                    Dim result = cmd.ExecuteScalar()
+                    If result IsNot Nothing AndAlso result IsNot DBNull.Value Then
+                        lblbranchname.Text = result.ToString()
+                    Else
+                        lblbranchname.Text = "Unknown Branch"
+                    End If
+                End Using
+            End Using
+        Catch ex As Exception
+            lblbranchname.Text = "Error: " & ex.Message
+        End Try
+    End Sub
+
+    ' ✅ TIMER — BAWAT SEGUNDO AY MAG-UUPDATE ANG ORAS
+    Private Sub Timer1_Tick(sender As Object, e As EventArgs) Handles Timer1.Tick
+        UpdateDateTimeLabel()
     End Sub
 
     Private Sub LoadDashboardCounts()
@@ -90,5 +147,4 @@ Public Class frmHome
             AuditLogger.LogAction("ERROR", "Dashboard", $"Failed to load dashboard counts: {ex.Message}")
         End Try
     End Sub
-
 End Class

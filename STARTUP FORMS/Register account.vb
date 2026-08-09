@@ -158,6 +158,7 @@ Public Class Register_account
     End Sub
 
     Private Sub Button1_Click(sender As Object, e As EventArgs) Handles Button1.Click
+        Me.Hide()
         frmRegisterVendor.Show()
     End Sub
 End Class

@@ -29,6 +29,7 @@ Partial Class frmDashboard
         Me.menupanel = New System.Windows.Forms.Panel()
         Me.Panel3 = New System.Windows.Forms.Panel()
         Me.Button9 = New System.Windows.Forms.Button()
+        Me.Button13 = New System.Windows.Forms.Button()
         Me.btnuselist = New System.Windows.Forms.Button()
         Me.Button5 = New System.Windows.Forms.Button()
         Me.Button19 = New System.Windows.Forms.Button()
@@ -44,7 +45,6 @@ Partial Class frmDashboard
         Me.Button4 = New System.Windows.Forms.Button()
         Me.Panel4 = New System.Windows.Forms.Panel()
         Me.Panelmenu = New System.Windows.Forms.Panel()
-        Me.Button13 = New System.Windows.Forms.Button()
         Me.Panel1.SuspendLayout()
         Me.menupanel.SuspendLayout()
         Me.Panel3.SuspendLayout()
@@ -143,6 +143,25 @@ Partial Class frmDashboard
         Me.Button9.Text = "Sign Out"
         Me.Button9.UseVisualStyleBackColor = False
         '
+        'Button13
+        '
+        Me.Button13.BackColor = System.Drawing.SystemColors.ControlLight
+        Me.Button13.BackgroundImageLayout = System.Windows.Forms.ImageLayout.None
+        Me.Button13.Dock = System.Windows.Forms.DockStyle.Top
+        Me.Button13.FlatAppearance.BorderSize = 0
+        Me.Button13.FlatStyle = System.Windows.Forms.FlatStyle.Flat
+        Me.Button13.Font = New System.Drawing.Font("Microsoft YaHei UI Light", 12.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.Button13.ForeColor = System.Drawing.SystemColors.ControlText
+        Me.Button13.Image = CType(resources.GetObject("Button13.Image"), System.Drawing.Image)
+        Me.Button13.ImageAlign = System.Drawing.ContentAlignment.MiddleRight
+        Me.Button13.Location = New System.Drawing.Point(0, 765)
+        Me.Button13.Name = "Button13"
+        Me.Button13.Size = New System.Drawing.Size(315, 47)
+        Me.Button13.TabIndex = 333
+        Me.Button13.Text = "Return to Vendor"
+        Me.Button13.TextAlign = System.Drawing.ContentAlignment.MiddleLeft
+        Me.Button13.UseVisualStyleBackColor = False
+        '
         'btnuselist
         '
         Me.btnuselist.BackColor = System.Drawing.SystemColors.ControlLight
@@ -215,7 +234,7 @@ Partial Class frmDashboard
         Me.btnClose.Name = "btnClose"
         Me.btnClose.Size = New System.Drawing.Size(315, 47)
         Me.btnClose.TabIndex = 309
-        Me.btnClose.Text = "PO Stock IN/OUT"
+        Me.btnClose.Text = "Purchase Order"
         Me.btnClose.TextAlign = System.Drawing.ContentAlignment.MiddleLeft
         Me.btnClose.TextImageRelation = System.Windows.Forms.TextImageRelation.TextBeforeImage
         Me.btnClose.UseVisualStyleBackColor = False
@@ -409,25 +428,6 @@ Partial Class frmDashboard
         Me.Panelmenu.Name = "Panelmenu"
         Me.Panelmenu.Size = New System.Drawing.Size(1034, 720)
         Me.Panelmenu.TabIndex = 312
-        '
-        'Button13
-        '
-        Me.Button13.BackColor = System.Drawing.SystemColors.ControlLight
-        Me.Button13.BackgroundImageLayout = System.Windows.Forms.ImageLayout.None
-        Me.Button13.Dock = System.Windows.Forms.DockStyle.Top
-        Me.Button13.FlatAppearance.BorderSize = 0
-        Me.Button13.FlatStyle = System.Windows.Forms.FlatStyle.Flat
-        Me.Button13.Font = New System.Drawing.Font("Microsoft YaHei UI Light", 12.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.Button13.ForeColor = System.Drawing.SystemColors.ControlText
-        Me.Button13.Image = CType(resources.GetObject("Button13.Image"), System.Drawing.Image)
-        Me.Button13.ImageAlign = System.Drawing.ContentAlignment.MiddleRight
-        Me.Button13.Location = New System.Drawing.Point(0, 765)
-        Me.Button13.Name = "Button13"
-        Me.Button13.Size = New System.Drawing.Size(315, 47)
-        Me.Button13.TabIndex = 333
-        Me.Button13.Text = "Return to Vendor"
-        Me.Button13.TextAlign = System.Drawing.ContentAlignment.MiddleLeft
-        Me.Button13.UseVisualStyleBackColor = False
         '
         'frmDashboard
         '

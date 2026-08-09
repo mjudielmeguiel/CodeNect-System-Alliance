@@ -20,10 +20,13 @@ Public Class frmOrders
             Using conn As New MySqlConnection(connStr)
                 conn.Open()
 
+                ' ✅ BINAGO — HINDI NA KASAMA SA LISTAHAN KUNG ACCEPTED O REFUSED NA
                 Dim sql As String = "
-                    SELECT PO_NUMBER, PREPARED_BY, REQUEST_DATE, STATUS, TRANSACTION_TYPE, TOTAL, BRANCH_ID
+                    SELECT PO_NUMBER, PREPARED_BY, REQUEST_DATE, STATUS, TRANSACTION_TYPE, 
+                           TOTAL, BRANCH_ID, VENDOR_CODE, VENDOR_NAME, RECEIVE_DATE, RECEIVER, ACCOUNT_ID, DR
                     FROM sto_data
                     WHERE VENDOR_CODE = @VENDOR_CODE
+                      AND STATUS NOT IN ('Accepted', 'Refused', 'Order Placed', 'Completed')
                     ORDER BY REQUEST_DATE DESC"
 
                 Using cmd As New MySqlCommand(sql, conn)
@@ -102,6 +105,7 @@ Public Class frmOrders
         dgvOrders.Columns("BRANCH_ID").HeaderText = "Branch"
 
         dgvOrders.Columns("TOTAL").DefaultCellStyle.Format = "N2"
+        dgvOrders.Columns("TOTAL").DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleRight
         dgvOrders.Columns("REQUEST_DATE").DefaultCellStyle.Format = "yyyy-MM-dd HH:mm"
     End Sub
 
@@ -109,7 +113,7 @@ Public Class frmOrders
         If e.RowIndex < 0 Then Exit Sub
 
         Dim poNumber As String = dgvOrders.Rows(e.RowIndex).Cells("PO_NUMBER").Value.ToString()
-        Dim currentStatus As String = dgvOrders.Rows(e.RowIndex).Cells("STATUS").Value.ToString().Trim()
+        Dim currentStatus As String = dgvOrders.Rows(e.RowIndex).Cells("STATUS").Value?.ToString().Trim()
 
         If e.ColumnIndex = dgvOrders.Columns("colAccept").Index Then
             If currentStatus.Equals("Pending", StringComparison.OrdinalIgnoreCase) OrElse
@@ -130,12 +134,9 @@ Public Class frmOrders
             End If
 
         ElseIf e.ColumnIndex = dgvOrders.Columns("colView").Index Then
-            ' ✅ BUKASIN ANG frmOrderDetails — IPASA ANG PO NUMBER
             Dim frmDetails As New frmOrderDetails()
             frmDetails.PO_NUMBER = poNumber
             frmDetails.ShowDialog()
-
-            ' ✅ I-REFRESH ANG LISTAHAN PAGKATAPUS MAGSARA NG DETAILS
             LoadVendorOrders()
         End If
     End Sub
@@ -151,7 +152,7 @@ Public Class frmOrders
                 End Using
             End Using
             MessageBox.Show($"Order {newStatus} successfully!", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information)
-            LoadVendorOrders()
+            LoadVendorOrders() ' ✅ AWTOMATIKONG MAWALA SA LISTAHAN
         Catch ex As Exception
             MessageBox.Show("Error updating status: " & ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
         End Try
@@ -171,10 +172,13 @@ Public Class frmOrders
             Using conn As New MySqlConnection(connStr)
                 conn.Open()
 
+                ' ✅ HINDI KASAMA SA PAGHANDEL KUNG ACCEPTED/REFUSED NA
                 Dim sql As String = "
-                    SELECT PO_NUMBER, PREPARED_BY, REQUEST_DATE, STATUS, TRANSACTION_TYPE, TOTAL, BRANCH_ID
+                    SELECT PO_NUMBER, PREPARED_BY, REQUEST_DATE, STATUS, TRANSACTION_TYPE, 
+                           TOTAL, BRANCH_ID, VENDOR_CODE, VENDOR_NAME, RECEIVE_DATE, RECEIVER, ACCOUNT_ID, DR
                     FROM sto_data
                     WHERE VENDOR_CODE = @VENDOR_CODE
+                      AND STATUS NOT IN ('Accepted', 'Refused', 'Order Placed', 'Completed')
                       AND (PO_NUMBER LIKE @KEYWORD 
                            OR PREPARED_BY LIKE @KEYWORD 
                            OR STATUS LIKE @KEYWORD

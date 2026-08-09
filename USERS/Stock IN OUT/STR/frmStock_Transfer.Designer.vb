@@ -26,16 +26,18 @@ Partial Class frmStock_Transfer
         Dim DataGridViewCellStyle2 As System.Windows.Forms.DataGridViewCellStyle = New System.Windows.Forms.DataGridViewCellStyle()
         Dim resources As System.ComponentModel.ComponentResourceManager = New System.ComponentModel.ComponentResourceManager(GetType(frmStock_Transfer))
         Me.Label4 = New System.Windows.Forms.Label()
-        Me.lblVendorCode = New System.Windows.Forms.Label()
         Me.lblSTRNumber = New System.Windows.Forms.Label()
         Me.rdoManual = New System.Windows.Forms.RadioButton()
         Me.btnSubmit = New System.Windows.Forms.Button()
         Me.Label3 = New System.Windows.Forms.Label()
         Me.rdoScan = New System.Windows.Forms.RadioButton()
         Me.txtScan = New System.Windows.Forms.TextBox()
-        Me.Panel2 = New System.Windows.Forms.Panel()
-        Me.dgvOrderList = New System.Windows.Forms.DataGridView()
         Me.cboToBranch = New System.Windows.Forms.ComboBox()
+        Me.Label1 = New System.Windows.Forms.Label()
+        Me.Label2 = New System.Windows.Forms.Label()
+        Me.cboFromBranch = New System.Windows.Forms.ComboBox()
+        Me.dgvOrderList = New System.Windows.Forms.DataGridView()
+        Me.Panel2 = New System.Windows.Forms.Panel()
         CType(Me.dgvOrderList, System.ComponentModel.ISupportInitialize).BeginInit()
         Me.SuspendLayout()
         '
@@ -49,23 +51,12 @@ Partial Class frmStock_Transfer
         Me.Label4.TabIndex = 349
         Me.Label4.Text = "Stock Transfer"
         '
-        'lblVendorCode
-        '
-        Me.lblVendorCode.Anchor = CType((System.Windows.Forms.AnchorStyles.Top Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
-        Me.lblVendorCode.AutoSize = True
-        Me.lblVendorCode.Font = New System.Drawing.Font("Microsoft YaHei UI", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.lblVendorCode.Location = New System.Drawing.Point(931, 131)
-        Me.lblVendorCode.Name = "lblVendorCode"
-        Me.lblVendorCode.Size = New System.Drawing.Size(15, 19)
-        Me.lblVendorCode.TabIndex = 355
-        Me.lblVendorCode.Text = "-"
-        '
         'lblSTRNumber
         '
         Me.lblSTRNumber.Anchor = CType((System.Windows.Forms.AnchorStyles.Top Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
         Me.lblSTRNumber.AutoSize = True
         Me.lblSTRNumber.Font = New System.Drawing.Font("Microsoft YaHei UI", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.lblSTRNumber.Location = New System.Drawing.Point(931, 75)
+        Me.lblSTRNumber.Location = New System.Drawing.Point(996, 75)
         Me.lblSTRNumber.Name = "lblSTRNumber"
         Me.lblSTRNumber.Size = New System.Drawing.Size(15, 19)
         Me.lblSTRNumber.TabIndex = 352
@@ -131,14 +122,51 @@ Partial Class frmStock_Transfer
         Me.txtScan.Size = New System.Drawing.Size(291, 28)
         Me.txtScan.TabIndex = 346
         '
-        'Panel2
+        'cboToBranch
         '
-        Me.Panel2.BackColor = System.Drawing.SystemColors.Control
-        Me.Panel2.Dock = System.Windows.Forms.DockStyle.Top
-        Me.Panel2.Location = New System.Drawing.Point(0, 0)
-        Me.Panel2.Name = "Panel2"
-        Me.Panel2.Size = New System.Drawing.Size(1366, 48)
-        Me.Panel2.TabIndex = 347
+        Me.cboToBranch.Anchor = CType((System.Windows.Forms.AnchorStyles.Top Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
+        Me.cboToBranch.BackColor = System.Drawing.SystemColors.Control
+        Me.cboToBranch.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList
+        Me.cboToBranch.Font = New System.Drawing.Font("Microsoft YaHei UI", 11.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.cboToBranch.FormattingEnabled = True
+        Me.cboToBranch.Location = New System.Drawing.Point(1000, 155)
+        Me.cboToBranch.Name = "cboToBranch"
+        Me.cboToBranch.Size = New System.Drawing.Size(354, 28)
+        Me.cboToBranch.TabIndex = 356
+        '
+        'Label1
+        '
+        Me.Label1.Anchor = CType((System.Windows.Forms.AnchorStyles.Top Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
+        Me.Label1.AutoSize = True
+        Me.Label1.Font = New System.Drawing.Font("Microsoft YaHei UI", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.Label1.Location = New System.Drawing.Point(996, 135)
+        Me.Label1.Name = "Label1"
+        Me.Label1.Size = New System.Drawing.Size(89, 19)
+        Me.Label1.TabIndex = 357
+        Me.Label1.Text = "Desctination:"
+        '
+        'Label2
+        '
+        Me.Label2.Anchor = CType((System.Windows.Forms.AnchorStyles.Top Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
+        Me.Label2.AutoSize = True
+        Me.Label2.Font = New System.Drawing.Font("Microsoft YaHei UI", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.Label2.Location = New System.Drawing.Point(636, 137)
+        Me.Label2.Name = "Label2"
+        Me.Label2.Size = New System.Drawing.Size(50, 19)
+        Me.Label2.TabIndex = 358
+        Me.Label2.Text = "Origin:"
+        '
+        'cboFromBranch
+        '
+        Me.cboFromBranch.Anchor = CType((System.Windows.Forms.AnchorStyles.Top Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
+        Me.cboFromBranch.BackColor = System.Drawing.SystemColors.Control
+        Me.cboFromBranch.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList
+        Me.cboFromBranch.Font = New System.Drawing.Font("Microsoft YaHei UI", 11.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.cboFromBranch.FormattingEnabled = True
+        Me.cboFromBranch.Location = New System.Drawing.Point(640, 155)
+        Me.cboFromBranch.Name = "cboFromBranch"
+        Me.cboFromBranch.Size = New System.Drawing.Size(354, 28)
+        Me.cboFromBranch.TabIndex = 359
         '
         'dgvOrderList
         '
@@ -154,7 +182,7 @@ Partial Class frmStock_Transfer
         Me.dgvOrderList.ColumnHeadersBorderStyle = System.Windows.Forms.DataGridViewHeaderBorderStyle.None
         Me.dgvOrderList.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize
         Me.dgvOrderList.GridColor = System.Drawing.SystemColors.Control
-        Me.dgvOrderList.Location = New System.Drawing.Point(12, 190)
+        Me.dgvOrderList.Location = New System.Drawing.Point(12, 189)
         Me.dgvOrderList.Name = "dgvOrderList"
         Me.dgvOrderList.ReadOnly = True
         Me.dgvOrderList.RowHeadersBorderStyle = System.Windows.Forms.DataGridViewHeaderBorderStyle.None
@@ -170,35 +198,36 @@ Partial Class frmStock_Transfer
         DataGridViewCellStyle2.Font = New System.Drawing.Font("Microsoft YaHei UI", 12.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.dgvOrderList.RowsDefaultCellStyle = DataGridViewCellStyle2
         Me.dgvOrderList.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect
-        Me.dgvOrderList.Size = New System.Drawing.Size(1342, 529)
+        Me.dgvOrderList.Size = New System.Drawing.Size(1342, 530)
         Me.dgvOrderList.TabIndex = 345
         '
-        'cboToBranch
+        'Panel2
         '
-        Me.cboToBranch.BackColor = System.Drawing.SystemColors.Control
-        Me.cboToBranch.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList
-        Me.cboToBranch.Font = New System.Drawing.Font("Microsoft YaHei UI", 11.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.cboToBranch.FormattingEnabled = True
-        Me.cboToBranch.Location = New System.Drawing.Point(935, 153)
-        Me.cboToBranch.Name = "cboToBranch"
-        Me.cboToBranch.Size = New System.Drawing.Size(419, 28)
-        Me.cboToBranch.TabIndex = 356
+        Me.Panel2.BackColor = System.Drawing.SystemColors.Control
+        Me.Panel2.Dock = System.Windows.Forms.DockStyle.Top
+        Me.Panel2.Location = New System.Drawing.Point(0, 0)
+        Me.Panel2.Name = "Panel2"
+        Me.Panel2.Size = New System.Drawing.Size(1366, 48)
+        Me.Panel2.TabIndex = 360
         '
         'frmStock_Transfer
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(6.0!, 13.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
+        Me.BackColor = System.Drawing.SystemColors.ControlLight
         Me.ClientSize = New System.Drawing.Size(1366, 768)
+        Me.Controls.Add(Me.Panel2)
+        Me.Controls.Add(Me.cboFromBranch)
+        Me.Controls.Add(Me.Label2)
+        Me.Controls.Add(Me.Label1)
         Me.Controls.Add(Me.cboToBranch)
         Me.Controls.Add(Me.Label4)
-        Me.Controls.Add(Me.lblVendorCode)
         Me.Controls.Add(Me.lblSTRNumber)
         Me.Controls.Add(Me.rdoManual)
         Me.Controls.Add(Me.btnSubmit)
         Me.Controls.Add(Me.Label3)
         Me.Controls.Add(Me.rdoScan)
         Me.Controls.Add(Me.txtScan)
-        Me.Controls.Add(Me.Panel2)
         Me.Controls.Add(Me.dgvOrderList)
         Me.FormBorderStyle = System.Windows.Forms.FormBorderStyle.None
         Me.Icon = CType(resources.GetObject("$this.Icon"), System.Drawing.Icon)
@@ -212,14 +241,16 @@ Partial Class frmStock_Transfer
     End Sub
 
     Friend WithEvents Label4 As Label
-    Friend WithEvents lblVendorCode As Label
     Friend WithEvents lblSTRNumber As Label
     Friend WithEvents rdoManual As RadioButton
     Friend WithEvents btnSubmit As Button
     Friend WithEvents Label3 As Label
     Friend WithEvents rdoScan As RadioButton
     Friend WithEvents txtScan As TextBox
-    Friend WithEvents Panel2 As Panel
-    Friend WithEvents dgvOrderList As DataGridView
     Friend WithEvents cboToBranch As ComboBox
+    Friend WithEvents Label1 As Label
+    Friend WithEvents Label2 As Label
+    Friend WithEvents cboFromBranch As ComboBox
+    Friend WithEvents dgvOrderList As DataGridView
+    Friend WithEvents Panel2 As Panel
 End Class

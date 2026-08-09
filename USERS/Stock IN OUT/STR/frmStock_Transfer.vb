@@ -54,15 +54,16 @@ Public Class frmStock_Transfer
         txtScan.Clear()
         txtScan.Focus()
 
+        ' ✅ MAGLOAD NG LAHAT NG BRANCHES SA DALAWANG COMBOBOX
         LoadBranchList()
         GenerateSTRNumber()
     End Sub
 
     Private Sub LoadBranchList()
+        cboFromBranch.Items.Clear()
         cboToBranch.Items.Clear()
 
         Dim userAccountId As String = DBConnection.CurrentUserAccountID.Trim()
-        Dim myBranchId As String = DBConnection.CurrentUserBranchID.Trim()
 
         If String.IsNullOrWhiteSpace(userAccountId) Then
             MessageBox.Show("Walang laman ang Account ID! Siguraduhin na naiset ito sa Login.", "Notice", MessageBoxButtons.OK, MessageBoxIcon.Warning)
@@ -72,29 +73,46 @@ Public Class frmStock_Transfer
         Try
             Using conn As New MySqlConnection(connStr)
                 conn.Open()
-                ' ✅ HINDI NA ISASAMA ANG SARILING BRANCH SA QUERY
-                Dim sql As String = "SELECT DISTINCT `BRANCH` AS BRANCH_NAME, BRANCH_ID FROM branches WHERE ACCOUNT_ID = @ACCOUNT_ID AND BRANCH_ID <> @MY_BRANCH ORDER BY `BRANCH`"
+                Dim sql As String = "SELECT DISTINCT `BRANCH` AS BRANCH_NAME, BRANCH_ID FROM branches WHERE ACCOUNT_ID = @ACCOUNT_ID ORDER BY `BRANCH`"
                 Using cmd As New MySqlCommand(sql, conn)
                     cmd.Parameters.AddWithValue("@ACCOUNT_ID", userAccountId)
-                    cmd.Parameters.AddWithValue("@MY_BRANCH", myBranchId)
 
                     Using dr As MySqlDataReader = cmd.ExecuteReader()
                         While dr.Read()
                             Dim branchName = dr("BRANCH_NAME").ToString().Trim()
                             Dim branchId = dr("BRANCH_ID").ToString().Trim()
-                            cboToBranch.Items.Add(New KeyValuePair(Of String, String)(branchName, branchId))
+                            Dim item = New KeyValuePair(Of String, String)(branchName, branchId)
+                            cboFromBranch.Items.Add(item)
+                            cboToBranch.Items.Add(item)
                         End While
                     End Using
                 End Using
             End Using
 
+            cboFromBranch.DisplayMember = "Key"
+            cboFromBranch.ValueMember = "Value"
             cboToBranch.DisplayMember = "Key"
             cboToBranch.ValueMember = "Value"
 
+            ' ✅ DEFAULT — CURRENT BRANCH ANG FROM BRANCH
+            Dim myBranchId = DBConnection.CurrentUserBranchID.Trim()
+            For i = 0 To cboFromBranch.Items.Count - 1
+                Dim item = CType(cboFromBranch.Items(i), KeyValuePair(Of String, String))
+                If item.Value.Equals(myBranchId, StringComparison.OrdinalIgnoreCase) Then
+                    cboFromBranch.SelectedIndex = i
+                    Exit For
+                End If
+            Next
+
             If cboToBranch.Items.Count > 0 Then
-                cboToBranch.SelectedIndex = 0
-            Else
-                MessageBox.Show("Walang ibang branches na pwedeng padalhan.", "Info", MessageBoxButtons.OK, MessageBoxIcon.Information)
+                If cboToBranch.SelectedIndex = -1 OrElse cboToBranch.SelectedIndex = cboFromBranch.SelectedIndex Then
+                    If cboToBranch.Items.Count > 1 Then
+                        cboToBranch.SelectedIndex = 0
+                        If cboToBranch.SelectedIndex = cboFromBranch.SelectedIndex Then
+                            cboToBranch.SelectedIndex = 1
+                        End If
+                    End If
+                End If
             End If
 
         Catch ex As Exception
@@ -192,32 +210,47 @@ Public Class frmStock_Transfer
     Private Sub AddProductToOrder(searchCode As String)
         If String.IsNullOrWhiteSpace(searchCode) Then Exit Sub
 
-        ' ✅ Siguraduhing may napiling padadalhan
+        ' ✅ SIGURADUHIN NA NAKAPILI MUNA NG DALAWANG BRANCH
+        If cboFromBranch.SelectedIndex = -1 Then
+            MessageBox.Show("Please select Source Branch first!", "Required", MessageBoxButtons.OK, MessageBoxIcon.Warning)
+            txtScan.Focus()
+            Return
+        End If
         If cboToBranch.SelectedIndex = -1 Then
             MessageBox.Show("Please select Destination Branch first!", "Required", MessageBoxButtons.OK, MessageBoxIcon.Warning)
             txtScan.Focus()
             Return
         End If
 
-        Dim selectedBranch = CType(cboToBranch.SelectedItem, KeyValuePair(Of String, String))
-        Dim toBranchId = selectedBranch.Value
+        Dim fromBranch = CType(cboFromBranch.SelectedItem, KeyValuePair(Of String, String))
+        Dim fromBranchName = fromBranch.Key
+        Dim fromBranchId = fromBranch.Value
+
+        Dim toBranch = CType(cboToBranch.SelectedItem, KeyValuePair(Of String, String))
+        Dim toBranchName = toBranch.Key
+        Dim toBranchId = toBranch.Value
+
+        If fromBranchId.Equals(toBranchId, StringComparison.OrdinalIgnoreCase) Then
+            MessageBox.Show("Cannot transfer to the same branch!", "Invalid", MessageBoxButtons.OK, MessageBoxIcon.Warning)
+            Return
+        End If
 
         Using conn As New MySqlConnection(connStr)
             conn.Open()
 
-            ' Hanapin muna sa sariling branch
+            ' ✅ KUNIN ANG PRODUKTO MULA SA PINILING FROM BRANCH
             Dim cmdCheckSource As New MySqlCommand("
                 SELECT BARCODE, SKU, BRAND, DESCRIPTIONS, SIZE, PRICE 
                 FROM inventory_information 
-                WHERE (BARCODE = @CODE OR SKU = @CODE) AND BRANCH_ID = @CURR_BRANCH
+                WHERE (BARCODE = @CODE OR SKU = @CODE) AND BRANCH_ID = @FROM_BRANCH
                 LIMIT 1", conn)
 
             cmdCheckSource.Parameters.AddWithValue("@CODE", searchCode)
-            cmdCheckSource.Parameters.AddWithValue("@CURR_BRANCH", DBConnection.CurrentUserBranchID.Trim())
+            cmdCheckSource.Parameters.AddWithValue("@FROM_BRANCH", fromBranchId)
 
             Using drSource As MySqlDataReader = cmdCheckSource.ExecuteReader()
                 If Not drSource.Read() Then
-                    MessageBox.Show("Item does not exist in your current branch.", "Not Found", MessageBoxButtons.OK, MessageBoxIcon.Warning)
+                    MessageBox.Show($"Item does not exist in {fromBranchName}.", "Not Found", MessageBoxButtons.OK, MessageBoxIcon.Warning)
                     Return
                 End If
 
@@ -228,23 +261,24 @@ Public Class frmStock_Transfer
                 Dim size = drSource("SIZE").ToString()
                 Dim price = Convert.ToDecimal(drSource("PRICE"))
 
-                ' ✅ Check agad kung dala ng papadalhan
                 drSource.Close()
+
+                ' ✅ SURIIN KUNG MAY PRODUKTO SA DESTINATION BRANCH
                 Dim cmdCheckDest As New MySqlCommand("
                     SELECT COUNT(*) FROM inventory_information 
-                    WHERE BARCODE = @BAR AND BRANCH_ID = @TO", conn)
+                    WHERE BARCODE = @BAR AND BRANCH_ID = @TO_BRANCH", conn)
 
                 cmdCheckDest.Parameters.AddWithValue("@BAR", barcode)
-                cmdCheckDest.Parameters.AddWithValue("@TO", toBranchId)
+                cmdCheckDest.Parameters.AddWithValue("@TO_BRANCH", toBranchId)
 
                 Dim existsInDest = Convert.ToInt32(cmdCheckDest.ExecuteScalar()) > 0
                 If Not existsInDest Then
-                    MessageBox.Show($"This product is not carried by the destination branch.{vbCrLf}{vbCrLf}Item: {desc} ({sku})", "Product Not Carried", MessageBoxButtons.OK, MessageBoxIcon.Warning)
+                    MessageBox.Show($"This product is not carried by {toBranchName}.{vbCrLf}{vbCrLf}Item: {desc} ({sku})", "Product Not Carried", MessageBoxButtons.OK, MessageBoxIcon.Warning)
                     txtScan.Focus()
                     Return
                 End If
 
-                ' ✅ Kung nasa listahan na, dagdagan na lang
+                ' ✅ KUNG MAY KATULAD NA — DAGDAGAN ANG DAMI
                 For Each row As DataGridViewRow In dgvOrderList.Rows
                     If row.Cells("colBarcode").Value.ToString().Equals(barcode, StringComparison.OrdinalIgnoreCase) Then
                         Dim currentQty = Convert.ToInt32(row.Cells("colQty").Value)
@@ -255,7 +289,7 @@ Public Class frmStock_Transfer
                     End If
                 Next
 
-                ' ✅ Kung wala pa, idagdag
+                ' ✅ KUNG BAGO — ILAGAY SA LISTAHAN
                 Dim qty As Integer = 1
                 Dim lineTotal = price * qty
                 dgvOrderList.Rows.Add(barcode, sku, brand, desc, size, qty, price, lineTotal, Nothing)
@@ -276,85 +310,112 @@ Public Class frmStock_Transfer
             MessageBox.Show("No items added to transfer!", "Empty", MessageBoxButtons.OK, MessageBoxIcon.Warning)
             Return
         End If
+        If cboFromBranch.SelectedIndex = -1 Then
+            MessageBox.Show("Please select Source Branch!", "Required", MessageBoxButtons.OK, MessageBoxIcon.Warning)
+            Return
+        End If
         If cboToBranch.SelectedIndex = -1 Then
             MessageBox.Show("Please select Destination Branch!", "Required", MessageBoxButtons.OK, MessageBoxIcon.Warning)
             Return
         End If
 
-        Dim selectedBranch = CType(cboToBranch.SelectedItem, KeyValuePair(Of String, String))
-        Dim toBranchName = selectedBranch.Key
-        Dim toBranchId = selectedBranch.Value
+        Dim fromBranch = CType(cboFromBranch.SelectedItem, KeyValuePair(Of String, String))
+        Dim fromBranchName = fromBranch.Key
+        Dim fromBranchId = fromBranch.Value
 
-        ' ✅ Hindi na ito kailangan pero nandito pa rin para sigurado
-        If toBranchId.Equals(DBConnection.CurrentUserBranchID.Trim(), StringComparison.OrdinalIgnoreCase) Then
-            MessageBox.Show("Cannot transfer to your own branch!", "Invalid", MessageBoxButtons.OK, MessageBoxIcon.Warning)
+        Dim toBranch = CType(cboToBranch.SelectedItem, KeyValuePair(Of String, String))
+        Dim toBranchName = toBranch.Key
+        Dim toBranchId = toBranch.Value
+
+        If fromBranchId.Equals(toBranchId, StringComparison.OrdinalIgnoreCase) Then
+            MessageBox.Show("Cannot transfer to the same branch!", "Invalid", MessageBoxButtons.OK, MessageBoxIcon.Warning)
             Return
         End If
 
         Dim strNumber = lblSTRNumber.Text.Trim()
-        Dim fromBranch = DBConnection.CurrentUserBranchID.Trim()
+        Dim totalItems = dgvOrderList.Rows.Count
         Dim preparedBy = DBConnection.CurrentLoggedInUser.Trim()
+        Dim userAccountId = DBConnection.CurrentUserAccountID.Trim()
 
         Using conn As New MySqlConnection(connStr)
             conn.Open()
             Using tran = conn.BeginTransaction()
                 Try
+                    ' ✅ 1. I-SAVE SA transfer_data TABLE
                     Dim cmdHeader As New MySqlCommand("
                         INSERT INTO transfer_data 
-                        (STR_NUMBER, DR_NUMBER, FROM_BRANCH, FROM_BRANCH_ID, TO_BRANCH, TO_BRANCH_ID, TRANSFER_DATE, PREPARED_BY, APPROVED_BY, STATUS, TOTAL_AMOUNT, TOTAL_ITEMS, REMARKS)
-                        VALUES (@STR, NULL, @FROM_BRANCH, @FROM_ID, @TO_BRANCH, @TO_ID, NOW(), @PREP, NULL, 'Pending', @TOTAL_AMT, @TOTAL_QTY, NULL)", conn, tran)
+                        (ACCOUNT_ID, APPROVED_BY, DR_NUMBER, FROM_BRANCH, FROM_BRANCH_ID, 
+                         PREPARED_BY, RECEIVED_BY, REMARKS, STATUS, STR_NUMBER, 
+                         TOTAL_AMOUNT, TOTAL_ITEMS, TO_BRANCH, TO_BRANCH_ID, TRANSFER_DATE)
+                        VALUES (@ACCT, NULL, NULL, @FROM_BRANCH_NAME, @FROM_BRANCH_ID, 
+                                @PREPARED, NULL, NULL, 'PENDING', @STRNUMBER, 
+                                @TOTALAMT, @TOTALITEMS, @TO_BRANCH_NAME, @TO_BRANCH_ID, NOW())", conn, tran)
 
-                    cmdHeader.Parameters.AddWithValue("@STR", strNumber)
-                    cmdHeader.Parameters.AddWithValue("@FROM_BRANCH", DBConnection.CurrentUserBranchID.Trim())
-                    cmdHeader.Parameters.AddWithValue("@FROM_ID", fromBranch)
-                    cmdHeader.Parameters.AddWithValue("@TO_BRANCH", toBranchName)
-                    cmdHeader.Parameters.AddWithValue("@TO_ID", toBranchId)
-                    cmdHeader.Parameters.AddWithValue("@PREP", preparedBy)
-                    cmdHeader.Parameters.AddWithValue("@TOTAL_AMT", totalAmount)
-                    cmdHeader.Parameters.AddWithValue("@TOTAL_QTY", dgvOrderList.Rows.Count)
+                    cmdHeader.Parameters.AddWithValue("@ACCT", userAccountId)
+                    cmdHeader.Parameters.AddWithValue("@FROM_BRANCH_NAME", fromBranchName)
+                    cmdHeader.Parameters.AddWithValue("@FROM_BRANCH_ID", fromBranchId)
+                    cmdHeader.Parameters.AddWithValue("@PREPARED", preparedBy)
+                    cmdHeader.Parameters.AddWithValue("@STRNUMBER", strNumber)
+                    cmdHeader.Parameters.AddWithValue("@TOTALAMT", totalAmount)
+                    cmdHeader.Parameters.AddWithValue("@TOTALITEMS", totalItems)
+                    cmdHeader.Parameters.AddWithValue("@TO_BRANCH_NAME", toBranchName)
+                    cmdHeader.Parameters.AddWithValue("@TO_BRANCH_ID", toBranchId)
                     cmdHeader.ExecuteNonQuery()
 
+                    ' ✅ 2. I-SAVE SA stock_transfer + UPDATE INVENTORY
                     For Each row As DataGridViewRow In dgvOrderList.Rows
+                        Dim barcode = row.Cells("colBarcode").Value.ToString()
+                        Dim qtyVal = Convert.ToInt32(row.Cells("colQty").Value)
+                        Dim lineTotalVal = Convert.ToDecimal(row.Cells("colTotal").Value)
+
+                        ' ✅ I-SAVE ANG PRODUKTO
                         Dim cmdDetail As New MySqlCommand("
                             INSERT INTO stock_transfer 
-                            (STR_NUMBER, BARCODE, SKU, BRAND, DESCRIPTIONS, SIZE, PRICE, ORDER_QTY, TOTAL)
-                            VALUES (@STR, @BAR, @SKU, @BRAND, @DESC, @SIZE, @PRICE, @QTY, @LINE_TOTAL)", conn, tran)
+                            (STR_NUMBER, BARCODE, SKU, BRAND, DESCRIPTIONS, SIZE, PRICE, ORDER_QTY, TOTAL, STOCK_IN, STOCK_OUT)
+                            VALUES (@STR, @BAR, @SKU, @BRAND, @DESC, @SIZE, @PRICE, @QTY, @LINE_TOTAL, 0, @STOCK_OUT_VAL)", conn, tran)
 
                         cmdDetail.Parameters.AddWithValue("@STR", strNumber)
-                        cmdDetail.Parameters.AddWithValue("@BAR", row.Cells("colBarcode").Value)
+                        cmdDetail.Parameters.AddWithValue("@BAR", barcode)
                         cmdDetail.Parameters.AddWithValue("@SKU", row.Cells("colSKU").Value)
                         cmdDetail.Parameters.AddWithValue("@BRAND", row.Cells("colBrand").Value)
                         cmdDetail.Parameters.AddWithValue("@DESC", row.Cells("colDesc").Value)
                         cmdDetail.Parameters.AddWithValue("@SIZE", row.Cells("colSize").Value)
                         cmdDetail.Parameters.AddWithValue("@PRICE", row.Cells("colPrice").Value)
-                        cmdDetail.Parameters.AddWithValue("@QTY", row.Cells("colQty").Value)
-                        cmdDetail.Parameters.AddWithValue("@LINE_TOTAL", row.Cells("colTotal").Value)
+                        cmdDetail.Parameters.AddWithValue("@QTY", qtyVal)
+                        cmdDetail.Parameters.AddWithValue("@LINE_TOTAL", lineTotalVal)
+                        cmdDetail.Parameters.AddWithValue("@STOCK_OUT_VAL", qtyVal)
                         cmdDetail.ExecuteNonQuery()
 
-                        Dim cmdOut As New MySqlCommand("
+                        ' ✅ 3. BAWASAN SA PINANGGALINGANG BRANCH
+                        ' ⚠️ PALITAN ANG "AVAILABLE" KUNG IBA ANG PANGALAN NG COLUMN MO
+                        Dim cmdUpdateFrom As New MySqlCommand("
                             UPDATE inventory_information 
-                            SET STOCK_OUT = STOCK_OUT + @QTY, AVAILABLE = AVAILABLE - @QTY
-                            WHERE BARCODE = @BAR AND BRANCH_ID = @FROM", conn, tran)
-                        cmdOut.Parameters.AddWithValue("@QTY", row.Cells("colQty").Value)
-                        cmdOut.Parameters.AddWithValue("@BAR", row.Cells("colBarcode").Value)
-                        cmdOut.Parameters.AddWithValue("@FROM", fromBranch)
-                        cmdOut.ExecuteNonQuery()
+                            SET AVAILABLE = AVAILABLE - @QTY 
+                            WHERE BARCODE = @BARCODE AND BRANCH_ID = @BRANCHID", conn, tran)
 
-                        Dim cmdIn As New MySqlCommand("
+                        cmdUpdateFrom.Parameters.AddWithValue("@QTY", qtyVal)
+                        cmdUpdateFrom.Parameters.AddWithValue("@BARCODE", barcode)
+                        cmdUpdateFrom.Parameters.AddWithValue("@BRANCHID", fromBranchId)
+                        cmdUpdateFrom.ExecuteNonQuery()
+
+                        ' ✅ 4. DAGDAGAN SA PINADALHANG BRANCH
+                        Dim cmdUpdateTo As New MySqlCommand("
                             UPDATE inventory_information 
-                            SET STOCK_IN = STOCK_IN + @QTY, AVAILABLE = AVAILABLE + @QTY
-                            WHERE BARCODE = @BAR AND BRANCH_ID = @TO", conn, tran)
-                        cmdIn.Parameters.AddWithValue("@QTY", row.Cells("colQty").Value)
-                        cmdIn.Parameters.AddWithValue("@BAR", row.Cells("colBarcode").Value)
-                        cmdIn.Parameters.AddWithValue("@TO", toBranchId)
-                        cmdIn.ExecuteNonQuery()
+                            SET AVAILABLE = AVAILABLE + @QTY 
+                            WHERE BARCODE = @BARCODE AND BRANCH_ID = @BRANCHID", conn, tran)
+
+                        cmdUpdateTo.Parameters.AddWithValue("@QTY", qtyVal)
+                        cmdUpdateTo.Parameters.AddWithValue("@BARCODE", barcode)
+                        cmdUpdateTo.Parameters.AddWithValue("@BRANCHID", toBranchId)
+                        cmdUpdateTo.ExecuteNonQuery()
                     Next
 
                     tran.Commit()
-                    MessageBox.Show("Stock Transfer saved & Inventory updated successfully!", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information)
+                    MessageBox.Show($"✅ Transfer Saved!{vbCrLf}From: {fromBranchName}{vbCrLf}To: {toBranchName}", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information)
                     dgvOrderList.Rows.Clear()
                     totalAmount = 0
                     GenerateSTRNumber()
+                    LoadBranchList() ' ✅ I-REFRESH ANG BRANCH SELECTION
 
                 Catch ex As Exception
                     tran.Rollback()
@@ -363,4 +424,5 @@ Public Class frmStock_Transfer
             End Using
         End Using
     End Sub
+
 End Class

@@ -2,7 +2,7 @@
 Imports System.Windows.Forms
 
 Module DBConnection
-    Public ReadOnly connStr As String = "server=localhost;user=root;password=;database=codenectdb;SslMode=None;"
+    Public ReadOnly connStr As String = "server=192.168.100.16;user=root;password=;database=codenectdb;SslMode=None;"
 
     Public CurrentUserBranchID As String = ""
     Public CurrentUserAccountID As String = ""

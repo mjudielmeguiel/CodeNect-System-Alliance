@@ -1,4 +1,6 @@
 ﻿Imports MySqlConnector
+Imports System.Drawing
+Imports System.Windows.Forms
 
 Public Class Ordering_Reports
     Inherits Form
@@ -9,7 +11,6 @@ Public Class Ordering_Reports
     Private userBranchID As String = Nothing
 
     Private Sub Ordering_Reports_Load(sender As Object, e As EventArgs) Handles MyBase.Load
-        ' Get current user and branch information
         userAccountID = If(DBConnection.CurrentUserAccountID IsNot Nothing, DBConnection.CurrentUserAccountID.Trim(), "")
         userBranchID = If(DBConnection.CurrentUserBranchID IsNot Nothing, DBConnection.CurrentUserBranchID.Trim(), "")
 
@@ -72,8 +73,6 @@ Public Class Ordering_Reports
 
         Using conn As New MySqlConnection(connStr)
             conn.Open()
-            ' ✅ IPAPAKITA: PENDING + ORDER PLACED
-            ' ✅ MAWAWALA LANG KAPAG NA-RECEIVE NA!
             Dim cmd As New MySqlCommand("
                 SELECT PO_NUMBER, REQUEST_DATE, STATUS, DR, PREPARED_BY, RECEIVER, RECEIVE_DATE, TRANSACTION_TYPE, TOTAL
                 FROM sto_data
@@ -142,7 +141,6 @@ Public Class Ordering_Reports
 
         Using conn As New MySqlConnection(connStr)
             conn.Open()
-            ' ✅ VALIDATE PO BELONGS TO YOUR BRANCH
             Dim cmd As New MySqlCommand("
                 SELECT VENDOR_CODE, VENDOR_NAME 
                 FROM sto_data 
@@ -168,7 +166,6 @@ Public Class Ordering_Reports
         Dim drValue = dgvReports.Rows(e.RowIndex).Cells("DR").Value?.ToString()
         Dim status = dgvReports.Rows(e.RowIndex).Cells("STATUS").Value?.ToString().Trim()
 
-        ' ✅ Validate branch before any action
         If String.IsNullOrWhiteSpace(userBranchID) Then
             MessageBox.Show("Branch information not found. Please log in again.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
             Return
@@ -200,9 +197,8 @@ Public Class Ordering_Reports
                     Try
                         Dim itemsToUpdate As New List(Of Tuple(Of String, Integer))()
 
-                        ' ✅ GET ITEMS ONLY FROM YOUR BRANCH
                         Dim cmdGetItems As New MySqlCommand("
-                            SELECT BARCODE, ORDER_QTY 
+                            SELECT BARCODE, ORDER_QTY, STOCK_IN 
                             FROM stock_ordering 
                             WHERE PO_NUMBER = @PO 
                               AND BRANCH_ID = @MY_BRANCH", conn, tran)
@@ -213,8 +209,23 @@ Public Class Ordering_Reports
                         Using dr = cmdGetItems.ExecuteReader()
                             While dr.Read()
                                 Dim barcode As String = dr("BARCODE").ToString()
-                                Dim orderQty As Integer = Convert.ToInt32(dr("ORDER_QTY"))
-                                itemsToUpdate.Add(Tuple.Create(barcode, orderQty))
+                                Dim receiveQty As Integer = 0
+
+                                Dim stockInIndex As Integer = dr.GetOrdinal("STOCK_IN")
+                                If Not dr.IsDBNull(stockInIndex) Then
+                                    receiveQty = dr.GetInt32(stockInIndex)
+                                    If receiveQty <= 0 Then
+                                        receiveQty = Convert.ToInt32(dr("ORDER_QTY"))
+                                    End If
+                                Else
+                                    receiveQty = Convert.ToInt32(dr("ORDER_QTY"))
+                                End If
+
+                                If receiveQty <= 0 Then
+                                    Throw New InvalidOperationException($"Invalid quantity for item {barcode}")
+                                End If
+
+                                itemsToUpdate.Add(Tuple.Create(barcode, receiveQty))
                             End While
                         End Using
 
@@ -223,7 +234,6 @@ Public Class Ordering_Reports
                             Return
                         End If
 
-                        ' ✅ UPDATE STOCKS — YOUR BRANCH ONLY!
                         For Each item In itemsToUpdate
                             Dim cmdUpdateStock As New MySqlCommand("
                                 UPDATE inventory_information 
@@ -241,7 +251,6 @@ Public Class Ordering_Reports
                             cmdUpdateStock.ExecuteNonQuery()
                         Next
 
-                        ' ✅ UPDATE STATUS — YOUR BRANCH ONLY!
                         Dim cmdUpd As New MySqlCommand("
                             UPDATE sto_data
                             SET STATUS = 'Received', DR = @DR, RECEIVER = @RECEIVER, RECEIVE_DATE = NOW()
@@ -257,8 +266,9 @@ Public Class Ordering_Reports
                         tran.Commit()
 
                         MessageBox.Show(
-                            $"Order Received Successfully!{vbCrLf}" &
+                            $"✅ Order Received Successfully!{vbCrLf}" &
                             $"Items Updated: {itemsToUpdate.Count}{vbCrLf}" &
+                            $"Used Quantity from Stock In{vbCrLf}" &
                             $"DR Number: {drValue}{vbCrLf}" &
                             $"Received By: {currentUser}",
                             "Success", MessageBoxButtons.OK, MessageBoxIcon.Information)
@@ -286,7 +296,6 @@ Public Class Ordering_Reports
 
             Using conn As New MySqlConnection(connStr)
                 conn.Open()
-                ' ✅ CANCEL ONLY FROM YOUR BRANCH
                 Dim cmd As New MySqlCommand("
                     UPDATE sto_data 
                     SET STATUS = 'Cancelled' 

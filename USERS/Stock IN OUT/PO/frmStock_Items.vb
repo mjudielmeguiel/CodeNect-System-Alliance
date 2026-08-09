@@ -52,7 +52,7 @@ Public Class frmStock_Items
         Using conn As New MySqlConnection(DBConnection.connStr)
             conn.Open()
             Dim cmd As New MySqlCommand("
-                SELECT BARCODE, BRAND, DESCRIPTIONS, ORDER_QTY, SIZE, SKU, PRICE, STATUS
+                SELECT BARCODE, BRAND, DESCRIPTIONS, ORDER_QTY, STOCK_IN, SIZE, SKU, PRICE, STATUS
                 FROM stock_ordering
                 WHERE PO_NUMBER = @PO 
                   AND BRANCH_ID = @MY_BRANCH
@@ -64,6 +64,13 @@ Public Class frmStock_Items
             Using dr = cmd.ExecuteReader()
                 While dr.Read()
                     Dim statusVal = dr("STATUS")?.ToString().Trim()
+                    Dim stockInVal As String = ""
+                    Dim stockInIndex As Integer = dr.GetOrdinal("STOCK_IN")
+
+                    If Not dr.IsDBNull(stockInIndex) Then
+                        stockInVal = dr.GetInt32(stockInIndex).ToString()
+                    End If
+
                     dgvItems.Rows.Add(
                         dr("BARCODE").ToString(),
                         dr("BRAND").ToString(),
@@ -72,7 +79,7 @@ Public Class frmStock_Items
                         dr("SIZE").ToString(),
                         dr("SKU").ToString(),
                         Convert.ToDecimal(dr("PRICE")).ToString("N2"),
-                        "",
+                        stockInVal,
                         statusVal
                     )
 
@@ -143,6 +150,15 @@ Public Class frmStock_Items
             Dim stockInQty As Integer = 0
             Integer.TryParse(row.Cells("STOCK_IN").Value?.ToString().Trim(), stockInQty)
 
+            If stockInQty <= 0 Then
+                MessageBox.Show(
+                    $"Item: {row.Cells("DESCRIPTIONS").Value}{vbCrLf}" &
+                    $"Barcode: {barcodeVal}{vbCrLf}" &
+                    $"Quantity must be greater than zero!",
+                    "Invalid Quantity", MessageBoxButtons.OK, MessageBoxIcon.Warning)
+                Exit Sub
+            End If
+
             row.Cells("STATUS").Value = "Received"
 
             Using conn As New MySqlConnection(DBConnection.connStr)
@@ -166,7 +182,7 @@ Public Class frmStock_Items
         isTransactionComplete = True
         LockStockInColumn()
 
-        lblMessage.Text = $"Receive Complete! {successCount} item(s) marked as Received."
+        lblMessage.Text = $"✅ Receive Complete! {successCount} item(s) marked as Received."
         lblMessage.ForeColor = Color.Green
     End Sub
 

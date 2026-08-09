@@ -25,27 +25,30 @@ Partial Class ADD_Vendor_Product
         Dim resources As System.ComponentModel.ComponentResourceManager = New System.ComponentModel.ComponentResourceManager(GetType(ADD_Vendor_Product))
         Me.btnClose = New System.Windows.Forms.Button()
         Me.cboCategory = New System.Windows.Forms.ComboBox()
-        Me.Panel5 = New System.Windows.Forms.Panel()
-        Me.picProduct = New System.Windows.Forms.PictureBox()
+        Me.txtAvailable = New System.Windows.Forms.TextBox()
         Me.txtBarcode = New System.Windows.Forms.TextBox()
         Me.txtBrand = New System.Windows.Forms.TextBox()
         Me.txtDescription = New System.Windows.Forms.TextBox()
         Me.txtSize = New System.Windows.Forms.TextBox()
         Me.txtPrice = New System.Windows.Forms.TextBox()
         Me.txtUnit = New System.Windows.Forms.TextBox()
-        Me.Panel2 = New System.Windows.Forms.Panel()
         Me.btnSaveProduct = New System.Windows.Forms.Button()
+        Me.Label6 = New System.Windows.Forms.Label()
+        Me.Label2 = New System.Windows.Forms.Label()
+        Me.Label3 = New System.Windows.Forms.Label()
+        Me.Label4 = New System.Windows.Forms.Label()
+        Me.Label5 = New System.Windows.Forms.Label()
         Me.Panel1 = New System.Windows.Forms.Panel()
-        Me.adminpic = New System.Windows.Forms.PictureBox()
-        Me.userPic = New System.Windows.Forms.PictureBox()
         Me.Label1 = New System.Windows.Forms.Label()
-        Me.txtAvailable = New System.Windows.Forms.TextBox()
-        Me.Panel5.SuspendLayout()
-        CType(Me.picProduct, System.ComponentModel.ISupportInitialize).BeginInit()
-        Me.Panel2.SuspendLayout()
+        Me.adminpic = New System.Windows.Forms.PictureBox()
+        Me.Label7 = New System.Windows.Forms.Label()
+        Me.Label8 = New System.Windows.Forms.Label()
+        Me.Label9 = New System.Windows.Forms.Label()
+        Me.picProduct = New System.Windows.Forms.PictureBox()
+        Me.Label10 = New System.Windows.Forms.Label()
         Me.Panel1.SuspendLayout()
         CType(Me.adminpic, System.ComponentModel.ISupportInitialize).BeginInit()
-        CType(Me.userPic, System.ComponentModel.ISupportInitialize).BeginInit()
+        CType(Me.picProduct, System.ComponentModel.ISupportInitialize).BeginInit()
         Me.SuspendLayout()
         '
         'btnClose
@@ -56,7 +59,7 @@ Partial Class ADD_Vendor_Product
         Me.btnClose.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.btnClose.ForeColor = System.Drawing.Color.Maroon
         Me.btnClose.Image = CType(resources.GetObject("btnClose.Image"), System.Drawing.Image)
-        Me.btnClose.Location = New System.Drawing.Point(480, 5)
+        Me.btnClose.Location = New System.Drawing.Point(589, 337)
         Me.btnClose.Name = "btnClose"
         Me.btnClose.Size = New System.Drawing.Size(135, 37)
         Me.btnClose.TabIndex = 280
@@ -69,134 +72,166 @@ Partial Class ADD_Vendor_Product
         '
         Me.cboCategory.Font = New System.Drawing.Font("Microsoft Sans Serif", 11.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.cboCategory.FormattingEnabled = True
-        Me.cboCategory.Location = New System.Drawing.Point(12, 75)
+        Me.cboCategory.Location = New System.Drawing.Point(12, 214)
         Me.cboCategory.Name = "cboCategory"
-        Me.cboCategory.Size = New System.Drawing.Size(460, 26)
+        Me.cboCategory.Size = New System.Drawing.Size(456, 26)
         Me.cboCategory.TabIndex = 281
         '
-        'Panel5
+        'txtAvailable
         '
-        Me.Panel5.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle
-        Me.Panel5.Controls.Add(Me.txtAvailable)
-        Me.Panel5.Controls.Add(Me.cboCategory)
-        Me.Panel5.Controls.Add(Me.picProduct)
-        Me.Panel5.Controls.Add(Me.txtBarcode)
-        Me.Panel5.Controls.Add(Me.txtBrand)
-        Me.Panel5.Controls.Add(Me.txtDescription)
-        Me.Panel5.Location = New System.Drawing.Point(12, 60)
-        Me.Panel5.Name = "Panel5"
-        Me.Panel5.Size = New System.Drawing.Size(629, 147)
-        Me.Panel5.TabIndex = 303
-        '
-        'picProduct
-        '
-        Me.picProduct.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle
-        Me.picProduct.Image = CType(resources.GetObject("picProduct.Image"), System.Drawing.Image)
-        Me.picProduct.Location = New System.Drawing.Point(478, 10)
-        Me.picProduct.Name = "picProduct"
-        Me.picProduct.Size = New System.Drawing.Size(137, 123)
-        Me.picProduct.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom
-        Me.picProduct.TabIndex = 293
-        Me.picProduct.TabStop = False
+        Me.txtAvailable.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle
+        Me.txtAvailable.Font = New System.Drawing.Font("Microsoft Sans Serif", 12.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.txtAvailable.Location = New System.Drawing.Point(12, 285)
+        Me.txtAvailable.Name = "txtAvailable"
+        Me.txtAvailable.Size = New System.Drawing.Size(94, 26)
+        Me.txtAvailable.TabIndex = 294
         '
         'txtBarcode
         '
         Me.txtBarcode.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle
         Me.txtBarcode.Font = New System.Drawing.Font("Microsoft Sans Serif", 12.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.txtBarcode.Location = New System.Drawing.Point(12, 10)
+        Me.txtBarcode.Location = New System.Drawing.Point(12, 97)
         Me.txtBarcode.Name = "txtBarcode"
-        Me.txtBarcode.Size = New System.Drawing.Size(177, 26)
+        Me.txtBarcode.Size = New System.Drawing.Size(261, 26)
         Me.txtBarcode.TabIndex = 255
         '
         'txtBrand
         '
         Me.txtBrand.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle
         Me.txtBrand.Font = New System.Drawing.Font("Microsoft Sans Serif", 12.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.txtBrand.Location = New System.Drawing.Point(195, 11)
+        Me.txtBrand.Location = New System.Drawing.Point(279, 97)
         Me.txtBrand.Name = "txtBrand"
-        Me.txtBrand.Size = New System.Drawing.Size(277, 26)
+        Me.txtBrand.Size = New System.Drawing.Size(189, 26)
         Me.txtBrand.TabIndex = 261
         '
         'txtDescription
         '
         Me.txtDescription.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle
         Me.txtDescription.Font = New System.Drawing.Font("Microsoft Sans Serif", 12.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.txtDescription.Location = New System.Drawing.Point(12, 43)
+        Me.txtDescription.Location = New System.Drawing.Point(12, 156)
         Me.txtDescription.Name = "txtDescription"
-        Me.txtDescription.Size = New System.Drawing.Size(460, 26)
+        Me.txtDescription.Size = New System.Drawing.Size(456, 26)
         Me.txtDescription.TabIndex = 259
         '
         'txtSize
         '
         Me.txtSize.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle
         Me.txtSize.Font = New System.Drawing.Font("Microsoft Sans Serif", 12.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.txtSize.Location = New System.Drawing.Point(68, 9)
+        Me.txtSize.Location = New System.Drawing.Point(200, 285)
         Me.txtSize.Name = "txtSize"
-        Me.txtSize.Size = New System.Drawing.Size(79, 26)
+        Me.txtSize.Size = New System.Drawing.Size(100, 26)
         Me.txtSize.TabIndex = 265
         '
         'txtPrice
         '
         Me.txtPrice.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle
         Me.txtPrice.Font = New System.Drawing.Font("Microsoft Sans Serif", 12.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.txtPrice.Location = New System.Drawing.Point(153, 10)
+        Me.txtPrice.Location = New System.Drawing.Point(306, 285)
         Me.txtPrice.Name = "txtPrice"
-        Me.txtPrice.Size = New System.Drawing.Size(69, 26)
+        Me.txtPrice.Size = New System.Drawing.Size(162, 26)
         Me.txtPrice.TabIndex = 267
         '
         'txtUnit
         '
         Me.txtUnit.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle
         Me.txtUnit.Font = New System.Drawing.Font("Microsoft Sans Serif", 12.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.txtUnit.Location = New System.Drawing.Point(12, 9)
+        Me.txtUnit.Location = New System.Drawing.Point(112, 285)
         Me.txtUnit.Name = "txtUnit"
-        Me.txtUnit.Size = New System.Drawing.Size(50, 26)
+        Me.txtUnit.Size = New System.Drawing.Size(82, 26)
         Me.txtUnit.TabIndex = 269
-        '
-        'Panel2
-        '
-        Me.Panel2.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle
-        Me.Panel2.Controls.Add(Me.txtSize)
-        Me.Panel2.Controls.Add(Me.btnSaveProduct)
-        Me.Panel2.Controls.Add(Me.btnClose)
-        Me.Panel2.Controls.Add(Me.txtPrice)
-        Me.Panel2.Controls.Add(Me.txtUnit)
-        Me.Panel2.Location = New System.Drawing.Point(12, 213)
-        Me.Panel2.Name = "Panel2"
-        Me.Panel2.Size = New System.Drawing.Size(629, 49)
-        Me.Panel2.TabIndex = 300
         '
         'btnSaveProduct
         '
-        Me.btnSaveProduct.BackColor = System.Drawing.Color.Maroon
+        Me.btnSaveProduct.Anchor = CType((System.Windows.Forms.AnchorStyles.Bottom Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
+        Me.btnSaveProduct.BackColor = System.Drawing.Color.DarkRed
         Me.btnSaveProduct.BackgroundImageLayout = System.Windows.Forms.ImageLayout.None
         Me.btnSaveProduct.FlatStyle = System.Windows.Forms.FlatStyle.Flat
-        Me.btnSaveProduct.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.btnSaveProduct.Font = New System.Drawing.Font("Microsoft YaHei UI", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.btnSaveProduct.ForeColor = System.Drawing.SystemColors.ButtonHighlight
-        Me.btnSaveProduct.Image = CType(resources.GetObject("btnSaveProduct.Image"), System.Drawing.Image)
-        Me.btnSaveProduct.Location = New System.Drawing.Point(337, 5)
+        Me.btnSaveProduct.ImageAlign = System.Drawing.ContentAlignment.MiddleRight
+        Me.btnSaveProduct.Location = New System.Drawing.Point(449, 336)
         Me.btnSaveProduct.Name = "btnSaveProduct"
-        Me.btnSaveProduct.Size = New System.Drawing.Size(135, 37)
-        Me.btnSaveProduct.TabIndex = 253
-        Me.btnSaveProduct.Text = " Save Product"
-        Me.btnSaveProduct.TextAlign = System.Drawing.ContentAlignment.MiddleRight
+        Me.btnSaveProduct.Size = New System.Drawing.Size(134, 37)
+        Me.btnSaveProduct.TabIndex = 348
+        Me.btnSaveProduct.Text = "Save"
         Me.btnSaveProduct.TextImageRelation = System.Windows.Forms.TextImageRelation.ImageBeforeText
         Me.btnSaveProduct.UseVisualStyleBackColor = False
+        '
+        'Label6
+        '
+        Me.Label6.AutoSize = True
+        Me.Label6.Font = New System.Drawing.Font("Microsoft YaHei UI", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.Label6.Location = New System.Drawing.Point(8, 192)
+        Me.Label6.Name = "Label6"
+        Me.Label6.Size = New System.Drawing.Size(68, 19)
+        Me.Label6.TabIndex = 359
+        Me.Label6.Text = "Category:"
+        '
+        'Label2
+        '
+        Me.Label2.AutoSize = True
+        Me.Label2.Font = New System.Drawing.Font("Microsoft YaHei UI", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.Label2.Location = New System.Drawing.Point(108, 263)
+        Me.Label2.Name = "Label2"
+        Me.Label2.Size = New System.Drawing.Size(38, 19)
+        Me.Label2.TabIndex = 360
+        Me.Label2.Text = "Unit:"
+        '
+        'Label3
+        '
+        Me.Label3.AutoSize = True
+        Me.Label3.Font = New System.Drawing.Font("Microsoft YaHei UI", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.Label3.Location = New System.Drawing.Point(196, 263)
+        Me.Label3.Name = "Label3"
+        Me.Label3.Size = New System.Drawing.Size(36, 19)
+        Me.Label3.TabIndex = 362
+        Me.Label3.Text = "Size:"
+        '
+        'Label4
+        '
+        Me.Label4.AutoSize = True
+        Me.Label4.Font = New System.Drawing.Font("Microsoft YaHei UI", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.Label4.Location = New System.Drawing.Point(302, 263)
+        Me.Label4.Name = "Label4"
+        Me.Label4.Size = New System.Drawing.Size(42, 19)
+        Me.Label4.TabIndex = 361
+        Me.Label4.Text = "Price:"
+        '
+        'Label5
+        '
+        Me.Label5.AutoSize = True
+        Me.Label5.Font = New System.Drawing.Font("Microsoft YaHei UI", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.Label5.Location = New System.Drawing.Point(8, 263)
+        Me.Label5.Name = "Label5"
+        Me.Label5.Size = New System.Drawing.Size(63, 19)
+        Me.Label5.TabIndex = 363
+        Me.Label5.Text = "Available"
         '
         'Panel1
         '
         Me.Panel1.BackColor = System.Drawing.Color.DarkRed
-        Me.Panel1.Controls.Add(Me.adminpic)
-        Me.Panel1.Controls.Add(Me.userPic)
         Me.Panel1.Controls.Add(Me.Label1)
+        Me.Panel1.Controls.Add(Me.adminpic)
         Me.Panel1.Dock = System.Windows.Forms.DockStyle.Top
         Me.Panel1.Location = New System.Drawing.Point(0, 0)
         Me.Panel1.Name = "Panel1"
-        Me.Panel1.Size = New System.Drawing.Size(652, 54)
-        Me.Panel1.TabIndex = 299
+        Me.Panel1.Size = New System.Drawing.Size(736, 54)
+        Me.Panel1.TabIndex = 364
+        '
+        'Label1
+        '
+        Me.Label1.AutoSize = True
+        Me.Label1.Font = New System.Drawing.Font("Microsoft YaHei UI Light", 15.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.Label1.ForeColor = System.Drawing.SystemColors.Control
+        Me.Label1.Location = New System.Drawing.Point(89, 14)
+        Me.Label1.Name = "Label1"
+        Me.Label1.Size = New System.Drawing.Size(257, 28)
+        Me.Label1.TabIndex = 0
+        Me.Label1.Text = "Fill in Product Information"
         '
         'adminpic
         '
+        Me.adminpic.Dock = System.Windows.Forms.DockStyle.Left
         Me.adminpic.Image = CType(resources.GetObject("adminpic.Image"), System.Drawing.Image)
         Me.adminpic.Location = New System.Drawing.Point(0, 0)
         Me.adminpic.Name = "adminpic"
@@ -205,76 +240,117 @@ Partial Class ADD_Vendor_Product
         Me.adminpic.TabIndex = 6
         Me.adminpic.TabStop = False
         '
-        'userPic
+        'Label7
         '
-        Me.userPic.Image = CType(resources.GetObject("userPic.Image"), System.Drawing.Image)
-        Me.userPic.Location = New System.Drawing.Point(0, 0)
-        Me.userPic.Name = "userPic"
-        Me.userPic.Size = New System.Drawing.Size(73, 54)
-        Me.userPic.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom
-        Me.userPic.TabIndex = 7
-        Me.userPic.TabStop = False
+        Me.Label7.AutoSize = True
+        Me.Label7.Font = New System.Drawing.Font("Microsoft YaHei UI", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.Label7.Location = New System.Drawing.Point(8, 75)
+        Me.Label7.Name = "Label7"
+        Me.Label7.Size = New System.Drawing.Size(62, 19)
+        Me.Label7.TabIndex = 365
+        Me.Label7.Text = "Barcode:"
         '
-        'Label1
+        'Label8
         '
-        Me.Label1.AutoSize = True
-        Me.Label1.Font = New System.Drawing.Font("Microsoft YaHei UI", 20.25!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.Label1.ForeColor = System.Drawing.SystemColors.Control
-        Me.Label1.Location = New System.Drawing.Point(79, 9)
-        Me.Label1.Name = "Label1"
-        Me.Label1.Size = New System.Drawing.Size(423, 36)
-        Me.Label1.TabIndex = 0
-        Me.Label1.Text = "ADD NEW VENDOR PRODUCT"
+        Me.Label8.AutoSize = True
+        Me.Label8.Font = New System.Drawing.Font("Microsoft YaHei UI", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.Label8.Location = New System.Drawing.Point(275, 74)
+        Me.Label8.Name = "Label8"
+        Me.Label8.Size = New System.Drawing.Size(48, 19)
+        Me.Label8.TabIndex = 366
+        Me.Label8.Text = "Brand:"
         '
-        'txtAvailable
+        'Label9
         '
-        Me.txtAvailable.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle
-        Me.txtAvailable.Font = New System.Drawing.Font("Microsoft Sans Serif", 12.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.txtAvailable.Location = New System.Drawing.Point(12, 107)
-        Me.txtAvailable.Name = "txtAvailable"
-        Me.txtAvailable.Size = New System.Drawing.Size(126, 26)
-        Me.txtAvailable.TabIndex = 294
+        Me.Label9.AutoSize = True
+        Me.Label9.Font = New System.Drawing.Font("Microsoft YaHei UI", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.Label9.Location = New System.Drawing.Point(8, 134)
+        Me.Label9.Name = "Label9"
+        Me.Label9.Size = New System.Drawing.Size(135, 19)
+        Me.Label9.TabIndex = 367
+        Me.Label9.Text = "Product Description:"
+        '
+        'picProduct
+        '
+        Me.picProduct.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Zoom
+        Me.picProduct.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle
+        Me.picProduct.Location = New System.Drawing.Point(474, 96)
+        Me.picProduct.Name = "picProduct"
+        Me.picProduct.Size = New System.Drawing.Size(249, 214)
+        Me.picProduct.TabIndex = 368
+        Me.picProduct.TabStop = False
+        '
+        'Label10
+        '
+        Me.Label10.AutoSize = True
+        Me.Label10.Font = New System.Drawing.Font("Microsoft YaHei UI", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.Label10.Location = New System.Drawing.Point(470, 74)
+        Me.Label10.Name = "Label10"
+        Me.Label10.Size = New System.Drawing.Size(108, 19)
+        Me.Label10.TabIndex = 369
+        Me.Label10.Text = "product Picture:"
         '
         'ADD_Vendor_Product
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(6.0!, 13.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
-        Me.ClientSize = New System.Drawing.Size(652, 277)
-        Me.Controls.Add(Me.Panel5)
-        Me.Controls.Add(Me.Panel2)
+        Me.ClientSize = New System.Drawing.Size(736, 385)
+        Me.Controls.Add(Me.Label10)
+        Me.Controls.Add(Me.picProduct)
+        Me.Controls.Add(Me.Label9)
+        Me.Controls.Add(Me.Label8)
+        Me.Controls.Add(Me.Label7)
         Me.Controls.Add(Me.Panel1)
+        Me.Controls.Add(Me.txtBarcode)
+        Me.Controls.Add(Me.Label5)
+        Me.Controls.Add(Me.txtBrand)
+        Me.Controls.Add(Me.txtDescription)
+        Me.Controls.Add(Me.Label3)
+        Me.Controls.Add(Me.txtAvailable)
+        Me.Controls.Add(Me.cboCategory)
+        Me.Controls.Add(Me.Label2)
+        Me.Controls.Add(Me.Label4)
+        Me.Controls.Add(Me.txtSize)
+        Me.Controls.Add(Me.Label6)
+        Me.Controls.Add(Me.txtPrice)
+        Me.Controls.Add(Me.txtUnit)
+        Me.Controls.Add(Me.btnSaveProduct)
+        Me.Controls.Add(Me.btnClose)
+        Me.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedToolWindow
         Me.Icon = CType(resources.GetObject("$this.Icon"), System.Drawing.Icon)
         Me.Name = "ADD_Vendor_Product"
         Me.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen
         Me.Text = "ADD_Vendor_Product"
-        Me.Panel5.ResumeLayout(False)
-        Me.Panel5.PerformLayout()
-        CType(Me.picProduct, System.ComponentModel.ISupportInitialize).EndInit()
-        Me.Panel2.ResumeLayout(False)
-        Me.Panel2.PerformLayout()
         Me.Panel1.ResumeLayout(False)
         Me.Panel1.PerformLayout()
         CType(Me.adminpic, System.ComponentModel.ISupportInitialize).EndInit()
-        CType(Me.userPic, System.ComponentModel.ISupportInitialize).EndInit()
+        CType(Me.picProduct, System.ComponentModel.ISupportInitialize).EndInit()
         Me.ResumeLayout(False)
+        Me.PerformLayout()
 
     End Sub
 
     Friend WithEvents btnClose As Button
     Friend WithEvents cboCategory As ComboBox
-    Friend WithEvents Panel5 As Panel
-    Friend WithEvents picProduct As PictureBox
     Friend WithEvents txtBarcode As TextBox
     Friend WithEvents txtBrand As TextBox
     Friend WithEvents txtDescription As TextBox
     Friend WithEvents txtSize As TextBox
     Friend WithEvents txtPrice As TextBox
     Friend WithEvents txtUnit As TextBox
-    Friend WithEvents Panel2 As Panel
-    Friend WithEvents btnSaveProduct As Button
-    Friend WithEvents Panel1 As Panel
-    Friend WithEvents adminpic As PictureBox
-    Friend WithEvents userPic As PictureBox
-    Friend WithEvents Label1 As Label
     Friend WithEvents txtAvailable As TextBox
+    Friend WithEvents btnSaveProduct As Button
+    Friend WithEvents Label6 As Label
+    Friend WithEvents Label2 As Label
+    Friend WithEvents Label3 As Label
+    Friend WithEvents Label4 As Label
+    Friend WithEvents Label5 As Label
+    Friend WithEvents Panel1 As Panel
+    Friend WithEvents Label1 As Label
+    Friend WithEvents adminpic As PictureBox
+    Friend WithEvents Label7 As Label
+    Friend WithEvents Label8 As Label
+    Friend WithEvents Label9 As Label
+    Friend WithEvents picProduct As PictureBox
+    Friend WithEvents Label10 As Label
 End Class
