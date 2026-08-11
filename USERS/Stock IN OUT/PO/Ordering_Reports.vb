@@ -9,10 +9,13 @@ Public Class Ordering_Reports
     Private selectedPONumber As String = Nothing
     Private userAccountID As String = Nothing
     Private userBranchID As String = Nothing
+    Private isAdminUser As Boolean = False
 
     Private Sub Ordering_Reports_Load(sender As Object, e As EventArgs) Handles MyBase.Load
-        userAccountID = If(DBConnection.CurrentUserAccountID IsNot Nothing, DBConnection.CurrentUserAccountID.Trim(), "")
-        userBranchID = If(DBConnection.CurrentUserBranchID IsNot Nothing, DBConnection.CurrentUserBranchID.Trim(), "")
+        ' ✅ Get session from Login
+        userAccountID = If(Login.LoggedInAccountID IsNot Nothing, Login.LoggedInAccountID.Trim(), "")
+        userBranchID = If(Login.LoggedInBranchID IsNot Nothing, Login.LoggedInBranchID.Trim(), "")
+        isAdminUser = Login.IsAdminAccount
 
         dtpFrom.Value = New DateTime(2020, 1, 1)
         dtpTo.Value = DateTime.Now.Date
@@ -30,6 +33,7 @@ Public Class Ordering_Reports
         dgvReports.Columns.Add("PO_NUMBER", "PO Number")
         dgvReports.Columns.Add("REQUEST_DATE", "Order Date")
         dgvReports.Columns.Add("STATUS", "Status")
+        dgvReports.Columns.Add("BRANCH", "Branch")
         dgvReports.Columns.Add("DR", "DR Number")
         dgvReports.Columns.Add("PREPARED_BY", "Prepared By")
         dgvReports.Columns.Add("RECEIVER", "Received By")
@@ -66,34 +70,56 @@ Public Class Ordering_Reports
     Private Sub LoadReportData()
         dgvReports.Rows.Clear()
 
-        If String.IsNullOrWhiteSpace(userBranchID) Then
-            MessageBox.Show("Branch information not found. Please log in again.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Warning)
+        If String.IsNullOrWhiteSpace(userAccountID) Then
+            MessageBox.Show("Account information not found. Please log in again.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Warning)
             Return
         End If
 
         Using conn As New MySqlConnection(connStr)
             conn.Open()
-            Dim cmd As New MySqlCommand("
-                SELECT PO_NUMBER, REQUEST_DATE, STATUS, DR, PREPARED_BY, RECEIVER, RECEIVE_DATE, TRANSACTION_TYPE, TOTAL
-                FROM sto_data
-                WHERE STATUS IN ('Pending', 'Order Placed')
-                  AND BRANCH_ID = @MY_BRANCH
-                ORDER BY REQUEST_DATE DESC", conn)
+            Dim sql As String = ""
+            Dim cmd As New MySqlCommand()
+            cmd.Connection = conn
 
-            cmd.Parameters.AddWithValue("@MY_BRANCH", userBranchID)
+            If isAdminUser Then
+                sql = "SELECT PO_NUMBER, REQUEST_DATE, STATUS, BRANCH, DR, PREPARED_BY, " &
+                      "RECEIVER, RECEIVE_DATE, TRANSACTION_TYPE, TOTAL " &
+                      "FROM sto_data " &
+                      "WHERE STATUS IN ('Pending', 'Order Placed') " &
+                      "  AND ACCOUNT_ID = @ACCID " &
+                      "ORDER BY REQUEST_DATE DESC"
+                cmd.CommandText = sql
+                cmd.Parameters.AddWithValue("@ACCID", userAccountID)
+            Else
+                sql = "SELECT PO_NUMBER, REQUEST_DATE, STATUS, BRANCH, DR, PREPARED_BY, " &
+                      "RECEIVER, RECEIVE_DATE, TRANSACTION_TYPE, TOTAL " &
+                      "FROM sto_data " &
+                      "WHERE STATUS IN ('Pending', 'Order Placed') " &
+                      "  AND ACCOUNT_ID = @ACCID " &
+                      "  AND BRANCH_ID = @BRANCHID " &
+                      "ORDER BY REQUEST_DATE DESC"
+                cmd.CommandText = sql
+                cmd.Parameters.AddWithValue("@ACCID", userAccountID)
+                cmd.Parameters.AddWithValue("@BRANCHID", userBranchID)
+            End If
 
             Using dr = cmd.ExecuteReader()
                 While dr.Read()
+                    Dim drVal As String = If(dr.IsDBNull(dr.GetOrdinal("DR")), "", dr("DR").ToString())
+                    Dim recVal As String = If(dr.IsDBNull(dr.GetOrdinal("RECEIVER")), "", dr("RECEIVER").ToString())
+                    Dim recDateVal As String = If(dr.IsDBNull(dr.GetOrdinal("RECEIVE_DATE")), "", Convert.ToDateTime(dr("RECEIVE_DATE")).ToString("yyyy-MM-dd HH:mm"))
+
                     dgvReports.Rows.Add(
-                        dr(0).ToString(),
-                        Convert.ToDateTime(dr(1)).ToString("yyyy-MM-dd"),
-                        dr(2).ToString(),
-                        If(dr.IsDBNull(3), "", dr(3).ToString()),
-                        dr(4).ToString(),
-                        If(dr.IsDBNull(5), "", dr(5).ToString()),
-                        If(dr.IsDBNull(6), "", Convert.ToDateTime(dr(6)).ToString("yyyy-MM-dd HH:mm")),
-                        dr(7).ToString(),
-                        Convert.ToDecimal(dr(8)).ToString("N2")
+                        dr("PO_NUMBER").ToString(),
+                        Convert.ToDateTime(dr("REQUEST_DATE")).ToString("yyyy-MM-dd"),
+                        dr("STATUS").ToString(),
+                        dr("BRANCH").ToString(),
+                        drVal,
+                        dr("PREPARED_BY").ToString(),
+                        recVal,
+                        recDateVal,
+                        dr("TRANSACTION_TYPE").ToString(),
+                        Convert.ToDecimal(dr("TOTAL")).ToString("N2")
                     )
                 End While
             End Using
@@ -109,7 +135,8 @@ Public Class Ordering_Reports
         Dim status = statusCell.Value.ToString().Trim().ToUpper()
 
         If status = "RECEIVED" OrElse status = "CANCELLED" Then
-            If dgvReports.Columns(e.ColumnIndex).Name = "colReceive" OrElse dgvReports.Columns(e.ColumnIndex).Name = "colCancel" Then
+            If dgvReports.Columns(e.ColumnIndex).Name = "colReceive" OrElse
+               dgvReports.Columns(e.ColumnIndex).Name = "colCancel" Then
                 dgvReports.Rows(e.RowIndex).Cells(e.ColumnIndex).ReadOnly = True
                 e.CellStyle.BackColor = Color.LightGray
                 e.CellStyle.ForeColor = Color.Gray
@@ -127,29 +154,29 @@ Public Class Ordering_Reports
         lblStatus.Text = $"Status: {currentStatus}"
 
         Select Case currentStatus.ToUpper()
-            Case "RECEIVED"
-                lblStatus.ForeColor = Color.Green
-            Case "CANCELLED"
-                lblStatus.ForeColor = Color.Red
-            Case "PENDING"
-                lblStatus.ForeColor = Color.Orange
-            Case Else
-                lblStatus.ForeColor = Color.Black
+            Case "RECEIVED" : lblStatus.ForeColor = Color.Green
+            Case "CANCELLED" : lblStatus.ForeColor = Color.Red
+            Case "PENDING" : lblStatus.ForeColor = Color.Orange
+            Case Else : lblStatus.ForeColor = Color.Black
         End Select
 
-        If String.IsNullOrWhiteSpace(userBranchID) OrElse String.IsNullOrWhiteSpace(selectedPONumber) Then Return
+        If String.IsNullOrWhiteSpace(userAccountID) OrElse String.IsNullOrWhiteSpace(selectedPONumber) Then Return
 
         Using conn As New MySqlConnection(connStr)
             conn.Open()
-            Dim cmd As New MySqlCommand("
-                SELECT VENDOR_CODE, VENDOR_NAME 
-                FROM sto_data 
-                WHERE PO_NUMBER = @PO 
-                  AND BRANCH_ID = @MY_BRANCH 
-                LIMIT 1", conn)
+            Dim cmd As New MySqlCommand("", conn)
 
+            If isAdminUser Then
+                cmd.CommandText = "SELECT VENDOR_CODE, VENDOR_NAME FROM sto_data " &
+                                  "WHERE PO_NUMBER = @PO AND ACCOUNT_ID = @ACCID LIMIT 1"
+                cmd.Parameters.AddWithValue("@ACCID", userAccountID)
+            Else
+                cmd.CommandText = "SELECT VENDOR_CODE, VENDOR_NAME FROM sto_data " &
+                                  "WHERE PO_NUMBER = @PO AND ACCOUNT_ID = @ACCID AND BRANCH_ID = @BRANCHID LIMIT 1"
+                cmd.Parameters.AddWithValue("@ACCID", userAccountID)
+                cmd.Parameters.AddWithValue("@BRANCHID", userBranchID)
+            End If
             cmd.Parameters.AddWithValue("@PO", selectedPONumber)
-            cmd.Parameters.AddWithValue("@MY_BRANCH", userBranchID)
 
             Using dr = cmd.ExecuteReader()
                 If dr.Read() Then
@@ -165,11 +192,6 @@ Public Class Ordering_Reports
         Dim poNum = dgvReports.Rows(e.RowIndex).Cells("PO_NUMBER").Value?.ToString()
         Dim drValue = dgvReports.Rows(e.RowIndex).Cells("DR").Value?.ToString()
         Dim status = dgvReports.Rows(e.RowIndex).Cells("STATUS").Value?.ToString().Trim()
-
-        If String.IsNullOrWhiteSpace(userBranchID) Then
-            MessageBox.Show("Branch information not found. Please log in again.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
-            Return
-        End If
 
         If e.ColumnIndex = dgvReports.Columns("colView").Index Then
             Dim frmItems As New frmStock_Items()
@@ -189,31 +211,34 @@ Public Class Ordering_Reports
                 Return
             End If
 
-            Dim currentUser = DBConnection.CurrentLoggedInUser?.Trim()
+            Dim currentUser = Login.LoggedInUsername?.Trim()
 
             Using conn As New MySqlConnection(connStr)
                 conn.Open()
                 Using tran = conn.BeginTransaction()
                     Try
                         Dim itemsToUpdate As New List(Of Tuple(Of String, Integer))()
+                        Dim cmdGetItems As New MySqlCommand("", conn, tran)
 
-                        Dim cmdGetItems As New MySqlCommand("
-                            SELECT BARCODE, ORDER_QTY, STOCK_IN 
-                            FROM stock_ordering 
-                            WHERE PO_NUMBER = @PO 
-                              AND BRANCH_ID = @MY_BRANCH", conn, tran)
-
+                        If isAdminUser Then
+                            cmdGetItems.CommandText = "SELECT BARCODE, ORDER_QTY, STOCK_IN FROM stock_ordering " &
+                                                      "WHERE PO_NUMBER = @PO AND ACCOUNT_ID = @ACCID"
+                            cmdGetItems.Parameters.AddWithValue("@ACCID", userAccountID)
+                        Else
+                            cmdGetItems.CommandText = "SELECT BARCODE, ORDER_QTY, STOCK_IN FROM stock_ordering " &
+                                                      "WHERE PO_NUMBER = @PO AND ACCOUNT_ID = @ACCID AND BRANCH_ID = @BRANCHID"
+                            cmdGetItems.Parameters.AddWithValue("@ACCID", userAccountID)
+                            cmdGetItems.Parameters.AddWithValue("@BRANCHID", userBranchID)
+                        End If
                         cmdGetItems.Parameters.AddWithValue("@PO", poNum)
-                        cmdGetItems.Parameters.AddWithValue("@MY_BRANCH", userBranchID)
 
                         Using dr = cmdGetItems.ExecuteReader()
                             While dr.Read()
                                 Dim barcode As String = dr("BARCODE").ToString()
                                 Dim receiveQty As Integer = 0
 
-                                Dim stockInIndex As Integer = dr.GetOrdinal("STOCK_IN")
-                                If Not dr.IsDBNull(stockInIndex) Then
-                                    receiveQty = dr.GetInt32(stockInIndex)
+                                If Not dr.IsDBNull(dr.GetOrdinal("STOCK_IN")) Then
+                                    receiveQty = dr.GetInt32("STOCK_IN")
                                     If receiveQty <= 0 Then
                                         receiveQty = Convert.ToInt32(dr("ORDER_QTY"))
                                     End If
@@ -230,37 +255,47 @@ Public Class Ordering_Reports
                         End Using
 
                         If itemsToUpdate.Count = 0 Then
-                            MessageBox.Show("No items found for this PO in your Branch.", "Not Found", MessageBoxButtons.OK, MessageBoxIcon.Warning)
+                            MessageBox.Show("No items found for this PO.", "Not Found", MessageBoxButtons.OK, MessageBoxIcon.Warning)
                             Return
                         End If
 
                         For Each item In itemsToUpdate
-                            Dim cmdUpdateStock As New MySqlCommand("
-                                UPDATE inventory_information 
-                                SET AVAILABLE = AVAILABLE + @QTY,
-                                    AVAILABILITY = CASE 
-                                        WHEN (AVAILABLE + @QTY) > 0 THEN 'Available'
-                                        ELSE 'Out of Stock'
-                                    END
-                                WHERE BARCODE = @BARCODE 
-                                  AND BRANCH_ID = @MY_BRANCH", conn, tran)
-
+                            Dim cmdUpdateStock As New MySqlCommand("", conn, tran)
+                            If isAdminUser Then
+                                cmdUpdateStock.CommandText = "UPDATE inventory_information " &
+                                    "SET AVAILABLE = AVAILABLE + @QTY, " &
+                                    "AVAILABILITY = CASE WHEN (AVAILABLE + @QTY) > 0 THEN 'Available' ELSE 'Out of Stock' END " &
+                                    "WHERE BARCODE = @BARCODE AND ACCOUNT_ID = @ACCID"
+                                cmdUpdateStock.Parameters.AddWithValue("@ACCID", userAccountID)
+                            Else
+                                cmdUpdateStock.CommandText = "UPDATE inventory_information " &
+                                    "SET AVAILABLE = AVAILABLE + @QTY, " &
+                                    "AVAILABILITY = CASE WHEN (AVAILABLE + @QTY) > 0 THEN 'Available' ELSE 'Out of Stock' END " &
+                                    "WHERE BARCODE = @BARCODE AND ACCOUNT_ID = @ACCID AND BRANCH_ID = @BRANCHID"
+                                cmdUpdateStock.Parameters.AddWithValue("@ACCID", userAccountID)
+                                cmdUpdateStock.Parameters.AddWithValue("@BRANCHID", userBranchID)
+                            End If
                             cmdUpdateStock.Parameters.AddWithValue("@QTY", item.Item2)
                             cmdUpdateStock.Parameters.AddWithValue("@BARCODE", item.Item1)
-                            cmdUpdateStock.Parameters.AddWithValue("@MY_BRANCH", userBranchID)
                             cmdUpdateStock.ExecuteNonQuery()
                         Next
 
-                        Dim cmdUpd As New MySqlCommand("
-                            UPDATE sto_data
-                            SET STATUS = 'Received', DR = @DR, RECEIVER = @RECEIVER, RECEIVE_DATE = NOW()
-                            WHERE PO_NUMBER = @PONUM 
-                              AND BRANCH_ID = @MY_BRANCH", conn, tran)
-
+                        Dim cmdUpd As New MySqlCommand("", conn, tran)
+                        If isAdminUser Then
+                            cmdUpd.CommandText = "UPDATE sto_data SET STATUS = 'Received', DR = @DR, " &
+                                "RECEIVER = @RECEIVER, RECEIVE_DATE = NOW() " &
+                                "WHERE PO_NUMBER = @PONUM AND ACCOUNT_ID = @ACCID"
+                            cmdUpd.Parameters.AddWithValue("@ACCID", userAccountID)
+                        Else
+                            cmdUpd.CommandText = "UPDATE sto_data SET STATUS = 'Received', DR = @DR, " &
+                                "RECEIVER = @RECEIVER, RECEIVE_DATE = NOW() " &
+                                "WHERE PO_NUMBER = @PONUM AND ACCOUNT_ID = @ACCID AND BRANCH_ID = @BRANCHID"
+                            cmdUpd.Parameters.AddWithValue("@ACCID", userAccountID)
+                            cmdUpd.Parameters.AddWithValue("@BRANCHID", userBranchID)
+                        End If
                         cmdUpd.Parameters.AddWithValue("@DR", drValue)
                         cmdUpd.Parameters.AddWithValue("@RECEIVER", currentUser)
                         cmdUpd.Parameters.AddWithValue("@PONUM", poNum)
-                        cmdUpd.Parameters.AddWithValue("@MY_BRANCH", userBranchID)
                         cmdUpd.ExecuteNonQuery()
 
                         tran.Commit()
@@ -268,7 +303,6 @@ Public Class Ordering_Reports
                         MessageBox.Show(
                             $"✅ Order Received Successfully!{vbCrLf}" &
                             $"Items Updated: {itemsToUpdate.Count}{vbCrLf}" &
-                            $"Used Quantity from Stock In{vbCrLf}" &
                             $"DR Number: {drValue}{vbCrLf}" &
                             $"Received By: {currentUser}",
                             "Success", MessageBoxButtons.OK, MessageBoxIcon.Information)
@@ -285,25 +319,32 @@ Public Class Ordering_Reports
         End If
 
         If e.ColumnIndex = dgvReports.Columns("colCancel").Index Then
-            If status.Equals("Cancelled", StringComparison.OrdinalIgnoreCase) OrElse status.Equals("Received", StringComparison.OrdinalIgnoreCase) Then
+            If status.Equals("Cancelled", StringComparison.OrdinalIgnoreCase) OrElse
+               status.Equals("Received", StringComparison.OrdinalIgnoreCase) Then
                 MessageBox.Show("This order cannot be cancelled.", "Notice", MessageBoxButtons.OK, MessageBoxIcon.Information)
                 Return
             End If
 
-            If MessageBox.Show("Are you sure you want to cancel this order?", "Confirm Cancellation", MessageBoxButtons.YesNo, MessageBoxIcon.Question) = DialogResult.No Then
+            If MessageBox.Show("Are you sure you want to cancel this order?",
+                "Confirm Cancellation", MessageBoxButtons.YesNo, MessageBoxIcon.Question) = DialogResult.No Then
                 Return
             End If
 
             Using conn As New MySqlConnection(connStr)
                 conn.Open()
-                Dim cmd As New MySqlCommand("
-                    UPDATE sto_data 
-                    SET STATUS = 'Cancelled' 
-                    WHERE PO_NUMBER = @PO 
-                      AND BRANCH_ID = @MY_BRANCH", conn)
+                Dim cmd As New MySqlCommand("", conn)
 
+                If isAdminUser Then
+                    cmd.CommandText = "UPDATE sto_data SET STATUS = 'Cancelled' " &
+                        "WHERE PO_NUMBER = @PO AND ACCOUNT_ID = @ACCID"
+                    cmd.Parameters.AddWithValue("@ACCID", userAccountID)
+                Else
+                    cmd.CommandText = "UPDATE sto_data SET STATUS = 'Cancelled' " &
+                        "WHERE PO_NUMBER = @PO AND ACCOUNT_ID = @ACCID AND BRANCH_ID = @BRANCHID"
+                    cmd.Parameters.AddWithValue("@ACCID", userAccountID)
+                    cmd.Parameters.AddWithValue("@BRANCHID", userBranchID)
+                End If
                 cmd.Parameters.AddWithValue("@PO", poNum)
-                cmd.Parameters.AddWithValue("@MY_BRANCH", userBranchID)
                 cmd.ExecuteNonQuery()
             End Using
 
@@ -313,17 +354,17 @@ Public Class Ordering_Reports
     End Sub
 
     Private Sub btnHistory_Click(sender As Object, e As EventArgs) Handles btnHistory.Click
-        Dim branchID As String = If(Login.LoggedInBranchID IsNot Nothing, Login.LoggedInBranchID.ToString().Trim(), "")
         Dim accountID As String = If(Login.LoggedInAccountID IsNot Nothing, Login.LoggedInAccountID.ToString().Trim(), "")
+        Dim branchID As String = If(Login.LoggedInBranchID IsNot Nothing, Login.LoggedInBranchID.ToString().Trim(), "")
         Dim username As String = If(Login.LoggedInUsername IsNot Nothing, Login.LoggedInUsername.ToString().Trim(), "")
 
-        If String.IsNullOrWhiteSpace(username) OrElse String.IsNullOrWhiteSpace(branchID) Then
+        If String.IsNullOrWhiteSpace(username) OrElse String.IsNullOrWhiteSpace(accountID) Then
             MessageBox.Show("Missing login information. Please log in again.", "Notice", MessageBoxButtons.OK, MessageBoxIcon.Warning)
             Return
         End If
 
-        DBConnection.CurrentUserBranchID = branchID
         DBConnection.CurrentUserAccountID = accountID
+        DBConnection.CurrentUserBranchID = branchID
         DBConnection.CurrentLoggedInUser = username
 
         Dim POLOGS As New Order_History()
@@ -335,7 +376,6 @@ Public Class Ordering_Reports
         POLOGS.Dock = DockStyle.Fill
 
         frmDashboard.Panelmenu.Controls.Add(POLOGS)
-
         POLOGS.Show()
     End Sub
 End Class

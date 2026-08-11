@@ -2,7 +2,6 @@
 
 Public Class frmDashboard
 
-    ' ✅ ITATAGO NATIN ANG DETALYE PARA SIGURADO
     Private Shared CurrentUserID As String = Nothing
     Private Shared CurrentUsername As String = Nothing
     Private Shared IsAdminUser As Boolean = False
@@ -16,7 +15,6 @@ Public Class frmDashboard
 
         SaveUserSessionToDBConnection()
 
-        ' ✅ I-SAVE LAHAT NG DETALYE PARA SIGURADO
         CurrentUserID = If(Login.LoggedInAccountID, "").ToString().Trim()
         CurrentUsername = If(Login.LoggedInUsername, "").ToString().Trim()
 
@@ -43,7 +41,6 @@ Public Class frmDashboard
         DBConnection.CurrentLoggedInUser = username
     End Sub
 
-    ' ✅ SIGURADONG MA-OFFLINE — SUSUBUKAN LAHAT NG PARAAN
     Private Sub SetUserOffline()
         Try
             Dim uid As String = CurrentUserID?.Trim()
@@ -58,39 +55,29 @@ Public Class frmDashboard
 
                 Dim totalUpdated As Integer = 0
 
-                ' ==============================================
-                ' ✅ PARAAN 1: GAMIT ANG USERNAME — SIGURADONG TATAMA
-                ' ==============================================
                 If Not String.IsNullOrWhiteSpace(uname) Then
-                    ' Subukan sa user_accounts
                     Using cmd1 As New MySqlCommand("UPDATE user_accounts SET STATUS='OFFLINE' WHERE USERNAME=@U", conn)
                         cmd1.Parameters.AddWithValue("@U", uname)
                         totalUpdated += cmd1.ExecuteNonQuery()
                     End Using
-                    ' Subukan sa account (Admin)
+
                     Using cmd2 As New MySqlCommand("UPDATE account SET STATUS='OFFLINE' WHERE USERNAME=@U", conn)
                         cmd2.Parameters.AddWithValue("@U", uname)
                         totalUpdated += cmd2.ExecuteNonQuery()
                     End Using
                 End If
 
-                ' ==============================================
-                ' ✅ PARAAN 2: GAMIT ANG ID — KUNG MERONMAN
-                ' ==============================================
                 If Not String.IsNullOrWhiteSpace(uid) Then
-                    ' Subukan sa user_accounts
                     Using cmd3 As New MySqlCommand("UPDATE user_accounts SET STATUS='OFFLINE' WHERE ID=@ID", conn)
                         cmd3.Parameters.AddWithValue("@ID", uid)
                         totalUpdated += cmd3.ExecuteNonQuery()
                     End Using
-                    ' Subukan sa account (Admin)
                     Using cmd4 As New MySqlCommand("UPDATE account SET STATUS='OFFLINE' WHERE ID=@ID", conn)
                         cmd4.Parameters.AddWithValue("@ID", uid)
                         totalUpdated += cmd4.ExecuteNonQuery()
                     End Using
                 End If
 
-                ' ✅ IPAKITA KUNG ILAN ANG NA-UPDATE (PARA MAKITA MO SA MESSAGE)
                 MessageBox.Show($"Status Updated: {totalUpdated} record(s) set to OFFLINE", "Debug Info", MessageBoxButtons.OK, MessageBoxIcon.Information)
             End Using
         Catch ex As Exception
@@ -98,7 +85,6 @@ Public Class frmDashboard
         End Try
     End Sub
 
-    ' ✅ SIGN OUT BUTTON
     Private Sub Button9_Click(sender As Object, e As EventArgs) Handles Button9.Click
         SetUserOffline()
 
@@ -107,7 +93,6 @@ Public Class frmDashboard
         Me.Close()
     End Sub
 
-    ' ✅ KAHIT ISINARA LANG O NAG-CRASH
     Protected Overrides Sub OnFormClosing(e As FormClosingEventArgs)
         If e.CloseReason = CloseReason.UserClosing Then
             SetUserOffline()
@@ -119,7 +104,7 @@ Public Class frmDashboard
         LoadHomeForm()
     End Sub
 
-    Private Sub btnClose_Click(sender As Object, e As EventArgs) Handles btnClose.Click
+    Private Sub btnClose_Click(sender As Object, e As EventArgs) Handles btnPO.Click
         SaveUserSessionToDBConnection()
         Panelmenu.Controls.Clear()
         Dim STO As New Stock_Ordering
@@ -208,17 +193,7 @@ Public Class frmDashboard
         daily.Show()
     End Sub
 
-    Private Sub Button7_Click(sender As Object, e As EventArgs) Handles Button7.Click
-        Panelmenu.Controls.Clear()
-        Dim PO As New Ordering_Reports
-        PO.TopLevel = False
-        PO.FormBorderStyle = FormBorderStyle.None
-        PO.Dock = DockStyle.Fill
-        Panelmenu.Controls.Add(PO)
-        PO.Show()
-    End Sub
-
-    Private Sub Button8_Click(sender As Object, e As EventArgs) Handles Button8.Click
+    Private Sub Button8_Click(sender As Object, e As EventArgs) Handles btnSTR.Click
         Panelmenu.Controls.Clear()
         Dim STR As New frmStock_Transfer
         STR.TopLevel = False
@@ -230,16 +205,6 @@ Public Class frmDashboard
 
     Private Sub Button6_Click(sender As Object, e As EventArgs) Handles Button6.Click
         Price_Adjustment.Show()
-    End Sub
-
-    Private Sub Button2_Click(sender As Object, e As EventArgs) Handles Button2.Click
-        Panelmenu.Controls.Clear()
-        Dim STR As New Transfer_Reports()
-        STR.TopLevel = False
-        STR.FormBorderStyle = FormBorderStyle.None
-        STR.Dock = DockStyle.Fill
-        Panelmenu.Controls.Add(STR)
-        STR.Show()
     End Sub
 
     Private Sub Button5_Click(sender As Object, e As EventArgs) Handles Button5.Click
@@ -262,7 +227,7 @@ Public Class frmDashboard
         INVR.Show()
     End Sub
 
-    Private Sub Button13_Click(sender As Object, e As EventArgs) Handles Button13.Click
+    Private Sub Button13_Click(sender As Object, e As EventArgs) Handles btnRTV.Click
         SaveUserSessionToDBConnection()
         Panelmenu.Controls.Clear()
         Dim RTV As New frmRetun_To_Vendor
@@ -273,4 +238,50 @@ Public Class frmDashboard
         RTV.Show()
     End Sub
 
+    Private Sub btnRTV_Reports_Click(sender As Object, e As EventArgs) Handles btnRTV_Reports.Click
+        MsgBox("This feature is currently under development. Please check back later.", MsgBoxStyle.Information, "Feature Under Development")
+    End Sub
+
+    Private Sub btnPrice_Adjustment_Reports_Click(sender As Object, e As EventArgs) Handles btnPrice_Adjustment_Reports.Click
+        MsgBox("This feature is currently under development. Please check back later.", MsgBoxStyle.Information, "Feature Under Development")
+    End Sub
+
+    Private Sub Button7_Click_1(sender As Object, e As EventArgs) Handles Button7.Click
+        MsgBox("This feature is currently under development. Please check back later.", MsgBoxStyle.Information, "Feature Under Development")
+    End Sub
+
+    Private Sub btnSOTEX_Reports_Click(sender As Object, e As EventArgs) Handles btnSOTEX_Reports.Click
+        MsgBox("This feature is currently under development. Please check back later.", MsgBoxStyle.Information, "Feature Under Development")
+    End Sub
+
+    Private Sub btnINV_Reports_Click(sender As Object, e As EventArgs) Handles btnINV_Reports.Click
+        SaveUserSessionToDBConnection()
+        Panelmenu.Controls.Clear()
+        Dim PCOUNTR As New frmPcount_Report
+        PCOUNTR.TopLevel = False
+        PCOUNTR.FormBorderStyle = FormBorderStyle.None
+        PCOUNTR.Dock = DockStyle.Fill
+        Panelmenu.Controls.Add(PCOUNTR)
+        PCOUNTR.Show()
+    End Sub
+
+    Private Sub btnPO_Reports_Click(sender As Object, e As EventArgs) Handles btnPO_Reports.Click
+        Panelmenu.Controls.Clear()
+        Dim PO As New Ordering_Reports
+        PO.TopLevel = False
+        PO.FormBorderStyle = FormBorderStyle.None
+        PO.Dock = DockStyle.Fill
+        Panelmenu.Controls.Add(PO)
+        PO.Show()
+    End Sub
+
+    Private Sub btnSTR_Reports_Click(sender As Object, e As EventArgs) Handles btnSTR_Reports.Click
+        Panelmenu.Controls.Clear()
+        Dim STR As New Transfer_Reports()
+        STR.TopLevel = False
+        STR.FormBorderStyle = FormBorderStyle.None
+        STR.Dock = DockStyle.Fill
+        Panelmenu.Controls.Add(STR)
+        STR.Show()
+    End Sub
 End Class

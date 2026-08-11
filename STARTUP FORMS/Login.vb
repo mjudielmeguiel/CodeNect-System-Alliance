@@ -9,56 +9,66 @@ Public Class Login
     Public Shared LoggedInUserID As String = ""
     Public Shared LoggedInUsername As String = ""
     Public Shared LoggedInUserType As String = ""
+    Public Shared IsAdminAccount As Boolean = False
+    Public Shared IsVendorAccount As Boolean = False
+
+    ' ✅ NEW: Scope control
+    Public Shared UserScope As String = "" ' "ADMIN" or "BRANCH"
 
     Const maxAttempts As Integer = 3
     Private Const PLACEHOLDER_USER As String = "Enter Username"
     Private Const PLACEHOLDER_PASS As String = "Enter Password"
 
-    ' ✅ BAGO: AWTOMATIKONG ILIPAT SA OFFLINE ANG USER BAGO MAG-LOGIN
-    Private Sub SetUserOfflineByUsername(targetUsername As String, conn As MySqlConnection)
+    Private Sub SetUserOfflineByUsername_User(targetUsername As String, conn As MySqlConnection)
         Try
-            ' ✅ User Accounts Table
-            Using cmd1 As New MySqlCommand("UPDATE `user_accounts` SET `STATUS`='OFFLINE' WHERE TRIM(`USERNAME`)=TRIM(@U)", conn)
+            Using cmd1 As New MySqlCommand("UPDATE `user_accounts` SET `status`='OFFLINE' WHERE TRIM(`username`)=TRIM(@U)", conn)
                 cmd1.Parameters.AddWithValue("@U", targetUsername)
                 cmd1.ExecuteNonQuery()
             End Using
-            ' ✅ Admin Account Table
-            Using cmd2 As New MySqlCommand("UPDATE `account` SET `STATUS`='OFFLINE' WHERE TRIM(`USERNAME`)=TRIM(@U)", conn)
-                cmd2.Parameters.AddWithValue("@U", targetUsername)
-                cmd2.ExecuteNonQuery()
-            End Using
-            ' ✅ Vendor Account Table
-            Using cmd3 As New MySqlCommand("UPDATE `vendor_account` SET `STATUS`='OFFLINE' WHERE TRIM(`USERNAME`)=TRIM(@U)", conn)
-                cmd3.Parameters.AddWithValue("@U", targetUsername)
-                cmd3.ExecuteNonQuery()
+        Catch ex As Exception
+            AuditLogger.LogAction("STATUS_UPDATE", "Authentication", $"Auto-offline failed (User): {ex.Message}")
+        End Try
+    End Sub
+
+    Private Sub SetUserOfflineByUsername_Admin(targetUsername As String, conn As MySqlConnection)
+        Try
+            Using cmd1 As New MySqlCommand("UPDATE `account` SET `status`='OFFLINE' WHERE TRIM(`username`)=TRIM(@U)", conn)
+                cmd1.Parameters.AddWithValue("@U", targetUsername)
+                cmd1.ExecuteNonQuery()
             End Using
         Catch ex As Exception
-            AuditLogger.LogAction("STATUS_UPDATE", "Authentication", $"Auto-offline failed: {ex.Message}")
+            AuditLogger.LogAction("STATUS_UPDATE", "Authentication", $"Auto-offline failed (Admin): {ex.Message}")
+        End Try
+    End Sub
+
+    Private Sub SetUserOfflineByUsername_Vendor(targetUsername As String, conn As MySqlConnection)
+        Try
+            Using cmd1 As New MySqlCommand("UPDATE `vendor_account` SET `STATUS`='OFFLINE' WHERE TRIM(`USERNAME`)=TRIM(@U)", conn)
+                cmd1.Parameters.AddWithValue("@U", targetUsername)
+                cmd1.ExecuteNonQuery()
+            End Using
+        Catch ex As Exception
+            AuditLogger.LogAction("STATUS_UPDATE", "Authentication", $"Auto-offline failed (Vendor): {ex.Message}")
         End Try
     End Sub
 
     Private Sub Login_FormClosing(sender As Object, e As FormClosingEventArgs) Handles MyBase.FormClosing
-        If Not String.IsNullOrEmpty(LoggedInUserID) OrElse Not String.IsNullOrEmpty(LoggedInAccountID) Then
+        If Not String.IsNullOrEmpty(LoggedInUserID) Then
             Try
                 Using conn As New MySqlConnection(DBConnection.connStr)
                     conn.Open()
-                    ' ✅ USER → user_accounts → gamit ang ID
-                    If Not String.IsNullOrEmpty(LoggedInUserID) AndAlso LoggedInUserType = "USER" Then
-                        Using cmd As New MySqlCommand("UPDATE `user_accounts` SET `STATUS`='OFFLINE' WHERE `ID`=@id", conn)
+                    If IsVendorAccount Then
+                        Using cmd As New MySqlCommand("UPDATE `vendor_account` SET `STATUS`='OFFLINE' WHERE `ID`=@id", conn)
                             cmd.Parameters.AddWithValue("@id", LoggedInUserID)
                             cmd.ExecuteNonQuery()
                         End Using
-                    End If
-                    ' ✅ ADMIN → account → gamit ang ACCOUNT_ID (HINDI ID!)
-                    If Not String.IsNullOrEmpty(LoggedInAccountID) AndAlso LoggedInUserType = "BUSINESS ADMIN" Then
-                        Using cmd As New MySqlCommand("UPDATE `account` SET `STATUS`='OFFLINE' WHERE `ACCOUNT_ID`=@aid", conn)
-                            cmd.Parameters.AddWithValue("@aid", LoggedInAccountID)
+                    ElseIf IsAdminAccount Then
+                        Using cmd As New MySqlCommand("UPDATE `account` SET `status`='OFFLINE' WHERE `id`=@id", conn)
+                            cmd.Parameters.AddWithValue("@id", LoggedInUserID)
                             cmd.ExecuteNonQuery()
                         End Using
-                    End If
-                    ' ✅ VENDOR → vendor_account → gamit ang ID
-                    If Not String.IsNullOrEmpty(LoggedInUserID) AndAlso LoggedInUserType = "VENDOR" Then
-                        Using cmd As New MySqlCommand("UPDATE `vendor_account` SET `STATUS`='OFFLINE' WHERE `ID`=@id", conn)
+                    Else
+                        Using cmd As New MySqlCommand("UPDATE `user_accounts` SET `status`='OFFLINE' WHERE `id`=@id", conn)
                             cmd.Parameters.AddWithValue("@id", LoggedInUserID)
                             cmd.ExecuteNonQuery()
                         End Using
@@ -123,266 +133,386 @@ Public Class Login
 
         Try
             Dim userFound As Boolean = False
-            Dim loginSuccess As Boolean = False
+            Dim isAdmin As Boolean = False
+            Dim isVendor As Boolean = False
 
-            Using connUser As New MySqlConnection(DBConnection.connStr)
-                connUser.Open()
+            Dim uid As String = ""
+            Dim aid As String = ""
+            Dim bid As String = ""
+            Dim roleOrType As String = ""
+            Dim stat As String = ""
+            Dim uname As String = ""
+            Dim pass As String = ""
+            Dim attempts As String = "0"
+            Dim vendorName As String = ""
+            Dim vendorCode As String = ""
 
-                ' ✅ BAGO: I-OFFLINE MUNA ANG USERNAME BAGO MAG-CHECK
-                SetUserOfflineByUsername(username, connUser)
+            Using conn As New MySqlConnection(DBConnection.connStr)
+                conn.Open()
 
-                Dim qUser As String = "SELECT `ID`, `ACCOUNT_ID`, `BRANCH_ID`, `USER_TYPE`, `STATUS`, `USERNAME`, `PASSWORD`, `login_attempts` 
-                                       FROM `user_accounts` 
-                                       WHERE TRIM(`USERNAME`) = TRIM(@u) 
-                                       OR TRIM(LOWER(`USERNAME`)) = TRIM(LOWER(@u)) 
-                                       LIMIT 1"
+                ' =====================================================
+                ' 🎯 CHECK 1: VENDOR ACCOUNT — SEPARATE TABLE
+                ' =====================================================
+                SetUserOfflineByUsername_Vendor(username, conn)
 
-                Using cmdUser As New MySqlCommand(qUser, connUser)
-                    cmdUser.Parameters.AddWithValue("@u", username)
-                    Using drUser = cmdUser.ExecuteReader()
-                        If drUser.Read() Then
-                            userFound = True
-                            Dim uid = drUser("ID").ToString()
-                            Dim aid = drUser("ACCOUNT_ID").ToString()
-                            Dim bid = drUser("BRANCH_ID").ToString()
-                            Dim utype = drUser("USER_TYPE").ToString()
-                            Dim stat = drUser("STATUS").ToString().ToUpper()
-                            Dim uname = drUser("USERNAME").ToString()
-                            Dim pass = drUser("PASSWORD").ToString()
-                            Dim attempts = Convert.ToInt32(drUser("login_attempts"))
-                            drUser.Close()
-
-                            ' ✅ STATUS AY OFFLINE NA DAHIL SA SETUserOfflineByUsername
-                            ' KAYA HINDI NA LALABAS ANG "Already logged in"
-                            If stat = "LOCKED" Then
-                                lblError.Text = "Account is LOCKED."
-                                lblError.ForeColor = Color.Red
-                                AuditLogger.LogAction("LOGIN_DENIED", "Authentication", $"Login rejected for [{uname}] – account locked")
-                                Return
-                            End If
-
-                            If pass = password Then
-                                Using upd = New MySqlCommand("UPDATE `user_accounts` SET `STATUS`='ACTIVE', `login_attempts`=0 WHERE `ID`=@id", connUser)
-                                    upd.Parameters.AddWithValue("@id", uid)
-                                    upd.ExecuteNonQuery()
-                                End Using
-
-                                LoggedInUserID = uid
-                                LoggedInAccountID = aid
-                                LoggedInBranchID = bid
-                                LoggedInUserType = utype
-                                LoggedInUsername = uname
-
-                                DBConnection.CurrentUserAccountID = aid
-                                DBConnection.CurrentUserBranchID = bid
-                                DBConnection.CurrentLoggedInUser = uname
-                                DBConnection.CurrentUserType = utype
-
-                                AuditLogger.LogAction("LOGIN_SUCCESS", "Authentication", $"User [{LoggedInUsername}] | Type: {LoggedInUserType} | Branch: {LoggedInBranchID} | Account: {LoggedInAccountID}")
-
-                                If utype.Trim.ToUpper = "CASHIER" Then
-                                    frmPOS_System.Show()
-                                Else
-                                    frmDashboard.Show()
-                                End If
-
-                                Me.Hide()
-                                loginSuccess = True
-                            Else
-                                attempts += 1
-                                AuditLogger.LogAction("LOGIN_FAILED", "Authentication", $"User [{username}] | Wrong Password | Attempt {attempts}/{maxAttempts}")
-
-                                If attempts >= maxAttempts Then
-                                    Using lck = New MySqlCommand("UPDATE `user_accounts` SET `STATUS`='LOCKED', `login_attempts`=@att WHERE `ID`=@id", connUser)
-                                        lck.Parameters.AddWithValue("@att", attempts)
-                                        lck.Parameters.AddWithValue("@id", uid)
-                                        lck.ExecuteNonQuery()
-                                    End Using
-                                    lblError.Text = "ACCOUNT LOCKED! Too many failed attempts."
-                                    lblError.ForeColor = Color.Red
-                                    AuditLogger.LogAction("ACCOUNT_LOCKED", "Authentication", $"User [{username}] locked after {attempts} failed attempts")
-                                Else
-                                    Using updAtt = New MySqlCommand("UPDATE `user_accounts` SET `login_attempts`=@att WHERE `ID`=@id", connUser)
-                                        updAtt.Parameters.AddWithValue("@att", attempts)
-                                        updAtt.Parameters.AddWithValue("@id", uid)
-                                        updAtt.ExecuteNonQuery()
-                                    End Using
-                                    lblError.Text = "Wrong Password. Attempts left: " & (maxAttempts - attempts)
-                                    lblError.ForeColor = Color.OrangeRed
-                                End If
-                                Return
-                            End If
-                        End If
-                    End Using
-                End Using
-            End Using
-
-            If loginSuccess Then Return
-
-            Using connAdmin As New MySqlConnection(DBConnection.connStr)
-                connAdmin.Open()
-
-                ' ✅ BAGO: I-OFFLINE MUNA BAGO MAG-CHECK
-                SetUserOfflineByUsername(username, connAdmin)
-
-                Dim qAdmin As String = "SELECT `ACCOUNT_ID`, `STATUS`, `OWNER_FULLNAME`, `USERNAME`, `PASSWORD`, `login_attempts` 
-                                        FROM `account` 
-                                        WHERE TRIM(`USERNAME`) = TRIM(@u) 
-                                        OR TRIM(LOWER(`USERNAME`)) = TRIM(LOWER(@u)) 
-                                        LIMIT 1"
-
-                Using cmdAdmin As New MySqlCommand(qAdmin, connAdmin)
-                    cmdAdmin.Parameters.AddWithValue("@u", username)
-                    Using drAdmin = cmdAdmin.ExecuteReader()
-                        If drAdmin.Read() Then
-                            userFound = True
-                            Dim aid = drAdmin("ACCOUNT_ID").ToString()
-                            Dim stat = drAdmin("STATUS").ToString().ToUpper()
-                            Dim name = drAdmin("OWNER_FULLNAME").ToString()
-                            Dim pass = drAdmin("PASSWORD").ToString()
-                            Dim attempts = Convert.ToInt32(drAdmin("login_attempts"))
-                            drAdmin.Close()
-
-                            ' ✅ STATUS AY OFFLINE NA DAHIL SA SETUserOfflineByUsername
-                            If stat = "LOCKED" Then
-                                lblError.Text = "Account is LOCKED."
-                                lblError.ForeColor = Color.Red
-                                AuditLogger.LogAction("LOGIN_DENIED", "Authentication", $"Admin [{name}] login rejected – account locked")
-                                Return
-                            End If
-                            If stat = "PENDING" Then
-                                lblError.Text = "Account is still PENDING for approval."
-                                lblError.ForeColor = Color.Orange
-                                AuditLogger.LogAction("LOGIN_DENIED", "Authentication", $"Admin [{name}] login rejected – pending approval")
-                                Return
-                            End If
-
-                            If pass = password Then
-                                Using upd = New MySqlCommand("UPDATE `account` SET `STATUS`='ACTIVE', `login_attempts`=0 WHERE `ACCOUNT_ID`=@id", connAdmin)
-                                    upd.Parameters.AddWithValue("@id", aid)
-                                    upd.ExecuteNonQuery()
-                                End Using
-
-                                LoggedInUserID = aid
-                                LoggedInAccountID = aid
-                                LoggedInUserType = "BUSINESS ADMIN"
-                                LoggedInUsername = name
-                                LoggedInBranchID = String.Empty
-
-                                DBConnection.CurrentUserAccountID = aid
-                                DBConnection.CurrentUserBranchID = String.Empty
-                                DBConnection.CurrentLoggedInUser = name
-                                DBConnection.CurrentUserType = "BUSINESS ADMIN"
-
-                                AuditLogger.LogAction("LOGIN_SUCCESS", "Authentication", $"Business Admin [{LoggedInUsername}] | Account ID: {LoggedInAccountID}")
-
-                                frmDashboard.Show()
-                                Me.Hide()
-                                Return
-                            Else
-                                attempts += 1
-                                AuditLogger.LogAction("LOGIN_FAILED", "Authentication", $"Admin [{username}] | Wrong Password | Attempt {attempts}/{maxAttempts}")
-
-                                If attempts >= maxAttempts Then
-                                    Using lck = New MySqlCommand("UPDATE `account` SET `STATUS`='LOCKED', `login_attempts`=@att WHERE `ACCOUNT_ID`=@id", connAdmin)
-                                        lck.Parameters.AddWithValue("@att", attempts)
-                                        lck.Parameters.AddWithValue("@id", aid)
-                                        lck.ExecuteNonQuery()
-                                    End Using
-                                    lblError.Text = "ACCOUNT LOCKED! Too many failed attempts."
-                                    lblError.ForeColor = Color.Red
-                                    AuditLogger.LogAction("ACCOUNT_LOCKED", "Authentication", $"Admin [{username}] locked after {attempts} failed attempts")
-                                Else
-                                    Using updAtt = New MySqlCommand("UPDATE `account` SET `login_attempts`=@att WHERE `ACCOUNT_ID`=@id", connAdmin)
-                                        updAtt.Parameters.AddWithValue("@att", attempts)
-                                        updAtt.Parameters.AddWithValue("@id", aid)
-                                        updAtt.ExecuteNonQuery()
-                                    End Using
-                                    lblError.Text = "Wrong Password. Attempts left: " & (maxAttempts - attempts)
-                                    lblError.ForeColor = Color.OrangeRed
-                                End If
-                                Return
-                            End If
-                        End If
-                    End Using
-                End Using
-            End Using
-
-            Using connVendor As New MySqlConnection(DBConnection.connStr)
-                connVendor.Open()
-
-                ' ✅ BAGO: I-OFFLINE MUNA BAGO MAG-CHECK
-                SetUserOfflineByUsername(username, connVendor)
-
-                Dim qVendor As String = "SELECT `ID`, `VENDOR_CODE`, `VENDOR`, `USERNAME`, `PASSWORD`, `STATUS` 
-                                         FROM `vendor_account` 
-                                         WHERE TRIM(`USERNAME`) = TRIM(@u) 
-                                         OR TRIM(LOWER(`USERNAME`)) = TRIM(LOWER(@u)) 
+                Dim qVendor As String = "SELECT `ID`, `USERNAME`, `PASSWORD`, `STATUS`, `VENDOR`, `VENDOR_CODE`,
+                                                IFNULL(`login_attempts`,0) as login_attempts
+                                         FROM `vendor_account`
+                                         WHERE TRIM(`USERNAME`) = TRIM(@u)
+                                            OR TRIM(LOWER(`USERNAME`)) = TRIM(LOWER(@u))
                                          LIMIT 1"
 
-                Using cmdVendor As New MySqlCommand(qVendor, connVendor)
+                Using cmdVendor As New MySqlCommand(qVendor, conn)
                     cmdVendor.Parameters.AddWithValue("@u", username)
                     Using drVendor = cmdVendor.ExecuteReader()
                         If drVendor.Read() Then
                             userFound = True
-                            Dim vid = drVendor("ID").ToString()
-                            Dim vendorCode = drVendor("VENDOR_CODE").ToString()
-                            Dim vendorName = drVendor("VENDOR").ToString()
-                            Dim uname = drVendor("USERNAME").ToString()
-                            Dim pass = drVendor("PASSWORD").ToString()
-                            Dim stat = drVendor("STATUS").ToString().ToUpper()
-                            drVendor.Close()
-
-                            ' ✅ STATUS AY OFFLINE NA
-                            If stat = "LOCKED" Then
-                                lblError.Text = "Account is LOCKED."
-                                lblError.ForeColor = Color.Red
-                                AuditLogger.LogAction("LOGIN_DENIED", "Authentication", $"Vendor [{vendorName}] login rejected – locked")
-                                Return
-                            End If
-
-                            If pass = password Then
-                                Using upd = New MySqlCommand("UPDATE `vendor_account` SET `STATUS`='ACTIVE' WHERE `ID`=@id", connVendor)
-                                    upd.Parameters.AddWithValue("@id", vid)
-                                    upd.ExecuteNonQuery()
-                                End Using
-
-                                LoggedInUserID = vid
-                                LoggedInAccountID = ""
-                                LoggedInBranchID = "VENDOR"
-                                LoggedInUserType = "VENDOR"
-                                LoggedInUsername = vendorName
-
-                                DBConnection.CurrentUserAccountID = ""
-                                DBConnection.CurrentUserBranchID = "VENDOR"
-                                DBConnection.CurrentLoggedInUser = vendorName
-                                DBConnection.CurrentUserType = "VENDOR"
-                                DBConnection.SetVendorInfo(vendorCode, vendorName)
-
-                                AuditLogger.LogAction("LOGIN_SUCCESS", "Authentication", $"Vendor [{vendorName}] | Code: {vendorCode}")
-
-                                frmVendorDashboard.VendorID = vid
-                                frmVendorDashboard.VendorName = vendorName
-                                frmVendorDashboard.VendorCode = vendorCode
-                                frmVendorDashboard.Show()
-                                Me.Hide()
-                                Return
-                            Else
-                                AuditLogger.LogAction("LOGIN_FAILED", "Authentication", $"Vendor [{username}] | Wrong Password")
-                                lblError.Text = "Wrong Password."
-                                lblError.ForeColor = Color.OrangeRed
-                                Return
-                            End If
+                            isVendor = True
+                            isAdmin = False
+                            uid = drVendor("ID").ToString()
+                            aid = ""
+                            bid = ""
+                            roleOrType = "Vendor"
+                            stat = drVendor("STATUS").ToString().ToUpper()
+                            uname = drVendor("USERNAME").ToString()
+                            pass = drVendor("PASSWORD").ToString()
+                            vendorName = drVendor("VENDOR").ToString()
+                            vendorCode = drVendor("VENDOR_CODE").ToString()
+                            attempts = drVendor("login_attempts").ToString()
                         End If
                     End Using
                 End Using
-            End Using
 
-            If Not userFound Then
-                AuditLogger.LogAction("LOGIN_FAILED", "Authentication", $"Username not found: [{username}]")
-                lblError.Text = "Username does not exist in our records."
-                lblError.ForeColor = Color.OrangeRed
-            End If
+                ' =====================================================
+                ' 🎯 CHECK 2: ADMIN ACCOUNT (`account` table)
+                ' =====================================================
+                If Not userFound Then
+                    SetUserOfflineByUsername_Admin(username, conn)
+
+                    Dim qAdmin As String = "SELECT `id`, `account_id`, `business_type`, `status`, `username`, `password`, `login_attempts`
+                                           FROM `account`
+                                           WHERE TRIM(`username`) = TRIM(@u)
+                                              OR TRIM(LOWER(`username`)) = TRIM(LOWER(@u))
+                                           LIMIT 1"
+
+                    Using cmdAdmin As New MySqlCommand(qAdmin, conn)
+                        cmdAdmin.Parameters.AddWithValue("@u", username)
+                        Using drAdmin = cmdAdmin.ExecuteReader()
+                            If drAdmin.Read() Then
+                                userFound = True
+                                isVendor = False
+                                isAdmin = True ' ✅ DETECTED AS ADMIN
+                                uid = drAdmin("id").ToString()
+                                aid = drAdmin("account_id").ToString() ' ✅ Admin's Account ID
+                                bid = "" ' ✅ Admin = NO branch restriction — sees ALL branches under this account_id
+                                roleOrType = drAdmin("business_type").ToString().Trim()
+                                stat = drAdmin("status").ToString().ToUpper()
+                                uname = drAdmin("username").ToString()
+                                pass = drAdmin("password").ToString()
+                                attempts = drAdmin("login_attempts").ToString()
+                            End If
+                        End Using
+                    End Using
+                End If
+
+                ' =====================================================
+                ' 🎯 CHECK 3: BRANCH USER (`user_accounts` table)
+                ' =====================================================
+                If Not userFound Then
+                    SetUserOfflineByUsername_User(username, conn)
+
+                    Dim qUser As String = "SELECT `id`, `account_id`, `branch_id`, `user_type`, `status`, `username`, `password`, `login_attempts`
+                                          FROM `user_accounts`
+                                          WHERE TRIM(`username`) = TRIM(@u)
+                                             OR TRIM(LOWER(`username`)) = TRIM(LOWER(@u))
+                                          LIMIT 1"
+
+                    Using cmdUser As New MySqlCommand(qUser, conn)
+                        cmdUser.Parameters.AddWithValue("@u", username)
+                        Using drUser = cmdUser.ExecuteReader()
+                            If drUser.Read() Then
+                                userFound = True
+                                isVendor = False
+                                isAdmin = False ' ✅ DETECTED AS BRANCH USER
+                                uid = drUser("id").ToString()
+                                aid = drUser("account_id").ToString() ' ✅ Belongs to this Account
+                                bid = drUser("branch_id").ToString()    ' ✅ RESTRICTED to THIS Branch ONLY
+                                roleOrType = drUser("user_type").ToString().Trim()
+                                stat = drUser("status").ToString().ToUpper()
+                                uname = drUser("username").ToString()
+                                pass = drUser("password").ToString()
+                                attempts = drUser("login_attempts").ToString()
+                            End If
+                        End Using
+                    End Using
+                End If
+
+                ' =====================================================
+                ' ✅ PROCESS LOGIN
+                ' =====================================================
+                If userFound Then
+                    Dim attemptCount As Integer = Convert.ToInt32(attempts)
+
+                    If stat = "LOCKED" Then
+                        lblError.Text = "Account is LOCKED."
+                        lblError.ForeColor = Color.Red
+                        AuditLogger.LogAction("LOGIN_DENIED", "Authentication", $"Login rejected for [{uname}] – account locked")
+                        Return
+                    End If
+
+                    If pass = password Then
+
+                        ' Update status & reset attempts
+                        If isVendor Then
+                            Using upd = New MySqlCommand("UPDATE `vendor_account` SET `STATUS`='ONLINE', `login_attempts`=0 WHERE `ID`=@id", conn)
+                                upd.Parameters.AddWithValue("@id", uid)
+                                upd.ExecuteNonQuery()
+                            End Using
+                        ElseIf isAdmin Then
+                            Using upd = New MySqlCommand("UPDATE `account` SET `status`='ONLINE', `login_attempts`=0 WHERE `id`=@id", conn)
+                                upd.Parameters.AddWithValue("@id", uid)
+                                upd.ExecuteNonQuery()
+                            End Using
+                        Else
+                            Using upd = New MySqlCommand("UPDATE `user_accounts` SET `status`='ONLINE', `login_attempts`=0 WHERE `id`=@id", conn)
+                                upd.Parameters.AddWithValue("@id", uid)
+                                upd.ExecuteNonQuery()
+                            End Using
+                        End If
+
+                        ' ✅ SESSION & SCOPE SETUP
+                        LoggedInUserID = uid
+                        LoggedInAccountID = aid ' ← Admin: his account scope | User: his account owner
+                        LoggedInBranchID = bid   ' ← Admin: EMPTY (sees all) | User: fixed branch ONLY
+                        LoggedInUsername = uname
+                        LoggedInUserType = roleOrType
+                        IsAdminAccount = isAdmin
+                        IsVendorAccount = isVendor
+
+                        ' ✅ SCOPE FLAG — use this for filtering queries across your system
+                        If isAdmin Then
+                            UserScope = "ADMIN"      ' Sees ALL branches under LoggedInAccountID
+                        Else
+                            UserScope = "BRANCH"     ' Sees ONLY LoggedInBranchID + LoggedInAccountID
+                        End If
+
+                        DBConnection.CurrentUserAccountID = aid
+                        If Not isAdmin AndAlso Not isVendor Then
+                            DBConnection.CurrentUserBranchID = bid
+                        End If
+                        DBConnection.CurrentLoggedInUser = uname
+                        DBConnection.CurrentUserType = roleOrType
+
+                        AuditLogger.LogAction("LOGIN_SUCCESS", "Authentication",
+                            $"User [{uname}] | AccountID: [{aid}] | BranchID: [{bid}] | Scope: {UserScope} | Vendor: {isVendor} | Admin: {isAdmin}")
+
+                        ' =====================================================
+                        ' 🎯 VENDOR — SEPARATE DASHBOARD
+                        ' =====================================================
+                        If isVendor Then
+                            frmVendorDashboard.Show()
+                            frmVendorDashboard.lblVendorInfo.Text = $"Vendor: {vendorName} ({vendorCode})"
+                            Me.Hide()
+                            Return
+                        End If
+
+                        ' =====================================================
+                        ' 🎯 ROLE DISPLAY TEXT — UNCHANGED
+                        ' =====================================================
+                        Dim roleText As String = roleOrType
+                        If isAdmin Then
+                            Select Case roleOrType
+                                Case "1" : roleText = "Branch Administrator"
+                                Case "2" : roleText = "IT Support"
+                                Case "3" : roleText = "Manager"
+                                Case "4" : roleText = "Supervisor"
+                                Case "5" : roleText = "Cashier"
+                                Case "6" : roleText = "RDU"
+                                Case "7" : roleText = "Inventory Clerk"
+                                Case Else : roleText = "Admin (Type " & roleOrType & ")"
+                            End Select
+                        End If
+
+                        frmDashboard.Button1.Hide() 'Product List For ADMIN
+                        frmDashboard.Button2.Hide() 'Out of Stocks
+                        frmDashboard.Button3.Hide() 'Product Descriptions USERS
+                        frmDashboard.Button4.Hide() 'Shelftags
+                        frmDashboard.Button5.Hide() 'Inventory
+                        frmDashboard.Button6.Hide() 'price adjustment
+                        frmDashboard.Button12.Show() 'Branch List
+                        frmDashboard.btnuselist.Show() 'User List
+
+
+                        frmDashboard.btnSOTEX_Expiry.Hide() 'SOTEX Expiry
+                        frmDashboard.btnPO.Hide() 'Purchase Order
+                        frmDashboard.btnSTR.Hide() 'Stock Transfer Request
+                        frmDashboard.btnRTV.Hide() 'Return to Vendor
+
+                        frmDashboard.btnPrice_Adjustment_Reports.Show() 'Price Adjustment Reports
+                        frmDashboard.btnINV_Reports.Show() 'Inventory Reports
+                        frmDashboard.Button7.Hide() 'Out of Stocks Reports
+                        frmDashboard.btnSTR_Reports.Show() ' Stock Transfer Request Reports
+                        frmDashboard.btnPO_Reports.Show() 'Purchase Order Reports
+                        frmDashboard.btnRTV_Reports.Show() 'Return to Vendor Reports
+
+                        If roleText = "Branch Administrator" Then
+                            frmDashboard.Show()
+                            frmDashboard.lblrole.Text = "Branch Administrator"
+
+                            ' ✅ ADMIN — LAHAT NG BUTTON IPAPAKITA! WALANG TIKATAGO
+                            frmDashboard.Button1.Show()
+                            frmDashboard.Button3.Show()
+                            frmDashboard.Button4.Show()
+                            frmDashboard.Button5.Show()
+                            frmDashboard.Button6.Show()
+                            frmDashboard.Button2.Show()
+                            frmDashboard.Button12.Show()
+                            frmDashboard.btnuselist.Show()
+                            frmDashboard.btnSOTEX_Expiry.Show()
+                            frmDashboard.btnPO.Show()
+                            frmDashboard.btnSTR.Show()
+                            frmDashboard.btnRTV.Show()
+                            frmDashboard.btnPrice_Adjustment_Reports.Show()
+                            frmDashboard.btnINV_Reports.Show()
+                            frmDashboard.Button7.Show()
+                            frmDashboard.btnSTR_Reports.Show()
+                            frmDashboard.btnPO_Reports.Show()
+                            frmDashboard.btnRTV_Reports.Show()
+
+
+                        ElseIf roleText = "IT Support" Then
+                            frmDashboard.Show()
+                            frmDashboard.lblrole.Text = "IT Support"
+                            frmDashboard.Button1.Show()
+                            frmDashboard.Button6.Show()
+                            frmDashboard.Button12.Show()
+                            frmDashboard.btnuselist.Show()
+
+                        ElseIf roleText = "Manager" Then
+                            frmDashboard.Show()
+                            frmDashboard.lblrole.Text = "Manager"
+                            frmDashboard.Button3.Show()
+                            frmDashboard.Button4.Show()
+                            frmDashboard.btnPrice_Adjustment_Reports.Show()
+                            frmDashboard.btnINV_Reports.Show()
+                            frmDashboard.Button7.Show()
+                            frmDashboard.btnSTR_Reports.Show()
+                            frmDashboard.btnPO_Reports.Show()
+                            frmDashboard.btnRTV_Reports.Show()
+
+                        ElseIf roleText = "Supervisor" Then
+                            frmDashboard.Show()
+                            frmDashboard.lblrole.Text = "Supervisor"
+                            frmDashboard.Button3.Show()
+                            frmDashboard.Button4.Show()
+                            frmDashboard.btnPrice_Adjustment_Reports.Show()
+                            frmDashboard.btnINV_Reports.Show()
+                            frmDashboard.Button7.Show()
+                            frmDashboard.btnSTR_Reports.Show()
+                            frmDashboard.btnPO_Reports.Show()
+                            frmDashboard.btnRTV_Reports.Show()
+
+                        ElseIf roleText = "Cashier" Then
+                            frmPOS_System.Show()
+                            Return
+
+                        ElseIf roleText = "RDU" Then
+                            frmDashboard.Show()
+                            frmDashboard.lblrole.Text = "RDU"
+                            frmDashboard.btnPO.Show()
+                            frmDashboard.btnSTR.Show()
+                            frmDashboard.btnRTV.Show()
+                            frmDashboard.Button7.Show()
+                            frmDashboard.btnSTR_Reports.Show()
+                            frmDashboard.btnPO_Reports.Show()
+                            frmDashboard.btnRTV_Reports.Show()
+
+                        ElseIf roleText = "Inventory Clerk" Then
+                            frmDashboard.Show()
+                            frmDashboard.lblrole.Text = "Inventory Clerk"
+                            frmDashboard.btnSOTEX_Expiry.Show()
+                            frmDashboard.Button5.Show()
+                            frmDashboard.Button2.Show()
+                            frmDashboard.btnINV_Reports.Show()
+                            frmDashboard.Button7.Show()
+
+                        Else
+                            frmDashboard.Show()
+                            frmDashboard.lblrole.Text = roleText
+                        End If
+
+                        Me.Hide()
+                        Return
+                    Else
+
+                        attemptCount += 1
+
+                        If isVendor Then
+                            If attemptCount >= maxAttempts Then
+                                Using lck = New MySqlCommand("UPDATE `vendor_account` SET `STATUS`='LOCKED', `login_attempts`=@att WHERE `ID`=@id", conn)
+                                    lck.Parameters.AddWithValue("@att", attemptCount)
+                                    lck.Parameters.AddWithValue("@id", uid)
+                                    lck.ExecuteNonQuery()
+                                End Using
+                                lblError.Text = "ACCOUNT LOCKED! Too many failed attempts."
+                                lblError.ForeColor = Color.Red
+                            Else
+                                Using updAtt = New MySqlCommand("UPDATE `vendor_account` SET `login_attempts`=@att WHERE `ID`=@id", conn)
+                                    updAtt.Parameters.AddWithValue("@att", attemptCount)
+                                    updAtt.Parameters.AddWithValue("@id", uid)
+                                    updAtt.ExecuteNonQuery()
+                                End Using
+                                lblError.Text = "Wrong Password. Attempts left: " & (maxAttempts - attemptCount)
+                                lblError.ForeColor = Color.OrangeRed
+                            End If
+                        ElseIf isAdmin Then
+                            If attemptCount >= maxAttempts Then
+                                Using lck = New MySqlCommand("UPDATE `account` SET `status`='LOCKED', `login_attempts`=@att WHERE `id`=@id", conn)
+                                    lck.Parameters.AddWithValue("@att", attemptCount)
+                                    lck.Parameters.AddWithValue("@id", uid)
+                                    lck.ExecuteNonQuery()
+                                End Using
+                                lblError.Text = "ACCOUNT LOCKED! Too many failed attempts."
+                                lblError.ForeColor = Color.Red
+                            Else
+                                Using updAtt = New MySqlCommand("UPDATE `account` SET `login_attempts`=@att WHERE `id`=@id", conn)
+                                    updAtt.Parameters.AddWithValue("@att", attemptCount)
+                                    updAtt.Parameters.AddWithValue("@id", uid)
+                                    updAtt.ExecuteNonQuery()
+                                End Using
+                                lblError.Text = "Wrong Password. Attempts left: " & (maxAttempts - attemptCount)
+                                lblError.ForeColor = Color.OrangeRed
+                            End If
+                        Else
+                            If attemptCount >= maxAttempts Then
+                                Using lck = New MySqlCommand("UPDATE `user_accounts` SET `status`='LOCKED', `login_attempts`=@att WHERE `id`=@id", conn)
+                                    lck.Parameters.AddWithValue("@att", attemptCount)
+                                    lck.Parameters.AddWithValue("@id", uid)
+                                    lck.ExecuteNonQuery()
+                                End Using
+                                lblError.Text = "ACCOUNT LOCKED! Too many failed attempts."
+                                lblError.ForeColor = Color.Red
+                            Else
+                                Using updAtt = New MySqlCommand("UPDATE `user_accounts` SET `login_attempts`=@att WHERE `id`=@id", conn)
+                                    updAtt.Parameters.AddWithValue("@att", attemptCount)
+                                    updAtt.Parameters.AddWithValue("@id", uid)
+                                    updAtt.ExecuteNonQuery()
+                                End Using
+                                lblError.Text = "Wrong Password. Attempts left: " & (maxAttempts - attemptCount)
+                                lblError.ForeColor = Color.OrangeRed
+                            End If
+                        End If
+                        Return
+                    End If
+                End If
+
+                If Not userFound Then
+                    AuditLogger.LogAction("LOGIN_FAILED", "Authentication", $"Username not found: [{username}]")
+                    lblError.Text = "Username does not exist in our records."
+                    lblError.ForeColor = Color.OrangeRed
+                End If
+
+            End Using
 
         Catch ex As Exception
             lblError.Text = "System Error: " & ex.Message
@@ -391,23 +521,8 @@ Public Class Login
         End Try
     End Sub
 
-    Private Sub Login_Load(sender As Object, e As EventArgs) Handles MyBase.Load
-        txtUsername.Text = PLACEHOLDER_USER
-        txtUsername.ForeColor = Color.Gray
-        txtPassword.Text = PLACEHOLDER_PASS
-        txtPassword.ForeColor = Color.Gray
-        txtPassword.PasswordChar = Nothing
-        lblError.Text = ""
-        btnlogin.Enabled = True
-        AuditLogger.LogAction("OPEN", "Authentication", "Opened Login form")
-    End Sub
-
     Private Sub btnShowPass_Click(sender As Object, e As EventArgs) Handles btnShowPass.Click
         txtPassword.PasswordChar = If(txtPassword.PasswordChar = "●"c, Char.MinValue, "●"c)
-    End Sub
-
-    Private Sub LinkLabel1_LinkClicked(sender As Object, e As LinkLabelLinkClickedEventArgs) Handles LinkLabel1.LinkClicked
-        Account_Recovery.Show()
     End Sub
 
 End Class

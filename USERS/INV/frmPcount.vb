@@ -17,120 +17,103 @@ Public Class frmPcount
         lblInventoryID.Text = $"Inventory ID: {currentTransID}"
     End Sub
 
-    ' Generate unique Transaction ID para sa batch na ito
     Private Sub GenerateTransactionID()
         currentTransID = DateTime.Now.ToString("INV-yyyyMMdd-") & New Random().Next(100000, 999999)
     End Sub
 
-    ' I-setup ang DataGridView
     Private Sub SetupGridView()
         dgvInventory.AutoGenerateColumns = False
         dgvInventory.Columns.Clear()
 
+        ' ✅ BAGONG AYOS: May "Current Stock" Column na!
         dgvInventory.Columns.Add(New DataGridViewTextBoxColumn() With {.Name = "Barcode", .HeaderText = "Barcode", .Width = 120})
         dgvInventory.Columns.Add(New DataGridViewTextBoxColumn() With {.Name = "SKU", .HeaderText = "SKU", .Width = 100})
         dgvInventory.Columns.Add(New DataGridViewTextBoxColumn() With {.Name = "Description", .HeaderText = "Description", .AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill})
         dgvInventory.Columns.Add(New DataGridViewTextBoxColumn() With {.Name = "Unit", .HeaderText = "Unit", .Width = 70})
+        dgvInventory.Columns.Add(New DataGridViewTextBoxColumn() With {.Name = "CurrentStock", .HeaderText = "Current Stock", .Width = 90, .DefaultCellStyle = New DataGridViewCellStyle() With {.Alignment = DataGridViewContentAlignment.MiddleCenter}})
         dgvInventory.Columns.Add(New DataGridViewTextBoxColumn() With {.Name = "Price", .HeaderText = "Unit Price", .Width = 90, .DefaultCellStyle = New DataGridViewCellStyle() With {.Format = "N2", .Alignment = DataGridViewContentAlignment.MiddleRight}})
-        dgvInventory.Columns.Add(New DataGridViewTextBoxColumn() With {.Name = "Qty", .HeaderText = "Count", .Width = 60, .DefaultCellStyle = New DataGridViewCellStyle() With {.Alignment = DataGridViewContentAlignment.MiddleCenter}})
+        dgvInventory.Columns.Add(New DataGridViewTextBoxColumn() With {.Name = "Count", .HeaderText = "Counted Qty", .Width = 80, .DefaultCellStyle = New DataGridViewCellStyle() With {.Alignment = DataGridViewContentAlignment.MiddleCenter}})
         dgvInventory.Columns.Add(New DataGridViewTextBoxColumn() With {.Name = "SubTotal", .HeaderText = "Sub Total", .Width = 100, .DefaultCellStyle = New DataGridViewCellStyle() With {.Format = "N2", .Alignment = DataGridViewContentAlignment.MiddleRight}})
     End Sub
 
-    ' Kapag nag-type o nag-scan sa Barcode Field
     Private Sub txtBarcode_KeyPress(sender As Object, e As KeyPressEventArgs) Handles txtBarcode.KeyPress
-        ' Kapag Enter o natapos ang scan (kadalasan may kasamang Enter)
         If e.KeyChar = ChrW(Keys.Enter) Then
             e.Handled = True
-            If String.IsNullOrWhiteSpace(txtBarcode.Text) Then Return
-
-            ' Alin ang napiling mode?
-            If rdoScan.Checked Then
-                ProcessScannedBarcode(txtBarcode.Text.Trim())
-            ElseIf rdoManual.Checked Then
-                ' Dito pwede buksan form o panel para ilagay manually ang detalye
-                MessageBox.Show("Manual entry mode: Ilagay ang detalye ng produkto.", "Manual Entry", MessageBoxButtons.OK, MessageBoxIcon.Information)
-                ' --- Dito mo ilalagay ang code kung gusto mo may manual entry form ---
-            End If
-
+            Dim inputCode As String = txtBarcode.Text.Trim()
+            If String.IsNullOrWhiteSpace(inputCode) Then Return
+            SearchAndAddProduct(inputCode)
             txtBarcode.Clear()
             txtBarcode.Focus()
         End If
     End Sub
 
-    ' Proseso ng na-scan na Barcode
-    Private Sub ProcessScannedBarcode(barcode As String)
+    Private Sub SearchAndAddProduct(searchValue As String)
         Try
             Using conn As New MySqlConnection(connStr)
                 conn.Open()
-                ' ✅ MAHALAGA: Hahanap lang sa ilalim ng iyong Account at Branch
-                Dim cmd As New MySqlCommand("SELECT * FROM `inv_information` 
-                                             WHERE `BARCODE` = @barcode 
-                                             AND `ACCOUNT_ID` = @accid 
-                                             AND `BRANCH_ID` = @brid 
-                                             LIMIT 1", conn)
-
-                cmd.Parameters.AddWithValue("@barcode", barcode)
+                Dim cmdText As String = "SELECT * FROM `inventory_information` 
+                                          WHERE (`BARCODE` = @searchVal OR `SKU` = @searchVal)
+                                          AND `ACCOUNT_ID` = @accid 
+                                          AND `BRANCH_ID` = @brid 
+                                          LIMIT 1"
+                Dim cmd As New MySqlCommand(cmdText, conn)
+                cmd.Parameters.AddWithValue("@searchVal", searchValue.Trim())
                 cmd.Parameters.AddWithValue("@accid", userAccountID)
                 cmd.Parameters.AddWithValue("@brid", userBranchID)
 
                 Using dr = cmd.ExecuteReader()
                     If dr.Read() Then
-                        ' Nakita na ang produkto - idagdag o dagdagan ang bilang
-                        Dim found As Boolean = False
+                        Dim barcode As String = dr("BARCODE").ToString().Trim()
                         Dim price As Decimal = Convert.ToDecimal(dr("PRICE"))
                         Dim desc As String = dr("DESCRIPTIONS").ToString()
-                        Dim sku As String = dr("SKU").ToString()
+                        Dim sku As String = dr("SKU").ToString().Trim()
                         Dim unit As String = dr("UNIT").ToString()
+                        Dim currentStock As Integer = Convert.ToInt32(dr("AVAILABLE")) ' ✅ KASAMA NA ANG KASALUKUYANG STOCK
+                        Dim found As Boolean = False
 
-                        ' Check kung nasa listahan na
                         For Each row As DataGridViewRow In dgvInventory.Rows
-                            If row.Cells("Barcode").Value.ToString() = barcode Then
-                                ' Dagdagan lang ang bilang
-                                Dim qty As Integer = Convert.ToInt32(row.Cells("Qty").Value) + 1
+                            If row.Cells("Barcode").Value.ToString().Trim() = barcode Then
+                                Dim qty As Integer = Convert.ToInt32(row.Cells("Count").Value) + 1
                                 Dim subtotal As Decimal = qty * price
-                                row.Cells("Qty").Value = qty
+                                row.Cells("Count").Value = qty
                                 row.Cells("SubTotal").Value = subtotal
                                 found = True
                                 Exit For
                             End If
                         Next
 
-                        ' Kung bago pa lang, idagdag sa listahan
                         If Not found Then
-                            dgvInventory.Rows.Add(barcode, sku, desc, unit, price, 1, price)
+                            ' ✅ Makikita mo na agad ang Current Stock bago i-update!
+                            dgvInventory.Rows.Add(barcode, sku, desc, unit, currentStock, price, 1, price)
                         End If
 
-                        ' I-update ang Kabuuan
                         RecalculateTotals()
-                        AuditLogger.LogAction("SCAN", "Inventory Count", $"Scanned: {barcode} | {desc}")
+                        AuditLogger.LogAction("SCAN", "Inventory Count", $"Added: {barcode} | {desc}")
                     Else
-                        MessageBox.Show("Product not found or does not belong to your branch.", "Not Found", MessageBoxButtons.OK, MessageBoxIcon.Warning)
+                        MessageBox.Show($"Produkto HINDI nakita!{vbCrLf}{vbCrLf}Hinanap: [{searchValue}]{vbCrLf}ACCOUNT_ID: {userAccountID}{vbCrLf}BRANCH_ID: {userBranchID}",
+                                        "Hindi Nakita", MessageBoxButtons.OK, MessageBoxIcon.Warning)
                     End If
                 End Using
             End Using
         Catch ex As Exception
-            MessageBox.Show("Error scanning product: " & ex.Message, "System Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
+            MessageBox.Show("Error: " & ex.Message, "System Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
         End Try
     End Sub
 
-    ' I-compute ulit ang Total Items at Total Amount
     Private Sub RecalculateTotals()
         totalItemCount = 0
         totalAmount = 0
-
         For Each row As DataGridViewRow In dgvInventory.Rows
-            totalItemCount += Convert.ToInt32(row.Cells("Qty").Value)
+            totalItemCount += Convert.ToInt32(row.Cells("Count").Value)
             totalAmount += Convert.ToDecimal(row.Cells("SubTotal").Value)
         Next
-
         lblTotalProducts.Text = $"Total Products: {totalItemCount}"
         lblTotalAmount.Text = $"Total Value: {totalAmount:N2}"
     End Sub
 
-    ' I-save lahat ng na-scan
     Private Sub btnSubmit_Click(sender As Object, e As EventArgs) Handles btnSubmit.Click
         If dgvInventory.Rows.Count = 0 Then
-            MessageBox.Show("No products scanned yet.", "Empty", MessageBoxButtons.OK, MessageBoxIcon.Warning)
+            MessageBox.Show("Wala pang produkto na inilagay.", "Walang Laman", MessageBoxButtons.OK, MessageBoxIcon.Warning)
             Return
         End If
 
@@ -139,7 +122,6 @@ Public Class frmPcount
                 conn.Open()
                 Using trans = conn.BeginTransaction()
                     Try
-                        ' 1. I-save muna ang header sa inv_data
                         Dim cmdHeader As New MySqlCommand("
                             INSERT INTO `inv_data` (
                                 `TRANSACTION_ID`, `ACCOUNT_ID`, `BRANCH_ID`, `PREPARED_BY`, 
@@ -158,34 +140,51 @@ Public Class frmPcount
                         cmdHeader.Parameters.AddWithValue("@user", Login.LoggedInUsername)
                         cmdHeader.ExecuteNonQuery()
 
-                        ' 2. I-update ang TRANSACTION_ID sa bawat napiling produkto
                         For Each row As DataGridViewRow In dgvInventory.Rows
-                            Dim cmdUpd As New MySqlCommand("
-                                UPDATE `inv_information` 
-                                SET `TRANSACTION_ID` = @tid 
+                            ' ✅ ✅ NAITAMA NA: GINAGAMIT NA ANG TAMANG COLUMN NA "AVAILABLE"
+                            ' ITO ANG AWTOMATIKONG MAGBABAGO NG QUANTITY SA DATABASE
+                            Dim cmdUpdStock As New MySqlCommand("
+                                UPDATE `inventory_information` 
+                                SET `AVAILABLE` = @newqty 
                                 WHERE `BARCODE` = @barcode 
                                 AND `ACCOUNT_ID` = @accid 
                                 AND `BRANCH_ID` = @brid", conn, trans)
 
-                            cmdUpd.Parameters.AddWithValue("@tid", currentTransID)
-                            cmdUpd.Parameters.AddWithValue("@barcode", row.Cells("Barcode").Value)
-                            cmdUpd.Parameters.AddWithValue("@accid", userAccountID)
-                            cmdUpd.Parameters.AddWithValue("@brid", userBranchID)
-                            cmdUpd.ExecuteNonQuery()
+                            cmdUpdStock.Parameters.AddWithValue("@newqty", row.Cells("Count").Value)
+                            cmdUpdStock.Parameters.AddWithValue("@barcode", row.Cells("Barcode").Value)
+                            cmdUpdStock.Parameters.AddWithValue("@accid", userAccountID)
+                            cmdUpdStock.Parameters.AddWithValue("@brid", userBranchID)
+                            cmdUpdStock.ExecuteNonQuery()
+
+                            ' ✅ May UPDATED_DATE na, WALANG UPDATED_BY
+                            Dim cmdLog As New MySqlCommand("
+                                INSERT INTO `inv_information` (
+                                    `TRANSACTION_ID`, `ACCOUNT_ID`, `BRANCH_ID`, 
+                                    `BARCODE`, `QUANTITY`, `PREVIOUS_QTY`, 
+                                    `UPDATED_DATE`
+                                ) VALUES (
+                                    @tid, @accid, @brid, @barcode, @qty, @prevqty, NOW()
+                                )", conn, trans)
+
+                            cmdLog.Parameters.AddWithValue("@tid", currentTransID)
+                            cmdLog.Parameters.AddWithValue("@accid", userAccountID)
+                            cmdLog.Parameters.AddWithValue("@brid", userBranchID)
+                            cmdLog.Parameters.AddWithValue("@barcode", row.Cells("Barcode").Value)
+                            cmdLog.Parameters.AddWithValue("@qty", row.Cells("Count").Value)
+                            cmdLog.Parameters.AddWithValue("@prevqty", DBNull.Value)
+                            cmdLog.ExecuteNonQuery()
                         Next
 
                         trans.Commit()
-                        MessageBox.Show($"Inventory count saved successfully!{vbCrLf}Transaction ID: {currentTransID}", "Saved", MessageBoxButtons.OK, MessageBoxIcon.Information)
+                        MessageBox.Show($"Nai-save na!{vbCrLf}Transaction ID: {currentTransID}{vbCrLf}{vbCrLf}✅ Awtomatikong na-update na ang Stock Quantity!", "Nai-save", MessageBoxButtons.OK, MessageBoxIcon.Information)
                         AuditLogger.LogAction("SAVE", "Inventory Count", $"Saved batch {currentTransID} | Items: {totalItemCount} | Total: {totalAmount:N2}")
 
-                        ' I-reset para sa susunod
                         dgvInventory.Rows.Clear()
                         totalItemCount = 0
                         totalAmount = 0
                         RecalculateTotals()
                         GenerateTransactionID()
                         lblInventoryID.Text = $"Inventory ID: {currentTransID}"
-
                     Catch ex As Exception
                         trans.Rollback()
                         Throw
@@ -199,7 +198,6 @@ Public Class frmPcount
     End Sub
 
     Private Sub btnReports_Click(sender As Object, e As EventArgs) Handles btnReports.Click
-        ' Dito mo ilalagay ang code para buksan ang report form
         MessageBox.Show("Reports module will open here.", "Reports", MessageBoxButtons.OK, MessageBoxIcon.Information)
     End Sub
 

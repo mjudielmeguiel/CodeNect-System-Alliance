@@ -129,7 +129,7 @@ Partial Class frmUser_Description_Manager
         Me.btnaddproduct.Font = New System.Drawing.Font("Microsoft YaHei UI", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.btnaddproduct.ForeColor = System.Drawing.SystemColors.ButtonHighlight
         Me.btnaddproduct.ImageAlign = System.Drawing.ContentAlignment.MiddleRight
-        Me.btnaddproduct.Location = New System.Drawing.Point(940, 52)
+        Me.btnaddproduct.Location = New System.Drawing.Point(940, 54)
         Me.btnaddproduct.Name = "btnaddproduct"
         Me.btnaddproduct.Size = New System.Drawing.Size(134, 37)
         Me.btnaddproduct.TabIndex = 321
@@ -165,7 +165,7 @@ Partial Class frmUser_Description_Manager
         Me.btnImportToBranch.Font = New System.Drawing.Font("Microsoft YaHei UI", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.btnImportToBranch.ForeColor = System.Drawing.SystemColors.ButtonHighlight
         Me.btnImportToBranch.ImageAlign = System.Drawing.ContentAlignment.MiddleRight
-        Me.btnImportToBranch.Location = New System.Drawing.Point(1080, 52)
+        Me.btnImportToBranch.Location = New System.Drawing.Point(1080, 54)
         Me.btnImportToBranch.Name = "btnImportToBranch"
         Me.btnImportToBranch.Size = New System.Drawing.Size(134, 37)
         Me.btnImportToBranch.TabIndex = 327

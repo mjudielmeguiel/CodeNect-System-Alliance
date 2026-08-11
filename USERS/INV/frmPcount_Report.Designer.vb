@@ -22,7 +22,6 @@ Partial Class frmPcount_Report
     'Do not modify it using the code editor.
     <System.Diagnostics.DebuggerStepThrough()> _
     Private Sub InitializeComponent()
-        Dim DataGridViewCellStyle2 As System.Windows.Forms.DataGridViewCellStyle = New System.Windows.Forms.DataGridViewCellStyle()
         Me.lblStatus = New System.Windows.Forms.Label()
         Me.lblItemCount = New System.Windows.Forms.Label()
         Me.lblInvNumber = New System.Windows.Forms.Label()
@@ -139,32 +138,19 @@ Partial Class frmPcount_Report
         '
         Me.dgvReports.AllowUserToAddRows = False
         Me.dgvReports.AllowUserToDeleteRows = False
-        Me.dgvReports.Anchor = CType((((System.Windows.Forms.AnchorStyles.Top Or System.Windows.Forms.AnchorStyles.Bottom) _
-            Or System.Windows.Forms.AnchorStyles.Left) _
-            Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
-        Me.dgvReports.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.Fill
-        Me.dgvReports.BackgroundColor = System.Drawing.SystemColors.Control
-        Me.dgvReports.BorderStyle = System.Windows.Forms.BorderStyle.None
-        Me.dgvReports.CellBorderStyle = System.Windows.Forms.DataGridViewCellBorderStyle.None
-        Me.dgvReports.ColumnHeadersBorderStyle = System.Windows.Forms.DataGridViewHeaderBorderStyle.None
         Me.dgvReports.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize
-        Me.dgvReports.GridColor = System.Drawing.SystemColors.Control
-        Me.dgvReports.Location = New System.Drawing.Point(12, 176)
+        Me.dgvReports.Location = New System.Drawing.Point(17, 176)
         Me.dgvReports.Name = "dgvReports"
         Me.dgvReports.ReadOnly = True
-        Me.dgvReports.RowHeadersBorderStyle = System.Windows.Forms.DataGridViewHeaderBorderStyle.None
-        DataGridViewCellStyle2.BackColor = System.Drawing.SystemColors.Control
-        DataGridViewCellStyle2.Font = New System.Drawing.Font("Microsoft YaHei UI", 12.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.dgvReports.RowsDefaultCellStyle = DataGridViewCellStyle2
-        Me.dgvReports.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect
-        Me.dgvReports.Size = New System.Drawing.Size(1342, 580)
-        Me.dgvReports.TabIndex = 351
+        Me.dgvReports.Size = New System.Drawing.Size(1337, 580)
+        Me.dgvReports.TabIndex = 360
         '
         'frmPcount_Report
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(6.0!, 13.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
         Me.ClientSize = New System.Drawing.Size(1366, 768)
+        Me.Controls.Add(Me.dgvReports)
         Me.Controls.Add(Me.lblStatus)
         Me.Controls.Add(Me.lblItemCount)
         Me.Controls.Add(Me.lblInvNumber)
@@ -175,7 +161,6 @@ Partial Class frmPcount_Report
         Me.Controls.Add(Me.dtpTo)
         Me.Controls.Add(Me.Label1)
         Me.Controls.Add(Me.Panel2)
-        Me.Controls.Add(Me.dgvReports)
         Me.FormBorderStyle = System.Windows.Forms.FormBorderStyle.None
         Me.Name = "frmPcount_Report"
         Me.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen
@@ -195,6 +180,6 @@ Partial Class frmPcount_Report
     Friend WithEvents dtpTo As DateTimePicker
     Friend WithEvents Label1 As Label
     Friend WithEvents Panel2 As Panel
-    Friend WithEvents dgvReports As DataGridView
     Friend WithEvents lblTotalAmount As Label
+    Friend WithEvents dgvReports As DataGridView
 End Class

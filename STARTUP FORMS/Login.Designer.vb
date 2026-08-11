@@ -195,4 +195,15 @@ Partial Class Login
     Friend WithEvents lblError As Label
     Friend WithEvents Label5 As Label
     Friend WithEvents PictureBox2 As PictureBox
+
+    Private Sub Login_Load(sender As Object, e As EventArgs) Handles MyBase.Load
+        txtUsername.Text = PLACEHOLDER_USER
+        txtUsername.ForeColor = Color.Gray
+        txtPassword.Text = PLACEHOLDER_PASS
+        txtPassword.ForeColor = Color.Gray
+        txtPassword.PasswordChar = Nothing
+        lblError.Text = ""
+        btnlogin.Enabled = True
+        AuditLogger.LogAction("OPEN", "Authentication", "Opened Login form")
+    End Sub
 End Class

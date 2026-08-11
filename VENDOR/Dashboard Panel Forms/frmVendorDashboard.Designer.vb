@@ -33,7 +33,7 @@ Partial Class frmVendorDashboard
         Me.btnReturns = New System.Windows.Forms.Button()
         Me.btnCient = New System.Windows.Forms.Button()
         Me.Button10 = New System.Windows.Forms.Button()
-        Me.Label1 = New System.Windows.Forms.Label()
+        Me.lblVendorInfo = New System.Windows.Forms.Label()
         Me.Panel1 = New System.Windows.Forms.Panel()
         Me.Panelmenu = New System.Windows.Forms.Panel()
         Me.menupanel.SuspendLayout()
@@ -207,22 +207,22 @@ Partial Class frmVendorDashboard
         Me.Button10.TextImageRelation = System.Windows.Forms.TextImageRelation.ImageBeforeText
         Me.Button10.UseVisualStyleBackColor = False
         '
-        'Label1
+        'lblVendorInfo
         '
-        Me.Label1.AutoSize = True
-        Me.Label1.Font = New System.Drawing.Font("Microsoft YaHei UI", 20.25!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.Label1.ForeColor = System.Drawing.SystemColors.Control
-        Me.Label1.Location = New System.Drawing.Point(60, 6)
-        Me.Label1.Name = "Label1"
-        Me.Label1.Size = New System.Drawing.Size(289, 36)
-        Me.Label1.TabIndex = 0
-        Me.Label1.Text = "Vendor Dashbooard"
+        Me.lblVendorInfo.AutoSize = True
+        Me.lblVendorInfo.Font = New System.Drawing.Font("Microsoft YaHei UI", 20.25!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.lblVendorInfo.ForeColor = System.Drawing.SystemColors.Control
+        Me.lblVendorInfo.Location = New System.Drawing.Point(60, 6)
+        Me.lblVendorInfo.Name = "lblVendorInfo"
+        Me.lblVendorInfo.Size = New System.Drawing.Size(289, 36)
+        Me.lblVendorInfo.TabIndex = 0
+        Me.lblVendorInfo.Text = "Vendor Dashbooard"
         '
         'Panel1
         '
         Me.Panel1.BackColor = System.Drawing.Color.DarkRed
         Me.Panel1.Controls.Add(Me.Button10)
-        Me.Panel1.Controls.Add(Me.Label1)
+        Me.Panel1.Controls.Add(Me.lblVendorInfo)
         Me.Panel1.Dock = System.Windows.Forms.DockStyle.Top
         Me.Panel1.Location = New System.Drawing.Point(0, 0)
         Me.Panel1.Name = "Panel1"
@@ -266,7 +266,7 @@ Partial Class frmVendorDashboard
     Friend WithEvents menupanel As Panel
     Friend WithEvents Panel3 As Panel
     Friend WithEvents Button10 As Button
-    Friend WithEvents Label1 As Label
+    Friend WithEvents lblVendorInfo As Label
     Friend WithEvents Panel1 As Panel
     Friend WithEvents btnReturns As Button
     Friend WithEvents btnOrders As Button
