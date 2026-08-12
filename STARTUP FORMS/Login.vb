@@ -333,7 +333,7 @@ Public Class Login
                             End Select
                         End If
 
-                        frmDashboard.Button1.Hide() 'Product List For ADMIN
+                        frmDashboard.Button1.Show() 'Product List For ADMIN
                         frmDashboard.Button2.Hide() 'Out of Stocks
                         frmDashboard.Button3.Hide() 'Product Descriptions USERS
                         frmDashboard.Button4.Hide() 'Shelftags

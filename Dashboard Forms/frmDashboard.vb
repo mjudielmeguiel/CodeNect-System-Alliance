@@ -277,11 +277,21 @@ Public Class frmDashboard
 
     Private Sub btnSTR_Reports_Click(sender As Object, e As EventArgs) Handles btnSTR_Reports.Click
         Panelmenu.Controls.Clear()
-        Dim STR As New Transfer_Reports()
-        STR.TopLevel = False
-        STR.FormBorderStyle = FormBorderStyle.None
-        STR.Dock = DockStyle.Fill
-        Panelmenu.Controls.Add(STR)
-        STR.Show()
+        Dim STRR As New Transfer_Reports
+        STRR.TopLevel = False
+        STRR.FormBorderStyle = FormBorderStyle.None
+        STRR.Dock = DockStyle.Fill
+        Panelmenu.Controls.Add(STRR)
+        STRR.Show()
+    End Sub
+
+    Private Sub btnSales_Report_Click(sender As Object, e As EventArgs) Handles btnSales_Report.Click
+        Panelmenu.Controls.Clear()
+        Dim SalesSummary As New frmDailySalesSummary
+        SalesSummary.TopLevel = False
+        SalesSummary.FormBorderStyle = FormBorderStyle.None
+        SalesSummary.Dock = DockStyle.Fill
+        Panelmenu.Controls.Add(SalesSummary)
+        SalesSummary.Show()
     End Sub
 End Class

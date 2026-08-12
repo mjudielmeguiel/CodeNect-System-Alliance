@@ -88,6 +88,7 @@ Public Class frmProductScanAdd
             Dim sku, brand, desc, cat, sz, unit, vendor, vcode As String
             Dim price As Decimal
 
+            ' ✅ KUKUNIN ANG DATA MULA SA admin_inventory_file
             Dim checkSource As String = "SELECT * FROM admin_inventory_file 
                                          WHERE BARCODE = @barcode 
                                            AND ACCOUNT_ID = @aid 
@@ -108,6 +109,7 @@ Public Class frmProductScanAdd
                             Return
                         End If
 
+                        ' ✅ KUMPLETO — LAHAT NG COLUMN KASAMA NA ANG SKU AT CATEGORY
                         sku = drSource("SKU").ToString()
                         brand = drSource("BRAND").ToString()
                         desc = drSource("DESCRIPTIONS").ToString()
@@ -119,6 +121,7 @@ Public Class frmProductScanAdd
                         vcode = drSource("VENDOR_CODE").ToString()
                     End Using
 
+                    ' ✅ TIGNAN KUNG NASA inventory_information NA
                     Dim checkExist As String = "SELECT COUNT(*) FROM inventory_information 
                                                 WHERE BARCODE = @barcode 
                                                   AND ACCOUNT_ID = @aid 
@@ -132,9 +135,10 @@ Public Class frmProductScanAdd
                         Dim count As Integer = Convert.ToInt32(cmdExist.ExecuteScalar())
 
                         If count > 0 Then
+                            ' ✅ MAYROON NA → DAGDAGAN ANG AVAILABLE
                             Using cmdUpd As New MySqlCommand("UPDATE inventory_information 
                                                              SET AVAILABLE = AVAILABLE + 1,
-                                                                 TOTAL = AVAILABLE * PRICE,
+                                                                 TOTAL = (AVAILABLE * PRICE),
                                                                  DATE_UPDATED = NOW()
                                                              WHERE BARCODE = @barcode
                                                                AND ACCOUNT_ID = @aid
@@ -144,17 +148,18 @@ Public Class frmProductScanAdd
                                 cmdUpd.Parameters.AddWithValue("@bid", Login.LoggedInBranchID)
                                 cmdUpd.ExecuteNonQuery()
                             End Using
-                            lblMessage.Text = "Stock updated: " & desc
+                            lblMessage.Text = $"Updated: {desc} | SKU: {sku} | Category: {cat}"
                             lblMessage.ForeColor = Color.Green
-                            AuditLogger.LogAction("STOCK_UPDATED", "ProductScanAdd", $"Existing item restocked | Barcode: {barcode} | Item: {desc}")
+                            AuditLogger.LogAction("STOCK_UPDATED", "ProductScanAdd", $"Restocked | SKU: {sku} | Item: {desc} | Category: {cat}")
                         Else
+                            ' ✅ WALA PA → I-INSERT BAGONG PRODUKTO
                             Using cmdAdd As New MySqlCommand("INSERT INTO inventory_information 
                                                              (ACCOUNT_ID, BRANCH_ID, BARCODE, SKU, BRAND, DESCRIPTIONS, 
                                                               CATEGORY, SIZE, PRICE, AVAILABILITY, AVAILABLE, UNIT, 
                                                               TOTAL, VENDOR, VENDOR_CODE)
                                                              VALUES (@aid, @bid, @bar, @sku, @brnd, @desc, 
-                                                                     @cat, @sz, @prc, 'Pending', 0, @unt, 
-                                                                     0, @ven, @vcd)", conn)
+                                                                     @cat, @sz, @prc, 'Pending', 1, @unt, 
+                                                                     @prc, @ven, @vcd)", conn)
                                 cmdAdd.Parameters.AddWithValue("@aid", Login.LoggedInAccountID)
                                 cmdAdd.Parameters.AddWithValue("@bid", Login.LoggedInBranchID)
                                 cmdAdd.Parameters.AddWithValue("@bar", barcode)
@@ -169,10 +174,10 @@ Public Class frmProductScanAdd
                                 cmdAdd.Parameters.AddWithValue("@vcd", vcode)
                                 cmdAdd.ExecuteNonQuery()
                             End Using
-                            lblMessage.Text = "New item added: " & desc & " | Status: Pending"
+                            lblMessage.Text = $"Added: {desc} | SKU: {sku} | Category: {cat} | Status: Pending"
                             lblMessage.ForeColor = Color.Green
-                            MessageBox.Show("Add product successfully", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information)
-                            AuditLogger.LogAction("ITEM_ADDED", "ProductScanAdd", $"New item added | Barcode: {barcode} | Item: {desc} | Status: Pending")
+                            MessageBox.Show("Product added successfully!", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information)
+                            AuditLogger.LogAction("ITEM_ADDED", "ProductScanAdd", $"New item | SKU: {sku} | Item: {desc} | Category: {cat}")
                         End If
                     End Using
                 End Using

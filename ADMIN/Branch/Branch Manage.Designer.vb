@@ -39,6 +39,7 @@ Partial Class Branch_Manage
         Me.cboRole = New System.Windows.Forms.ComboBox()
         Me.btnSubmit = New System.Windows.Forms.Button()
         Me.Panel3 = New System.Windows.Forms.Panel()
+        Me.Button1 = New System.Windows.Forms.Button()
         CType(Me.dgvBranches, System.ComponentModel.ISupportInitialize).BeginInit()
         Me.SuspendLayout()
         '
@@ -113,7 +114,7 @@ Partial Class Branch_Manage
         Me.txtSearch.Anchor = CType((System.Windows.Forms.AnchorStyles.Top Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
         Me.txtSearch.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle
         Me.txtSearch.Font = New System.Drawing.Font("Microsoft YaHei UI", 12.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.txtSearch.Location = New System.Drawing.Point(531, 59)
+        Me.txtSearch.Location = New System.Drawing.Point(480, 59)
         Me.txtSearch.Margin = New System.Windows.Forms.Padding(2)
         Me.txtSearch.Name = "txtSearch"
         Me.txtSearch.Size = New System.Drawing.Size(382, 28)
@@ -162,7 +163,7 @@ Partial Class Branch_Manage
         Me.cboRole.FlatStyle = System.Windows.Forms.FlatStyle.System
         Me.cboRole.Font = New System.Drawing.Font("Microsoft YaHei UI", 11.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.cboRole.FormattingEnabled = True
-        Me.cboRole.Location = New System.Drawing.Point(918, 59)
+        Me.cboRole.Location = New System.Drawing.Point(867, 59)
         Me.cboRole.Name = "cboRole"
         Me.cboRole.Size = New System.Drawing.Size(296, 28)
         Me.cboRole.TabIndex = 323
@@ -177,7 +178,7 @@ Partial Class Branch_Manage
         Me.btnSubmit.Font = New System.Drawing.Font("Microsoft YaHei UI", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.btnSubmit.ForeColor = System.Drawing.SystemColors.ButtonHighlight
         Me.btnSubmit.ImageAlign = System.Drawing.ContentAlignment.MiddleRight
-        Me.btnSubmit.Location = New System.Drawing.Point(1220, 54)
+        Me.btnSubmit.Location = New System.Drawing.Point(1169, 54)
         Me.btnSubmit.Name = "btnSubmit"
         Me.btnSubmit.Size = New System.Drawing.Size(134, 37)
         Me.btnSubmit.TabIndex = 321
@@ -194,12 +195,30 @@ Partial Class Branch_Manage
         Me.Panel3.Size = New System.Drawing.Size(1342, 46)
         Me.Panel3.TabIndex = 324
         '
+        'Button1
+        '
+        Me.Button1.Anchor = CType((System.Windows.Forms.AnchorStyles.Top Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
+        Me.Button1.BackColor = System.Drawing.SystemColors.Control
+        Me.Button1.BackgroundImageLayout = System.Windows.Forms.ImageLayout.None
+        Me.Button1.FlatStyle = System.Windows.Forms.FlatStyle.Flat
+        Me.Button1.Font = New System.Drawing.Font("Microsoft YaHei UI", 12.0!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.Button1.ForeColor = System.Drawing.Color.DarkRed
+        Me.Button1.ImageAlign = System.Drawing.ContentAlignment.MiddleRight
+        Me.Button1.Location = New System.Drawing.Point(1309, 54)
+        Me.Button1.Name = "Button1"
+        Me.Button1.Size = New System.Drawing.Size(45, 37)
+        Me.Button1.TabIndex = 325
+        Me.Button1.Text = "..."
+        Me.Button1.TextImageRelation = System.Windows.Forms.TextImageRelation.ImageBeforeText
+        Me.Button1.UseVisualStyleBackColor = False
+        '
         'Branch_Manage
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(6.0!, 13.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
         Me.BackColor = System.Drawing.SystemColors.ControlLight
         Me.ClientSize = New System.Drawing.Size(1366, 768)
+        Me.Controls.Add(Me.Button1)
         Me.Controls.Add(Me.txtSearch)
         Me.Controls.Add(Me.Panel3)
         Me.Controls.Add(Me.cboRole)
@@ -233,4 +252,5 @@ Partial Class Branch_Manage
     Friend WithEvents cboRole As ComboBox
     Friend WithEvents btnSubmit As Button
     Friend WithEvents Panel3 As Panel
+    Friend WithEvents Button1 As Button
 End Class

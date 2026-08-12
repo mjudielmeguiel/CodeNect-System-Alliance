@@ -11,7 +11,6 @@ Public Class ADD_Branch
         GetAccountDetails()
         GenerateBranchID()
         SetupBusinessTypeCombo()
-        Me.TopMost = True
         AuditLogger.LogAction("OPEN", "Branch Management", "Opened Add New Branch form")
     End Sub
 
@@ -25,6 +24,7 @@ Public Class ADD_Branch
         End If
 
         cmbBusinessType.Items.AddRange({
+            "MAIN OFFICE",
             "BRANCH",
             "RETAIL STORE",
             "WHOLESALE OUTLET",
@@ -82,8 +82,7 @@ Public Class ADD_Branch
     Private Sub GenerateBranchID()
         Dim datePart As String = DateTime.Now.ToString("yyyyMMdd")
         Static rnd As New Random()
-        txtBranchID.Text = $"{datePart}-{rnd.Next(1000, 9999)}"
-        txtBranchID.ReadOnly = True
+        lblBranchID.Text = $"{datePart}-{rnd.Next(1000, 9999)}"
     End Sub
 
     Private Sub picBusinessLogo_DoubleClick(sender As Object, e As EventArgs) Handles picBusinessLogo.DoubleClick
@@ -115,25 +114,29 @@ Public Class ADD_Branch
         txtAddress.Clear()
         txtEmail.Clear()
         txtContact.Clear()
-        txtManager.Clear()
+        txtManager.Clear() ' ✅ TextBox na ang Manager
         cmbBusinessType.SelectedIndex = -1
         picBusinessLogo.Image = Nothing
         logoImageData = Nothing
     End Sub
 
-    Private Sub btnCancel_Click_1(sender As Object, e As EventArgs) Handles btnCancel.Click
+    Private Sub btnCancel_Click(sender As Object, e As EventArgs) Handles btnCancel.Click
         AuditLogger.LogAction("CANCEL", "Branch Management", "Cancelled Add New Branch form")
-        Me.TopMost = True
         Me.Close()
     End Sub
 
-    Private Sub btnSave_Click_1(sender As Object, e As EventArgs) Handles btnSave.Click
+    ' ✅ TUMATAWAG MULA SA Select_Branch — Branch Name LANG ang ilalagay
+    Public Sub FillBranchName(branchName As String)
+        txtBranch.Text = branchName
+    End Sub
+
+    Private Sub btnSave_Click(sender As Object, e As EventArgs) Handles btnSave.Click
         If String.IsNullOrWhiteSpace(txtBranch.Text) Or
            String.IsNullOrWhiteSpace(txtTIN.Text) Or
            String.IsNullOrWhiteSpace(txtAddress.Text) Or
            String.IsNullOrWhiteSpace(txtEmail.Text) Or
            String.IsNullOrWhiteSpace(txtContact.Text) Or
-           String.IsNullOrWhiteSpace(txtManager.Text) Or
+           String.IsNullOrWhiteSpace(txtManager.Text) Or ' ✅ TextBox na
            cmbBusinessType.SelectedIndex = -1 Then
 
             MessageBox.Show("Please fill in all required fields.", "Notice", MessageBoxButtons.OK, MessageBoxIcon.Warning)
@@ -151,12 +154,12 @@ Public Class ADD_Branch
             Using conn As New MySqlConnection(DBConnection.connStr)
                 conn.Open()
                 Dim cmd As New MySqlCommand(
-                    "INSERT INTO `branches` (`ACCOUNT_ID`, `ACCOUNT`, `BRANCH_ID`, `BRANCH`, `TIN`, `TIN_REGISTERED`, `BUSINESS_TYPE`, `BRANCH_PHOTO`, `ADDRESS`, `EMAIL`, `CONTACT`, `MANAGER`, `REGISTRATION_DATE`, `STATUS`) " &
-                    "VALUES (@AID, @ACC, @BID, @BRN, @TIN, 'REGISTERED', @BT, @LOGO, @ADDR, @EML, @CONT, @MGR, CURDATE(), 'ACTIVE')", conn)
+                    "INSERT INTO `branches` (`ACCOUNT_ID`, `ACCOUNT`, `BRANCH_ID`, `BRANCH`, `TIN`, `TIN_REGISTERED`, `BUSINESS_TYPE`, `BRANCH_PHOTO`, `ADDRESS`, `EMAIL`, `CONTACT`, `MANAGER`, `SALES`, `REGISTRATION_DATE`, `STATUS`) " &
+                    "VALUES (@AID, @ACC, @BID, @BRN, @TIN, 'REGISTERED', @BT, @LOGO, @ADDR, @EML, @CONT, @MGR, '0.00', CURDATE(), 'ACTIVE')", conn)
 
                 cmd.Parameters.AddWithValue("@AID", currentAccountID)
                 cmd.Parameters.AddWithValue("@ACC", currentAccountName)
-                cmd.Parameters.AddWithValue("@BID", txtBranchID.Text.Trim())
+                cmd.Parameters.AddWithValue("@BID", lblBranchID.Text.Trim())
                 cmd.Parameters.AddWithValue("@BRN", txtBranch.Text.Trim())
                 cmd.Parameters.AddWithValue("@TIN", txtTIN.Text.Trim())
                 cmd.Parameters.AddWithValue("@BT", cmbBusinessType.Text)
@@ -164,13 +167,13 @@ Public Class ADD_Branch
                 cmd.Parameters.AddWithValue("@ADDR", txtAddress.Text.Trim())
                 cmd.Parameters.AddWithValue("@EML", txtEmail.Text.Trim())
                 cmd.Parameters.AddWithValue("@CONT", txtContact.Text.Trim())
-                cmd.Parameters.AddWithValue("@MGR", txtManager.Text.Trim())
+                cmd.Parameters.AddWithValue("@MGR", txtManager.Text.Trim()) ' ✅ TextBox na
 
                 cmd.ExecuteNonQuery()
             End Using
 
             MessageBox.Show("Branch saved successfully.", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information)
-            AuditLogger.LogAction("INSERT", "Branch Management", $"Added new branch | ID: {txtBranchID.Text.Trim()} | Name: {txtBranch.Text.Trim()} | Type: {cmbBusinessType.Text}")
+            AuditLogger.LogAction("INSERT", "Branch Management", $"Added new branch | ID: {lblBranchID.Text.Trim()} | Name: {txtBranch.Text.Trim()} | Manager: {txtManager.Text.Trim()}")
 
             ClearInputs()
             GenerateBranchID()
@@ -179,6 +182,12 @@ Public Class ADD_Branch
             MessageBox.Show("An error occurred: " & ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
             AuditLogger.LogAction("SAVE_FAILED", "Branch Management", $"Error saving branch: {ex.Message}")
         End Try
+    End Sub
+
+    ' ✅ Buksan ang Select_Branch form
+    Private Sub btnSelectBranch_Click(sender As Object, e As EventArgs) Handles btnSelectBranch.Click
+        Dim selBranch As New Select_Branch()
+        selBranch.ShowDialog()
     End Sub
 
 End Class

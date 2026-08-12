@@ -56,16 +56,17 @@ Public Class frmUsermanager
                 Using cmd As New MySqlCommand()
                     cmd.Connection = conn
 
-                    ' === PANUNTUNAN SA PAGKITA NG LISTAHAN ===
-                    ' KUNG BUSINESS ADMIN: MAKIKITA LAHAT SA ILALIM NG KANYANG ACCOUNT_ID
-                    If Login.LoggedInUserType.Equals("BUSINESS ADMIN", StringComparison.OrdinalIgnoreCase) Then
+                    ' =====================================================
+                    ' 🔐 PANUNTUNAN SA PAGKITA NG LISTAHAN
+                    ' =====================================================
+                    ' ✅ ADMIN: MAKIKITA LAHAT NG USER NA SAKOP NG KANYANG ACCOUNT ID
+                    If Login.IsAdminAccount Then
                         cmd.Parameters.AddWithValue("@AccID", Login.LoggedInAccountID)
                         sql.AppendLine(" AND u.`account_id` = @AccID")
                     Else
-                        ' KUNG IBANG USER: MAKIKITA LANG ANG NASA KANYANG BRANCH + HINDI MAKIKITA ANG BUSINESS ADMIN
+                        ' ✅ BRANCH USER: MAKIKITA LANG NASA KANYANG BRANCH
                         cmd.Parameters.AddWithValue("@BranchID", Login.LoggedInBranchID)
                         sql.AppendLine(" AND u.`branch_id` = @BranchID")
-                        sql.AppendLine(" AND u.`user_type` <> 'BUSINESS ADMIN'")
                     End If
 
                     ' FILTER NG ROLE
